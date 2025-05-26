@@ -1,72 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { MessageSquare, Send, ChevronRight, CircleAlert as AlertCircle } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import { useAuth } from '@/providers/AuthProvider';
-
-type Message = {
-  id: string;
-  content: string;
-  sender: 'user' | 'assistant';
-  timestamp: Date;
-};
+import { useCopilotChat, useCopilotAction, useCopilotReadable, useCopilotSuggestions } from '@/hooks/useCopilotHooks';
+import { Message } from '@/providers/CopilotProvider';
 
 export default function CopilotScreen() {
   const { user } = useAuth();
   const [message, setMessage] = useState('');
-  const [messages, setMessages] = useState<Message[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(true);
+  
+  // Usar hooks de CopilotKit
+  const { messages, isLoading, appendMessage, clearMessages } = useCopilotChat();
+  const { suggestions } = useCopilotSuggestions();
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!message.trim()) return;
     
-    // Add user message
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      content: message,
-      sender: 'user',
-      timestamp: new Date(),
-    };
-    
-    setMessages(prev => [...prev, userMessage]);
+    await appendMessage(message);
     setMessage('');
     setShowSuggestions(false);
-    
-    // Simulate assistant response after a delay
-    setTimeout(() => {
-      const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        content: getAssistantResponse(message),
-        sender: 'assistant',
-        timestamp: new Date(),
-      };
-      
-      setMessages(prev => [...prev, assistantMessage]);
-    }, 1000);
   };
 
-  const handleSuggestion = (suggestion: string) => {
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      content: suggestion,
-      sender: 'user',
-      timestamp: new Date(),
-    };
-    
-    setMessages(prev => [...prev, userMessage]);
+  const handleSuggestion = async (suggestion: string) => {
+    await appendMessage(suggestion);
     setShowSuggestions(false);
-    
-    // Simulate assistant response after a delay
-    setTimeout(() => {
-      const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        content: getAssistantResponse(suggestion),
-        sender: 'assistant',
-        timestamp: new Date(),
-      };
-      
-      setMessages(prev => [...prev, assistantMessage]);
-    }, 1000);
   };
 
   const getAssistantResponse = (userMessage: string): string => {
@@ -153,7 +112,12 @@ export default function CopilotScreen() {
                 msg.sender === 'user' ? styles.userMessage : styles.assistantMessage
               ]}
             >
-              <Text style={styles.messageText}>{msg.content}</Text>
+              <Text style={[
+                styles.messageText,
+                msg.sender === 'user' ? styles.userMessageText : styles.assistantMessageText
+              ]}>
+                {msg.content}
+              </Text>
             </View>
           ))}
         </ScrollView>
@@ -305,8 +269,13 @@ const styles = StyleSheet.create({
   messageText: {
     fontFamily: 'Inter-Regular',
     fontSize: 16,
-    color: props => props.sender === 'user' ? 'white' : Colors.gray[800],
     lineHeight: 22,
+  },
+  userMessageText: {
+    color: 'white',
+  },
+  assistantMessageText: {
+    color: Colors.gray[800],
   },
   inputContainer: {
     flexDirection: 'row',

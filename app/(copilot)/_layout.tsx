@@ -1,12 +1,15 @@
 import { Stack } from 'expo-router';
+import { CopilotProvider } from '@/providers/CopilotProvider';
 
 export default function CopilotLayout() {
   return (
-    <Stack 
-      screenOptions={{
-        headerShown: false,
-        contentStyle: { backgroundColor: 'white' },
-      }}
-    />
+    <CopilotProvider>
+      <Stack 
+        screenOptions={{
+          headerShown: false,
+          contentStyle: { backgroundColor: 'white' },
+        }}
+      />
+    </CopilotProvider>
   );
 }
