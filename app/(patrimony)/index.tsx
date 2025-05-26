@@ -1,10 +1,18 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  ScrollView,
+  TouchableOpacity,
+} from 'react-native';
 import { Search, ChevronDown } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import { useAuth } from '@/providers/AuthProvider';
-import PatrimonyChart from '@/components/patrimony/PatrimonyChart';
+import AreaChart from '@/components/patrimony/AreaChart';
 import AssetCard from '@/components/patrimony/AssetCard';
+import { useChartRangeStore } from '@/store/chartRangeStore';
 import { Asset } from '@/types';
 
 // Mock data
@@ -35,21 +43,44 @@ const mockAssets: Asset[] = [
   },
 ];
 
-const timeRanges = ['1 Mes', '6 Meses', '1 Año', 'Todo'];
+// Mapeo de etiquetas de tiempo a valores del store
+const timeRangeMapping = {
+  '1 Mes': '1m',
+  '6 Meses': '6m',
+  '1 Año': '1y',
+  Todo: 'all',
+} as const;
+
+const timeRanges = Object.keys(timeRangeMapping) as Array<
+  keyof typeof timeRangeMapping
+>;
 
 export default function PatrimonyScreen() {
   const { user } = useAuth();
+  const { rangeSize, setRangeSize } = useChartRangeStore();
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedTimeRange, setSelectedTimeRange] = useState('6 Meses');
   const [activeTab, setActiveTab] = useState('assets');
 
-  const filteredAssets = mockAssets.filter(asset => 
-    asset.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    asset.type.toLowerCase().includes(searchQuery.toLowerCase())
+  // Obtener la etiqueta actual basada en el valor del store
+  const currentTimeRangeLabel =
+    Object.keys(timeRangeMapping).find(
+      (key) =>
+        timeRangeMapping[key as keyof typeof timeRangeMapping] === rangeSize
+    ) || '6 Meses';
+
+  const handleTimeRangeChange = (range: keyof typeof timeRangeMapping) => {
+    const storeValue = timeRangeMapping[range];
+    setRangeSize(storeValue);
+  };
+
+  const filteredAssets = mockAssets.filter(
+    (asset) =>
+      asset.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      asset.type.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const totalAssets = mockAssets.reduce((sum, asset) => sum + asset.value, 0);
-  
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -60,12 +91,16 @@ export default function PatrimonyScreen() {
         </View>
       </View>
 
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.overviewCard}>
           <Text style={styles.overviewTitle}>Patrimonio</Text>
           <Text style={styles.totalAmount}>$17.151.937</Text>
           <Text style={styles.changeAmount}>
-            <Text style={styles.positiveChange}>$7,151,936 (71.52%)</Text> · vs último mes
+            <Text style={styles.positiveChange}>$7,151,936 (71.52%)</Text> · vs
+            último mes
           </Text>
 
           <View style={styles.timeRangeSelector}>
@@ -74,14 +109,15 @@ export default function PatrimonyScreen() {
                 key={range}
                 style={[
                   styles.timeRangeButton,
-                  selectedTimeRange === range && styles.selectedTimeRange,
+                  currentTimeRangeLabel === range && styles.selectedTimeRange,
                 ]}
-                onPress={() => setSelectedTimeRange(range)}
+                onPress={() => handleTimeRangeChange(range)}
               >
                 <Text
                   style={[
                     styles.timeRangeText,
-                    selectedTimeRange === range && styles.selectedTimeRangeText,
+                    currentTimeRangeLabel === range &&
+                      styles.selectedTimeRangeText,
                   ]}
                 >
                   {range}
@@ -90,10 +126,14 @@ export default function PatrimonyScreen() {
             ))}
           </View>
 
-          <PatrimonyChart selectedTimeRange={selectedTimeRange} />
+          <AreaChart />
 
           <View style={styles.searchContainer}>
-            <Search size={20} color={Colors.gray[400]} style={styles.searchIcon} />
+            <Search
+              size={20}
+              color={Colors.gray[400]}
+              style={styles.searchIcon}
+            />
             <TextInput
               style={styles.searchInput}
               placeholder="Buscar activo o pasivo"
@@ -106,10 +146,7 @@ export default function PatrimonyScreen() {
 
         <View style={styles.tabsContainer}>
           <TouchableOpacity
-            style={[
-              styles.tab,
-              activeTab === 'assets' && styles.activeTab,
-            ]}
+            style={[styles.tab, activeTab === 'assets' && styles.activeTab]}
             onPress={() => setActiveTab('assets')}
           >
             <Text
