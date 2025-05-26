@@ -316,12 +316,14 @@ const styles = StyleSheet.create({
   },
   tabCount: {
     backgroundColor: Colors.gray[200],
-    borderRadius: 10,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
+    borderRadius: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
     fontSize: 14,
-    color: Colors.gray[700],
+    color: Colors.gray[500],
     overflow: 'hidden',
+    minWidth: 24,
+    textAlign: 'center',
   },
   totalRow: {
     flexDirection: 'row',

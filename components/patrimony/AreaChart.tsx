@@ -66,7 +66,7 @@ function AreaChart() {
     <style>
         body {
             margin: 0;
-            padding: 16px;
+            padding: 0;
             font-family: system-ui, -apple-system, sans-serif;
             background-color: white;
         }
@@ -74,7 +74,6 @@ function AreaChart() {
             width: 100%;
             height: 250px;
             position: relative;
-            border: 1px solid #eee;
         }
         .tooltip {
             position: absolute;
@@ -159,8 +158,8 @@ function AreaChart() {
                 
                 updateStatus('Configurando dimensiones...');
                 
-                const margin = { top: 40, right: 20, bottom: 20, left: 20 };
-                const width = ${screenWidth - 64} - margin.left - margin.right;
+                const margin = { top: 40, right: 0, bottom: 20, left: 0 };
+                const width = ${screenWidth} - margin.left - margin.right;
                 const height = 250 - margin.top - margin.bottom;
                 
                 console.log('Dimensiones:', width, 'x', height);
@@ -290,8 +289,8 @@ function AreaChart() {
                         });
                         
                         tooltip
-                            .style('left', (pointX + margin.left - 80) + 'px')
-                            .style('top', (pointY + margin.top - 60) + 'px')
+                            .style('left', (pointX - 80) + 'px')
+                            .style('top', (pointY - 60) + 'px')
                             .style('opacity', 1)
                             .html(
                                 '<div style="font-size: 12px; color: #666;">' + 
@@ -306,7 +305,7 @@ function AreaChart() {
                         tooltip.style('opacity', 0);
                     });
                 
-                updateStatus('¡Gráfico completado!', 'success');
+                updateStatus();
                 setTimeout(() => {
                     status.style.display = 'none';
                 }, 2000);
@@ -324,7 +323,7 @@ function AreaChart() {
   };
 
   return (
-    <View style={{ height: 300, marginTop: 16 }}>
+    <View style={{ height: 250, marginTop: 8 }}>
       <WebView
         source={{ html: generateHTML() }}
         style={{ flex: 1 }}

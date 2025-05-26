@@ -21,12 +21,17 @@ const AssetCard: React.FC<AssetCardProps> = ({ asset }) => {
       </View>
       <View style={styles.valueContainer}>
         <Text style={styles.value}>${asset.value.toLocaleString('es-CL')}</Text>
-        <Text style={[
-          styles.change,
-          asset.change >= 0 ? styles.positive : styles.negative
+        <View style={[
+          styles.changeBadge,
+          asset.change >= 0 ? styles.positiveBadge : styles.negativeBadge
         ]}>
-          {asset.change >= 0 ? '+' : ''}{asset.change}%
-        </Text>
+          <Text style={[
+            styles.changeText,
+            asset.change >= 0 ? styles.positiveText : styles.negativeText
+          ]}>
+            {asset.change >= 0 ? '+' : ''}{asset.change}%
+          </Text>
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -81,15 +86,29 @@ const styles = StyleSheet.create({
     color: Colors.gray[800],
     marginBottom: 2,
   },
-  change: {
+  changeBadge: {
+    borderRadius: 16,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    minWidth: 50,
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  positiveBadge: {
+    backgroundColor: 'rgba(34, 197, 94, 0.1)',
+  },
+  negativeBadge: {
+    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+  },
+  changeText: {
     fontFamily: 'Inter-Medium',
-    fontSize: 14,
+    fontSize: 12,
   },
-  positive: {
-    color: Colors.success[500],
+  positiveText: {
+    color: '#16A34A',
   },
-  negative: {
-    color: Colors.error[500],
+  negativeText: {
+    color: '#DC2626',
   },
 });
 

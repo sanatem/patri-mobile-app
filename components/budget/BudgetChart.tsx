@@ -1,22 +1,92 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Dimensions } from 'react-native';
+import Svg, { Circle, Path, Text as SvgText } from 'react-native-svg';
 import Colors from '@/constants/Colors';
 
-// In a real app, we would use a charting library like react-native-svg-charts
-// For simplicity, we're creating a simplified mockup of the chart
+// Datos de presupuesto (en una app real vendrían del estado/API)
+const budgetData = [
+  { label: 'Vivienda', value: 640000, color: Colors.secondary[500], percentage: 41.9 },
+  { label: 'Transporte', value: 280000, color: '#3B82F6', percentage: 18.4 },
+  { label: 'Ocio', value: 157682, color: '#EC4899', percentage: 10.3 },
+  { label: 'Salud', value: 120000, color: '#06B6D4', percentage: 7.9 },
+  { label: 'Servicios', value: 330315, color: '#10B981', percentage: 21.5 },
+];
+
+const totalBudget = 1525997;
+const remaining = 568315;
 
 const BudgetChart: React.FC = () => {
+  const { width: screenWidth } = Dimensions.get('window');
+  const chartSize = Math.min(screenWidth - 80, 280);
+  const center = chartSize / 2;
+  const radius = (chartSize / 2) - 30;
+  const innerRadius = radius - 25;
+
+  // Crear arcos usando Circle con strokeDasharray (más simple y preciso)
+  const createArcs = () => {
+    const circumference = 2 * Math.PI * radius;
+    let cumulativeAngle = 0;
+    
+    return budgetData.map(item => {
+      const percentage = item.value / totalBudget;
+      const strokeLength = circumference * percentage;
+      const gapLength = circumference - strokeLength;
+      const strokeDasharray = `${strokeLength} ${gapLength}`;
+      const rotation = cumulativeAngle;
+      
+      cumulativeAngle += percentage * 360;
+      
+      return {
+        ...item,
+        strokeDasharray,
+        rotation,
+        circumference
+      };
+    });
+  };
+
+  const arcs = createArcs();
+
   return (
     <View style={styles.container}>
-      <View style={styles.donutContainer}>
-        <View style={styles.donutBg}>
-          <View style={styles.donutSegmentHousing} />
-          <View style={styles.donutSegmentTransport} />
-          <View style={styles.donutSegmentLeisure} />
-          <View style={styles.donutInner}>
-            <Text style={styles.totalAmount}>$568.315</Text>
-            <Text style={styles.remainingText}>restante de $1.525.997</Text>
-          </View>
+      <View style={[styles.chartContainer, { width: chartSize, height: chartSize }]}>
+        <Svg width={chartSize} height={chartSize}>
+          {/* Fondo del donut */}
+          <Circle
+            cx={center}
+            cy={center}
+            r={radius}
+            fill="none"
+            stroke={Colors.gray[100]}
+            strokeWidth={25}
+          />
+          
+          {/* Segmentos del donut */}
+          {arcs.map((arc, index) => (
+            <Circle
+              key={index}
+              cx={center}
+              cy={center}
+              r={radius}
+              fill="none"
+              stroke={arc.color}
+              strokeWidth={25}
+              strokeDasharray={arc.strokeDasharray}
+              strokeDashoffset={-(arc.circumference * 0.25)} // Empezar desde arriba
+              transform={`rotate(${arc.rotation} ${center} ${center})`}
+              strokeLinecap="round"
+            />
+          ))}
+        </Svg>
+        
+        {/* Contenido central */}
+        <View style={styles.centerContent}>
+          <Text style={styles.centerAmount}>
+            ${remaining.toLocaleString('es-CL')}
+          </Text>
+          <Text style={styles.centerSubtitle}>
+            restante de ${totalBudget.toLocaleString('es-CL')}
+          </Text>
         </View>
       </View>
     </View>
@@ -27,82 +97,33 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     justifyContent: 'center',
-    height: 220,
+    paddingVertical: 20,
   },
-  donutContainer: {
-    width: 220,
-    height: 220,
+  chartContainer: {
+    position: 'relative',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  donutBg: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 110,
-    backgroundColor: Colors.gray[100],
-    position: 'relative',
-    overflow: 'hidden',
-  },
-  donutSegmentHousing: {
+  centerContent: {
     position: 'absolute',
-    width: '100%',
-    height: '100%',
-    borderWidth: 20,
-    borderTopColor: 'transparent',
-    borderRightColor: 'transparent',
-    borderBottomColor: Colors.secondary[500],
-    borderLeftColor: Colors.secondary[500],
-    borderRadius: 110,
-    transform: [{ rotate: '-45deg' }],
-  },
-  donutSegmentTransport: {
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
-    borderWidth: 20,
-    borderTopColor: '#3B82F6',
-    borderRightColor: '#3B82F6',
-    borderBottomColor: 'transparent',
-    borderLeftColor: 'transparent',
-    borderRadius: 110,
-    transform: [{ rotate: '-45deg' }],
-  },
-  donutSegmentLeisure: {
-    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
     width: '60%',
     height: '60%',
-    right: 0,
-    bottom: 55,
-    borderWidth: 20,
-    borderTopColor: '#EC4899',
-    borderRightColor: '#EC4899',
-    borderBottomColor: 'transparent',
-    borderLeftColor: 'transparent',
-    borderRadius: 70,
-    transform: [{ rotate: '65deg' }],
   },
-  donutInner: {
-    position: 'absolute',
-    width: '70%',
-    height: '70%',
-    borderRadius: 100,
-    backgroundColor: 'white',
-    top: '15%',
-    left: '15%',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  totalAmount: {
+  centerAmount: {
     fontFamily: 'Inter-Bold',
-    fontSize: 24,
+    fontSize: 26,
     color: Colors.gray[900],
+    textAlign: 'center',
+    marginBottom: 4,
   },
-  remainingText: {
+  centerSubtitle: {
     fontFamily: 'Inter-Regular',
     fontSize: 12,
     color: Colors.gray[500],
     textAlign: 'center',
-    marginTop: 4,
+    lineHeight: 16,
   },
 });
 
