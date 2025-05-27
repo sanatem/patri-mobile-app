@@ -1,370 +1,201 @@
-import React from 'react';
-import { View, Dimensions, Text } from 'react-native';
-import { WebView } from 'react-native-webview';
+import React, { useEffect, useRef, useState } from 'react';
+import { View, Text, StyleSheet, Dimensions, PanResponder } from 'react-native';
+import * as shape from 'd3-shape';
+import * as scale from 'd3-scale';
+import * as array from 'd3-array';
+import Svg, { Path, Circle, Defs, LinearGradient, Stop, Line } from 'react-native-svg';
+import Colors from '@/constants/Colors';
 import { useChartRangeStore } from '@/store/chartRangeStore';
-import patrimonyData from '@/assets/data/patrimony-daily.json';
+import data from '@/assets/data/patrimony-daily.json';
+
+interface PatrimonyEntry {
+  date: string;
+  value: number;
+}
 
 const { width: screenWidth } = Dimensions.get('window');
+const CHART_HEIGHT = 180;
+const CHART_MARGIN = 24;
 
-function AreaChart() {
+export default function AreaChart() {
   const { rangeSize } = useChartRangeStore();
+  const [activeIndex, setActiveIndex] = useState(0);
+  const chartRef = useRef(null);
 
-  // Filter data based on range
-  const filterData = () => {
-    const dates = patrimonyData.map((d) => new Date(d.date));
-    const latestDate = new Date(Math.max(...dates.map((d) => d.getTime())));
+  const latestDate = new Date(data[data.length - 1].date);
 
-    let filteredData;
-
+  const filteredData = data.filter((entry) => {
+    const entryDate = new Date(entry.date);
     switch (rangeSize) {
       case '1m': {
-        const oneMonthAgo = new Date(latestDate);
-        oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
-        filteredData = patrimonyData.filter(
-          (d) =>
-            new Date(d.date) >= oneMonthAgo && new Date(d.date) <= latestDate
-        );
-        break;
+        const d = new Date(latestDate);
+        d.setMonth(d.getMonth() - 1);
+        return entryDate >= d;
       }
       case '6m': {
-        const sixMonthsAgo = new Date(latestDate);
-        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
-        filteredData = patrimonyData.filter(
-          (d) =>
-            new Date(d.date) >= sixMonthsAgo && new Date(d.date) <= latestDate
-        );
-        break;
+        const d = new Date(latestDate);
+        d.setMonth(d.getMonth() - 6);
+        return entryDate >= d;
       }
       case '1y': {
-        const oneYearAgo = new Date(latestDate);
-        oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
-        filteredData = patrimonyData.filter(
-          (d) =>
-            new Date(d.date) >= oneYearAgo && new Date(d.date) <= latestDate
-        );
-        break;
+        const d = new Date(latestDate);
+        d.setFullYear(d.getFullYear() - 1);
+        return entryDate >= d;
       }
-      case 'all':
       default:
-        filteredData = patrimonyData;
-        break;
+        return true;
     }
+  });
 
-    return filteredData;
-  };
+  const values = filteredData.map((d) => d.value);
+  const dates = filteredData.map((d) => d.date);
 
-  const data = filterData();
+  const chartWidth = screenWidth - 2 * CHART_MARGIN;
 
-  // Generate the HTML content for the WebView
-  const generateHTML = () => {
-    const htmlContent = `
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: system-ui, -apple-system, sans-serif;
-            background-color: white;
-        }
-        #chart {
-            width: 100%;
-            height: 250px;
-            position: relative;
-        }
-        .tooltip {
-            position: absolute;
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 8px 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.2s;
-            z-index: 10;
-        }
-        .status {
-            padding: 20px;
-            text-align: center;
-            font-size: 14px;
-        }
-        .error { color: red; }
-        .loading { color: #666; }
-        .success { color: green; }
-    </style>
-</head>
-<body>
-    <div id="status" class="status loading">Iniciando...</div>
-    <div id="chart"></div>
-    
-    <script>
-        const status = document.getElementById('status');
-        const chartDiv = document.getElementById('chart');
-        
-        function updateStatus(message, type = 'loading') {
-            status.textContent = message;
-            status.className = 'status ' + type;
-            console.log('[STATUS]', message);
-        }
-        
-        function showError(message) {
-            updateStatus('Error: ' + message, 'error');
-            chartDiv.innerHTML = '';
-        }
-        
-        try {
-            updateStatus('Verificando datos...');
-            
-            const data = ${JSON.stringify(data)};
-            console.log('Datos recibidos:', data?.length || 0, 'puntos');
-            
-            if (!data || data.length === 0) {
-                throw new Error('No hay datos disponibles');
-            }
-            
-            updateStatus('Cargando D3.js...');
-            
-            // Create script element to load D3
-            const script = document.createElement('script');
-            script.src = 'https://d3js.org/d3.v7.min.js';
-            script.onload = function() {
-                try {
-                    updateStatus('D3.js cargado, creando gráfico...');
-                    createChart();
-                } catch (error) {
-                    showError('Error al crear gráfico: ' + error.message);
-                }
-            };
-            script.onerror = function() {
-                showError('No se pudo cargar D3.js');
-            };
-            document.head.appendChild(script);
-            
-            function createChart() {
-                if (typeof d3 === 'undefined') {
-                    throw new Error('D3 no está disponible');
-                }
-                
-                updateStatus('Procesando datos...');
-                
-                // Convert dates
-                data.forEach(d => {
-                    d.date = new Date(d.date);
-                });
-                
-                updateStatus('Configurando dimensiones...');
-                
-                const margin = { top: 40, right: 0, bottom: 20, left: 0 };
-                const width = ${screenWidth} - margin.left - margin.right;
-                const height = 250 - margin.top - margin.bottom;
-                
-                console.log('Dimensiones:', width, 'x', height);
-                
-                if (width <= 0 || height <= 0) {
-                    throw new Error('Dimensiones inválidas');
-                }
-                
-                updateStatus('Creando SVG...');
-                
-                chartDiv.innerHTML = '';
-                
-                const svg = d3.select('#chart')
-                    .append('svg')
-                    .attr('width', width + margin.left + margin.right)
-                    .attr('height', height + margin.top + margin.bottom);
-                
-                const g = svg.append('g')
-                    .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
-                
-                updateStatus('Configurando escalas...');
-                
-                const xScale = d3.scaleTime()
-                    .domain(d3.extent(data, d => d.date))
-                    .range([0, width]);
-                
-                const yScale = d3.scaleLinear()
-                    .domain(d3.extent(data, d => d.value))
-                    .nice()
-                    .range([height, 0]);
-                
-                updateStatus('Creando gradiente...');
-                
-                const defs = svg.append('defs');
-                const gradient = defs.append('linearGradient')
-                    .attr('id', 'areaGradient')
-                    .attr('x1', '0%').attr('y1', '0%')
-                    .attr('x2', '0%').attr('y2', '100%');
-                
-                gradient.append('stop')
-                    .attr('offset', '0%')
-                    .attr('stop-color', '#B9EBD4')
-                    .attr('stop-opacity', 0.8);
-                
-                gradient.append('stop')
-                    .attr('offset', '100%')
-                    .attr('stop-color', '#B9EBD4')
-                    .attr('stop-opacity', 0.1);
-                
-                updateStatus('Dibujando área...');
-                
-                const area = d3.area()
-                    .x(d => xScale(d.date))
-                    .y0(height)
-                    .y1(d => yScale(d.value))
-                    .curve(d3.curveMonotoneX);
-                
-                g.append('path')
-                    .datum(data)
-                    .attr('fill', 'url(#areaGradient)')
-                    .attr('d', area);
-                
-                updateStatus('Dibujando línea...');
-                
-                const line = d3.line()
-                    .x(d => xScale(d.date))
-                    .y(d => yScale(d.value))
-                    .curve(d3.curveMonotoneX);
-                
-                g.append('path')
-                    .datum(data)
-                    .attr('fill', 'none')
-                    .attr('stroke', '#00BA62')
-                    .attr('stroke-width', 2)
-                    .attr('d', line);
-                
-                updateStatus('Añadiendo interactividad...');
-                
-                // Tooltip
-                const tooltip = d3.select('#chart')
-                    .append('div')
-                    .attr('class', 'tooltip');
-                
-                // Hover point
-                const hoverPoint = g.append('circle')
-                    .attr('r', 5)
-                    .attr('fill', '#00BA62')
-                    .attr('stroke', 'white')
-                    .attr('stroke-width', 2)
-                    .style('opacity', 0);
-                
-                // Overlay for interactions
-                g.append('rect')
-                    .attr('width', width)
-                    .attr('height', height)
-                    .attr('fill', 'none')
-                    .attr('pointer-events', 'all')
-                    .on('mousemove touchmove', function(event) {
-                        const [mouseX] = d3.pointer(event);
-                        const date = xScale.invert(mouseX);
-                        
-                        // Find closest data point
-                        let closestIndex = 0;
-                        let minDistance = Math.abs(data[0].date - date);
-                        
-                        for (let i = 1; i < data.length; i++) {
-                            const distance = Math.abs(data[i].date - date);
-                            if (distance < minDistance) {
-                                minDistance = distance;
-                                closestIndex = i;
-                            }
-                        }
-                        
-                        const d = data[closestIndex];
-                        const pointX = xScale(d.date);
-                        const pointY = yScale(d.value);
-                        
-                        hoverPoint
-                            .attr('cx', pointX)
-                            .attr('cy', pointY)
-                            .style('opacity', 1);
-                        
-                        const formatter = new Intl.NumberFormat('es-CL', {
-                            style: 'currency',
-                            currency: 'CLP',
-                            minimumFractionDigits: 0
-                        });
-                        
-                        tooltip
-                            .style('left', (pointX - 80) + 'px')
-                            .style('top', (pointY - 60) + 'px')
-                            .style('opacity', 1)
-                            .html(
-                                '<div style="font-size: 12px; color: #666;">' + 
-                                d.date.toLocaleDateString('es-CL') + 
-                                '</div><div style="font-weight: 600;">' + 
-                                formatter.format(d.value) + 
-                                '</div>'
-                            );
-                    })
-                    .on('mouseleave', function() {
-                        hoverPoint.style('opacity', 0);
-                        tooltip.style('opacity', 0);
-                    });
-                
-                updateStatus();
-                setTimeout(() => {
-                    status.style.display = 'none';
-                }, 2000);
-            }
-            
-        } catch (error) {
-            console.error('Error:', error);
-            showError(error.message);
-        }
-    </script>
-</body>
-</html>
-    `;
-    return htmlContent;
-  };
+  const x = scale
+    .scaleLinear()
+    .domain([0, filteredData.length - 1])
+    .range([0, chartWidth]);
+
+  const y = scale
+    .scaleLinear()
+    .domain([array.min(values) || 0, array.max(values) || 0])
+    .range([CHART_HEIGHT - 20, 20]);
+
+  const area = shape
+    .area<PatrimonyEntry>()
+    .x((_, i) => x(i))
+    .y0(() => y(array.min(values) || 0))
+    .y1((d) => y(d.value))
+    .curve(shape.curveMonotoneX)(filteredData);
+
+  const line = shape
+    .line<PatrimonyEntry>()
+    .x((_, i) => x(i))
+    .y((d) => y(d.value))
+    .curve(shape.curveMonotoneX)(filteredData);
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onPanResponderMove: (_, gestureState) => {
+        const relativeX = gestureState.moveX - CHART_MARGIN;
+        const pointWidth = chartWidth / (filteredData.length - 1);
+
+        let index = Math.round(relativeX / pointWidth);
+        index = Math.max(0, Math.min(filteredData.length - 1, index));
+
+        setActiveIndex(index);
+      },
+    })
+  ).current;
+
+  const activeData = filteredData[activeIndex];
+  const cx = x(activeIndex);
+  const cy = y(activeData.value);
+
+  useEffect(() => {
+    setActiveIndex(0);
+  }, [rangeSize]);
 
   return (
-    <View style={{ height: 250, marginTop: 8 }}>
-      <WebView
-        source={{ html: generateHTML() }}
-        style={{ flex: 1 }}
-        scrollEnabled={false}
-        showsHorizontalScrollIndicator={false}
-        showsVerticalScrollIndicator={false}
-        javaScriptEnabled={true}
-        domStorageEnabled={true}
-        startInLoadingState={false}
-        onError={(error) => {
-          console.error('WebView error:', error);
-        }}
-        onConsoleMessage={(event: any) => {
-          console.log('WebView console:', event.nativeEvent.message);
-        }}
-        onLoadEnd={() => {
-          console.log('WebView loaded successfully');
-        }}
-        onLoadStart={() => {
-          console.log('WebView loading started');
-        }}
-        onHttpError={(error) => {
-          console.error('WebView HTTP error:', error);
-        }}
-        renderError={(errorName) => (
-          <View
-            style={{
-              flex: 1,
-              justifyContent: 'center',
-              alignItems: 'center',
-              padding: 20,
-            }}
-          >
-            <Text style={{ color: 'red', textAlign: 'center' }}>
-              Error al cargar el gráfico: {errorName}
-            </Text>
-          </View>
-        )}
-      />
+    <View style={styles.container} {...panResponder.panHandlers}>
+      <View style={[styles.tooltipCardStatic, { left: CHART_MARGIN }]} pointerEvents="none">
+        <Text style={styles.tooltipDate}>
+          {new Date(activeData.date).toLocaleDateString('es-CL', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+          })}
+        </Text>
+        <Text style={styles.tooltipValue}>
+          ${activeData.value.toLocaleString('es-CL')}
+        </Text>
+      </View>
+
+      <View style={{ marginHorizontal: CHART_MARGIN }}>
+        <Svg width={chartWidth} height={CHART_HEIGHT} ref={chartRef}>
+          <Defs>
+            <LinearGradient id="gradient" x1="0" y1="0" x2="0" y2="1">
+              <Stop offset="0%" stopColor="#22C55E" stopOpacity={0.2} />
+              <Stop offset="100%" stopColor="#22C55E" stopOpacity={0.05} />
+            </LinearGradient>
+          </Defs>
+          {area && <Path d={area} fill="url(#gradient)" />}
+          {line && <Path d={line} fill="none" stroke="#22C55E" strokeWidth={2.5} />}
+
+          <Line
+            x1={cx}
+            x2={cx}
+            y1={0}
+            y2={CHART_HEIGHT}
+            stroke={Colors.gray[200]}
+            strokeDasharray="4,4"
+          />
+
+          <Circle cx={cx} cy={cy} r={14} fill="rgba(34,197,94,0.2)" />
+          <Circle cx={cx} cy={cy} r={7} fill="#22C55E" />
+        </Svg>
+        <View style={styles.labelsRow}>
+          <Text style={styles.labelText}>
+            {new Date(filteredData[0].date).toLocaleDateString('es-CL', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            })}
+          </Text>
+          <Text style={styles.labelText}>
+            {new Date(filteredData[filteredData.length - 1].date).toLocaleDateString('es-CL', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            })}
+          </Text>
+        </View>
+      </View>
     </View>
   );
 }
 
-export default AreaChart;
+const styles = StyleSheet.create({
+  container: {
+    height: CHART_HEIGHT + 100,
+    marginTop: 8,
+  },
+  tooltipCardStatic: {
+    position: 'absolute',
+    top: 0,
+    backgroundColor: 'white',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 4,
+    width: 160,
+    zIndex: 10,
+    alignItems: 'flex-start'
+  },
+  tooltipDate: {
+    fontFamily: 'Inter-Medium',
+    fontSize: 12,
+    color: Colors.gray[500],
+  },
+  tooltipValue: {
+    fontFamily: 'Inter-SemiBold',
+    fontSize: 14,
+    color: Colors.gray[900],
+  },
+  labelsRow: {
+    marginTop: 8,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  labelText: {
+    fontSize: 12,
+    fontFamily: 'Inter-Regular',
+    color: Colors.gray[500],
+  },
+});
