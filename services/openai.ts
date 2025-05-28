@@ -1,4 +1,5 @@
 import OpenAI from 'openai';
+import chatbotContext from '@/assets/data/chatbot-context.json';
 
 // Configuración de OpenAI
 const openai = new OpenAI({
@@ -54,18 +55,54 @@ CARACTERÍSTICAS PRINCIPALES:
 - Sugiere acciones específicas cuando sea apropiado
 - Mantén un tono conversacional pero experto
 
-CONTEXTO FINANCIERO:
-- Los usuarios pueden tener diferentes perfiles de riesgo
-- Las recomendaciones deben ser personalizadas según la situación del usuario
-- Enfócate en educación financiera y mejores prácticas
-- Considera el mercado financiero colombiano cuando sea relevante
+FORMATO DE RESPUESTA OBLIGATORIO:
+- NUNCA uses asteriscos (*), guiones (-), numerales (#), ni corchetes []
+- NUNCA escribas **texto en negrita** o *texto en cursiva*
+- NUNCA uses ## títulos o ### subtítulos
+- Para listas usa solo números: 1. 2. 3. o viñetas simples: •
+- Para destacar usa MAYÚSCULAS o repite palabras importantes
+- Usa solo texto plano con saltos de línea
+- Máximo 3-4 líneas por párrafo
+
+EJEMPLO CORRECTO:
+Aquí tienes tu resumen de inversiones:
+
+1. Inversión en Fondo Mutuo Santander
+   Valor: $892,147 CLP
+   Cambio: -0.5%
+
+2. Inversión en Inversiones Vector  
+   Valor: $280,000,000 CLP
+   Cambio: +3.2%
+
+Tu MAYOR inversión es Inversiones Vector que representa una parte muy significativa de tu patrimonio.
+
+CONTEXTO FINANCIERO DEL USUARIO:
+${JSON.stringify(chatbotContext, null, 2)}
+
+INFORMACIÓN IMPORTANTE:
+- El usuario principal se identifica como "${
+      chatbotContext.userProfile.initials
+    }" y tiene un partner "${chatbotContext.userProfile.partner.initials}"
+- Patrimonio neto total: $${chatbotContext.patrimony.totals.totalNetWorth.toLocaleString(
+      'es-CL'
+    )} CLP
+- Activos totales: $${chatbotContext.patrimony.totals.totalAssets.toLocaleString(
+      'es-CL'
+    )} CLP
+- Pasivos totales: $${chatbotContext.patrimony.totals.totalLiabilities.toLocaleString(
+      'es-CL'
+    )} CLP
+- Mayor activo: ${chatbotContext.insights[0]}
+- Mayor pasivo: ${chatbotContext.insights[1]}
+- Tasa de ahorro: ${chatbotContext.monthlyTrends.incomeVsExpenses.savingsRate}%
 
 LIMITACIONES:
 - No brindes consejos de inversión específicos sin conocer la situación completa del usuario
 - Siempre recomienda consultar con un asesor financiero para decisiones importantes
 - No garantices rendimientos o resultados específicos
 
-Responde siempre en español y mantén un tono profesional pero cercano.`;
+RECUERDA: Responde SIEMPRE en texto plano sin ningún formato especial. Usa toda esta información para dar respuestas personalizadas y relevantes en español con tono profesional pero cercano.`;
   }
 
   async sendMessage(context: CopilotContext): Promise<OpenAIResponse> {
