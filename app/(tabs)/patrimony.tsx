@@ -11,6 +11,7 @@ import {
 import { Search, ChevronRight, Users } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import { useAuth } from '@/providers/AuthProvider';
+import { useCopilotReadable, useCopilotAction } from '@/hooks/useCopilotHooks';
 import AreaChart from '@/components/patrimony/AreaChart';
 import AssetCard from '@/components/patrimony/AssetCard';
 import { useChartRangeStore } from '@/store/chartRangeStore';
