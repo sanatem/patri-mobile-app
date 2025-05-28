@@ -1,45 +1,71 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
-import { MessageSquare, Send, ChevronRight, CircleAlert as AlertCircle } from 'lucide-react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
+import {
+  MessageSquare,
+  Send,
+  ChevronRight,
+  CircleAlert as AlertCircle,
+  ChevronLeft,
+} from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import { useAuth } from '@/providers/AuthProvider';
-import { useCopilotChat, useCopilotAction, useCopilotReadable, useCopilotSuggestions } from '@/hooks/useCopilotHooks';
-import { Message } from '@/providers/CopilotProvider';
+import {
+  useCopilotChat,
+  useCopilotSuggestions,
+} from '@/hooks/useCopilotHooks';
 
 export default function CopilotScreen() {
   const { user } = useAuth();
   const [message, setMessage] = useState('');
-  const [showSuggestions, setShowSuggestions] = useState(true);
-  
-  // Usar hooks de CopilotKit
-  const { messages, isLoading, appendMessage, clearMessages } = useCopilotChat();
+  const [isChatActive, setIsChatActive] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+
+  const { messages, appendMessage, clearMessages } = useCopilotChat();
   const { suggestions } = useCopilotSuggestions();
+
+  const scrollViewRef = useRef<ScrollView>(null);
 
   const handleSendMessage = async () => {
     if (!message.trim()) return;
-    
+    setIsTyping(true);
+    setIsChatActive(true);
     await appendMessage(message);
     setMessage('');
-    setShowSuggestions(false);
   };
 
   const handleSuggestion = async (suggestion: string) => {
+    setIsTyping(true);
+    setIsChatActive(true);
     await appendMessage(suggestion);
-    setShowSuggestions(false);
   };
 
-  const getAssistantResponse = (userMessage: string): string => {
-    // Simple response logic - in a real app this would connect to an AI service
-    if (userMessage.toLowerCase().includes('inversiones')) {
-      return 'Basado en tu perfil financiero, te recomendaría considerar una cartera diversificada con 60% en fondos indexados, 30% en renta fija, y 10% en activos alternativos. Esto se alinea con tu horizonte de inversión a largo plazo y tu tolerancia al riesgo moderada.';
-    } else if (userMessage.toLowerCase().includes('ahorro')) {
-      return 'Para mejorar tus ahorros, considera implementar la regla 50/30/20: destina 50% de tus ingresos a necesidades básicas, 30% a deseos personales, y 20% a ahorro e inversión. Según tus datos actuales, podrías aumentar tu ahorro mensual en aproximadamente $215,000 CLP haciendo pequeños ajustes en tus gastos discrecionales.';
-    } else if (userMessage.toLowerCase().includes('gasto')) {
-      return 'Analizando tus patrones de gasto, he identificado que tus principales categorías de gasto son Vivienda (42%), Transporte (28%) y Ocio (15%). Tu gasto en Ocio está un 22% por encima del promedio para tu perfil de ingresos. Podrías considerar reducir este rubro para mejorar tu balance financiero mensual.';
-    } else {
-      return 'Gracias por tu mensaje. Como tu copiloto financiero, estoy aquí para ayudarte con cualquier consulta sobre tus finanzas personales, presupuesto, inversiones o planificación. ¿En qué más puedo asistirte hoy?';
-    }
+  const handleGoBack = () => {
+    setIsChatActive(false);
+    clearMessages();
+    setMessage('');
   };
+
+  useEffect(() => {
+    const lastMsg = messages[messages.length - 1];
+    if (lastMsg?.sender === 'assistant') {
+      setIsTyping(false);
+    }
+
+    const timeout = setTimeout(() => {
+      scrollViewRef.current?.scrollToEnd({ animated: true });
+    }, 100);
+
+    return () => clearTimeout(timeout);
+  }, [messages]);
 
   return (
     <KeyboardAvoidingView
@@ -48,16 +74,23 @@ export default function CopilotScreen() {
       keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
     >
       <View style={styles.header}>
-        <View style={styles.headerContent}>
-          <MessageSquare size={24} color={Colors.secondary[500]} />
-          <Text style={styles.headerTitle}>Copiloto</Text>
+        <View style={styles.headerLeft}>
+          {isChatActive && (
+            <TouchableOpacity onPress={handleGoBack} style={styles.backButton}>
+              <Text style={styles.backText}><ChevronLeft size={24} color={Colors.primary[500]} /></Text>
+            </TouchableOpacity>
+          )}
+          <View style={styles.headerContent}>
+            <MessageSquare size={24} color={Colors.primary[500]} />
+            <Text style={styles.headerTitle}>Copiloto</Text>
+          </View>
         </View>
         <TouchableOpacity style={styles.notificationBadge}>
           <AlertCircle size={24} color="#F59E0B" />
         </TouchableOpacity>
       </View>
 
-      {messages.length === 0 ? (
+      {!isChatActive ? (
         <View style={styles.welcomeContainer}>
           <Text style={styles.welcomeTitle}>
             Hola {user?.isGuest ? 'Invitado' : user?.name?.split(' ')[0] || 'Invitado'}
@@ -65,7 +98,7 @@ export default function CopilotScreen() {
           <Text style={styles.welcomeText}>
             Soy tu Copiloto financiero. ¿Listo para empezar a planificar tu futuro?
           </Text>
-          
+
           <View style={styles.assistantCard}>
             <View style={styles.assistantInfo}>
               <Text style={styles.assistantTitle}>Asistente de Patrimore</Text>
@@ -75,67 +108,67 @@ export default function CopilotScreen() {
             </View>
             <ChevronRight size={24} color={Colors.gray[400]} />
           </View>
-          
+
           <View style={styles.suggestionContainer}>
-            <TouchableOpacity 
-              style={styles.suggestionButton}
-              onPress={() => handleSuggestion('Ver mis inversiones')}
-            >
-              <Text style={styles.suggestionText}>Ver mis inversiones</Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={styles.suggestionButton}
-              onPress={() => handleSuggestion('Hablar con un asesor')}
-            >
-              <Text style={styles.suggestionText}>Hablar con un asesor</Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={styles.suggestionButton}
-              onPress={() => handleSuggestion('Agendar reunión')}
-            >
-              <Text style={styles.suggestionText}>Agendar reunión</Text>
-            </TouchableOpacity>
+            {['Ver mis inversiones', 'Hablar con un asesor', 'Agendar reunión', 'Conocer mi patrimonio'].map((text) => (
+              <TouchableOpacity
+                key={text}
+                style={styles.suggestionButton}
+                onPress={() => handleSuggestion(text)}
+              >
+                <Text style={styles.suggestionText}>{text}</Text>
+              </TouchableOpacity>
+            ))}
           </View>
         </View>
       ) : (
-        <ScrollView 
+        <ScrollView
+          ref={scrollViewRef}
           style={styles.chatContainer}
           contentContainerStyle={styles.chatContent}
+          showsVerticalScrollIndicator={false}
         >
           {messages.map((msg) => (
-            <View 
-              key={msg.id} 
+            <View
+              key={msg.id}
               style={[
                 styles.messageContainer,
-                msg.sender === 'user' ? styles.userMessage : styles.assistantMessage
+                msg.sender === 'user' ? styles.userMessage : styles.assistantMessage,
               ]}
             >
-              <Text style={[
-                styles.messageText,
-                msg.sender === 'user' ? styles.userMessageText : styles.assistantMessageText
-              ]}>
+              <Text
+                style={[
+                  styles.messageText,
+                  msg.sender === 'user'
+                    ? styles.userMessageText
+                    : styles.assistantMessageText,
+                ]}
+              >
                 {msg.content}
               </Text>
             </View>
           ))}
+
+          {isTyping && (
+            <View style={[styles.messageContainer, styles.assistantMessage]}>
+              <Text style={[styles.messageText, styles.assistantMessageText]}>
+                ...
+              </Text>
+            </View>
+          )}
         </ScrollView>
       )}
 
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
-          placeholder="En qué te puedo ayudar hoy?"
+          placeholder="¿En qué te puedo ayudar hoy?"
           value={message}
           onChangeText={setMessage}
           multiline
         />
-        <TouchableOpacity 
-          style={[
-            styles.sendButton,
-            !message.trim() && styles.sendButtonDisabled
-          ]}
+        <TouchableOpacity
+          style={[styles.sendButton, !message.trim() && styles.sendButtonDisabled]}
           onPress={handleSendMessage}
           disabled={!message.trim()}
         >
@@ -161,6 +194,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  backButton: {
+    marginRight: 8,
+    padding: 4,
+  },
+  backText: {
+    fontSize: 24,
+    color: Colors.primary[500],
   },
   headerContent: {
     flexDirection: 'row',
@@ -188,25 +233,28 @@ const styles = StyleSheet.create({
   },
   welcomeTitle: {
     fontFamily: 'Inter-Bold',
-    fontSize: 32,
-    color: Colors.secondary[500],
-    marginBottom: 16,
+    fontSize: 36,
+    color: '#FF6A00',
+    marginBottom: 12,
+    marginTop: 20,
     textAlign: 'center',
   },
   welcomeText: {
     fontFamily: 'Inter-Regular',
     fontSize: 16,
-    color: Colors.gray[600],
+    color: '#6B7280',
     textAlign: 'center',
     marginBottom: 32,
+    lineHeight: 22,
   },
   assistantCard: {
-    backgroundColor: Colors.gray[50],
-    borderRadius: 12,
-    padding: 16,
+    backgroundColor: '#F9FAFB',
+    borderRadius: 16,
+    padding: 20,
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 32,
+    justifyContent: 'space-between',
+    marginBottom: 24,
     width: '100%',
   },
   assistantInfo: {
@@ -228,10 +276,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
-    marginTop: 16,
+    marginTop: 8,
+    gap: 8,
   },
   suggestionButton: {
-    backgroundColor: Colors.gray[100],
+    backgroundColor: '#F9FAFB',
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 20,
