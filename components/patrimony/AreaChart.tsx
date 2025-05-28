@@ -136,22 +136,7 @@ export default function AreaChart() {
           <Circle cx={cx} cy={cy} r={14} fill="rgba(34,197,94,0.2)" />
           <Circle cx={cx} cy={cy} r={7} fill="#22C55E" />
         </Svg>
-        <View style={styles.labelsRow}>
-          <Text style={styles.labelText}>
-            {new Date(filteredData[0].date).toLocaleDateString('es-CL', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-            })}
-          </Text>
-          <Text style={styles.labelText}>
-            {new Date(filteredData[filteredData.length - 1].date).toLocaleDateString('es-CL', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-            })}
-          </Text>
-        </View>
+
       </View>
     </View>
   );
@@ -159,7 +144,7 @@ export default function AreaChart() {
 
 const styles = StyleSheet.create({
   container: {
-    height: CHART_HEIGHT + 100,
+    height: CHART_HEIGHT + 0,
     marginTop: 8,
   },
   tooltipCardStatic: {
