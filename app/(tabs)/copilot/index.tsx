@@ -14,6 +14,7 @@ import {
   Send,
   ChevronRight,
   CircleAlert as AlertCircle,
+  ChevronLeft,
 } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import { useAuth } from '@/providers/AuthProvider';
@@ -25,10 +26,10 @@ import {
 export default function CopilotScreen() {
   const { user } = useAuth();
   const [message, setMessage] = useState('');
-  const [showSuggestions, setShowSuggestions] = useState(true);
+  const [isChatActive, setIsChatActive] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
 
-  const { messages, isLoading, appendMessage, clearMessages } = useCopilotChat();
+  const { messages, appendMessage, clearMessages } = useCopilotChat();
   const { suggestions } = useCopilotSuggestions();
 
   const scrollViewRef = useRef<ScrollView>(null);
@@ -36,15 +37,21 @@ export default function CopilotScreen() {
   const handleSendMessage = async () => {
     if (!message.trim()) return;
     setIsTyping(true);
+    setIsChatActive(true);
     await appendMessage(message);
     setMessage('');
-    setShowSuggestions(false);
   };
 
   const handleSuggestion = async (suggestion: string) => {
     setIsTyping(true);
+    setIsChatActive(true);
     await appendMessage(suggestion);
-    setShowSuggestions(false);
+  };
+
+  const handleGoBack = () => {
+    setIsChatActive(false);
+    clearMessages();
+    setMessage('');
   };
 
   useEffect(() => {
@@ -67,21 +74,27 @@ export default function CopilotScreen() {
       keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
     >
       <View style={styles.header}>
-        <View style={styles.headerContent}>
-          <MessageSquare size={24} color={Colors.primary[500]} />
-          <Text style={styles.headerTitle}>Copiloto</Text>
+        <View style={styles.headerLeft}>
+          {isChatActive && (
+            <TouchableOpacity onPress={handleGoBack} style={styles.backButton}>
+              <Text style={styles.backText}><ChevronLeft size={24} color={Colors.primary[500]} /></Text>
+            </TouchableOpacity>
+          )}
+          <View style={styles.headerContent}>
+            <MessageSquare size={24} color={Colors.primary[500]} />
+            <Text style={styles.headerTitle}>Copiloto</Text>
+          </View>
         </View>
         <TouchableOpacity style={styles.notificationBadge}>
           <AlertCircle size={24} color="#F59E0B" />
         </TouchableOpacity>
       </View>
 
-      {messages.length === 0 ? (
+      {!isChatActive ? (
         <View style={styles.welcomeContainer}>
           <Text style={styles.welcomeTitle}>
             Hola {user?.isGuest ? 'Invitado' : user?.name?.split(' ')[0] || 'Invitado'}
           </Text>
-
           <Text style={styles.welcomeText}>
             Soy tu Copiloto financiero. ¿Listo para empezar a planificar tu futuro?
           </Text>
@@ -97,33 +110,15 @@ export default function CopilotScreen() {
           </View>
 
           <View style={styles.suggestionContainer}>
-            <TouchableOpacity
-              style={styles.suggestionButton}
-              onPress={() => handleSuggestion('Ver mis inversiones')}
-            >
-              <Text style={styles.suggestionText}>Ver mis inversiones</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.suggestionButton}
-              onPress={() => handleSuggestion('Hablar con un asesor')}
-            >
-              <Text style={styles.suggestionText}>Hablar con un asesor</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.suggestionButton}
-              onPress={() => handleSuggestion('Agendar reunión')}
-            >
-              <Text style={styles.suggestionText}>Agendar reunión</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.suggestionButton}
-              onPress={() => handleSuggestion('Conocer mi patrimonio')}
-            >
-              <Text style={styles.suggestionText}>Conocer mi patrimonio</Text>
-            </TouchableOpacity>
+            {['Ver mis inversiones', 'Hablar con un asesor', 'Agendar reunión', 'Conocer mi patrimonio'].map((text) => (
+              <TouchableOpacity
+                key={text}
+                style={styles.suggestionButton}
+                onPress={() => handleSuggestion(text)}
+              >
+                <Text style={styles.suggestionText}>{text}</Text>
+              </TouchableOpacity>
+            ))}
           </View>
         </View>
       ) : (
@@ -184,8 +179,6 @@ export default function CopilotScreen() {
   );
 }
 
-
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -201,6 +194,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  backButton: {
+    marginRight: 8,
+    padding: 4,
+  },
+  backText: {
+    fontSize: 24,
+    color: Colors.primary[500],
   },
   headerContent: {
     flexDirection: 'row',
