@@ -1,0 +1,2169 @@
+[
+  {
+    "caseid": "fa2f93ad-a16d-402b-9748-0276dd038e89",
+    "consumerId": "18495792-2",
+    "banco": "Estado",
+    "products": {
+      "accounts": [
+        {
+          "type": "vista",
+          "number": 18495792,
+          "currency": "CLP",
+          "balance": 4732906
+        },
+        {
+          "type": "ahorro",
+          "number": 12564830940,
+          "currency": "CLP",
+          "balance": 2460554
+        }
+      ],
+      "cards": [],
+      "lines": []
+    },
+    "transactions": {
+      "accounts": [
+        {
+          "account_number": 18495792,
+          "transactions": [
+            {
+              "date": "2024-07-01",
+              "branch": null,
+              "description": "Pago servicio de Gas",
+              "doc_number": "7081301",
+              "out": 61700,
+              "in": 0,
+              "balance": 0,
+              "id": "da43574dbf78a72033f8c1a4fcf2dbf61"
+            },
+            {
+              "date": "2024-07-01",
+              "branch": null,
+              "description": "Depósito de sueldo",
+              "doc_number": "1077",
+              "out": 0,
+              "in": 500000,
+              "balance": 0,
+              "id": "08b758fd0d857b4502cfe3892a7fea9a1"
+            },
+            {
+              "date": "2024-07-02",
+              "branch": null,
+              "description": "Envío a Empresa Nova",
+              "doc_number": "7066466",
+              "out": 100000,
+              "in": 0,
+              "balance": 0,
+              "id": "ab74dd3f0fb23395cc15a4ed63d9f8fe1"
+            },
+            {
+              "date": "2024-07-03",
+              "branch": null,
+              "description": "Transferencia a Pedro Rivas",
+              "doc_number": "1618",
+              "out": 300,
+              "in": 0,
+              "balance": 0,
+              "id": "5c192e8f460975fc4345625afb3983ce1"
+            },
+            {
+              "date": "2024-07-03",
+              "branch": null,
+              "description": "Envío a Pedro Rivas",
+              "doc_number": "7030669",
+              "out": 20000,
+              "in": 0,
+              "balance": 0,
+              "id": "bebf02c835d5a25a2c0f9b4f58dc9df61"
+            },
+            {
+              "date": "2024-07-03",
+              "branch": null,
+              "description": "Envío a Banco Progreso",
+              "doc_number": "7057433",
+              "out": 211100,
+              "in": 0,
+              "balance": 0,
+              "id": "d0f13c5745e468960077c4d2292d74b11"
+            },
+            {
+              "date": "2024-07-03",
+              "branch": null,
+              "description": "Transferencia de Empresa Nova",
+              "doc_number": "1077",
+              "out": 0,
+              "in": 250000,
+              "balance": 0,
+              "id": "c051f82c8588cfa7e4c7cc0c5c72a0fc1"
+            },
+            {
+              "date": "2024-07-04",
+              "branch": null,
+              "description": "Compra por e-commerce",
+              "doc_number": "3828913",
+              "out": 26800,
+              "in": 0,
+              "balance": 0,
+              "id": "cdbfa7f8296acf16f67e9e311e48d72e1"
+            },
+            {
+              "date": "2024-07-05",
+              "branch": null,
+              "description": "Pago de plan móvil",
+              "doc_number": "7003574",
+              "out": 18904,
+              "in": 0,
+              "balance": 0,
+              "id": "d712f50b306b96c56420ba7ba81c203e1"
+            },
+            {
+              "date": "2024-07-08",
+              "branch": null,
+              "description": "Transferencia de Pedro Rivas",
+              "doc_number": "1077",
+              "out": 0,
+              "in": 27000,
+              "balance": 0,
+              "id": "fd58d3c5c3396126f7e52530b115428c1"
+            },
+            {
+              "date": "2024-07-12",
+              "branch": null,
+              "description": "Envío a María Fernández",
+              "doc_number": "7074601",
+              "out": 100000,
+              "in": 0,
+              "balance": 0,
+              "id": "eb8eb70c0798a11fe0b9aa3abd7e52631"
+            },
+            {
+              "date": "2024-07-15",
+              "branch": null,
+              "description": "Envío a Pedro Rivas",
+              "doc_number": "7012112",
+              "out": 2000,
+              "in": 0,
+              "balance": 0,
+              "id": "2d2de4f6133e1ff5dc6ab4c2b7d3b91f1"
+            },
+            {
+              "date": "2024-07-18",
+              "branch": null,
+              "description": "Transferencia de Esteban Núñez",
+              "doc_number": "1077",
+              "out": 0,
+              "in": 45000,
+              "balance": 0,
+              "id": "f1a3f56cf169f0c7dcb82937f95e446c1"
+            },
+            {
+              "date": "2024-07-18",
+              "branch": null,
+              "description": "Pago servicio de Internet",
+              "doc_number": "7007416",
+              "out": 39860,
+              "in": 0,
+              "balance": 0,
+              "id": "68402ae0feb30f64ffec8cbdb37672291"
+            },
+            {
+              "date": "2024-07-18",
+              "branch": null,
+              "description": "Pago WOM",
+              "doc_number": "4220423",
+              "out": 15769,
+              "in": 0,
+              "balance": 0,
+              "id": "3b497f373f522c02c1a11369ffa724991"
+            },
+            {
+              "date": "2024-07-18",
+              "branch": null,
+              "description": "Pago WOM",
+              "doc_number": "4220423",
+              "out": 10880,
+              "in": 0,
+              "balance": 0,
+              "id": "959edf94aafb1c8c4ea97311cecbd51f1"
+            },
+            {
+              "date": "2024-07-22",
+              "branch": null,
+              "description": "Transferencia de María Fernández",
+              "doc_number": "8083972",
+              "out": 0,
+              "in": 10000,
+              "balance": 0,
+              "id": "b5504a771365e83adaa91674fb2fa2ee1"
+            },
+            {
+              "date": "2024-07-26",
+              "branch": null,
+              "description": "Transferencia a Empresa Nova",
+              "doc_number": "1618",
+              "out": 300,
+              "in": 0,
+              "balance": 0,
+              "id": "7ca79c693522b03fd23eb87d31849ed51"
+            },
+            {
+              "date": "2024-07-26",
+              "branch": null,
+              "description": "Envío a María Fernández",
+              "doc_number": "7013540",
+              "out": 15000,
+              "in": 0,
+              "balance": 0,
+              "id": "5571276d3dfbc78f06d6bf149d4de8fa1"
+            },
+            {
+              "date": "2024-07-29",
+              "branch": null,
+              "description": "Envío a Esteban Núñez",
+              "doc_number": "7011485",
+              "out": 30000,
+              "in": 0,
+              "balance": 0,
+              "id": "536cc08cc1f500171e0a3f3b6f4152c81"
+            },
+            {
+              "date": "2024-08-01",
+              "branch": null,
+              "description": "Depósito de sueldo",
+              "doc_number": "1077",
+              "out": 0,
+              "in": 100000,
+              "balance": 0,
+              "id": "a1d4871bb3b3188c4a3aca01767dac531"
+            },
+            {
+              "date": "2024-08-02",
+              "branch": null,
+              "description": "Transferencia de Empresa Nova",
+              "doc_number": "1077",
+              "out": 0,
+              "in": 750000,
+              "balance": 0,
+              "id": "44acb678d30ff2a9c122c8b3691dd1cc1"
+            },
+            {
+              "date": "2024-08-05",
+              "branch": null,
+              "description": "Pago servicio de Agua",
+              "doc_number": "7093847",
+              "out": 55270,
+              "in": 0,
+              "balance": 0,
+              "id": "c36ab61157707fd7330833ae70dee3271"
+            },
+            {
+              "date": "2024-08-05",
+              "branch": null,
+              "description": "Pago de plan móvil",
+              "doc_number": "7094661",
+              "out": 18904,
+              "in": 0,
+              "balance": 0,
+              "id": "b7feca6bda4a1eaca888e1bb0e0da5c91"
+            },
+            {
+              "date": "2024-08-06",
+              "branch": null,
+              "description": "Transferencia a Banco Progreso",
+              "doc_number": "1618",
+              "out": 300,
+              "in": 0,
+              "balance": 0,
+              "id": "4abde4666c8f1015176b2b8c626711a71"
+            },
+            {
+              "date": "2024-08-06",
+              "branch": null,
+              "description": "Envío a Carlos Soto",
+              "doc_number": "7055746",
+              "out": 20000,
+              "in": 0,
+              "balance": 0,
+              "id": "9c87b7535efe8d49437e919f51ceba971"
+            },
+            {
+              "date": "2024-08-07",
+              "branch": null,
+              "description": "Envío a Esteban Núñez",
+              "doc_number": "7060591",
+              "out": 10300,
+              "in": 0,
+              "balance": 0,
+              "id": "33aeff2a5ae210afcbc0d901ee50b8c11"
+            },
+            {
+              "date": "2024-08-12",
+              "branch": null,
+              "description": "Transferencia a Banco Progreso",
+              "doc_number": "1618",
+              "out": 300,
+              "in": 0,
+              "balance": 0,
+              "id": "c3cf0377efa334f159a3ccef3b0ad5111"
+            },
+            {
+              "date": "2024-08-12",
+              "branch": null,
+              "description": "Pago servicio de Internet",
+              "doc_number": "7019838",
+              "out": 12492,
+              "in": 0,
+              "balance": 0,
+              "id": "5745f631fffbd862b4da97e3cacee33b1"
+            },
+            {
+              "date": "2024-08-12",
+              "branch": null,
+              "description": "Envío a Carlos Soto",
+              "doc_number": "7029093",
+              "out": 10000,
+              "in": 0,
+              "balance": 0,
+              "id": "450386576ee7f8b23ea6a7e7177c5d691"
+            },
+            {
+              "date": "2024-08-13",
+              "branch": null,
+              "description": "Envío a Lucía Herrera",
+              "doc_number": "7075198",
+              "out": 10000,
+              "in": 0,
+              "balance": 0,
+              "id": "5ee087a717ca0582a0ca2987bfe7d8b61"
+            },
+            {
+              "date": "2024-08-14",
+              "branch": null,
+              "description": "Pago WOM",
+              "doc_number": "4220423",
+              "out": 10880,
+              "in": 0,
+              "balance": 0,
+              "id": "9abcafa4de9c80168168b140c35691c91"
+            },
+            {
+              "date": "2024-08-19",
+              "branch": null,
+              "description": "Pago servicio de Internet",
+              "doc_number": "7094173",
+              "out": 9980,
+              "in": 0,
+              "balance": 0,
+              "id": "03e195bc49d849eb08f686e80554275b1"
+            },
+            {
+              "date": "2024-08-19",
+              "branch": null,
+              "description": "Pago servicio de Agua",
+              "doc_number": "7077307",
+              "out": 34380,
+              "in": 0,
+              "balance": 0,
+              "id": "761d766fdbed229fc58ed222fb372be11"
+            },
+            {
+              "date": "2024-08-19",
+              "branch": null,
+              "description": "Transferencia de Lucía Herrera",
+              "doc_number": "1077",
+              "out": 0,
+              "in": 100000,
+              "balance": 0,
+              "id": "a2d84da54bdd661a397ca4ed1585c2631"
+            },
+            {
+              "date": "2024-08-20",
+              "branch": null,
+              "description": "Transferencia a Carlos Soto",
+              "doc_number": "1618",
+              "out": 300,
+              "in": 0,
+              "balance": 0,
+              "id": "0cca4ba8fc91be8ee2bae9aebcd0e22a1"
+            },
+            {
+              "date": "2024-08-20",
+              "branch": null,
+              "description": "Envío a Lucía Herrera",
+              "doc_number": "7029722",
+              "out": 10000,
+              "in": 0,
+              "balance": 0,
+              "id": "77c9a2196a6615eb9804b74126c26eb71"
+            },
+            {
+              "date": "2024-08-21",
+              "branch": null,
+              "description": "Compra en tienda online",
+              "doc_number": "4051331",
+              "out": 3999,
+              "in": 0,
+              "balance": 0,
+              "id": "53b2d7b1c6281ef804b742adb48176ea1"
+            },
+            {
+              "date": "2024-08-21",
+              "branch": null,
+              "description": "Compra en tienda online",
+              "doc_number": "3381876",
+              "out": 7998,
+              "in": 0,
+              "balance": 0,
+              "id": "7b36e533edda1715eeb6c3b709ce50fc1"
+            },
+            {
+              "date": "2024-08-21",
+              "branch": null,
+              "description": "Transferencia de Carlos Soto",
+              "doc_number": "8059184",
+              "out": 0,
+              "in": 10000,
+              "balance": 0,
+              "id": "87a832c9f892e0dcaee671a4856ed1071"
+            },
+            {
+              "date": "2024-08-21",
+              "branch": null,
+              "description": "Comisión bancaria",
+              "doc_number": "1212",
+              "out": 470,
+              "in": 0,
+              "balance": 0,
+              "id": "457b42d608046f9612e991a9a5a6f1da2"
+            },
+            {
+              "date": "2024-08-21",
+              "branch": null,
+              "description": "Comisión bancaria",
+              "doc_number": "1212",
+              "out": 470,
+              "in": 0,
+              "balance": 0,
+              "id": "457b42d608046f9612e991a9a5a6f1da1"
+            },
+            {
+              "date": "2024-08-22",
+              "branch": null,
+              "description": "Envío a Esteban Núñez",
+              "doc_number": "7049363",
+              "out": 10000,
+              "in": 0,
+              "balance": 0,
+              "id": "e92cdc439bf42f9526114cc4e55f91831"
+            },
+            {
+              "date": "2024-08-26",
+              "branch": null,
+              "description": "Envío a Empresa Nova",
+              "doc_number": "7023819",
+              "out": 126056,
+              "in": 0,
+              "balance": 0,
+              "id": "16ba771d9a8126274233e53a8921cd551"
+            },
+            {
+              "date": "2024-09-02",
+              "branch": null,
+              "description": "Depósito de sueldo",
+              "doc_number": "8015935",
+              "out": 0,
+              "in": 20000,
+              "balance": 0,
+              "id": "95afca6d7f893227417e7ce7e34b6a931"
+            },
+            {
+              "date": "2024-09-03",
+              "branch": null,
+              "description": "Pago de plan móvil",
+              "doc_number": "7097968",
+              "out": 19036,
+              "in": 0,
+              "balance": 0,
+              "id": "555c46db39235c5d29911a688a252cc41"
+            },
+            {
+              "date": "2024-09-03",
+              "branch": null,
+              "description": "Transferencia de María Fernández",
+              "doc_number": "1077",
+              "out": 0,
+              "in": 750000,
+              "balance": 0,
+              "id": "3d758aa77764cc4eba387cb16d6ce7861"
+            },
+            {
+              "date": "2024-09-03",
+              "branch": null,
+              "description": "Web Sony Chile",
+              "doc_number": "1636212",
+              "out": 74990,
+              "in": 0,
+              "balance": 0,
+              "id": "e2088f758406c5a429be6a830c60b4191"
+            },
+            {
+              "date": "2024-09-04",
+              "branch": null,
+              "description": "Transferencia a Empresa Nova",
+              "doc_number": "1618",
+              "out": 300,
+              "in": 0,
+              "balance": 0,
+              "id": "55af94648304d5be1504089eafc0f8a61"
+            },
+            {
+              "date": "2024-09-04",
+              "branch": null,
+              "description": "Pago servicio de TV cable",
+              "doc_number": "7020718",
+              "out": 48850,
+              "in": 0,
+              "balance": 0,
+              "id": "22a74a01d78cf3890fc8bb8b2d896ccd1"
+            },
+            {
+              "date": "2024-09-04",
+              "branch": null,
+              "description": "Envío a Lucía Herrera",
+              "doc_number": "7080826",
+              "out": 20000,
+              "in": 0,
+              "balance": 0,
+              "id": "eac87a854224af1db55c25a33ca371491"
+            },
+            {
+              "date": "2024-09-05",
+              "branch": null,
+              "description": "Pago WOM",
+              "doc_number": "1196426",
+              "out": 7000,
+              "in": 0,
+              "balance": 0,
+              "id": "a14121a735ca32608654a87fb99352b21"
+            },
+            {
+              "date": "2024-09-11",
+              "branch": null,
+              "description": "Envío a Esteban Núñez",
+              "doc_number": "7001159",
+              "out": 1000,
+              "in": 0,
+              "balance": 0,
+              "id": "f03da15a0a89f4c3dfd9d7ebec08ec771"
+            },
+            {
+              "date": "2024-09-11",
+              "branch": null,
+              "description": "Envío a María Fernández",
+              "doc_number": "7003630",
+              "out": 9980,
+              "in": 0,
+              "balance": 0,
+              "id": "7bfe4b0382b1ee6599a495fb652ff6231"
+            },
+            {
+              "date": "2024-09-11",
+              "branch": null,
+              "description": "Transferencia a Banco Progreso",
+              "doc_number": "1618",
+              "out": 300,
+              "in": 0,
+              "balance": 0,
+              "id": "a46d2190fb649b64d28f0c20bfdc28301"
+            },
+            {
+              "date": "2024-09-11",
+              "branch": null,
+              "description": "Pago servicio de Agua",
+              "doc_number": "7089103",
+              "out": 55488,
+              "in": 0,
+              "balance": 0,
+              "id": "580c93ab2193d046b1cccf9eb7e4a91b1"
+            },
+            {
+              "date": "2024-09-13",
+              "branch": null,
+              "description": "Transferencia a Javiera López",
+              "doc_number": "1618",
+              "out": 300,
+              "in": 0,
+              "balance": 0,
+              "id": "de1f5edae2d1a3776c737854a89ab9e81"
+            },
+            {
+              "date": "2024-09-13",
+              "branch": null,
+              "description": "Envío a Esteban Núñez",
+              "doc_number": "7064803",
+              "out": 500000,
+              "in": 0,
+              "balance": 0,
+              "id": "b88ad79511f2c435f255ece6c0fe8fc41"
+            },
+            {
+              "date": "2024-09-17",
+              "branch": null,
+              "description": "Transf A B. Estado Cta Cliente",
+              "doc_number": "7050701",
+              "out": 30855,
+              "in": 0,
+              "balance": 0,
+              "id": "edaf1138d787dcbb84576812f7442cc11"
+            },
+            {
+              "date": "2024-09-23",
+              "branch": null,
+              "description": "Transferencia a María Fernández",
+              "doc_number": "1618",
+              "out": 300,
+              "in": 0,
+              "balance": 0,
+              "id": "bd0b5fcdcb68bf67e066be9227a219631"
+            },
+            {
+              "date": "2024-09-23",
+              "branch": null,
+              "description": "Transferencia a María Fernández",
+              "doc_number": "1618",
+              "out": 300,
+              "in": 0,
+              "balance": 0,
+              "id": "bd0b5fcdcb68bf67e066be9227a219632"
+            },
+            {
+              "date": "2024-09-23",
+              "branch": null,
+              "description": "Transferencia a Lucía Herrera",
+              "doc_number": "1618",
+              "out": 300,
+              "in": 0,
+              "balance": 0,
+              "id": "bd0b5fcdcb68bf67e066be9227a219633"
+            },
+            {
+              "date": "2024-09-23",
+              "branch": null,
+              "description": "Envío a Javiera López",
+              "doc_number": "7028925",
+              "out": 200000,
+              "in": 0,
+              "balance": 0,
+              "id": "066f55faad26cf71e77bcf8e9e3abb241"
+            },
+            {
+              "date": "2024-09-23",
+              "branch": null,
+              "description": "Envío a Pedro Rivas",
+              "doc_number": "7058363",
+              "out": 5000,
+              "in": 0,
+              "balance": 0,
+              "id": "a66d7e40a6e4b9fd761b608232614d7e2"
+            },
+            {
+              "date": "2024-09-23",
+              "branch": null,
+              "description": "Envío a Empresa Nova",
+              "doc_number": "7063381",
+              "out": 5000,
+              "in": 0,
+              "balance": 0,
+              "id": "a66d7e40a6e4b9fd761b608232614d7e1"
+            },
+            {
+              "date": "2024-10-02",
+              "branch": null,
+              "description": "Depósito de sueldo",
+              "doc_number": "1077",
+              "out": 0,
+              "in": 750000,
+              "balance": 0,
+              "id": "ec2817f045cd79bd812d409a91bfe7951"
+            },
+            {
+              "date": "2024-10-02",
+              "branch": null,
+              "description": "Envío a Javiera López",
+              "doc_number": "7086892",
+              "out": 20000,
+              "in": 0,
+              "balance": 0,
+              "id": "b13339fecc32e8edc9791c53849a8deb1"
+            },
+            {
+              "date": "2024-10-02",
+              "branch": null,
+              "description": "Envío a Esteban Núñez",
+              "doc_number": "7092021",
+              "out": 37825,
+              "in": 0,
+              "balance": 0,
+              "id": "6292c0016fe9534719b00b78ba643d391"
+            },
+            {
+              "date": "2024-10-03",
+              "branch": null,
+              "description": "Compra por e-commerce",
+              "doc_number": "3283433",
+              "out": 16826,
+              "in": 0,
+              "balance": 0,
+              "id": "15b3c11166c6a29b89c5f40a3ce44d081"
+            },
+            {
+              "date": "2024-10-04",
+              "branch": null,
+              "description": "Transferencia a María Fernández",
+              "doc_number": "1618",
+              "out": 300,
+              "in": 0,
+              "balance": 0,
+              "id": "a72cda068d8ba3396b4ca2ac52b511b31"
+            },
+            {
+              "date": "2024-10-04",
+              "branch": null,
+              "description": "Pago WOM",
+              "doc_number": "4220423",
+              "out": 8680,
+              "in": 0,
+              "balance": 0,
+              "id": "0fff8a495ba888566387323d28f93a0a1"
+            },
+            {
+              "date": "2024-10-04",
+              "branch": null,
+              "description": "Pago servicio de Agua",
+              "doc_number": "7093256",
+              "out": 27990,
+              "in": 0,
+              "balance": 0,
+              "id": "65fbf6c692d7c5d9417b1bbf6c348ae01"
+            },
+            {
+              "date": "2024-10-04",
+              "branch": null,
+              "description": "Pago de plan móvil",
+              "doc_number": "7002045",
+              "out": 19036,
+              "in": 0,
+              "balance": 0,
+              "id": "6b93e4e51bb7370e1ccc8fb716da6dfb1"
+            },
+            {
+              "date": "2024-10-04",
+              "branch": null,
+              "description": "Envío a Carlos Soto",
+              "doc_number": "7008011",
+              "out": 30000,
+              "in": 0,
+              "balance": 0,
+              "id": "27cff79a40eca958a141210d26f72c621"
+            },
+            {
+              "date": "2024-10-07",
+              "branch": null,
+              "description": "Envío a María Fernández",
+              "doc_number": "7087095",
+              "out": 15000,
+              "in": 0,
+              "balance": 0,
+              "id": "6050973ed36a6eb6c06cb5d4199175421"
+            },
+            {
+              "date": "2024-10-15",
+              "branch": null,
+              "description": "Pago servicio de Electricidad",
+              "doc_number": "7065574",
+              "out": 46570,
+              "in": 0,
+              "balance": 0,
+              "id": "68882db451fb21b049c96cad1d7b7f421"
+            },
+            {
+              "date": "2024-10-17",
+              "branch": null,
+              "description": "Comisión bancaria",
+              "doc_number": "1212",
+              "out": 479,
+              "in": 0,
+              "balance": 0,
+              "id": "9b2614088d32cbae33953cbf6694f0511"
+            },
+            {
+              "date": "2024-10-17",
+              "branch": null,
+              "description": "Comisión bancaria",
+              "doc_number": "1212",
+              "out": 479,
+              "in": 0,
+              "balance": 0,
+              "id": "9b2614088d32cbae33953cbf6694f0512"
+            },
+            {
+              "date": "2024-10-17",
+              "branch": null,
+              "description": "Compra en tienda online",
+              "doc_number": "4051331",
+              "out": 3976,
+              "in": 0,
+              "balance": 0,
+              "id": "0afa70597dafbd3162ce7cadc7e485f11"
+            },
+            {
+              "date": "2024-10-17",
+              "branch": null,
+              "description": "Compra en tienda online",
+              "doc_number": "4051331",
+              "out": 7951,
+              "in": 0,
+              "balance": 0,
+              "id": "5ad6e96b3dea8dc39de6f692a26a4f481"
+            },
+            {
+              "date": "2024-10-17",
+              "branch": null,
+              "description": "Pago por app de terceros",
+              "doc_number": "1083098",
+              "out": 7935,
+              "in": 0,
+              "balance": 0,
+              "id": "2bae52969f213791f0243f94759b64171"
+            },
+            {
+              "date": "2024-10-21",
+              "branch": null,
+              "description": "Transferencia a Javiera López",
+              "doc_number": "1618",
+              "out": 300,
+              "in": 0,
+              "balance": 0,
+              "id": "c3c76398c6c83d3f7f91b5ba45b2e9671"
+            },
+            {
+              "date": "2024-10-21",
+              "branch": null,
+              "description": "Envío a Banco Progreso",
+              "doc_number": "7093263",
+              "out": 25200,
+              "in": 0,
+              "balance": 0,
+              "id": "aac5358c2540ab0136ea8957605f556a1"
+            },
+            {
+              "date": "2024-10-22",
+              "branch": null,
+              "description": "Transferencia a Banco Progreso",
+              "doc_number": "1618",
+              "out": 300,
+              "in": 0,
+              "balance": 0,
+              "id": "437fb6365f02aa8d6efb8e612ef145521"
+            },
+            {
+              "date": "2024-10-22",
+              "branch": null,
+              "description": "Envío a Esteban Núñez",
+              "doc_number": "7034283",
+              "out": 9980,
+              "in": 0,
+              "balance": 0,
+              "id": "4c7a32727bcac4807651c8f303abdcc61"
+            },
+            {
+              "date": "2024-10-24",
+              "branch": null,
+              "description": "Transferencia a Lucía Herrera",
+              "doc_number": "1618",
+              "out": 300,
+              "in": 0,
+              "balance": 0,
+              "id": "5d1cecb7662ff5abcf9fe1c27d5199f21"
+            },
+            {
+              "date": "2024-10-24",
+              "branch": null,
+              "description": "Pago WOM",
+              "doc_number": "4220423",
+              "out": 12380,
+              "in": 0,
+              "balance": 0,
+              "id": "b633857086016dc42a6499a7081691441"
+            },
+            {
+              "date": "2024-10-24",
+              "branch": null,
+              "description": "Envío a Javiera López",
+              "doc_number": "7041135",
+              "out": 14000,
+              "in": 0,
+              "balance": 0,
+              "id": "a8d58dd60105322f5a99cca26c8f6f361"
+            },
+            {
+              "date": "2024-10-24",
+              "branch": null,
+              "description": "Transferencia de Pedro Rivas",
+              "doc_number": "8069566",
+              "out": 0,
+              "in": 10000,
+              "balance": 0,
+              "id": "e94d301868008dd830522dfe28bb72a31"
+            },
+            {
+              "date": "2024-10-29",
+              "branch": null,
+              "description": "Transferencia de María Fernández",
+              "doc_number": "1077",
+              "out": 0,
+              "in": 94500,
+              "balance": 0,
+              "id": "2c617e1403583e7d3f63561acd05ed411"
+            },
+            {
+              "date": "2024-10-30",
+              "branch": null,
+              "description": "Transferencia de Pedro Rivas",
+              "doc_number": "8033871",
+              "out": 0,
+              "in": 20000,
+              "balance": 0,
+              "id": "07fab8efa0f005e46ab70b717262a8a21"
+            },
+            {
+              "date": "2024-11-04",
+              "branch": null,
+              "description": "Depósito de sueldo",
+              "doc_number": "1077",
+              "out": 0,
+              "in": 750000,
+              "balance": 0,
+              "id": "98bfd2cf50ae5f7f7a4191b3dd0b01131"
+            },
+            {
+              "date": "2024-11-04",
+              "branch": null,
+              "description": "Transferencia de Banco Progreso",
+              "doc_number": "1077",
+              "out": 0,
+              "in": 250000,
+              "balance": 0,
+              "id": "ab23affd41a79ae3a1d0672c9ec295741"
+            },
+            {
+              "date": "2024-11-04",
+              "branch": null,
+              "description": "Pago de plan móvil",
+              "doc_number": "7090299",
+              "out": 19036,
+              "in": 0,
+              "balance": 0,
+              "id": "55a8cb6fe401f6852cf489e3699684551"
+            },
+            {
+              "date": "2024-11-04",
+              "branch": null,
+              "description": "Pago servicio de Agua",
+              "doc_number": "7098724",
+              "out": 26070,
+              "in": 0,
+              "balance": 0,
+              "id": "92c66e60fe65866cfa7d40b85010c6131"
+            },
+            {
+              "date": "2024-11-04",
+              "branch": null,
+              "description": "Pago servicio de Internet",
+              "doc_number": "7010314",
+              "out": 30400,
+              "in": 0,
+              "balance": 0,
+              "id": "732b792e56327cbd8ec6d4675f60f9b31"
+            },
+            {
+              "date": "2024-11-11",
+              "branch": null,
+              "description": "Envío a Lucía Herrera",
+              "doc_number": "7003019",
+              "out": 5000,
+              "in": 0,
+              "balance": 0,
+              "id": "a628343a22f232cf4c1d173954093ac01"
+            },
+            {
+              "date": "2024-11-15",
+              "branch": null,
+              "description": "Pago WOM",
+              "doc_number": "4220423",
+              "out": 18931,
+              "in": 0,
+              "balance": 0,
+              "id": "427d7091714537d2f5480b47ce09d8651"
+            },
+            {
+              "date": "2024-11-18",
+              "branch": null,
+              "description": "Pago servicio de Agua",
+              "doc_number": "7039552",
+              "out": 46390,
+              "in": 0,
+              "balance": 0,
+              "id": "9fbd914dc5dd27f436fac80eefa35ece1"
+            },
+            {
+              "date": "2024-11-19",
+              "branch": null,
+              "description": "Transferencia a Carlos Soto",
+              "doc_number": "1618",
+              "out": 300,
+              "in": 0,
+              "balance": 0,
+              "id": "7b64fbef7172f23fdf4d4bb4ba2b5b3d1"
+            },
+            {
+              "date": "2024-11-19",
+              "branch": null,
+              "description": "Envío a Esteban Núñez",
+              "doc_number": "7034095",
+              "out": 47500,
+              "in": 0,
+              "balance": 0,
+              "id": "ee531da7af757779bb83be620b2254181"
+            },
+            {
+              "date": "2024-11-19",
+              "branch": null,
+              "description": "Envío a Banco Progreso",
+              "doc_number": "7019990",
+              "out": 150300,
+              "in": 0,
+              "balance": 0,
+              "id": "9e4e46c44c057339c1a85ab6ba6d7abb1"
+            },
+            {
+              "date": "2024-11-21",
+              "branch": null,
+              "description": "Pago impuestos SII",
+              "doc_number": "4220372",
+              "out": 30855,
+              "in": 0,
+              "balance": 0,
+              "id": "4e3c02f9a187f383d7fbd9b65542c9f91"
+            },
+            {
+              "date": "2024-11-21",
+              "branch": null,
+              "description": "Envío a María Fernández",
+              "doc_number": "7037917",
+              "out": 124000,
+              "in": 0,
+              "balance": 0,
+              "id": "9d728b912bc48d7d2fefd8eb23bcb9551"
+            },
+            {
+              "date": "2024-11-21",
+              "branch": null,
+              "description": "Envío a María Fernández",
+              "doc_number": "7040839",
+              "out": 15000,
+              "in": 0,
+              "balance": 0,
+              "id": "c92958117ce468124c19c991ff3f8bd51"
+            },
+            {
+              "date": "2024-11-21",
+              "branch": null,
+              "description": "Transferencia de Pedro Rivas",
+              "doc_number": "8044864",
+              "out": 0,
+              "in": 100000,
+              "balance": 0,
+              "id": "b1b0de79a514b8854253e66fa587170b1"
+            },
+            {
+              "date": "2024-11-26",
+              "branch": null,
+              "description": "Compra en tienda online",
+              "doc_number": "3381876",
+              "out": 7998,
+              "in": 0,
+              "balance": 0,
+              "id": "41f26ae6f8807aa91dbaba3e832c74e31"
+            },
+            {
+              "date": "2024-11-26",
+              "branch": null,
+              "description": "Compra en tienda online",
+              "doc_number": "4051331",
+              "out": 3998,
+              "in": 0,
+              "balance": 0,
+              "id": "9e1896a04eb56364db1657ac834a99111"
+            },
+            {
+              "date": "2024-11-26",
+              "branch": null,
+              "description": "Comisión bancaria",
+              "doc_number": "1212",
+              "out": 502,
+              "in": 0,
+              "balance": 0,
+              "id": "9b601ef20e19735e7ef7265cdb9e24601"
+            },
+            {
+              "date": "2024-11-26",
+              "branch": null,
+              "description": "Pago WOM",
+              "doc_number": "4220423",
+              "out": 10880,
+              "in": 0,
+              "balance": 0,
+              "id": "926de09b8fe6bae0d581beb1d15574ca1"
+            },
+            {
+              "date": "2024-11-26",
+              "branch": null,
+              "description": "Comisión bancaria",
+              "doc_number": "1212",
+              "out": 502,
+              "in": 0,
+              "balance": 0,
+              "id": "9b601ef20e19735e7ef7265cdb9e24602"
+            },
+            {
+              "date": "2024-11-29",
+              "branch": null,
+              "description": "Envío a Empresa Nova",
+              "doc_number": "7090860",
+              "out": 15000,
+              "in": 0,
+              "balance": 0,
+              "id": "352139d6ab255416ac83f74b917973a41"
+            },
+            {
+              "date": "2024-12-02",
+              "branch": null,
+              "description": "Depósito de sueldo",
+              "doc_number": "8025030",
+              "out": 0,
+              "in": 30000,
+              "balance": 0,
+              "id": "9f6c778157253d0a216cc35ed25bcd981"
+            },
+            {
+              "date": "2024-12-02",
+              "branch": null,
+              "description": "Transferencia de Carlos Soto",
+              "doc_number": "8066844",
+              "out": 0,
+              "in": 250000,
+              "balance": 0,
+              "id": "b0b90407c04fa344e49ceac5d54ac88a1"
+            },
+            {
+              "date": "2024-12-02",
+              "branch": null,
+              "description": "Transferencia de María Fernández",
+              "doc_number": "1077",
+              "out": 0,
+              "in": 750000,
+              "balance": 0,
+              "id": "3f300af1f0953cd1ba8b77572e1d8b981"
+            },
+            {
+              "date": "2024-12-02",
+              "branch": null,
+              "description": "Compra por e-commerce",
+              "doc_number": "3283433",
+              "out": 58265,
+              "in": 0,
+              "balance": 0,
+              "id": "e3fff2200a79ff82d22bc76c7aa7daf41"
+            },
+            {
+              "date": "2024-12-02",
+              "branch": null,
+              "description": "Compra por e-commerce",
+              "doc_number": "3283433",
+              "out": 60226,
+              "in": 0,
+              "balance": 0,
+              "id": "5d11b5ca1ffa6a092e9773adf46ff3751"
+            },
+            {
+              "date": "2024-12-02",
+              "branch": null,
+              "description": "Pago por app de terceros",
+              "doc_number": "1083098",
+              "out": 28425,
+              "in": 0,
+              "balance": 0,
+              "id": "ce136eb7c3b7b8bd79cba6b6697c82b01"
+            },
+            {
+              "date": "2024-12-03",
+              "branch": null,
+              "description": "Pago servicio de Electricidad",
+              "doc_number": "7062011",
+              "out": 69690,
+              "in": 0,
+              "balance": 0,
+              "id": "d0a665de9a035b155eacb219c629e7d51"
+            },
+            {
+              "date": "2024-12-03",
+              "branch": null,
+              "description": "Pago de plan móvil",
+              "doc_number": "7050731",
+              "out": 19245,
+              "in": 0,
+              "balance": 0,
+              "id": "52c2adc4e7c51dd1fcd4f5191226d7d01"
+            },
+            {
+              "date": "2024-12-03",
+              "branch": null,
+              "description": "Transferencia de Empresa Nova",
+              "doc_number": "1077",
+              "out": 0,
+              "in": 250000,
+              "balance": 0,
+              "id": "0a40e674aff93ac96066327bc37be1991"
+            },
+            {
+              "date": "2024-12-04",
+              "branch": null,
+              "description": "Compra por e-commerce",
+              "doc_number": "3020423",
+              "out": 15254,
+              "in": 0,
+              "balance": 0,
+              "id": "6cc3b286907faff3dc55555345ff99d61"
+            },
+            {
+              "date": "2024-12-09",
+              "branch": null,
+              "description": "Envío a Carlos Soto",
+              "doc_number": "7098309",
+              "out": 24000,
+              "in": 0,
+              "balance": 0,
+              "id": "efdc4a4b609e0cc7bb8cc7ff75b5cfef1"
+            },
+            {
+              "date": "2024-12-13",
+              "branch": null,
+              "description": "Transferencia a Empresa Nova",
+              "doc_number": "1618",
+              "out": 300,
+              "in": 0,
+              "balance": 0,
+              "id": "18aa2632870a89072e105bbb1db07fd21"
+            },
+            {
+              "date": "2024-12-13",
+              "branch": null,
+              "description": "Envío a Pedro Rivas",
+              "doc_number": "7035150",
+              "out": 10000,
+              "in": 0,
+              "balance": 0,
+              "id": "9929b340c74be8dbb7171cfbb233b2691"
+            },
+            {
+              "date": "2024-12-16",
+              "branch": null,
+              "description": "Pago servicio de Electricidad",
+              "doc_number": "7010743",
+              "out": 29330,
+              "in": 0,
+              "balance": 0,
+              "id": "1c0dc4d999809aecb6f7ace13b555c731"
+            },
+            {
+              "date": "2024-12-16",
+              "branch": null,
+              "description": "Envío a Empresa Nova",
+              "doc_number": "7043428",
+              "out": 50000,
+              "in": 0,
+              "balance": 0,
+              "id": "c611a9ca0a9fec4eca73f8002032e05b1"
+            },
+            {
+              "date": "2024-12-17",
+              "branch": null,
+              "description": "Transferencia de Javiera López",
+              "doc_number": "0",
+              "out": 0,
+              "in": 30000,
+              "balance": 0,
+              "id": "080d9c40c1970f8cee16b7c183e6775a1"
+            },
+            {
+              "date": "2024-12-23",
+              "branch": null,
+              "description": "Transferencia de Carlos Soto",
+              "doc_number": "8060149",
+              "out": 0,
+              "in": 50000,
+              "balance": 0,
+              "id": "3b82bb9c263f7cc59411801782bab60c1"
+            },
+            {
+              "date": "2024-12-26",
+              "branch": null,
+              "description": "Envío a María Fernández",
+              "doc_number": "7099940",
+              "out": 100000,
+              "in": 0,
+              "balance": 0,
+              "id": "1f1e3673742c7ba85747e88afc3d458c1"
+            },
+            {
+              "date": "2024-12-27",
+              "branch": null,
+              "description": "Envío a Carlos Soto",
+              "doc_number": "7092602",
+              "out": 900000,
+              "in": 0,
+              "balance": 0,
+              "id": "3e07e501f41eef8f5f429b3ba8eed5761"
+            },
+            {
+              "date": "2024-12-30",
+              "branch": null,
+              "description": "Envío a Carlos Soto",
+              "doc_number": "7024816",
+              "out": 7000,
+              "in": 0,
+              "balance": 0,
+              "id": "d5da9e952f68bf5e9d52add55201b10a1"
+            },
+            {
+              "date": "2025-01-02",
+              "branch": null,
+              "description": "Envío a María Fernández",
+              "doc_number": "7092437",
+              "out": 450000,
+              "in": 0,
+              "balance": 0,
+              "id": "05288504eb244a1739b71acea8bcd2a81"
+            },
+            {
+              "date": "2025-01-02",
+              "branch": null,
+              "description": "Depósito de sueldo",
+              "doc_number": "8017855",
+              "out": 0,
+              "in": 1000000,
+              "balance": 0,
+              "id": "ba2b968882dbfdc94cc20ca7ac3951f81"
+            },
+            {
+              "date": "2025-01-02",
+              "branch": null,
+              "description": "Transferencia de Empresa Nova",
+              "doc_number": "1077",
+              "out": 0,
+              "in": 750000,
+              "balance": 0,
+              "id": "bfa65778b2bd2d982eaf1116927099dc1"
+            },
+            {
+              "date": "2025-01-03",
+              "branch": null,
+              "description": "Pago servicio de Electricidad",
+              "doc_number": "7020333",
+              "out": 41580,
+              "in": 0,
+              "balance": 0,
+              "id": "c57f73ba0f5164519bf6b9b3120bff531"
+            },
+            {
+              "date": "2025-01-03",
+              "branch": null,
+              "description": "Pago de plan móvil",
+              "doc_number": "7020559",
+              "out": 19245,
+              "in": 0,
+              "balance": 0,
+              "id": "491cb22c0af9a0a834935e6f81fd4e0c1"
+            },
+            {
+              "date": "2025-01-06",
+              "branch": null,
+              "description": "Comisión bancaria",
+              "doc_number": "1212",
+              "out": 512,
+              "in": 0,
+              "balance": 0,
+              "id": "a547870d43223402cc62e6649965b6771"
+            },
+            {
+              "date": "2025-01-06",
+              "branch": null,
+              "description": "Comisión bancaria",
+              "doc_number": "1212",
+              "out": 512,
+              "in": 0,
+              "balance": 0,
+              "id": "a547870d43223402cc62e6649965b6772"
+            },
+            {
+              "date": "2025-01-06",
+              "branch": null,
+              "description": "Transferencia de Pedro Rivas",
+              "doc_number": "1077",
+              "out": 0,
+              "in": 50000,
+              "balance": 0,
+              "id": "72efccbeaa9867788fbd6c66b7bc11e81"
+            },
+            {
+              "date": "2025-01-06",
+              "branch": null,
+              "description": "Compra en tienda online",
+              "doc_number": "4051331",
+              "out": 4085,
+              "in": 0,
+              "balance": 0,
+              "id": "438a0375ac5f39355e1ea24bdd62c34b1"
+            },
+            {
+              "date": "2025-01-06",
+              "branch": null,
+              "description": "Compra en tienda online",
+              "doc_number": "4051331",
+              "out": 8170,
+              "in": 0,
+              "balance": 0,
+              "id": "18b60e107a542c8c908852bc219d3df91"
+            },
+            {
+              "date": "2025-01-13",
+              "branch": null,
+              "description": "Transferencia a Lucía Herrera",
+              "doc_number": "1618",
+              "out": 300,
+              "in": 0,
+              "balance": 0,
+              "id": "5886863cab05e7bd4ff7cd74c2670fec1"
+            },
+            {
+              "date": "2025-01-13",
+              "branch": null,
+              "description": "Pago WOM",
+              "doc_number": "4220423",
+              "out": 15678,
+              "in": 0,
+              "balance": 0,
+              "id": "8e6b609572e5617eb689cd1c08cd9d371"
+            },
+            {
+              "date": "2025-01-13",
+              "branch": null,
+              "description": "Envío a Empresa Nova",
+              "doc_number": "7040032",
+              "out": 3500,
+              "in": 0,
+              "balance": 0,
+              "id": "ab41762d97e0342505a80a09393555f51"
+            },
+            {
+              "date": "2025-01-13",
+              "branch": null,
+              "description": "Envío a María Fernández",
+              "doc_number": "7006355",
+              "out": 95000,
+              "in": 0,
+              "balance": 0,
+              "id": "73a64a51f2fa73df6945be195fe6de831"
+            },
+            {
+              "date": "2025-01-13",
+              "branch": null,
+              "description": "Envío a María Fernández",
+              "doc_number": "7037531",
+              "out": 200000,
+              "in": 0,
+              "balance": 0,
+              "id": "2a108552e9ab0c9d97883771e83b0fa01"
+            },
+            {
+              "date": "2025-01-17",
+              "branch": null,
+              "description": "Transferencia de Esteban Núñez",
+              "doc_number": "1077",
+              "out": 0,
+              "in": 80000,
+              "balance": 0,
+              "id": "bfb38d210d2a5fc0633fee00194911291"
+            },
+            {
+              "date": "2025-01-17",
+              "branch": null,
+              "description": "Pago servicio de Gas",
+              "doc_number": "7089289",
+              "out": 74480,
+              "in": 0,
+              "balance": 0,
+              "id": "1d3d21e0f246820804c0f7dfb66bf37f1"
+            },
+            {
+              "date": "2025-01-20",
+              "branch": null,
+              "description": "Transferencia de Carlos Soto",
+              "doc_number": "8065034",
+              "out": 0,
+              "in": 20000,
+              "balance": 0,
+              "id": "9c76a6e1fc87253203e956cc6ae2ed2e1"
+            },
+            {
+              "date": "2025-01-27",
+              "branch": null,
+              "description": "Transferencia a Lucía Herrera",
+              "doc_number": "1618",
+              "out": 300,
+              "in": 0,
+              "balance": 0,
+              "id": "19ff6e87064fab0fab335dae9aadd85a1"
+            },
+            {
+              "date": "2025-01-27",
+              "branch": null,
+              "description": "Envío a Carlos Soto",
+              "doc_number": "7009142",
+              "out": 6500,
+              "in": 0,
+              "balance": 0,
+              "id": "53fae162cde86deffd3e3f06eeae6eab1"
+            },
+            {
+              "date": "2025-01-30",
+              "branch": null,
+              "description": "Envío a María Fernández",
+              "doc_number": "7069180",
+              "out": 420000,
+              "in": 0,
+              "balance": 0,
+              "id": "9ae4426dfb38c0d4a1fcc5a0509fcde11"
+            },
+            {
+              "date": "2025-02-03",
+              "branch": null,
+              "description": "Depósito de sueldo",
+              "doc_number": "1077",
+              "out": 0,
+              "in": 750000,
+              "balance": 0,
+              "id": "649158f77340d25540889b1d19faba8d1"
+            },
+            {
+              "date": "2025-02-04",
+              "branch": null,
+              "description": "Pago servicio de Internet",
+              "doc_number": "7072194",
+              "out": 51200,
+              "in": 0,
+              "balance": 0,
+              "id": "52ec9b3c15de4beb80aebac1817c01d01"
+            },
+            {
+              "date": "2025-02-04",
+              "branch": null,
+              "description": "Pago de plan móvil",
+              "doc_number": "7075353",
+              "out": 19245,
+              "in": 0,
+              "balance": 0,
+              "id": "4f59cde2610774c083e033c48e60ec661"
+            },
+            {
+              "date": "2025-02-10",
+              "branch": null,
+              "description": "Comisión bancaria",
+              "doc_number": "1212",
+              "out": 491,
+              "in": 0,
+              "balance": 0,
+              "id": "6731ac361e4648021c8a2cd69276a4731"
+            },
+            {
+              "date": "2025-02-10",
+              "branch": null,
+              "description": "Comisión bancaria",
+              "doc_number": "1212",
+              "out": 491,
+              "in": 0,
+              "balance": 0,
+              "id": "6731ac361e4648021c8a2cd69276a4732"
+            },
+            {
+              "date": "2025-02-10",
+              "branch": null,
+              "description": "Compra en tienda online",
+              "doc_number": "3381876",
+              "out": 8024,
+              "in": 0,
+              "balance": 0,
+              "id": "edd5d8c70cb76b3801cc6361b06110821"
+            },
+            {
+              "date": "2025-02-10",
+              "branch": null,
+              "description": "Compra en tienda online",
+              "doc_number": "4051331",
+              "out": 4012,
+              "in": 0,
+              "balance": 0,
+              "id": "b8c0d5163f02561eb4325212ec55ce871"
+            },
+            {
+              "date": "2025-02-14",
+              "branch": null,
+              "description": "Envío a Javiera López",
+              "doc_number": "7058471",
+              "out": 100000,
+              "in": 0,
+              "balance": 0,
+              "id": "fb9a6e4ee4d77dbd3de5f8e469375d0a1"
+            },
+            {
+              "date": "2025-02-17",
+              "branch": null,
+              "description": "Envío a Carlos Soto",
+              "doc_number": "7016958",
+              "out": 25000,
+              "in": 0,
+              "balance": 0,
+              "id": "ecac831d02764e36f1af03b3035484521"
+            },
+            {
+              "date": "2025-02-18",
+              "branch": null,
+              "description": "Pago servicio de Electricidad",
+              "doc_number": "7007969",
+              "out": 99080,
+              "in": 0,
+              "balance": 0,
+              "id": "4dcfe575e1a068a5bbc9716dc7a865dd1"
+            },
+            {
+              "date": "2025-02-19",
+              "branch": null,
+              "description": "Transferencia de Empresa Nova",
+              "doc_number": "0",
+              "out": 0,
+              "in": 100000,
+              "balance": 0,
+              "id": "015b44e2b10f88ef552c128391739d2d1"
+            },
+            {
+              "date": "2025-02-19",
+              "branch": null,
+              "description": "Envío a Lucía Herrera",
+              "doc_number": "7028396",
+              "out": 130000,
+              "in": 0,
+              "balance": 0,
+              "id": "076978429b8f454d3bd43808828589771"
+            },
+            {
+              "date": "2025-02-25",
+              "branch": null,
+              "description": "Transf A B. Estado Cta Cliente",
+              "doc_number": "7047438",
+              "out": 5300,
+              "in": 0,
+              "balance": 0,
+              "id": "ebec4d8e602b7b73484479a88aa16a981"
+            },
+            {
+              "date": "2025-02-26",
+              "branch": null,
+              "description": "Pago WOM",
+              "doc_number": "4220423",
+              "out": 9060,
+              "in": 0,
+              "balance": 0,
+              "id": "8218f17a4bd2100e79e4ab569a06c3751"
+            },
+            {
+              "date": "2025-02-27",
+              "branch": null,
+              "description": "Envío a Javiera López",
+              "doc_number": "7084636",
+              "out": 400000,
+              "in": 0,
+              "balance": 0,
+              "id": "c690bfa5734229760bcf2f4859bb79771"
+            },
+            {
+              "date": "2025-03-03",
+              "branch": null,
+              "description": "Pago WOM",
+              "doc_number": "4220423",
+              "out": 10880,
+              "in": 0,
+              "balance": 0,
+              "id": "651fcd00c2690b3e4a6b574fd4cd678b1"
+            },
+            {
+              "date": "2025-03-03",
+              "branch": null,
+              "description": "Pago servicio de Gas",
+              "doc_number": "7014748",
+              "out": 38140,
+              "in": 0,
+              "balance": 0,
+              "id": "63a1a8fea5654d3dcc78707bcfaf10321"
+            },
+            {
+              "date": "2025-03-03",
+              "branch": null,
+              "description": "Pago de plan móvil",
+              "doc_number": "7064500",
+              "out": 19437,
+              "in": 0,
+              "balance": 0,
+              "id": "2cf554a084d47d21aa1efb9f3d751fd21"
+            },
+            {
+              "date": "2025-03-03",
+              "branch": null,
+              "description": "Envío a Lucía Herrera",
+              "doc_number": "7070948",
+              "out": 13500,
+              "in": 0,
+              "balance": 0,
+              "id": "e680da215f744f9f68aefc1ccf04bc631"
+            },
+            {
+              "date": "2025-03-03",
+              "branch": null,
+              "description": "Depósito de sueldo",
+              "doc_number": "1077",
+              "out": 0,
+              "in": 750000,
+              "balance": 0,
+              "id": "6aeaa552f488387be8e9d6d6a1e227151"
+            },
+            {
+              "date": "2025-03-10",
+              "branch": null,
+              "description": "Compra en tienda online",
+              "doc_number": "4454216",
+              "out": 3973,
+              "in": 0,
+              "balance": 0,
+              "id": "b31c1b0971045511460394d25277b1ff1"
+            },
+            {
+              "date": "2025-03-10",
+              "branch": null,
+              "description": "Comisión bancaria",
+              "doc_number": "1212",
+              "out": 1485,
+              "in": 0,
+              "balance": 0,
+              "id": "cf869ec36a5916ccdf31dd8e409fa0931"
+            },
+            {
+              "date": "2025-03-10",
+              "branch": null,
+              "description": "Compra en tienda online",
+              "doc_number": "3381876",
+              "out": 78152,
+              "in": 0,
+              "balance": 0,
+              "id": "2a21c4834b4a2b1f469a33ecc0499e571"
+            },
+            {
+              "date": "2025-03-10",
+              "branch": null,
+              "description": "Comisión bancaria",
+              "doc_number": "1212",
+              "out": 474,
+              "in": 0,
+              "balance": 0,
+              "id": "e96dbabbe3b58d209dee9981a8cee0cb1"
+            },
+            {
+              "date": "2025-03-17",
+              "branch": null,
+              "description": "Transferencia a Carlos Soto",
+              "doc_number": "1618",
+              "out": 300,
+              "in": 0,
+              "balance": 0,
+              "id": "c66a94700db57698cb60e2de0172d56a1"
+            },
+            {
+              "date": "2025-03-17",
+              "branch": null,
+              "description": "Envío a Esteban Núñez",
+              "doc_number": "7005877",
+              "out": 10000,
+              "in": 0,
+              "balance": 0,
+              "id": "01f384ac27290e2d9349d9e35434a3111"
+            },
+            {
+              "date": "2025-03-18",
+              "branch": null,
+              "description": "Pago servicio de TV cable",
+              "doc_number": "7069262",
+              "out": 77880,
+              "in": 0,
+              "balance": 0,
+              "id": "c8dd513d821c405d0beedfad09c7088a1"
+            },
+            {
+              "date": "2025-03-18",
+              "branch": null,
+              "description": "Transferencia de Banco Progreso",
+              "doc_number": "1077",
+              "out": 0,
+              "in": 120000,
+              "balance": 0,
+              "id": "b0c39d08feb7540b82ffb69e1cc4e2ca1"
+            },
+            {
+              "date": "2025-03-21",
+              "branch": null,
+              "description": "Transferencia de Pedro Rivas",
+              "doc_number": "8083566",
+              "out": 0,
+              "in": 10000,
+              "balance": 0,
+              "id": "eff6329b57733bb17d5104d0e05f75b31"
+            },
+            {
+              "date": "2025-03-21",
+              "branch": null,
+              "description": "Pago a tarjeta Scotiabank",
+              "doc_number": "4508187",
+              "out": 5390,
+              "in": 0,
+              "balance": 0,
+              "id": "c970402e5da82db0bd50f04e00b851de1"
+            },
+            {
+              "date": "2025-03-25",
+              "branch": null,
+              "description": "Comisión bancaria",
+              "doc_number": "1212",
+              "out": 474,
+              "in": 0,
+              "balance": 0,
+              "id": "a71dcd1fa1d09242ec8282bb9a20bbe91"
+            },
+            {
+              "date": "2025-03-25",
+              "branch": null,
+              "description": "Comisión bancaria",
+              "doc_number": "1212",
+              "out": 742,
+              "in": 0,
+              "balance": 0,
+              "id": "8faa22a68f423a6de197db94513a35a81"
+            },
+            {
+              "date": "2025-03-25",
+              "branch": null,
+              "description": "Compra en tienda online",
+              "doc_number": "3381876",
+              "out": 39034,
+              "in": 0,
+              "balance": 0,
+              "id": "067d680cff6a0d96c264a0bf7ae75cb11"
+            },
+            {
+              "date": "2025-03-25",
+              "branch": null,
+              "description": "Compra en tienda online",
+              "doc_number": "4051331",
+              "out": 7806,
+              "in": 0,
+              "balance": 0,
+              "id": "502de3b82c31ccee22717a9d94a9da761"
+            },
+            {
+              "date": "2025-03-26",
+              "branch": null,
+              "description": "Envío a Pedro Rivas",
+              "doc_number": "7089411",
+              "out": 200000,
+              "in": 0,
+              "balance": 0,
+              "id": "f437741c56d22a93af185ff119b174ec1"
+            },
+            {
+              "date": "2025-03-31",
+              "branch": null,
+              "description": "Comisión bancaria",
+              "doc_number": "1212",
+              "out": 477,
+              "in": 0,
+              "balance": 0,
+              "id": "a759d07632becc2a0b6cb03289b3eb601"
+            },
+            {
+              "date": "2025-03-31",
+              "branch": null,
+              "description": "Comisión bancaria",
+              "doc_number": "1212",
+              "out": 477,
+              "in": 0,
+              "balance": 0,
+              "id": "a759d07632becc2a0b6cb03289b3eb602"
+            },
+            {
+              "date": "2025-03-31",
+              "branch": null,
+              "description": "Envío a Lucía Herrera",
+              "doc_number": "7043681",
+              "out": 370000,
+              "in": 0,
+              "balance": 0,
+              "id": "89120415fe5aa268987421db36852f051"
+            },
+            {
+              "date": "2025-03-31",
+              "branch": null,
+              "description": "Compra en tienda online",
+              "doc_number": "4051331",
+              "out": 12021,
+              "in": 0,
+              "balance": 0,
+              "id": "fd5ad2939dac0362b4980d8ded30e06a1"
+            },
+            {
+              "date": "2025-03-31",
+              "branch": null,
+              "description": "Compra en tienda online",
+              "doc_number": "4051331",
+              "out": 24041,
+              "in": 0,
+              "balance": 0,
+              "id": "ee338bde03ef3bb6d7030eb1937c4af81"
+            },
+            {
+              "date": "2025-04-01",
+              "branch": null,
+              "description": "Pago servicio de Gas",
+              "doc_number": "7052556",
+              "out": 43230,
+              "in": 0,
+              "balance": 0,
+              "id": "459e5bf84ad7b81fd641bcda8c3915371"
+            },
+            {
+              "date": "2025-04-01",
+              "branch": null,
+              "description": "Depósito de sueldo",
+              "doc_number": "1077",
+              "out": 0,
+              "in": 750000,
+              "balance": 0,
+              "id": "2fc88cf3e79063fb6fcab2efaef8bbb41"
+            },
+            {
+              "date": "2025-04-03",
+              "branch": null,
+              "description": "Pago de plan móvil",
+              "doc_number": "7018463",
+              "out": 19437,
+              "in": 0,
+              "balance": 0,
+              "id": "269bd5be29c259406b0f0f84d8a07f941"
+            },
+            {
+              "date": "2025-04-07",
+              "branch": null,
+              "description": "Pago WOM",
+              "doc_number": "4220423",
+              "out": 17080,
+              "in": 0,
+              "balance": 0,
+              "id": "b4e5db5ad4270cdc4d705e8157a7994d1"
+            },
+            {
+              "date": "2025-04-14",
+              "branch": null,
+              "description": "Envío a Banco Progreso",
+              "doc_number": "7045101",
+              "out": 15300,
+              "in": 0,
+              "balance": 0,
+              "id": "67e3c7c1c1056a17333426530c2b5f1f1"
+            },
+            {
+              "date": "2025-04-16",
+              "branch": null,
+              "description": "Compra en tienda online",
+              "doc_number": "4454216",
+              "out": 4285,
+              "in": 0,
+              "balance": 0,
+              "id": "787d180fb827036c531b316b61046a571"
+            },
+            {
+              "date": "2025-04-16",
+              "branch": null,
+              "description": "Compra en tienda online",
+              "doc_number": "4051331",
+              "out": 84296,
+              "in": 0,
+              "balance": 0,
+              "id": "75d3c021f84a48e3d2899fb25c631f3f1"
+            },
+            {
+              "date": "2025-04-16",
+              "branch": null,
+              "description": "Pago servicio de Gas",
+              "doc_number": "7058360",
+              "out": 68970,
+              "in": 0,
+              "balance": 0,
+              "id": "954ca966dc51f5280810b80d7e26c0961"
+            },
+            {
+              "date": "2025-04-16",
+              "branch": null,
+              "description": "Transferencia de Banco Progreso",
+              "doc_number": "1077",
+              "out": 0,
+              "in": 80000,
+              "balance": 0,
+              "id": "207e13e995d087d1c8ab5a2e0f45581d1"
+            },
+            {
+              "date": "2025-04-16",
+              "branch": null,
+              "description": "Comisión bancaria",
+              "doc_number": "1212",
+              "out": 1602,
+              "in": 0,
+              "balance": 0,
+              "id": "dbb10b9f9fc74e80083b2c60c960dc9d1"
+            },
+            {
+              "date": "2025-04-16",
+              "branch": null,
+              "description": "Comisión bancaria",
+              "doc_number": "1212",
+              "out": 496,
+              "in": 0,
+              "balance": 0,
+              "id": "0da0c9bcaabdf6adbd0fa1050e6c9cf41"
+            },
+            {
+              "date": "2025-04-21",
+              "branch": null,
+              "description": "Transferencia a Javiera López",
+              "doc_number": "1618",
+              "out": 300,
+              "in": 0,
+              "balance": 0,
+              "id": "8a6d3eafb8e0bb00147fc41e94fad6fb1"
+            },
+            {
+              "date": "2025-04-21",
+              "branch": null,
+              "description": "Envío a Pedro Rivas",
+              "doc_number": "7092131",
+              "out": 20000,
+              "in": 0,
+              "balance": 0,
+              "id": "6b6ccaf0748fb1f30407920cff4104392"
+            },
+            {
+              "date": "2025-04-21",
+              "branch": null,
+              "description": "Envío a Empresa Nova",
+              "doc_number": "7074180",
+              "out": 20000,
+              "in": 0,
+              "balance": 0,
+              "id": "6b6ccaf0748fb1f30407920cff4104391"
+            },
+            {
+              "date": "2025-04-22",
+              "branch": null,
+              "description": "Pago servicio de TV cable",
+              "doc_number": "7011806",
+              "out": 25600,
+              "in": 0,
+              "balance": 0,
+              "id": "fefd269c32173f57e8f55c59cb60e34d1"
+            },
+            {
+              "date": "2025-04-23",
+              "branch": null,
+              "description": "Envío a Banco Progreso",
+              "doc_number": "7024844",
+              "out": 50000,
+              "in": 0,
+              "balance": 0,
+              "id": "6f972f2300b48bf7ca8d1dd23a2123661"
+            },
+            {
+              "date": "2025-04-29",
+              "branch": null,
+              "description": "Envío a María Fernández",
+              "doc_number": "7016614",
+              "out": 10000,
+              "in": 0,
+              "balance": 0,
+              "id": "a58fa64148a73978035b6627283182241"
+            },
+            {
+              "date": "2025-04-30",
+              "branch": null,
+              "description": "Comisión bancaria",
+              "doc_number": "1212",
+              "out": 797,
+              "in": 0,
+              "balance": 0,
+              "id": "a97e8546dc31cff9291b68b4decfc8701"
+            },
+            {
+              "date": "2025-04-30",
+              "branch": null,
+              "description": "Compra en tienda online",
+              "doc_number": "3381876",
+              "out": 17060,
+              "in": 0,
+              "balance": 0,
+              "id": "9cdd63f0fe5c1c8b3658e2c856a96e0b1"
+            },
+            {
+              "date": "2025-04-30",
+              "branch": null,
+              "description": "Compra en tienda online",
+              "doc_number": "4051331",
+              "out": 41963,
+              "in": 0,
+              "balance": 0,
+              "id": "1b8a333734ceb38834afdedcc19dbb741"
+            }
+          ]
+        }
+      ]
+    },
+    "income": {
+      "accounts": [
+        null
+      ]
+    }
+  }
+]

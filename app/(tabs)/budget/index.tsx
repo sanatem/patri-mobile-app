@@ -1,18 +1,59 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { ChevronLeft, ChevronRight, Search } from 'lucide-react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal, FlatList } from 'react-native';
+import { ChevronLeft, ChevronRight, Search, X } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import BudgetChart from '@/components/budget/BudgetChart';
 import TransactionsList from '@/components/budget/TransactionsList';
+import transactionsData from '@/transacciones_simplificadas.json';
 
 const months = [
   'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
 ];
 
+// Función para convertir nombre de mes a número
+const getMonthNumber = (monthName: string): number => {
+  return months.indexOf(monthName) + 1;
+};
+
+// Función para calcular totales de ingresos y gastos por mes
+const calculateTotalsByMonth = (selectedMonth: string) => {
+  const data = transactionsData[0];
+  const transactions = data.transactions.accounts[0].transactions;
+  const monthNumber = getMonthNumber(selectedMonth);
+  
+  let totalIncome = 0;
+  let totalExpenses = 0;
+  let incomeCount = 0;
+  let expenseCount = 0;
+  
+  transactions.forEach((transaction: any) => {
+    const transactionDate = new Date(transaction.date);
+    const transactionMonth = transactionDate.getMonth() + 1; // getMonth() es 0-based
+    
+    // Solo contar transacciones del mes seleccionado
+    if (transactionMonth === monthNumber) {
+      if (transaction.in > 0) {
+        totalIncome += transaction.in;
+        incomeCount++;
+      }
+      if (transaction.out > 0) {
+        totalExpenses += transaction.out;
+        expenseCount++;
+      }
+    }
+  });
+  
+  return { totalIncome, totalExpenses, incomeCount, expenseCount };
+};
+
 export default function BudgetScreen() {
   const [selectedMonth, setSelectedMonth] = useState('Enero');
-  const [activeTab, setActiveTab] = useState('income');
+  const [activeTab, setActiveTab] = useState<'income' | 'expenses'>('income');
+  const [isMonthModalVisible, setIsMonthModalVisible] = useState(false);
+
+  // Calcular totales para el mes seleccionado
+  const { totalIncome, totalExpenses, incomeCount, expenseCount } = calculateTotalsByMonth(selectedMonth);
 
   const handlePreviousMonth = () => {
     const currentIndex = months.indexOf(selectedMonth);
@@ -32,6 +73,28 @@ export default function BudgetScreen() {
     }
   };
 
+  const handleMonthSelect = (month: string) => {
+    setSelectedMonth(month);
+    setIsMonthModalVisible(false);
+  };
+
+  const renderMonthItem = ({ item }: { item: string }) => (
+    <TouchableOpacity
+      style={[
+        styles.monthItem,
+        selectedMonth === item && styles.selectedMonthItem
+      ]}
+      onPress={() => handleMonthSelect(item)}
+    >
+      <Text style={[
+        styles.monthItemText,
+        selectedMonth === item && styles.selectedMonthItemText
+      ]}>
+        {item}
+      </Text>
+    </TouchableOpacity>
+  );
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -45,7 +108,10 @@ export default function BudgetScreen() {
               <ChevronLeft size={24} color={Colors.gray[700]} />
             </TouchableOpacity>
             
-            <TouchableOpacity style={styles.monthButton}>
+            <TouchableOpacity 
+              style={styles.monthButton}
+              onPress={() => setIsMonthModalVisible(true)}
+            >
               <Text style={styles.monthText}>{selectedMonth}</Text>
               <ChevronRight size={16} color={Colors.gray[500]} style={{ transform: [{ rotate: '90deg' }] }} />
             </TouchableOpacity>
@@ -55,9 +121,9 @@ export default function BudgetScreen() {
             </TouchableOpacity>
           </View>
 
-          <BudgetChart />
+          <BudgetChart selectedMonth={selectedMonth} />
           
-          <View style={styles.budgetLegend}>
+          <View style={styles.legend}>
             <View style={styles.legendItem}>
               <View style={[styles.legendColor, { backgroundColor: Colors.secondary[500] }]} />
               <Text style={styles.legendText}>Vivienda</Text>
@@ -95,7 +161,7 @@ export default function BudgetScreen() {
                 activeTab === 'income' && styles.activeTabText,
               ]}
             >
-              Ingresos <Text style={styles.tabCount}>6</Text>
+              Ingresos <Text style={styles.tabCount}>{incomeCount}</Text>
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -111,7 +177,7 @@ export default function BudgetScreen() {
                 activeTab === 'expenses' && styles.activeTabText,
               ]}
             >
-              Gastos <Text style={styles.tabCount}>62</Text>
+              Gastos <Text style={styles.tabCount}>{expenseCount}</Text>
             </Text>
           </TouchableOpacity>
         </View>
@@ -123,10 +189,40 @@ export default function BudgetScreen() {
           </Text>
         </View>
 
-        <TransactionsList type={activeTab} />
+        <TransactionsList type={activeTab} selectedMonth={selectedMonth} />
 
         <View style={styles.bottomSpace} />
       </ScrollView>
+
+      {/* Modal para seleccionar mes */}
+      <Modal
+        visible={isMonthModalVisible}
+        animationType="fade"
+        transparent={true}
+        onRequestClose={() => setIsMonthModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Seleccionar mes</Text>
+              <TouchableOpacity
+                onPress={() => setIsMonthModalVisible(false)}
+                style={styles.closeButton}
+              >
+                <X size={24} color={Colors.gray[600]} />
+              </TouchableOpacity>
+            </View>
+            
+            <FlatList
+              data={months}
+              renderItem={renderMonthItem}
+              keyExtractor={(item) => item}
+              showsVerticalScrollIndicator={false}
+              style={styles.monthsList}
+            />
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -176,7 +272,7 @@ const styles = StyleSheet.create({
     color: Colors.gray[800],
     marginRight: 4,
   },
-  budgetLegend: {
+  legend: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
@@ -261,5 +357,53 @@ const styles = StyleSheet.create({
   },
   bottomSpace: {
     height: 100,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 20,
+    width: '80%',
+    alignItems: 'center',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+    marginBottom: 16,
+  },
+  modalTitle: {
+    fontFamily: 'Inter-SemiBold',
+    fontSize: 18,
+    color: Colors.gray[800],
+  },
+  closeButton: {
+    padding: 8,
+  },
+  monthsList: {
+    width: '100%',
+  },
+  monthItem: {
+    padding: 16,
+    borderRadius: 8,
+    marginVertical: 2,
+  },
+  selectedMonthItem: {
+    backgroundColor: Colors.primary[500],
+  },
+  monthItemText: {
+    fontFamily: 'Inter-Medium',
+    fontSize: 16,
+    color: Colors.gray[800],
+    textAlign: 'center',
+  },
+  selectedMonthItemText: {
+    color: 'white',
   },
 });
