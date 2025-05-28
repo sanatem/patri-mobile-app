@@ -13,8 +13,8 @@ export default function LoadingProfile() {
 
   return (
     <View style={styles.container}>
-      <ActivityIndicator size="large" color="#2563eb" />
-      <Text style={styles.text}>Defining your investor profile...</Text>
+      <ActivityIndicator size="large" color="#ff5603" />
+      <Text style={styles.text}>Definiendo tu perfil de inversor...</Text>
     </View>
   );
 }
