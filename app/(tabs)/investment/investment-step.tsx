@@ -33,14 +33,14 @@ export default function InvestmentStep() {
 
       {/* Body */}
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.question}>¿A qué objetivo quieres mover tu dinero?</Text>
+        <Text style={styles.question}>¿A qué meta quieres mover tu dinero?</Text>
 
         {/* Dropdown fake */}
         <Pressable
           style={styles.selectBox}
           onPress={() => setOpen((prev) => !prev)}
         >
-          <Text style={styles.selectLabel}>Selecciona un objetivo</Text>
+          <Text style={styles.selectLabel}>Selecciona una meta</Text>
           <View style={styles.selectContent}>
             <Text style={styles.selectedValue}>🏠 {selected}</Text>
             <ChevronDown size={18} color="#6B7280" />

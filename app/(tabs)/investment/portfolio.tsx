@@ -31,15 +31,21 @@ export default function InvestmentPortfolioScreen() {
         <Text style={styles.balanceValue}>$59.809</Text>
 
         <View style={styles.balanceActions}>
-          <TouchableOpacity style={styles.roundButton}>
-            <TrendingUp size={24} color="white" />
-            <Text style={styles.roundLabel}>Invertir</Text>
-          </TouchableOpacity>
+        <TouchableOpacity
+  style={styles.roundButton}
+  onPress={() => router.push('/(tabs)/investment/investment-step')}
+>
+  <TrendingUp size={24} color="white" />
+  <Text style={styles.roundLabel}>Invertir</Text>
+</TouchableOpacity>
+<TouchableOpacity
+  style={styles.roundButton}
+  onPress={() => router.push('/(tabs)/investment/create-goals')}
+>
+  <Plus size={24} color="white" />
+  <Text style={styles.roundLabel}>Crear</Text>
+</TouchableOpacity>
 
-          <TouchableOpacity style={styles.roundButton}>
-            <Plus size={24} color="white" />
-            <Text style={styles.roundLabel}>Crear</Text>
-          </TouchableOpacity>
         </View>
       </View>
 
