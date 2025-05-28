@@ -8,28 +8,141 @@ import {
   TouchableOpacity,
   Pressable,
 } from 'react-native';
-import { Search, ChevronRight, Users } from 'lucide-react-native';
+import {
+  Search,
+  ChevronRight,
+  Users,
+  ChevronDown,
+  ArrowUp,
+  ArrowDown,
+} from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import { useAuth } from '@/providers/AuthProvider';
 import { useCopilotReadable, useCopilotAction } from '@/hooks/useCopilotHooks';
 import AreaChart from '@/components/patrimony/AreaChart';
 import AssetCard from '@/components/patrimony/AssetCard';
+import LiabilityCard from '@/components/patrimony/LiabilityCard';
 import { useChartRangeStore } from '@/store/chartRangeStore';
-import { Asset } from '@/types';
+import { Asset, Liability } from '@/types';
 
 const myAssets: Asset[] = [
-  { id: '1', name: 'Chase', type: 'Cuenta Corriente', value: 724483, change: 2.8, color: '#4285F4' },
-  { id: '2', name: 'Bank of America', type: 'Cuenta de Ahorro', value: 538261, change: 1.4, color: '#EA4335' },
-  { id: '3', name: 'Fondo Mutuo Santander', type: 'Inversión', value: 892147, change: -0.5, color: '#FBBC05' },
+  {
+    id: '1',
+    name: 'Chase',
+    type: 'Cuenta Corriente',
+    value: 7204483,
+    change: 2.8,
+    color: '#4285F4',
+  },
+  {
+    id: '2',
+    name: 'Bank of America',
+    type: 'Cuenta de Ahorro',
+    value: 538261,
+    change: 1.4,
+    color: '#EA4335',
+  },
+  {
+    id: '3',
+    name: 'Fondo Mutuo Santander',
+    type: 'Inversión',
+    value: 892147,
+    change: -0.5,
+    color: '#FBBC05',
+  },
+  {
+    id: '4',
+    name: 'Inversiones Vector',
+    type: 'Inversión',
+    value: 280000000,
+    change: 3.2,
+    color: '#6366F1',
+  },
 ];
 
 const partnerAssets: Asset[] = [
-  { id: '4', name: 'Banco Falabella', type: 'Cuenta Corriente', value: 280000, change: 3.2, color: '#6366F1' },
-  { id: '5', name: 'Banco Itaú', type: 'Cuenta de Ahorro', value: 150000, change: 0.8, color: '#10B981' },
-  { id: '6', name: 'Inversión ABC', type: 'Inversión', value: 500000, change: 1.2, color: '#F59E0B' },
+  {
+    id: '4',
+    name: 'Banco Falabella',
+    type: 'Cuenta Corriente',
+    value: 280000,
+    change: 3.2,
+    color: '#6366F1',
+  },
+  {
+    id: '5',
+    name: 'Banco Itaú',
+    type: 'Cuenta de Ahorro',
+    value: 150000,
+    change: 0.8,
+    color: '#10B981',
+  },
+  {
+    id: '6',
+    name: 'Inversión ABC',
+    type: 'Inversión',
+    value: 500000,
+    change: 1.2,
+    color: '#F59E0B',
+  },
+];
+
+const myLiabilities: Liability[] = [
+  {
+    id: '7',
+    name: 'Hipoteca Casa',
+    type: 'Préstamo Hipotecario',
+    value: 85000000,
+    change: -2.5,
+    color: '#DC2626',
+  },
+  {
+    id: '8',
+    name: 'Tarjeta Visa',
+    type: 'Tarjeta de Crédito',
+    value: 1250000,
+    change: 15.2,
+    color: '#7C2D12',
+  },
+  {
+    id: '9',
+    name: 'Préstamo Auto',
+    type: 'Préstamo Vehicular',
+    value: 12500000,
+    change: -5.8,
+    color: '#B91C1C',
+  },
+];
+
+const partnerLiabilities: Liability[] = [
+  {
+    id: '10',
+    name: 'Crédito Estudiantil',
+    type: 'Préstamo Educativo',
+    value: 8500000,
+    change: -3.2,
+    color: '#991B1B',
+  },
+  {
+    id: '11',
+    name: 'Tarjeta Mastercard',
+    type: 'Tarjeta de Crédito',
+    value: 890000,
+    change: 8.4,
+    color: '#7F1D1D',
+  },
+  {
+    id: '12',
+    name: 'Línea de Crédito',
+    type: 'Línea de Crédito',
+    value: 2500000,
+    change: 0.0,
+    color: '#6B1D1D',
+  },
 ];
 
 const combinedAssets = [...myAssets, ...partnerAssets];
+const combinedLiabilities = [...myLiabilities, ...partnerLiabilities];
 
 const timeRangeMapping = {
   '1 Mes': '1m',
@@ -38,37 +151,76 @@ const timeRangeMapping = {
   Todo: 'all',
 } as const;
 
-const timeRanges = Object.keys(timeRangeMapping) as Array<keyof typeof timeRangeMapping>;
+const timeRanges = Object.keys(timeRangeMapping) as Array<
+  keyof typeof timeRangeMapping
+>;
 
 export default function PatrimonyScreen() {
   const { user } = useAuth();
   const { rangeSize, setRangeSize } = useChartRangeStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('assets');
-  const [ownerView, setOwnerView] = useState<'mine' | 'partner' | 'both'>('mine');
+  const [ownerView, setOwnerView] = useState<'mine' | 'partner' | 'both'>(
+    'mine'
+  );
   const [showSelector, setShowSelector] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
 
   const getAssetsForView = () => {
     switch (ownerView) {
-      case 'mine': return myAssets;
-      case 'partner': return partnerAssets;
-      case 'both': return combinedAssets;
-      default: return myAssets;
+      case 'mine':
+        return myAssets;
+      case 'partner':
+        return partnerAssets;
+      case 'both':
+        return combinedAssets;
+      default:
+        return myAssets;
+    }
+  };
+
+  const getLiabilitiesForView = () => {
+    switch (ownerView) {
+      case 'mine':
+        return myLiabilities;
+      case 'partner':
+        return partnerLiabilities;
+      case 'both':
+        return combinedLiabilities;
+      default:
+        return myLiabilities;
     }
   };
 
   const currentAssets = getAssetsForView();
+  const currentLiabilities = getLiabilitiesForView();
+
   const filteredAssets = currentAssets.filter(
     (asset) =>
       asset.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       asset.type.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const totalAssets = currentAssets.reduce((sum, asset) => sum + asset.value, 0);
+  const filteredLiabilities = currentLiabilities.filter(
+    (liability) =>
+      liability.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      liability.type.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const totalAssets = currentAssets.reduce(
+    (sum, asset) => sum + asset.value,
+    0
+  );
+  const totalLiabilities = currentLiabilities.reduce(
+    (sum, liability) => sum + liability.value,
+    0
+  );
+  const netWorth = totalAssets - totalLiabilities;
 
   const currentTimeRangeLabel =
     Object.keys(timeRangeMapping).find(
-      (key) => timeRangeMapping[key as keyof typeof timeRangeMapping] === rangeSize
+      (key) =>
+        timeRangeMapping[key as keyof typeof timeRangeMapping] === rangeSize
     ) || '6 Meses';
 
   const handleTimeRangeChange = (range: keyof typeof timeRangeMapping) => {
@@ -80,30 +232,76 @@ export default function PatrimonyScreen() {
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.selectorContainer}>
-          <Pressable style={styles.selectorToggle} onPress={() => setShowSelector(!showSelector)}>
+          <Pressable
+            style={styles.selectorToggle}
+            onPress={() => setShowSelector(!showSelector)}
+          >
             <View style={[styles.selectorCircle, styles.selectorCircleMain]}>
-              {ownerView === 'mine' && <Text style={styles.selectorText}>DT</Text>}
-              {ownerView === 'partner' && <Text style={styles.selectorText}>JM</Text>}
-              {ownerView === 'both' && <Users size={16} color={Colors.gray[700]} />}
+              {ownerView === 'mine' && (
+                <Text style={styles.selectorText}>DT</Text>
+              )}
+              {ownerView === 'partner' && (
+                <Text style={styles.selectorText}>JM</Text>
+              )}
+              {ownerView === 'both' && (
+                <Users size={16} color={Colors.gray[700]} />
+              )}
             </View>
-            <ChevronRight size={16} color={Colors.gray[500]} style={{ marginLeft: 4 }} />
+            <ChevronRight
+              size={16}
+              color={Colors.gray[500]}
+              style={{ marginLeft: 4 }}
+            />
           </Pressable>
 
           {showSelector && (
             <View style={styles.inlineSelectorOptions}>
-              <TouchableOpacity onPress={() => { setOwnerView('mine'); setShowSelector(false); }}>
-                <View style={[styles.selectorCircle, ownerView === 'mine' && styles.selectedCircle]}>
+              <TouchableOpacity
+                onPress={() => {
+                  setOwnerView('mine');
+                  setShowSelector(false);
+                }}
+              >
+                <View
+                  style={[
+                    styles.selectorCircle,
+                    ownerView === 'mine' && styles.selectedCircle,
+                  ]}
+                >
                   <Text style={styles.selectorText}>DT</Text>
                 </View>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => { setOwnerView('partner'); setShowSelector(false); }}>
-                <View style={[styles.selectorCircle, ownerView === 'partner' && styles.selectedCircle]}>
+              <TouchableOpacity
+                onPress={() => {
+                  setOwnerView('partner');
+                  setShowSelector(false);
+                }}
+              >
+                <View
+                  style={[
+                    styles.selectorCircle,
+                    ownerView === 'partner' && styles.selectedCircle,
+                  ]}
+                >
                   <Text style={styles.selectorText}>JM</Text>
                 </View>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => { setOwnerView('both'); setShowSelector(false); }}>
-                <View style={[styles.selectorCircle, ownerView === 'both' && styles.selectedCircle]}>
-                  <Users size={16} color={ownerView === 'both' ? '#FF6503' : Colors.gray[600]} />
+              <TouchableOpacity
+                onPress={() => {
+                  setOwnerView('both');
+                  setShowSelector(false);
+                }}
+              >
+                <View
+                  style={[
+                    styles.selectorCircle,
+                    ownerView === 'both' && styles.selectedCircle,
+                  ]}
+                >
+                  <Users
+                    size={16}
+                    color={ownerView === 'both' ? '#FF6503' : Colors.gray[600]}
+                  />
                 </View>
               </TouchableOpacity>
             </View>
@@ -111,23 +309,84 @@ export default function PatrimonyScreen() {
         </View>
       </View>
 
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.overviewCard}>
-          <Text style={styles.overviewTitle}>Patrimonio</Text>
-          <Text style={styles.totalAmount}>${totalAssets.toLocaleString('es-CL')}</Text>
+          <Text style={styles.overviewTitle}>Patrimonio Neto</Text>
+
+          <View style={styles.amountContainer}>
+            <Text style={styles.totalAmount}>
+              ${netWorth.toLocaleString('es-CL')}
+            </Text>
+            <TouchableOpacity
+              style={styles.infoButton}
+              onPress={() => setShowTooltip(!showTooltip)}
+            >
+              <ChevronDown
+                size={20}
+                color={Colors.gray[500]}
+                style={[
+                  styles.chevronIcon,
+                  showTooltip && styles.chevronRotated,
+                ]}
+              />
+            </TouchableOpacity>
+          </View>
+
+          {showTooltip && (
+            <View style={styles.tooltip}>
+              <View style={styles.tooltipItem}>
+                <View style={styles.tooltipItemLeft}>
+                  <ArrowUp
+                    size={16}
+                    color={Colors.success[500]}
+                    style={styles.tooltipIcon}
+                  />
+                  <Text style={styles.tooltipLabel}>Activos</Text>
+                </View>
+                <Text style={[styles.tooltipValue, styles.tooltipPositive]}>
+                  +${totalAssets.toLocaleString('es-CL')}
+                </Text>
+              </View>
+              <View style={styles.tooltipItem}>
+                <View style={styles.tooltipItemLeft}>
+                  <ArrowDown
+                    size={16}
+                    color={Colors.error[500]}
+                    style={styles.tooltipIcon}
+                  />
+                  <Text style={styles.tooltipLabel}>Pasivos</Text>
+                </View>
+                <Text style={[styles.tooltipValue, styles.tooltipNegative]}>
+                  -${totalLiabilities.toLocaleString('es-CL')}
+                </Text>
+              </View>
+            </View>
+          )}
+
           <Text style={styles.changeAmount}>
-            <Text style={styles.positiveChange}>$7,151,936 (71.52%)</Text> · vs último mes
+            <Text style={styles.positiveChange}>$7,151,936 (71.52%)</Text> · vs
+            último mes
           </Text>
 
           <View style={styles.timeRangeSelector}>
             {timeRanges.map((range) => (
               <TouchableOpacity
                 key={range}
-                style={[styles.timeRangeButton, currentTimeRangeLabel === range && styles.selectedTimeRange]}
+                style={[
+                  styles.timeRangeButton,
+                  currentTimeRangeLabel === range && styles.selectedTimeRange,
+                ]}
                 onPress={() => handleTimeRangeChange(range)}
               >
                 <Text
-                  style={[styles.timeRangeText, currentTimeRangeLabel === range && styles.selectedTimeRangeText]}
+                  style={[
+                    styles.timeRangeText,
+                    currentTimeRangeLabel === range &&
+                      styles.selectedTimeRangeText,
+                  ]}
                 >
                   {range}
                 </Text>
@@ -138,7 +397,11 @@ export default function PatrimonyScreen() {
           <AreaChart />
 
           <View style={styles.searchContainer}>
-            <Search size={20} color={Colors.gray[400]} style={styles.searchIcon} />
+            <Search
+              size={20}
+              color={Colors.gray[400]}
+              style={styles.searchIcon}
+            />
             <TextInput
               style={styles.searchInput}
               placeholder="Buscar activo o pasivo"
@@ -154,16 +417,31 @@ export default function PatrimonyScreen() {
             style={[styles.tab, activeTab === 'assets' && styles.activeTab]}
             onPress={() => setActiveTab('assets')}
           >
-            <Text style={[styles.tabText, activeTab === 'assets' && styles.activeTabText]}>
-              Activos <Text style={styles.tabCount}>{currentAssets.length}</Text>
+            <Text
+              style={[
+                styles.tabText,
+                activeTab === 'assets' && styles.activeTabText,
+              ]}
+            >
+              Activos{' '}
+              <Text style={styles.tabCount}>{currentAssets.length}</Text>
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.tab, activeTab === 'liabilities' && styles.activeTab]}
+            style={[
+              styles.tab,
+              activeTab === 'liabilities' && styles.activeTab,
+            ]}
             onPress={() => setActiveTab('liabilities')}
           >
-            <Text style={[styles.tabText, activeTab === 'liabilities' && styles.activeTabText]}>
-              Pasivos <Text style={styles.tabCount}>0</Text>
+            <Text
+              style={[
+                styles.tabText,
+                activeTab === 'liabilities' && styles.activeTabText,
+              ]}
+            >
+              Pasivos{' '}
+              <Text style={styles.tabCount}>{currentLiabilities.length}</Text>
             </Text>
           </TouchableOpacity>
         </View>
@@ -172,12 +450,29 @@ export default function PatrimonyScreen() {
           <Text style={styles.totalLabel}>
             Total en {activeTab === 'assets' ? 'activos' : 'pasivos'}
           </Text>
-          <Text style={styles.totalValue}>${totalAssets.toLocaleString('es-CL')}</Text>
+          <Text
+            style={[
+              styles.totalValue,
+              activeTab === 'liabilities' && styles.negativeValue,
+            ]}
+          >
+            {activeTab === 'assets' ? '+' : '-'}$
+            {(activeTab === 'assets'
+              ? totalAssets
+              : totalLiabilities
+            ).toLocaleString('es-CL')}
+          </Text>
         </View>
 
-        {activeTab === 'assets' && filteredAssets.map((asset) => (
-          <AssetCard key={asset.id} asset={asset} />
-        ))}
+        {activeTab === 'assets' &&
+          filteredAssets.map((asset) => (
+            <AssetCard key={asset.id} asset={asset} />
+          ))}
+
+        {activeTab === 'liabilities' &&
+          filteredLiabilities.map((liability) => (
+            <LiabilityCard key={liability.id} liability={liability} />
+          ))}
 
         <View style={styles.bottomSpace} />
       </ScrollView>
@@ -246,12 +541,20 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 8,
   },
+  amountContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   totalAmount: {
     fontFamily: 'Inter-Bold',
     fontSize: 32,
     color: Colors.gray[900],
     textAlign: 'center',
     marginBottom: 4,
+  },
+  negativeAmount: {
+    color: Colors.error[500],
   },
   changeAmount: {
     fontFamily: 'Inter-Regular',
@@ -355,7 +658,62 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: Colors.gray[900],
   },
+  negativeValue: {
+    color: Colors.error[500],
+  },
   bottomSpace: {
     height: 100,
+  },
+  infoButton: {
+    padding: 6,
+    marginBottom: 7,
+  },
+  tooltip: {
+    backgroundColor: 'transparent',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    marginTop: 12,
+    marginBottom: 12,
+    alignSelf: 'center',
+    maxWidth: 280,
+  },
+  tooltipItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
+    paddingHorizontal: 12,
+  },
+  tooltipItemLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  tooltipIcon: {
+    marginRight: 4,
+  },
+  tooltipLabel: {
+    fontFamily: 'Inter-Medium',
+    fontSize: 14,
+    color: Colors.gray[600],
+    paddingRight: 12,
+  },
+  tooltipValue: {
+    fontFamily: 'Inter-SemiBold',
+    fontSize: 14,
+    color: Colors.gray[900],
+  },
+  tooltipNegative: {
+    color: Colors.error[500],
+  },
+  tooltipPositive: {
+    color: Colors.success[500],
+  },
+  chevronIcon: {
+    marginLeft: 8,
+  },
+  chevronRotated: {
+    transform: [{ rotate: '180deg' }],
   },
 });
