@@ -85,7 +85,7 @@ export default function InvestmentStep() {
   );
 }
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#F9FAFB' },
+    container: { flex: 1, backgroundColor: '#F9FAFB', paddingTop: 64 },
     header: {
       padding: 16,
       flexDirection: 'row',

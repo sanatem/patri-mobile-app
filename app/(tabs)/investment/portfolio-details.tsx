@@ -27,8 +27,6 @@ export default function PortfolioDetailsScreen() {
   <Text style={styles.title}>{title}</Text>
 </View>
 
-
-
         {/* Rentabilidad */}
         <View style={styles.tipBox}>
           <Text style={styles.tipText}>
@@ -133,7 +131,7 @@ export default function PortfolioDetailsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F9FAFB' },
+  container: { flex: 1, backgroundColor: '#F9FAFB', paddingTop: 64 },
   scroll: { padding: 20, paddingBottom: 120 },
   header: {
     flexDirection: 'row',

@@ -5,13 +5,13 @@ import { router } from 'expo-router';
 export default function IdentityUpload() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Sube tu carnet por delante</Text>
+      <Text style={styles.title}>Sube tu carnet</Text>
       <Text style={styles.subtitle}>
         Haz click en el recuadro para subir la foto o arrástrala directamente
       </Text>
 
       <TouchableOpacity style={styles.uploadBox} onPress={() => router.push('/(tabs)/investment/identity-confirm')}>
-        <Text style={styles.uploadText}>+ Subir foto frontal del carnet</Text>
+        <Text style={styles.uploadText}>+ Subir foto del carnet</Text>
       </TouchableOpacity>
 
       <Text style={styles.link}>¿Qué datos obtendrán de mi carnet?</Text>
@@ -25,7 +25,7 @@ export default function IdentityUpload() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1, padding: 24, backgroundColor: '#fff'
+    flex: 1, padding: 24, backgroundColor: '#fff', paddingTop: 80
   },
   title: {
     fontSize: 20, fontWeight: '700', marginBottom: 8

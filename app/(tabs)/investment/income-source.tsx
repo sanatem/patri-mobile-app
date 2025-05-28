@@ -50,7 +50,8 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     justifyContent: 'center',
-    backgroundColor: '#fff'
+    backgroundColor: '#fff',
+    paddingTop: 80
   },
   title: {
     fontSize: 20,

@@ -27,7 +27,7 @@ export default function IdentityConfirm() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1, padding: 24, backgroundColor: '#fff'
+    flex: 1, padding: 24, backgroundColor: '#fff', paddingTop: 80
   },
   title: {
     fontSize: 20, fontWeight: '700', marginBottom: 4
