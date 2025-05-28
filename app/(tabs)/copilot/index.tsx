@@ -18,10 +18,7 @@ import {
 } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import { useAuth } from '@/providers/AuthProvider';
-import {
-  useCopilotChat,
-  useCopilotSuggestions,
-} from '@/hooks/useCopilotHooks';
+import { useCopilotChat, useCopilotSuggestions } from '@/hooks/useCopilotHooks';
 
 export default function CopilotScreen() {
   const { user } = useAuth();
@@ -36,10 +33,12 @@ export default function CopilotScreen() {
 
   const handleSendMessage = async () => {
     if (!message.trim()) return;
+
+    const messageToSend = message.trim();
+    setMessage(''); // Limpiar el input inmediatamente
     setIsTyping(true);
     setIsChatActive(true);
-    await appendMessage(message);
-    setMessage('');
+    await appendMessage(messageToSend);
   };
 
   const handleSuggestion = async (suggestion: string) => {
@@ -77,7 +76,9 @@ export default function CopilotScreen() {
         <View style={styles.headerLeft}>
           {isChatActive && (
             <TouchableOpacity onPress={handleGoBack} style={styles.backButton}>
-              <Text style={styles.backText}><ChevronLeft size={24} color={Colors.primary[500]} /></Text>
+              <Text style={styles.backText}>
+                <ChevronLeft size={24} color={Colors.primary[500]} />
+              </Text>
             </TouchableOpacity>
           )}
           <View style={styles.headerContent}>
@@ -93,10 +94,14 @@ export default function CopilotScreen() {
       {!isChatActive ? (
         <View style={styles.welcomeContainer}>
           <Text style={styles.welcomeTitle}>
-            Hola {user?.isGuest ? 'Invitado' : user?.name?.split(' ')[0] || 'Invitado'}
+            Hola{' '}
+            {user?.isGuest
+              ? 'Invitado'
+              : user?.name?.split(' ')[0] || 'Invitado'}
           </Text>
           <Text style={styles.welcomeText}>
-            Soy tu Copiloto financiero. ¿Listo para empezar a planificar tu futuro?
+            Soy tu Copiloto financiero. ¿Listo para empezar a planificar tu
+            futuro?
           </Text>
 
           <View style={styles.assistantCard}>
@@ -110,7 +115,12 @@ export default function CopilotScreen() {
           </View>
 
           <View style={styles.suggestionContainer}>
-            {['Ver mis inversiones', 'Hablar con un asesor', 'Agendar reunión', 'Conocer mi patrimonio'].map((text) => (
+            {[
+              'Ver mis inversiones',
+              'Hablar con un asesor',
+              'Agendar reunión',
+              'Conocer mi patrimonio',
+            ].map((text) => (
               <TouchableOpacity
                 key={text}
                 style={styles.suggestionButton}
@@ -133,7 +143,9 @@ export default function CopilotScreen() {
               key={msg.id}
               style={[
                 styles.messageContainer,
-                msg.sender === 'user' ? styles.userMessage : styles.assistantMessage,
+                msg.sender === 'user'
+                  ? styles.userMessage
+                  : styles.assistantMessage,
               ]}
             >
               <Text
@@ -168,7 +180,10 @@ export default function CopilotScreen() {
           multiline
         />
         <TouchableOpacity
-          style={[styles.sendButton, !message.trim() && styles.sendButtonDisabled]}
+          style={[
+            styles.sendButton,
+            !message.trim() && styles.sendButtonDisabled,
+          ]}
           onPress={handleSendMessage}
           disabled={!message.trim()}
         >
