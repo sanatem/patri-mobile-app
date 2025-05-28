@@ -1,7 +1,8 @@
-import React from 'react';
-import { View, Text, StyleSheet, FlatList } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import Colors from '@/constants/Colors';
 import transactionsData from '@/transacciones_simplificadas.json';
+import ForYouCarousel from '@/components/common/ForYouCarousel';
 
 interface TransactionsListProps {
   type: 'income' | 'expenses';
@@ -104,10 +105,22 @@ const processTransactionsByMonth = (selectedMonth: string) => {
 
 const TransactionsList: React.FC<TransactionsListProps> = ({ type, selectedMonth }) => {
   const { income: incomeData, expenses: expensesData } = processTransactionsByMonth(selectedMonth);
-  const data = type === 'income' ? incomeData : expensesData;
+  const allData = type === 'income' ? incomeData : expensesData;
   
-  // Mostrar solo las últimas 10 transacciones para mejor rendimiento
-  const limitedData = data.slice(0, 10);
+  const [visibleCount, setVisibleCount] = useState(10);
+  
+  // Mostrar solo las transacciones visibles
+  const data = allData.slice(0, visibleCount);
+  const hasMore = visibleCount < allData.length;
+
+  const loadMore = () => {
+    setVisibleCount(prev => prev + 10);
+  };
+
+  // Reiniciar cuando cambie el mes o tipo
+  React.useEffect(() => {
+    setVisibleCount(10);
+  }, [selectedMonth, type]);
 
   const renderItem = ({ item }: { item: any }) => (
     <View style={styles.transactionItem}>
@@ -127,11 +140,20 @@ const TransactionsList: React.FC<TransactionsListProps> = ({ type, selectedMonth
   return (
     <View style={styles.container}>
       <FlatList
-        data={limitedData}
+        data={data}
         renderItem={renderItem}
         keyExtractor={item => item.id}
         scrollEnabled={false}
       />
+      {hasMore && (
+        <TouchableOpacity style={styles.loadMoreButton} onPress={loadMore}>
+          <Text style={styles.loadMoreText}>
+            Ver más ({allData.length - visibleCount} restantes)
+          </Text>
+        </TouchableOpacity>
+      )}
+      
+      <ForYouCarousel />
     </View>
   );
 };
@@ -146,7 +168,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.gray[200],
+    borderBottomColor: '#e5e5e5',
   },
   transactionInfo: {
     flex: 1,
@@ -154,23 +176,33 @@ const styles = StyleSheet.create({
   transactionTitle: {
     fontFamily: 'Inter-Medium',
     fontSize: 16,
-    color: Colors.gray[800],
+    color: '#1f2937',
     marginBottom: 4,
   },
   transactionDescription: {
     fontFamily: 'Inter-Regular',
     fontSize: 14,
-    color: Colors.gray[500],
+    color: '#6b7280',
   },
   transactionAmount: {
     fontFamily: 'Inter-SemiBold',
     fontSize: 16,
   },
   incomeAmount: {
-    color: Colors.success[500],
+    color: '#10b981',
   },
   expenseAmount: {
-    color: Colors.error[500],
+    color: '#ef4444',
+  },
+  loadMoreButton: {
+    alignItems: 'center',
+    paddingVertical: 16,
+    marginTop: 8,
+  },
+  loadMoreText: {
+    fontFamily: 'Inter-Medium',
+    fontSize: 16,
+    color: '#3b82f6',
   },
 });
 
