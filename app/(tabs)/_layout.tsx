@@ -53,6 +53,15 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="investment"
+        options={{
+          title: 'Inversión',
+          tabBarIcon: ({ color, size }) => (
+            <TabBarIcon name="dollar" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="copilot"
         options={{
           title: 'Copiloto',
