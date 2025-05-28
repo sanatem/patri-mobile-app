@@ -44,21 +44,6 @@ export default function AdvisorCard({ onSchedule, onChat }: AdvisorCardProps) {
         Fernando Slebe es un Asesor de Inversiones acreditado especializado en planificación financiera integral y estrategias de inversión a largo plazo.
       </Text>
       
-      <View style={styles.advisorStats}>
-        <View style={styles.statItem}>
-          <Text style={styles.statNumber}>150+</Text>
-          <Text style={styles.statLabel}>Clientes</Text>
-        </View>
-        <View style={styles.statItem}>
-          <Text style={styles.statNumber}>$2.5M</Text>
-          <Text style={styles.statLabel}>Administrado</Text>
-        </View>
-        <View style={styles.statItem}>
-          <Text style={styles.statNumber}>95%</Text>
-          <Text style={styles.statLabel}>Satisfacción</Text>
-        </View>
-      </View>
-      
       <View style={styles.advisorActions}>
         <View style={styles.advisorAction}>
           <View style={styles.actionIcon}>
@@ -100,7 +85,8 @@ export default function AdvisorCard({ onSchedule, onChat }: AdvisorCardProps) {
 
 const styles = StyleSheet.create({
   advisorCard: {
-    margin: 20,
+    margin: 16,
+    marginBottom: 8,
     padding: 20,
     backgroundColor: '#ffffff',
     borderRadius: 16,
@@ -199,28 +185,6 @@ const styles = StyleSheet.create({
     color: Colors.gray[700],
     lineHeight: 22,
     marginBottom: 20,
-  },
-  advisorStats: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    backgroundColor: Colors.gray[50],
-    borderRadius: 12,
-    paddingVertical: 16,
-    marginBottom: 20,
-  },
-  statItem: {
-    alignItems: 'center',
-  },
-  statNumber: {
-    fontFamily: 'Inter-Bold',
-    fontSize: 18,
-    color: Colors.primary[600],
-  },
-  statLabel: {
-    fontFamily: 'Inter-Medium',
-    fontSize: 12,
-    color: Colors.gray[600],
-    marginTop: 2,
   },
   advisorActions: {
     flexDirection: 'row',
