@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import Colors from '@/constants/Colors';
-import { AdvisorCard, ExpertCard, BenefitsCard } from '@/components/planning';
+import { AdvisorCard, ExpertCard, BenefitsCard, PlanningCarousel } from '@/components/planning';
 
 export default function PlanningScreen() {
   const handleSchedulePress = () => {
@@ -24,6 +24,16 @@ export default function PlanningScreen() {
     console.log('Tema seleccionado:', topic);
   };
 
+  const handleCarouselCardPress = (card: any) => {
+    // Aquí puedes agregar la lógica para cuando se selecciona una card del carrusel
+    console.log('Plan seleccionado:', card.title, card.price);
+  };
+
+  const handleAIPress = (card: any) => {
+    // Aquí puedes agregar la lógica para cuando se presiona el botón de IA
+    console.log('IA solicitada para:', card.title);
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -39,6 +49,10 @@ export default function PlanningScreen() {
           onChat={handleChatPress}
         />
 
+        <PlanningCarousel 
+          onCardPress={handleCarouselCardPress} 
+          onAIPress={handleAIPress}
+        />
         
         <View style={styles.bottomSpace} />
       </ScrollView>
@@ -79,6 +93,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   bottomSpace: {
-    height: 100,
+    height: 20,
   },
 });
