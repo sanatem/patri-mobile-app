@@ -20,6 +20,12 @@ export default function InvestmentIndex() {
       >
         <Text style={styles.buttonText}>Comenzar</Text>
       </TouchableOpacity>
+      <TouchableOpacity onPress={() => router.push('/(tabs)/investment/investment-guest')}>
+  <Text style={{ color: "#FF5603", textAlign: "center", marginTop: 16 }}>
+    Continuar sin cuenta
+  </Text>
+</TouchableOpacity>
+
     </View>
   );
 }
