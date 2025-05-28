@@ -139,7 +139,7 @@ export default function PlanningCarousel({ onCardPress, onAIPress }: PlanningCar
             <Text style={styles.fileSize}>{card.size}</Text>
           </View>
           <TouchableOpacity 
-            style={[styles.downloadButton, { backgroundColor: card.color }]}
+            style={[styles.downloadButton]}
             onPress={() => handleCardPress(card)}
           >
             <Download size={16} color="#ffffff" />
@@ -183,12 +183,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     borderRadius: 12,
     padding: 20,
+    paddingVertical: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
     shadowRadius: 8,
     elevation: 4,
     position: 'relative',
+    justifyContent: 'space-between',
   },
   aiButton: {
     position: 'absolute',
@@ -210,7 +212,7 @@ const styles = StyleSheet.create({
   cardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 16,
   },
   cardContent: {
     flex: 1,
@@ -227,7 +229,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: Colors.gray[700],
     lineHeight: 18,
-    marginBottom: 24,
+    marginBottom: 20,
   },
   cardFooter: {
     flexDirection: 'row',
@@ -259,6 +261,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: Colors.primary[500],
   },
   contentPoints: {
     marginBottom: 24,
