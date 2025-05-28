@@ -33,7 +33,7 @@ export default function InvestmentStep() {
 
       {/* Body */}
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.question}>¿A qué objetivo quieres mover tu plata?</Text>
+        <Text style={styles.question}>¿A qué objetivo quieres mover tu dinero?</Text>
 
         {/* Dropdown fake */}
         <Pressable
@@ -73,9 +73,13 @@ export default function InvestmentStep() {
           <Info size={16} color="#6B7280" />
         </View>
 
-        <TouchableOpacity style={styles.primaryBtn}>
-          <Text style={styles.primaryText}>Continuar</Text>
-        </TouchableOpacity>
+        <TouchableOpacity
+  style={styles.primaryBtn}
+  onPress={() => router.push('/(tabs)/investment/enter-amount')}
+>
+  <Text style={styles.primaryText}>Continuar</Text>
+</TouchableOpacity>
+
       </View>
     </View>
   );

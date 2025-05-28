@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
+  Keyboard,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ChevronLeft, X } from 'lucide-react-native';
@@ -16,9 +17,13 @@ export default function EnterAmountScreen() {
   const [amount, setAmount] = useState('');
 
   const handleChange = (text: string) => {
-    // Solo acepta números
     const clean = text.replace(/[^\d]/g, '');
     setAmount(clean);
+  };
+
+  const handleFinish = () => {
+    Keyboard.dismiss();
+    router.push('/(tabs)/investment/portfolio');
   };
 
   return (
@@ -51,7 +56,7 @@ export default function EnterAmountScreen() {
         <Text style={styles.rateText}>(a $946 el dólar)</Text>
       </View>
 
-      {/* Botón continuar */}
+      {/* Botón finalizar */}
       <View style={styles.bottom}>
         <TouchableOpacity
           style={[
@@ -59,9 +64,7 @@ export default function EnterAmountScreen() {
             amount ? styles.btnEnabled : styles.btnDisabled,
           ]}
           disabled={!amount}
-          onPress={() => {
-            // acción siguiente
-          }}
+          onPress={handleFinish}
         >
           <Text
             style={[
@@ -69,7 +72,7 @@ export default function EnterAmountScreen() {
               amount ? styles.textEnabled : styles.textDisabled,
             ]}
           >
-            Continuar
+            Finalizar
           </Text>
         </TouchableOpacity>
       </View>
@@ -78,63 +81,65 @@ export default function EnterAmountScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#F9FAFB' },
-    header: {
-      padding: 16,
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-    },
-    title: {
-      fontSize: 16,
-      fontWeight: '600',
-      color: '#111827',
-    },
-    amountBox: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    label: {
-      fontSize: 14,
-      color: '#6B7280',
-      marginBottom: 8,
-    },
-    amountInput: {
-      fontSize: 40,
-      fontWeight: '700',
-      color: '#111827',
-    },
-    rateText: {
-      fontSize: 13,
-      color: '#9CA3AF',
-      marginTop: 8,
-    },
-    bottom: {
-      padding: 20,
-      borderTopWidth: 1,
-      borderTopColor: '#E5E7EB',
-    },
-    continueBtn: {
-      borderRadius: 8,
-      paddingVertical: 14,
-      alignItems: 'center',
-    },
-    btnEnabled: {
-      backgroundColor: '#FF5603',
-    },
-    btnDisabled: {
-      backgroundColor: '#E5E7EB',
-    },
-    continueText: {
-      fontSize: 16,
-      fontWeight: '600',
-    },
-    textEnabled: {
-      color: '#fff',
-    },
-    textDisabled: {
-      color: '#9CA3AF',
-    },
-  });
-  
+  container: { flex: 1, backgroundColor: '#F9FAFB' },
+  header: {
+    padding: 16,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#111827',
+  },
+  amountBox: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+  },
+  label: {
+    fontSize: 14,
+    color: '#6B7280',
+    marginBottom: 8,
+  },
+  amountInput: {
+    fontSize: 40,
+    fontWeight: '700',
+    color: '#111827',
+    textAlign: 'center',
+    width: '100%',
+  },
+  rateText: {
+    fontSize: 13,
+    color: '#9CA3AF',
+    marginTop: 8,
+  },
+  bottom: {
+    padding: 20,
+    borderTopWidth: 1,
+    borderTopColor: '#E5E7EB',
+  },
+  continueBtn: {
+    borderRadius: 8,
+    paddingVertical: 14,
+    alignItems: 'center',
+  },
+  btnEnabled: {
+    backgroundColor: '#FF5603',
+  },
+  btnDisabled: {
+    backgroundColor: '#E5E7EB',
+  },
+  continueText: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  textEnabled: {
+    color: '#fff',
+  },
+  textDisabled: {
+    color: '#9CA3AF',
+  },
+});
