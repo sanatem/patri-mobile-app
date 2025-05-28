@@ -10,6 +10,7 @@ import {
 import { Search, ChevronDown } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import { useAuth } from '@/providers/AuthProvider';
+import { useCopilotReadable, useCopilotAction } from '@/hooks/useCopilotHooks';
 import AreaChart from '@/components/patrimony/AreaChart';
 import AssetCard from '@/components/patrimony/AssetCard';
 import { useChartRangeStore } from '@/store/chartRangeStore';
@@ -80,6 +81,64 @@ export default function PatrimonyScreen() {
   );
 
   const totalAssets = mockAssets.reduce((sum, asset) => sum + asset.value, 0);
+
+  // Hacer datos legibles para el copilot
+  useCopilotReadable({
+    description: 'Patrimonio total del usuario',
+    value: {
+      totalPatrimonio: 17151937,
+      crecimiento: {
+        valor: 7151936,
+        porcentaje: 71.52,
+        periodo: 'último mes',
+      },
+      totalActivos: totalAssets,
+      cantidadActivos: mockAssets.length,
+      activos: mockAssets.map((asset) => ({
+        nombre: asset.name,
+        tipo: asset.type,
+        valor: asset.value,
+        cambio: asset.change,
+      })),
+    },
+  });
+
+  // Registrar acción para cambiar rango de tiempo
+  useCopilotAction({
+    name: 'cambiarRangoTiempo',
+    description: 'Cambiar el rango de tiempo del gráfico de patrimonio',
+    parameters: [
+      {
+        name: 'rango',
+        type: 'string',
+        description: "Rango de tiempo: '1 Mes', '6 Meses', '1 Año', o 'Todo'",
+        required: true,
+      },
+    ],
+    handler: async (params) => {
+      const rango = params.rango as keyof typeof timeRangeMapping;
+      if (timeRangeMapping[rango]) {
+        handleTimeRangeChange(rango);
+      }
+    },
+  });
+
+  // Registrar acción para buscar activos
+  useCopilotAction({
+    name: 'buscarActivo',
+    description: 'Buscar un activo específico en la lista',
+    parameters: [
+      {
+        name: 'termino',
+        type: 'string',
+        description: 'Término de búsqueda para filtrar activos',
+        required: true,
+      },
+    ],
+    handler: async (params) => {
+      setSearchQuery(params.termino);
+    },
+  });
 
   return (
     <View style={styles.container}>
