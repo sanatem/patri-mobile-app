@@ -48,12 +48,16 @@ export default function CopilotScreen() {
   };
 
   const handleGoBack = () => {
-    setIsChatActive(false);
-    clearMessages();
+    setIsTyping(false);
     setMessage('');
+    clearMessages();
+    setIsChatActive(false);
   };
 
   useEffect(() => {
+    // Solo manejar typing si el chat está activo
+    if (!isChatActive) return;
+
     const lastMsg = messages[messages.length - 1];
     if (lastMsg?.sender === 'assistant') {
       setIsTyping(false);
@@ -64,14 +68,10 @@ export default function CopilotScreen() {
     }, 100);
 
     return () => clearTimeout(timeout);
-  }, [messages]);
+  }, [messages, isChatActive]);
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
-    >
+    <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           {isChatActive && (
@@ -132,65 +132,75 @@ export default function CopilotScreen() {
           </View>
         </View>
       ) : (
-        <ScrollView
-          ref={scrollViewRef}
-          style={styles.chatContainer}
-          contentContainerStyle={styles.chatContent}
-          showsVerticalScrollIndicator={false}
+        <KeyboardAvoidingView
+          style={styles.chatWrapper}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
         >
-          {messages.map((msg) => (
-            <View
-              key={msg.id}
-              style={[
-                styles.messageContainer,
-                msg.sender === 'user'
-                  ? styles.userMessage
-                  : styles.assistantMessage,
-              ]}
-            >
-              <Text
+          <ScrollView
+            ref={scrollViewRef}
+            style={styles.chatContainer}
+            contentContainerStyle={styles.chatContent}
+            showsVerticalScrollIndicator={false}
+          >
+            {messages.map((msg) => (
+              <View
+                key={msg.id}
                 style={[
-                  styles.messageText,
+                  styles.messageContainer,
                   msg.sender === 'user'
-                    ? styles.userMessageText
-                    : styles.assistantMessageText,
+                    ? styles.userMessage
+                    : styles.assistantMessage,
                 ]}
               >
-                {msg.content}
-              </Text>
-            </View>
-          ))}
+                <Text
+                  style={[
+                    styles.messageText,
+                    msg.sender === 'user'
+                      ? styles.userMessageText
+                      : styles.assistantMessageText,
+                  ]}
+                >
+                  {msg.content}
+                </Text>
+              </View>
+            ))}
 
-          {isTyping && (
-            <View style={[styles.messageContainer, styles.assistantMessage]}>
-              <Text style={[styles.messageText, styles.assistantMessageText]}>
-                ...
-              </Text>
-            </View>
-          )}
-        </ScrollView>
+            {isTyping && (
+              <View style={[styles.messageContainer, styles.assistantMessage]}>
+                <Text style={[styles.messageText, styles.assistantMessageText]}>
+                  ...
+                </Text>
+              </View>
+            )}
+          </ScrollView>
+
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={styles.input}
+              placeholder="¿En qué te puedo ayudar hoy?"
+              placeholderTextColor={Colors.gray[500]}
+              value={message}
+              onChangeText={setMessage}
+              multiline
+            />
+            <TouchableOpacity
+              style={[
+                styles.sendButton,
+                !message.trim() && styles.sendButtonDisabled,
+              ]}
+              onPress={handleSendMessage}
+              disabled={!message.trim()}
+            >
+              <Send
+                size={20}
+                color={message.trim() ? 'white' : Colors.gray[400]}
+              />
+            </TouchableOpacity>
+          </View>
+        </KeyboardAvoidingView>
       )}
-
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          placeholder="¿En qué te puedo ayudar hoy?"
-          value={message}
-          onChangeText={setMessage}
-          multiline
-        />
-        <TouchableOpacity
-          style={[
-            styles.sendButton,
-            !message.trim() && styles.sendButtonDisabled,
-          ]}
-          onPress={handleSendMessage}
-          disabled={!message.trim()}
-        >
-          <Send size={20} color={message.trim() ? 'white' : Colors.gray[400]} />
-        </TouchableOpacity>
-      </View>
-    </KeyboardAvoidingView>
+    </View>
   );
 }
 
@@ -371,5 +381,8 @@ const styles = StyleSheet.create({
   },
   sendButtonDisabled: {
     backgroundColor: Colors.gray[200],
+  },
+  chatWrapper: {
+    flex: 1,
   },
 });
