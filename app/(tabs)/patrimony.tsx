@@ -6,8 +6,9 @@ import {
   TextInput,
   ScrollView,
   TouchableOpacity,
+  Pressable,
 } from 'react-native';
-import { Search, ChevronDown } from 'lucide-react-native';
+import { Search, ChevronRight, Users } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import { useAuth } from '@/providers/AuthProvider';
 import { useCopilotReadable, useCopilotAction } from '@/hooks/useCopilotHooks';
@@ -16,35 +17,20 @@ import AssetCard from '@/components/patrimony/AssetCard';
 import { useChartRangeStore } from '@/store/chartRangeStore';
 import { Asset } from '@/types';
 
-// Mock data
-const mockAssets: Asset[] = [
-  {
-    id: '1',
-    name: 'Chase',
-    type: 'Cuenta Corriente',
-    value: 724483,
-    change: 2.8,
-    color: '#4285F4',
-  },
-  {
-    id: '2',
-    name: 'Bank of America',
-    type: 'Cuenta de Ahorro',
-    value: 538261,
-    change: 1.4,
-    color: '#EA4335',
-  },
-  {
-    id: '3',
-    name: 'Fondo Mutuo Santander',
-    type: 'Inversión',
-    value: 892147,
-    change: -0.5,
-    color: '#FBBC05',
-  },
+const myAssets: Asset[] = [
+  { id: '1', name: 'Chase', type: 'Cuenta Corriente', value: 724483, change: 2.8, color: '#4285F4' },
+  { id: '2', name: 'Bank of America', type: 'Cuenta de Ahorro', value: 538261, change: 1.4, color: '#EA4335' },
+  { id: '3', name: 'Fondo Mutuo Santander', type: 'Inversión', value: 892147, change: -0.5, color: '#FBBC05' },
 ];
 
-// Mapeo de etiquetas de tiempo a valores del store
+const partnerAssets: Asset[] = [
+  { id: '4', name: 'Banco Falabella', type: 'Cuenta Corriente', value: 280000, change: 3.2, color: '#6366F1' },
+  { id: '5', name: 'Banco Itaú', type: 'Cuenta de Ahorro', value: 150000, change: 0.8, color: '#10B981' },
+  { id: '6', name: 'Inversión ABC', type: 'Inversión', value: 500000, change: 1.2, color: '#F59E0B' },
+];
+
+const combinedAssets = [...myAssets, ...partnerAssets];
+
 const timeRangeMapping = {
   '1 Mes': '1m',
   '6 Meses': '6m',
@@ -52,21 +38,37 @@ const timeRangeMapping = {
   Todo: 'all',
 } as const;
 
-const timeRanges = Object.keys(timeRangeMapping) as Array<
-  keyof typeof timeRangeMapping
->;
+const timeRanges = Object.keys(timeRangeMapping) as Array<keyof typeof timeRangeMapping>;
 
 export default function PatrimonyScreen() {
   const { user } = useAuth();
   const { rangeSize, setRangeSize } = useChartRangeStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('assets');
+  const [ownerView, setOwnerView] = useState<'mine' | 'partner' | 'both'>('mine');
+  const [showSelector, setShowSelector] = useState(false);
 
-  // Obtener la etiqueta actual basada en el valor del store
+  const getAssetsForView = () => {
+    switch (ownerView) {
+      case 'mine': return myAssets;
+      case 'partner': return partnerAssets;
+      case 'both': return combinedAssets;
+      default: return myAssets;
+    }
+  };
+
+  const currentAssets = getAssetsForView();
+  const filteredAssets = currentAssets.filter(
+    (asset) =>
+      asset.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      asset.type.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const totalAssets = currentAssets.reduce((sum, asset) => sum + asset.value, 0);
+
   const currentTimeRangeLabel =
     Object.keys(timeRangeMapping).find(
-      (key) =>
-        timeRangeMapping[key as keyof typeof timeRangeMapping] === rangeSize
+      (key) => timeRangeMapping[key as keyof typeof timeRangeMapping] === rangeSize
     ) || '6 Meses';
 
   const handleTimeRangeChange = (range: keyof typeof timeRangeMapping) => {
@@ -74,110 +76,58 @@ export default function PatrimonyScreen() {
     setRangeSize(storeValue);
   };
 
-  const filteredAssets = mockAssets.filter(
-    (asset) =>
-      asset.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      asset.type.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const totalAssets = mockAssets.reduce((sum, asset) => sum + asset.value, 0);
-
-  // Hacer datos legibles para el copilot
-  useCopilotReadable({
-    description: 'Patrimonio total del usuario',
-    value: {
-      totalPatrimonio: 17151937,
-      crecimiento: {
-        valor: 7151936,
-        porcentaje: 71.52,
-        periodo: 'último mes',
-      },
-      totalActivos: totalAssets,
-      cantidadActivos: mockAssets.length,
-      activos: mockAssets.map((asset) => ({
-        nombre: asset.name,
-        tipo: asset.type,
-        valor: asset.value,
-        cambio: asset.change,
-      })),
-    },
-  });
-
-  // Registrar acción para cambiar rango de tiempo
-  useCopilotAction({
-    name: 'cambiarRangoTiempo',
-    description: 'Cambiar el rango de tiempo del gráfico de patrimonio',
-    parameters: [
-      {
-        name: 'rango',
-        type: 'string',
-        description: "Rango de tiempo: '1 Mes', '6 Meses', '1 Año', o 'Todo'",
-        required: true,
-      },
-    ],
-    handler: async (params) => {
-      const rango = params.rango as keyof typeof timeRangeMapping;
-      if (timeRangeMapping[rango]) {
-        handleTimeRangeChange(rango);
-      }
-    },
-  });
-
-  // Registrar acción para buscar activos
-  useCopilotAction({
-    name: 'buscarActivo',
-    description: 'Buscar un activo específico en la lista',
-    parameters: [
-      {
-        name: 'termino',
-        type: 'string',
-        description: 'Término de búsqueda para filtrar activos',
-        required: true,
-      },
-    ],
-    handler: async (params) => {
-      setSearchQuery(params.termino);
-    },
-  });
-
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <View style={styles.userBadge}>
-          <Text style={styles.userBadgeText}>
-            {user?.isGuest ? 'Invitado' : user?.name}
-          </Text>
+        <View style={styles.selectorContainer}>
+          <Pressable style={styles.selectorToggle} onPress={() => setShowSelector(!showSelector)}>
+            <View style={[styles.selectorCircle, styles.selectorCircleMain]}>
+              {ownerView === 'mine' && <Text style={styles.selectorText}>DT</Text>}
+              {ownerView === 'partner' && <Text style={styles.selectorText}>JM</Text>}
+              {ownerView === 'both' && <Users size={16} color={Colors.gray[700]} />}
+            </View>
+            <ChevronRight size={16} color={Colors.gray[500]} style={{ marginLeft: 4 }} />
+          </Pressable>
+
+          {showSelector && (
+            <View style={styles.inlineSelectorOptions}>
+              <TouchableOpacity onPress={() => { setOwnerView('mine'); setShowSelector(false); }}>
+                <View style={[styles.selectorCircle, ownerView === 'mine' && styles.selectedCircle]}>
+                  <Text style={styles.selectorText}>DT</Text>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => { setOwnerView('partner'); setShowSelector(false); }}>
+                <View style={[styles.selectorCircle, ownerView === 'partner' && styles.selectedCircle]}>
+                  <Text style={styles.selectorText}>JM</Text>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => { setOwnerView('both'); setShowSelector(false); }}>
+                <View style={[styles.selectorCircle, ownerView === 'both' && styles.selectedCircle]}>
+                  <Users size={16} color={ownerView === 'both' ? '#FF6503' : Colors.gray[600]} />
+                </View>
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
       </View>
 
-      <ScrollView
-        style={styles.scrollView}
-        showsVerticalScrollIndicator={false}
-      >
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         <View style={styles.overviewCard}>
           <Text style={styles.overviewTitle}>Patrimonio</Text>
-          <Text style={styles.totalAmount}>$17.151.937</Text>
+          <Text style={styles.totalAmount}>${totalAssets.toLocaleString('es-CL')}</Text>
           <Text style={styles.changeAmount}>
-            <Text style={styles.positiveChange}>$7,151,936 (71.52%)</Text> · vs
-            último mes
+            <Text style={styles.positiveChange}>$7,151,936 (71.52%)</Text> · vs último mes
           </Text>
 
           <View style={styles.timeRangeSelector}>
             {timeRanges.map((range) => (
               <TouchableOpacity
                 key={range}
-                style={[
-                  styles.timeRangeButton,
-                  currentTimeRangeLabel === range && styles.selectedTimeRange,
-                ]}
+                style={[styles.timeRangeButton, currentTimeRangeLabel === range && styles.selectedTimeRange]}
                 onPress={() => handleTimeRangeChange(range)}
               >
                 <Text
-                  style={[
-                    styles.timeRangeText,
-                    currentTimeRangeLabel === range &&
-                      styles.selectedTimeRangeText,
-                  ]}
+                  style={[styles.timeRangeText, currentTimeRangeLabel === range && styles.selectedTimeRangeText]}
                 >
                   {range}
                 </Text>
@@ -188,11 +138,7 @@ export default function PatrimonyScreen() {
           <AreaChart />
 
           <View style={styles.searchContainer}>
-            <Search
-              size={20}
-              color={Colors.gray[400]}
-              style={styles.searchIcon}
-            />
+            <Search size={20} color={Colors.gray[400]} style={styles.searchIcon} />
             <TextInput
               style={styles.searchInput}
               placeholder="Buscar activo o pasivo"
@@ -208,28 +154,15 @@ export default function PatrimonyScreen() {
             style={[styles.tab, activeTab === 'assets' && styles.activeTab]}
             onPress={() => setActiveTab('assets')}
           >
-            <Text
-              style={[
-                styles.tabText,
-                activeTab === 'assets' && styles.activeTabText,
-              ]}
-            >
-              Activos <Text style={styles.tabCount}>3</Text>
+            <Text style={[styles.tabText, activeTab === 'assets' && styles.activeTabText]}>
+              Activos <Text style={styles.tabCount}>{currentAssets.length}</Text>
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[
-              styles.tab,
-              activeTab === 'liabilities' && styles.activeTab,
-            ]}
+            style={[styles.tab, activeTab === 'liabilities' && styles.activeTab]}
             onPress={() => setActiveTab('liabilities')}
           >
-            <Text
-              style={[
-                styles.tabText,
-                activeTab === 'liabilities' && styles.activeTabText,
-              ]}
-            >
+            <Text style={[styles.tabText, activeTab === 'liabilities' && styles.activeTabText]}>
               Pasivos <Text style={styles.tabCount}>0</Text>
             </Text>
           </TouchableOpacity>
@@ -239,12 +172,10 @@ export default function PatrimonyScreen() {
           <Text style={styles.totalLabel}>
             Total en {activeTab === 'assets' ? 'activos' : 'pasivos'}
           </Text>
-          <Text style={styles.totalValue}>
-            ${totalAssets.toLocaleString('es-CL')}
-          </Text>
+          <Text style={styles.totalValue}>${totalAssets.toLocaleString('es-CL')}</Text>
         </View>
 
-        {filteredAssets.map((asset) => (
+        {activeTab === 'assets' && filteredAssets.map((asset) => (
           <AssetCard key={asset.id} asset={asset} />
         ))}
 
@@ -255,34 +186,56 @@ export default function PatrimonyScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: 'white',
-  },
+  container: { flex: 1, backgroundColor: 'white' },
   header: {
     paddingTop: 60,
     paddingHorizontal: 16,
     paddingBottom: 16,
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
     backgroundColor: 'white',
     borderBottomWidth: 1,
     borderBottomColor: Colors.gray[100],
   },
-  userBadge: {
-    backgroundColor: Colors.gray[100],
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
+  selectorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
   },
-  userBadgeText: {
+  selectorToggle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.gray[100],
+    padding: 6,
+    borderRadius: 24,
+  },
+  inlineSelectorOptions: {
+    flexDirection: 'row',
+    backgroundColor: Colors.gray[100],
+    padding: 6,
+    borderRadius: 24,
+    marginLeft: 8,
+  },
+  selectorCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: Colors.gray[200],
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: 4,
+  },
+  selectorCircleMain: {
+    backgroundColor: Colors.gray[200],
+  },
+  selectedCircle: {
+    borderColor: '#FF6503',
+    borderWidth: 2,
+  },
+  selectorText: {
     fontFamily: 'Inter-Medium',
     fontSize: 14,
-    color: Colors.gray[700],
+    color: Colors.gray[800],
   },
-  scrollView: {
-    flex: 1,
-  },
+  scrollView: { flex: 1 },
   overviewCard: {
     padding: 16,
   },
