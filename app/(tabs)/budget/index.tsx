@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal, FlatList } from 'react-native';
-import { ChevronLeft, ChevronRight, Search, X } from 'lucide-react-native';
+import { ChevronLeft, ChevronRight, Search, X, Settings } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import BudgetChart from '@/components/budget/BudgetChart';
 import TransactionsList from '@/components/budget/TransactionsList';
 import transactionsData from '@/transacciones_simplificadas.json';
+import { useRouter } from 'expo-router';
 
 const months = [
   'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
@@ -51,6 +52,7 @@ export default function BudgetScreen() {
   const [selectedMonth, setSelectedMonth] = useState('Enero');
   const [activeTab, setActiveTab] = useState<'income' | 'expenses'>('income');
   const [isMonthModalVisible, setIsMonthModalVisible] = useState(false);
+  const router = useRouter();
 
   // Calcular totales para el mes seleccionado
   const { totalIncome, totalExpenses, incomeCount, expenseCount } = calculateTotalsByMonth(selectedMonth);
@@ -99,6 +101,12 @@ export default function BudgetScreen() {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Presupuestos</Text>
+        <TouchableOpacity 
+          style={styles.settingsButton}
+          onPress={() => router.push('/settings')}
+        >
+          <Settings size={24} color={Colors.gray[600]} />
+        </TouchableOpacity>
       </View>
 
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
@@ -239,6 +247,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderBottomWidth: 1,
     borderBottomColor: Colors.gray[100],
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
   },
   headerTitle: {
@@ -405,5 +415,8 @@ const styles = StyleSheet.create({
   },
   selectedMonthItemText: {
     color: 'white',
+  },
+  settingsButton: {
+    padding: 8,
   },
 });

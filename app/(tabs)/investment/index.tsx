@@ -1,31 +1,44 @@
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { router } from 'expo-router';
-import { DollarSign } from 'lucide-react-native';
+import { router, useRouter } from 'expo-router';
+import { DollarSign, Settings } from 'lucide-react-native';
 
 export default function InvestmentIndex() {
+  const routerHook = useRouter();
+
   return (
     <View style={styles.container}>
-      <View style={styles.iconWrapper}>
-        <DollarSign size={32} color="#ff5603" />
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Inversiones</Text>
+        <TouchableOpacity 
+          style={styles.settingsButton}
+          onPress={() => routerHook.push('/settings')}
+        >
+          <Settings size={24} color="#374151" />
+        </TouchableOpacity>
       </View>
 
-      <Text style={styles.title}>Un solo lugar para hacer crecer tu patrimonio.</Text>
-      <Text style={styles.subtitle}>
-        Opciones de ahorro e inversión personalizadas, para todo tipo de inversionista.
-      </Text>
+      <View style={styles.content}>
+        <View style={styles.iconWrapper}>
+          <DollarSign size={32} color="#ff5603" />
+        </View>
 
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => router.push('/(tabs)/investment/start-profile')}
-      >
-        <Text style={styles.buttonText}>Comenzar</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => router.push('/(tabs)/investment/investment-guest')}>
-  <Text style={{ color: "#FF5603", textAlign: "center", marginTop: 16 }}>
-    Continuar sin cuenta
-  </Text>
-</TouchableOpacity>
+        <Text style={styles.title}>Un solo lugar para hacer crecer tu patrimonio.</Text>
+        <Text style={styles.subtitle}>
+          Opciones de ahorro e inversión personalizadas, para todo tipo de inversionista.
+        </Text>
 
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => router.push('/(tabs)/investment/start-profile')}
+        >
+          <Text style={styles.buttonText}>Comenzar</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => router.push('/(tabs)/investment/investment-guest')}>
+          <Text style={{ color: "#FF5603", textAlign: "center", marginTop: 16 }}>
+            Continuar sin cuenta
+          </Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -35,6 +48,25 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 24,
     backgroundColor: 'white',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 24
+  },
+  headerTitle: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#111827'
+  },
+  settingsButton: {
+    padding: 8
+  },
+  content: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center'
   },

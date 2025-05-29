@@ -15,6 +15,7 @@ import {
   BarChart,
   TrendingUp,
   Plus,
+  Settings,
 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 
@@ -23,6 +24,17 @@ export default function InvestmentPortfolioScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      {/* Header principal */}
+      <View style={styles.mainHeader}>
+        <Text style={styles.headerTitle}>Portfolio</Text>
+        <TouchableOpacity 
+          style={styles.settingsButton}
+          onPress={() => router.push('/settings')}
+        >
+          <Settings size={24} color="#374151" />
+        </TouchableOpacity>
+      </View>
+
       {/* Header de patrimonio */}
       <View style={styles.balanceHeader}>
         <Text style={styles.balanceLabel}>
@@ -266,5 +278,23 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: '600',
     marginTop: 4,
+  },
+  mainHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#111827',
+  },
+  settingsButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

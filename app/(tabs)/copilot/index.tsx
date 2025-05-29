@@ -15,13 +15,16 @@ import {
   ChevronRight,
   CircleAlert as AlertCircle,
   ChevronLeft,
+  Settings,
 } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import { useAuth } from '@/providers/AuthProvider';
 import { useCopilotChat, useCopilotSuggestions } from '@/hooks/useCopilotHooks';
+import { useRouter } from 'expo-router';
 
 export default function CopilotScreen() {
   const { user } = useAuth();
+  const router = useRouter();
   const [message, setMessage] = useState('');
   const [isChatActive, setIsChatActive] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
@@ -86,8 +89,11 @@ export default function CopilotScreen() {
             <Text style={styles.headerTitle}>Copiloto</Text>
           </View>
         </View>
-        <TouchableOpacity style={styles.notificationBadge}>
-          <AlertCircle size={24} color="#F59E0B" />
+        <TouchableOpacity 
+          style={styles.settingsButton}
+          onPress={() => router.push('/settings')}
+        >
+          <Settings size={24} color={Colors.gray[600]} />
         </TouchableOpacity>
       </View>
 
@@ -242,11 +248,10 @@ const styles = StyleSheet.create({
     color: Colors.gray[800],
     marginLeft: 8,
   },
-  notificationBadge: {
+  settingsButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#FEF3C7',
     justifyContent: 'center',
     alignItems: 'center',
   },

@@ -1,9 +1,13 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { Settings } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import { AdvisorCard, ExpertCard, BenefitsCard, PlanningCarousel } from '@/components/planning';
+import { useRouter } from 'expo-router';
 
 export default function PlanningScreen() {
+  const router = useRouter();
+
   const handleSchedulePress = () => {
     // Aquí puedes agregar la lógica para programar una reunión
     console.log('Programar reunión');
@@ -38,8 +42,18 @@ export default function PlanningScreen() {
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerGradient}>
-          <Text style={styles.headerTitle}>Planificación Financiera</Text>
-          <Text style={styles.headerSubtitle}>Tu camino hacia el éxito financiero</Text>
+          <View style={styles.headerContent}>
+            <View style={styles.headerTextContainer}>
+              <Text style={styles.headerTitle}>Planificación Financiera</Text>
+              <Text style={styles.headerSubtitle}>Tu camino hacia el éxito financiero</Text>
+            </View>
+            <TouchableOpacity 
+              style={styles.settingsButton}
+              onPress={() => router.push('/settings')}
+            >
+              <Settings size={24} color="white" />
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
 
@@ -76,6 +90,13 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
   },
+  headerContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  headerTextContainer: {
+    flex: 1,
+  },
   headerTitle: {
     fontFamily: 'Inter-Bold',
     fontSize: 24,
@@ -88,6 +109,9 @@ const styles = StyleSheet.create({
     color: 'rgba(255, 255, 255, 0.8)',
     textAlign: 'center',
     marginTop: 4,
+  },
+  settingsButton: {
+    padding: 8,
   },
   scrollView: {
     flex: 1,

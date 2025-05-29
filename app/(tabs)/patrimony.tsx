@@ -15,6 +15,7 @@ import {
   ChevronDown,
   ArrowUp,
   ArrowDown,
+  Settings,
 } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import { useAuth } from '@/providers/AuthProvider';
@@ -24,6 +25,7 @@ import AssetCard from '@/components/patrimony/AssetCard';
 import LiabilityCard from '@/components/patrimony/LiabilityCard';
 import { useChartRangeStore } from '@/store/chartRangeStore';
 import { Asset, Liability } from '@/types';
+import { useRouter } from 'expo-router';
 
 const myAssets: Asset[] = [
   {
@@ -161,14 +163,15 @@ export default function PatrimonyScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('assets');
   const [mineSelected, setMineSelected] = useState(true);
-const [partnerSelected, setPartnerSelected] = useState(false);
+  const [partnerSelected, setPartnerSelected] = useState(false);
+  const router = useRouter();
 
-const ownerView: 'mine' | 'partner' | 'both' =
-  mineSelected && partnerSelected
-    ? 'both'
-    : mineSelected
-    ? 'mine'
-    : 'partner';
+  const ownerView: 'mine' | 'partner' | 'both' =
+    mineSelected && partnerSelected
+      ? 'both'
+      : mineSelected
+      ? 'mine'
+      : 'partner';
   const [showSelector, setShowSelector] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
 
@@ -313,6 +316,13 @@ const ownerView: 'mine' | 'partner' | 'both' =
 )}
 
         </View>
+
+        <TouchableOpacity 
+          style={styles.settingsButton}
+          onPress={() => router.push('/settings')}
+        >
+          <Settings size={24} color={Colors.gray[600]} />
+        </TouchableOpacity>
       </View>
 
       <ScrollView
@@ -495,6 +505,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderBottomWidth: 1,
     borderBottomColor: Colors.gray[100],
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   selectorContainer: {
     flexDirection: 'row',
@@ -723,5 +736,8 @@ const styles = StyleSheet.create({
   },
   chevronRotated: {
     transform: [{ rotate: '180deg' }],
+  },
+  settingsButton: {
+    padding: 6,
   },
 });
