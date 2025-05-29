@@ -33,7 +33,7 @@ const MoreTabButton: React.FC<MoreTabButtonProps> = ({ color, size }) => {
     height: 0,
   });
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const scaleAnim = useRef(new Animated.Value(0.8)).current;
+  const slideAnim = useRef(new Animated.Value(200)).current;
 
   const menuOptions: MenuOption[] = [
     {
@@ -70,14 +70,13 @@ const MoreTabButton: React.FC<MoreTabButtonProps> = ({ color, size }) => {
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
-        duration: 200,
+        duration: 300,
         useNativeDriver: true,
       }),
-      Animated.spring(scaleAnim, {
-        toValue: 1,
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 300,
         useNativeDriver: true,
-        tension: 100,
-        friction: 8,
       }),
     ]).start();
   };
@@ -86,12 +85,12 @@ const MoreTabButton: React.FC<MoreTabButtonProps> = ({ color, size }) => {
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 0,
-        duration: 150,
+        duration: 250,
         useNativeDriver: true,
       }),
-      Animated.timing(scaleAnim, {
-        toValue: 0.8,
-        duration: 150,
+      Animated.timing(slideAnim, {
+        toValue: 200,
+        duration: 250,
         useNativeDriver: true,
       }),
     ]).start(() => {
@@ -111,7 +110,6 @@ const MoreTabButton: React.FC<MoreTabButtonProps> = ({ color, size }) => {
   const screenHeight = Dimensions.get('window').height;
   const menuHeight = menuOptions.length * 60 + 20; // 60px per item + padding
   const tabBarHeight = 60;
-  const menuBottom = tabBarHeight + 10; // 10px spacing from tab bar
 
   return (
     <View>
@@ -125,25 +123,25 @@ const MoreTabButton: React.FC<MoreTabButtonProps> = ({ color, size }) => {
 
       <Modal
         visible={isMenuVisible}
-        transparent
+        transparent={true}
         animationType="none"
         onRequestClose={closeMenu}
       >
-        <TouchableOpacity
-          style={styles.overlay}
-          activeOpacity={1}
-          onPress={closeMenu}
-        >
+        <View style={styles.overlay}>
+          <TouchableOpacity
+            style={styles.overlayBackground}
+            activeOpacity={1}
+            onPress={closeMenu}
+          />
           <Animated.View
             style={[
               styles.menu,
               {
                 opacity: fadeAnim,
-                transform: [{ scale: scaleAnim }],
-                bottom: menuBottom,
-                right: 20,
+                transform: [{ translateY: slideAnim }],
               },
             ]}
+            pointerEvents="box-none"
           >
             {menuOptions.map((option, index) => (
               <TouchableOpacity
@@ -153,13 +151,14 @@ const MoreTabButton: React.FC<MoreTabButtonProps> = ({ color, size }) => {
                   index === menuOptions.length - 1 && styles.lastMenuItem,
                 ]}
                 onPress={option.onPress}
+                activeOpacity={0.7}
               >
                 <View style={styles.menuItemIcon}>{option.icon}</View>
                 <Text style={styles.menuItemText}>{option.title}</Text>
               </TouchableOpacity>
             ))}
           </Animated.View>
-        </TouchableOpacity>
+        </View>
       </Modal>
     </View>
   );
@@ -172,18 +171,28 @@ const styles = StyleSheet.create({
   },
   overlay: {
     flex: 1,
+    backgroundColor: 'transparent',
+    justifyContent: 'flex-end',
+  },
+  overlayBackground: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.3)',
   },
   menu: {
-    position: 'absolute',
     backgroundColor: 'white',
-    borderRadius: 12,
-    paddingVertical: 8,
-    minWidth: 160,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingVertical: 20,
+    paddingHorizontal: 0,
+    marginBottom: 60,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 4,
+      height: -2,
     },
     shadowOpacity: 0.15,
     shadowRadius: 12,
@@ -192,9 +201,11 @@ const styles = StyleSheet.create({
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+    paddingVertical: 20,
+    width: '100%',
+    borderBottomWidth: 0.5,
     borderBottomColor: Colors.gray[100],
   },
   lastMenuItem: {
