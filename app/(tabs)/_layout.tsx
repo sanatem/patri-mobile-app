@@ -1,6 +1,7 @@
 import { Tabs } from 'expo-router';
 import { useColorScheme } from 'react-native';
 import TabBarIcon from '@/components/navigation/TabBarIcon';
+import MoreTabButton from '@/components/navigation/MoreTabButton';
 import Colors from '@/constants/Colors';
 
 export default function TabsLayout() {
@@ -23,7 +24,7 @@ export default function TabsLayout() {
           fontFamily: 'Inter-Medium',
           fontSize: 12,
         },
-            }}
+      }}
     >
       <Tabs.Screen
         name="patrimony"
@@ -70,6 +71,21 @@ export default function TabsLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="more"
+        options={{
+          title: 'Más',
+          tabBarIcon: ({ color, size }) => (
+            <MoreTabButton color={color} size={size} />
+          ),
+        }}
+        listeners={{
+          tabPress: (e) => {
+            // Prevenir la navegación predeterminada
+            e.preventDefault();
+          },
+        }}
+      />
     </Tabs>
   );
-} 
+}

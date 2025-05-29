@@ -1,7 +1,20 @@
 import React from 'react';
-import { ChartBar as BarChart, ChartPie as PieChart, Users, Sparkles, DollarSign } from 'lucide-react-native';
+import {
+  ChartBar as BarChart,
+  ChartPie as PieChart,
+  Users,
+  Sparkles,
+  DollarSign,
+  MoreHorizontal,
+} from 'lucide-react-native';
 
-type IconName = 'bar-chart' | 'pie-chart' | 'users' | 'sparkles' | 'dollar';
+type IconName =
+  | 'bar-chart'
+  | 'pie-chart'
+  | 'users'
+  | 'sparkles'
+  | 'dollar'
+  | 'more';
 
 interface TabBarIconProps {
   name: IconName;
@@ -21,6 +34,8 @@ const TabBarIcon: React.FC<TabBarIconProps> = ({ name, color, size }) => {
       return <DollarSign size={size} color={color} />;
     case 'sparkles':
       return <Sparkles size={size} color={color} />;
+    case 'more':
+      return <MoreHorizontal size={size} color={color} />;
     default:
       return null;
   }
