@@ -1,18 +1,18 @@
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 
-export default function PEP() {
+export default function ForeignTax() {
   const router = useRouter();
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>¿Eres una persona expuesta políticamente (PEP)?</Text>
+      <Text style={styles.title}>¿Tienes residencia tributaria en otro país?</Text>
 
-      <TouchableOpacity style={styles.option} onPress={() => router.push('/investment/address')}>
+      <TouchableOpacity style={styles.option} onPress={() => router.push('/investment/create-account/personal-information/pep' as any)}>
         <Text style={styles.optionText}>Sí</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.option} onPress={() => router.push('/investment/address')}>
+      <TouchableOpacity style={styles.option} onPress={() => router.push('/investment/create-account/personal-information/pep' as any)}>
         <Text style={styles.optionText}>No</Text>
       </TouchableOpacity>
     </View>

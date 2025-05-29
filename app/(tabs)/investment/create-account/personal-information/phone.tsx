@@ -2,30 +2,26 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
 
-export default function OccupationStep() {
-  const [employment, setEmployment] = useState('');
-  const [occupation, setOccupation] = useState('');
-  const canContinue = employment && occupation;
+export default function PhoneStep() {
+  const [phone, setPhone] = useState('');
+  const canContinue = phone.length >= 9;
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>¿A qué te dedicas?</Text>
+      <Text style={styles.title}>¿Cuál es tu número de teléfono?</Text>
+      <Text style={styles.subtitle}>Lo pedimos por razones regulatorias</Text>
+
       <TextInput
-        placeholder="Situación laboral"
+        placeholder="9 1234 5678"
+        keyboardType="phone-pad"
         style={styles.input}
-        value={employment}
-        onChangeText={setEmployment}
-      />
-      <TextInput
-        placeholder="Ocupación o profesión"
-        style={styles.input}
-        value={occupation}
-        onChangeText={setOccupation}
+        value={phone}
+        onChangeText={setPhone}
       />
 
       <TouchableOpacity
         style={[styles.button, !canContinue && styles.buttonDisabled]}
-        onPress={() => router.push('/(tabs)/investment/monthly-income')}
+        onPress={() => router.push('/investment/create-account/personal-information/income-source' as any)}
         disabled={!canContinue}
       >
         <Text style={styles.buttonText}>Continuar</Text>
@@ -44,8 +40,14 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: '600',
-    marginBottom: 20,
-    textAlign: 'center'
+    textAlign: 'center',
+    marginBottom: 8
+  },
+  subtitle: {
+    fontSize: 14,
+    color: '#6b7280',
+    textAlign: 'center',
+    marginBottom: 16
   },
   input: {
     backgroundColor: '#f3f4f6',

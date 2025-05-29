@@ -10,7 +10,7 @@ export default function CompleteProfile() {
 
       <TouchableOpacity
         style={styles.stepActive}
-        onPress={() => router.push('/(tabs)/investment/identity-method')}
+        onPress={() => router.push("/investment/create-account/identity-step/identity-method" as any)}
       >
         <Text style={styles.stepTitle}>Verificación de identidad</Text>
         <Text style={styles.stepSubtitle}>Sube un documento de identidad</Text>

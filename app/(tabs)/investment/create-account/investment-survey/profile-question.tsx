@@ -39,7 +39,7 @@ export default function ProfileQuestion() {
     if (step < questions.length - 1) {
       setStep(step + 1);
     } else {
-      router.push('/(tabs)/investment/loading-profile');
+      router.push('/investment/create-account/investment-survey/loading-profile' as any);
     }
   };
 

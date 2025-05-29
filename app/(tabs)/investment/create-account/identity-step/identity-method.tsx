@@ -12,14 +12,14 @@ export default function IdentityMethod() {
 
       <TouchableOpacity
         style={styles.button}
-        onPress={() => router.push('/(tabs)/investment/identity-upload')}
+        onPress={() => router.push('/investment/create-account/identity-step/identity-upload' as any)}
       >
         <Text style={styles.buttonText}>Con carnet de identidad</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
         style={styles.button}
-        onPress={() => router.push('/(tabs)/investment/identity-upload')}
+        onPress={() => router.push('/investment/create-account/identity-step/identity-upload' as any)}
       >
         <Text style={styles.buttonText}>Con pasaporte chileno</Text>
       </TouchableOpacity>

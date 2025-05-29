@@ -12,7 +12,7 @@ export default function StartProfile() {
 
       <TouchableOpacity
         style={styles.button}
-        onPress={() => router.push('/(tabs)/investment/profile-question')}
+        onPress={() => router.push('/investment/create-account/investment-survey/profile-question' as any)}
       >
         <Text style={styles.buttonText}>Empecemos</Text>
       </TouchableOpacity>

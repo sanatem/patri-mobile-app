@@ -75,7 +75,7 @@ export default function InvestmentStep() {
 
         <TouchableOpacity
   style={styles.primaryBtn}
-  onPress={() => router.push('/(tabs)/investment/enter-amount')}
+  onPress={() => router.push('/investment/portfolio/movements/investment/amount' as any)}
 >
   <Text style={styles.primaryText}>Continuar</Text>
 </TouchableOpacity>

@@ -10,7 +10,7 @@ export default function IdentityUpload() {
         Haz click en el recuadro para subir la foto o arrástrala directamente
       </Text>
 
-      <TouchableOpacity style={styles.uploadBox} onPress={() => router.push('/(tabs)/investment/identity-confirm')}>
+      <TouchableOpacity style={styles.uploadBox} onPress={() => router.push('/investment/create-account/identity-step/identity-confirm' as any)}>
         <Text style={styles.uploadText}>+ Subir foto del carnet</Text>
       </TouchableOpacity>
 

@@ -45,14 +45,14 @@ export default function InvestmentPortfolioScreen() {
         <View style={styles.balanceActions}>
         <TouchableOpacity
   style={styles.roundButton}
-  onPress={() => router.push('/(tabs)/investment/investment-step')}
+  onPress={() => router.push('/investment/portfolio/movements/investment/goal-selection' as any)}
 >
   <TrendingUp size={24} color="white" />
   <Text style={styles.roundLabel}>Invertir</Text>
 </TouchableOpacity>
 <TouchableOpacity
   style={styles.roundButton}
-  onPress={() => router.push('/(tabs)/investment/create-goals')}
+  onPress={() => router.push('/investment/portfolio/goals/create-goals' as any)}
 >
   <Plus size={24} color="white" />
   <Text style={styles.roundLabel}>Crear</Text>
@@ -86,7 +86,7 @@ export default function InvestmentPortfolioScreen() {
             icon: <LineChart size={24} color="#ff5630" />,
             onPress: () =>
                 router.push({
-                  pathname: '/(tabs)/investment/portfolio-details',
+                  pathname: '/investment/portfolio/portfolio-details' as any,
                   params: {
                     title: 'Emergencias',
                     subtitle: 'Corto plazo',

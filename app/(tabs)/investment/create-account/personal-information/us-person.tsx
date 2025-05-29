@@ -1,18 +1,18 @@
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 
-export default function Nationality() {
+export default function UsPerson() {
   const router = useRouter();
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>¿Tu nacionalidad es chilena?</Text>
+      <Text style={styles.title}>¿Eres US Person?</Text>
 
-      <TouchableOpacity style={styles.option} onPress={() => router.push('/investment/us-person')}>
+      <TouchableOpacity style={styles.option} onPress={() => router.push('/investment/create-account/personal-information/foreign-tax' as any)}>
         <Text style={styles.optionText}>Sí</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.option} onPress={() => router.push('/investment/us-person')}>
+      <TouchableOpacity style={styles.option} onPress={() => router.push('/investment/create-account/personal-information/foreign-tax' as any)}>
         <Text style={styles.optionText}>No</Text>
       </TouchableOpacity>
     </View>
@@ -47,4 +47,3 @@ const styles = StyleSheet.create({
     color: '#1f2937',
   },
 });
-

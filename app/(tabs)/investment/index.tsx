@@ -27,13 +27,13 @@ export default function InvestmentIndex() {
           Opciones de ahorro e inversión personalizadas, para todo tipo de inversionista.
         </Text>
 
-        <TouchableOpacity
+        <TouchableOpacity 
           style={styles.button}
-          onPress={() => router.push('/(tabs)/investment/start-profile')}
+          onPress={() => router.push('/investment/create-account/investment-survey/start-profile' as any)}
         >
           <Text style={styles.buttonText}>Comenzar</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => router.push('/(tabs)/investment/investment-guest')}>
+        <TouchableOpacity onPress={() => router.push('/investment/investment-guest' as any)}>
           <Text style={{ color: "#FF5603", textAlign: "center", marginTop: 16 }}>
             Continuar sin cuenta
           </Text>

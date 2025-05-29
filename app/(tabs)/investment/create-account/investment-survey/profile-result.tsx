@@ -14,7 +14,7 @@ export default function ProfileResult() {
 
       <TouchableOpacity
         style={styles.button}
-        onPress={() => router.push('/(tabs)/investment/complete-profile')}
+        onPress={() => router.push('/investment/create-account/complete-profile' as any)}
       >
         <Text style={styles.buttonText}>Entendido, continuemos</Text>
       </TouchableOpacity>

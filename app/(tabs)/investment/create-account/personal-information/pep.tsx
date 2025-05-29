@@ -1,19 +1,19 @@
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 
-export default function Gender() {
+export default function PEP() {
   const router = useRouter();
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>¿Cómo nos dirigimos a ti?</Text>
+      <Text style={styles.title}>¿Eres una persona expuesta políticamente (PEP)?</Text>
 
-      <TouchableOpacity style={styles.option} onPress={() => router.push('/investment/nationality')}>
-        <Text style={styles.optionText}>En femenino</Text>
+      <TouchableOpacity style={styles.option} onPress={() => router.push('/investment/create-account/personal-information/address' as any)}>
+        <Text style={styles.optionText}>Sí</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.option} onPress={() => router.push('/investment/nationality')}>
-        <Text style={styles.optionText}>En masculino</Text>
+      <TouchableOpacity style={styles.option} onPress={() => router.push('/investment/create-account/personal-information/address' as any)}>
+        <Text style={styles.optionText}>No</Text>
       </TouchableOpacity>
     </View>
   );

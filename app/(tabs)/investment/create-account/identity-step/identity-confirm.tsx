@@ -17,7 +17,7 @@ export default function IdentityConfirm() {
 
       <TouchableOpacity
         style={styles.button}
-        onPress={() => router.push('/(tabs)/investment/gender')}
+        onPress={() => router.push('/investment/create-account/personal-information/gender' as any)}
       >
         <Text style={styles.buttonText}>Continuar</Text>
       </TouchableOpacity>

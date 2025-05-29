@@ -66,7 +66,7 @@ export default function AddressStep() {
 
       <TouchableOpacity
         style={[styles.button, !canContinue && styles.buttonDisabled]}
-        onPress={() => router.push('/(tabs)/investment/phone')}
+        onPress={() => router.push('/investment/create-account/personal-information/phone' as any)}
         disabled={!canContinue}
       >
         <Text style={styles.buttonText}>Continuar</Text>

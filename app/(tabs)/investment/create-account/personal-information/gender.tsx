@@ -1,19 +1,19 @@
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 
-export default function ForeignTax() {
+export default function Gender() {
   const router = useRouter();
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>¿Tienes residencia tributaria en otro país?</Text>
+      <Text style={styles.title}>¿Cómo nos dirigimos a ti?</Text>
 
-      <TouchableOpacity style={styles.option} onPress={() => router.push('/investment/pep')}>
-        <Text style={styles.optionText}>Sí</Text>
+      <TouchableOpacity style={styles.option} onPress={() => router.push('/investment/create-account/personal-information/nationality' as any)}>
+        <Text style={styles.optionText}>En femenino</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.option} onPress={() => router.push('/investment/pep')}>
-        <Text style={styles.optionText}>No</Text>
+      <TouchableOpacity style={styles.option} onPress={() => router.push('/investment/create-account/personal-information/nationality' as any)}>
+        <Text style={styles.optionText}>En masculino</Text>
       </TouchableOpacity>
     </View>
   );

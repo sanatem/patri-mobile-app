@@ -23,7 +23,7 @@ export default function EnterAmountScreen() {
 
   const handleFinish = () => {
     Keyboard.dismiss();
-    router.push('/(tabs)/investment/portfolio');
+    router.push('/investment/portfolio/portfolio' as any);
   };
 
   return (

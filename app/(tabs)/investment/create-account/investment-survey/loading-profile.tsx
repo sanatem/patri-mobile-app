@@ -5,7 +5,7 @@ import { router } from 'expo-router';
 export default function LoadingProfile() {
   useEffect(() => {
     const timeout = setTimeout(() => {
-      router.push('/(tabs)/investment/profile-result');
+      router.push('/investment/create-account/investment-survey/profile-result' as any);
     }, 2000);
 
     return () => clearTimeout(timeout);

@@ -16,7 +16,7 @@ export default function InvestmentGuest() {
 
       <TouchableOpacity
   style={styles.button}
-  onPress={() => router.push('/(tabs)/investment/portfolio')}
+  onPress={() => router.push('/investment/portfolio/portfolio' as any)}
 >
   <Text style={styles.buttonText}>Comenzar</Text>
 </TouchableOpacity>

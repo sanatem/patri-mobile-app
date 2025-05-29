@@ -18,7 +18,7 @@ export default function CreateGoalsScreen() {
 
   const handleCreate = () => {
     // Podrías guardar info acá si es necesario
-    router.push('/(tabs)/investment/portfolio');
+    router.push('/investment/portfolio/portfolio' as any);
   };
 
   return (

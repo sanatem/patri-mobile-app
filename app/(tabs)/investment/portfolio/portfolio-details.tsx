@@ -115,7 +115,7 @@ export default function PortfolioDetailsScreen() {
   style={styles.primaryBtn}
   onPress={() =>
     router.push({
-      pathname: '/(tabs)/investment/investment-step',
+      pathname: '/investment/portfolio/movements/investment/goal-selection' as any,
       params: {
         from: title, // o cualquier identificador que quieras
       },
