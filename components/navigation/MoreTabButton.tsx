@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Animated,
   Dimensions,
+  Platform,
 } from 'react-native';
 import { MoreHorizontal, Shield, Home, FileText } from 'lucide-react-native';
 import { router } from 'expo-router';
@@ -188,7 +189,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 20,
     paddingVertical: 20,
     paddingHorizontal: 0,
-    marginBottom: 60,
+    marginBottom: Platform.OS === 'ios' ? 60 : 40,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
