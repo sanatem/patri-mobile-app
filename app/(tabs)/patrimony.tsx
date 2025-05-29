@@ -160,9 +160,15 @@ export default function PatrimonyScreen() {
   const { rangeSize, setRangeSize } = useChartRangeStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('assets');
-  const [ownerView, setOwnerView] = useState<'mine' | 'partner' | 'both'>(
-    'mine'
-  );
+  const [mineSelected, setMineSelected] = useState(true);
+const [partnerSelected, setPartnerSelected] = useState(false);
+
+const ownerView: 'mine' | 'partner' | 'both' =
+  mineSelected && partnerSelected
+    ? 'both'
+    : mineSelected
+    ? 'mine'
+    : 'partner';
   const [showSelector, setShowSelector] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
 
@@ -232,80 +238,80 @@ export default function PatrimonyScreen() {
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.selectorContainer}>
-          <Pressable
-            style={styles.selectorToggle}
-            onPress={() => setShowSelector(!showSelector)}
-          >
-            <View style={[styles.selectorCircle, styles.selectorCircleMain]}>
-              {ownerView === 'mine' && (
-                <Text style={styles.selectorText}>DT</Text>
-              )}
-              {ownerView === 'partner' && (
-                <Text style={styles.selectorText}>JM</Text>
-              )}
-              {ownerView === 'both' && (
-                <Users size={16} color={Colors.gray[700]} />
-              )}
-            </View>
-            <ChevronRight
-              size={16}
-              color={Colors.gray[500]}
-              style={{ marginLeft: 4 }}
-            />
-          </Pressable>
+        <Pressable
+  style={styles.selectorToggle}
+  onPress={() => setShowSelector(!showSelector)}
+>
+  <View style={[styles.selectorCircle, styles.selectorCircleMain]}>
+    {ownerView === 'mine' && <Text style={styles.selectorText}>DT</Text>}
+    {ownerView === 'partner' && <Text style={styles.selectorText}>JM</Text>}
+    {ownerView === 'both' && <Users size={16} color={Colors.gray[700]} />}
+  </View>
+  <ChevronRight size={16} color={Colors.gray[500]} style={{ marginLeft: 4 }} />
+</Pressable>
 
-          {showSelector && (
-            <View style={styles.inlineSelectorOptions}>
-              <TouchableOpacity
-                onPress={() => {
-                  setOwnerView('mine');
-                  setShowSelector(false);
-                }}
-              >
-                <View
-                  style={[
-                    styles.selectorCircle,
-                    ownerView === 'mine' && styles.selectedCircle,
-                  ]}
-                >
-                  <Text style={styles.selectorText}>DT</Text>
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                  setOwnerView('partner');
-                  setShowSelector(false);
-                }}
-              >
-                <View
-                  style={[
-                    styles.selectorCircle,
-                    ownerView === 'partner' && styles.selectedCircle,
-                  ]}
-                >
-                  <Text style={styles.selectorText}>JM</Text>
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                  setOwnerView('both');
-                  setShowSelector(false);
-                }}
-              >
-                <View
-                  style={[
-                    styles.selectorCircle,
-                    ownerView === 'both' && styles.selectedCircle,
-                  ]}
-                >
-                  <Users
-                    size={16}
-                    color={ownerView === 'both' ? '#FF6503' : Colors.gray[600]}
-                  />
-                </View>
-              </TouchableOpacity>
-            </View>
-          )}
+{showSelector && (
+  <View style={styles.inlineSelectorOptions}>
+    <TouchableOpacity
+      onPress={() => {
+        setMineSelected((prev) => !prev);
+        setShowSelector(false);
+      }}
+    >
+      <View
+        style={[
+          styles.selectorCircle,
+          mineSelected && styles.selectedCircle,
+        ]}
+      >
+        <Text style={styles.selectorText}>DT</Text>
+      </View>
+    </TouchableOpacity>
+
+    <TouchableOpacity
+      onPress={() => {
+        setPartnerSelected((prev) => !prev);
+        setShowSelector(false);
+      }}
+    >
+      <View
+        style={[
+          styles.selectorCircle,
+          partnerSelected && styles.selectedCircle,
+        ]}
+      >
+        <Text style={styles.selectorText}>JM</Text>
+      </View>
+    </TouchableOpacity>
+
+    <TouchableOpacity
+      disabled={mineSelected && partnerSelected}
+      onPress={() => {
+        setMineSelected(true);
+        setPartnerSelected(true);
+        setShowSelector(false);
+      }}
+    >
+      <View
+        style={[
+          styles.selectorCircle,
+          mineSelected && partnerSelected && styles.selectedCircle,
+          mineSelected && partnerSelected && { opacity: 0.4 },
+        ]}
+      >
+        <Users
+          size={16}
+          color={
+            mineSelected && partnerSelected
+              ? Colors.gray[400]
+              : Colors.gray[600]
+          }
+        />
+      </View>
+    </TouchableOpacity>
+  </View>
+)}
+
         </View>
       </View>
 
@@ -520,6 +526,8 @@ const styles = StyleSheet.create({
   },
   selectorCircleMain: {
     backgroundColor: Colors.gray[200],
+    borderColor: '#FF6503',
+    borderWidth: 2,
   },
   selectedCircle: {
     borderColor: '#FF6503',
