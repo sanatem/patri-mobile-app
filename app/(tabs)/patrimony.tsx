@@ -526,6 +526,8 @@ const styles = StyleSheet.create({
   },
   selectorCircleMain: {
     backgroundColor: Colors.gray[200],
+    borderColor: '#FF6503',
+    borderWidth: 2,
   },
   selectedCircle: {
     borderColor: '#FF6503',
