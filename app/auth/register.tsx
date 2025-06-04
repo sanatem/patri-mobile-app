@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ScrollView } from 'react-native';
 import { router } from 'expo-router';
 import { Eye, EyeOff, ArrowLeft } from 'lucide-react-native';
-import Colors from '@/constants/Colors';
 import { useAuth } from '@/providers/AuthProvider';
 import Button from '@/components/ui/Button';
 
@@ -15,7 +14,7 @@ export default function RegisterScreen() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   const { register } = useAuth();
 
   const handleRegister = async () => {
@@ -23,18 +22,18 @@ export default function RegisterScreen() {
       setError('Por favor completa todos los campos');
       return;
     }
-    
+
     if (password !== confirmPassword) {
       setError('Las contraseñas no coinciden');
       return;
     }
-    
+
     setLoading(true);
     setError(null);
-    
+
     try {
       await register(name, email, password);
-      router.replace('/(patrimony)');
+      router.replace('/patrimony');
     } catch (err) {
       setError('Error al registrar. Por favor intenta nuevamente.');
     } finally {
@@ -43,40 +42,37 @@ export default function RegisterScreen() {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-      <TouchableOpacity
-        style={styles.backButton}
-        onPress={() => router.back()}
-      >
-        <ArrowLeft size={24} color={Colors.gray[800]} />
+    <ScrollView className="flex-1 bg-white" contentContainerStyle={{ padding: 24 }}>
+      <TouchableOpacity onPress={() => router.back()} className="mt-10 mb-5">
+        <ArrowLeft size={24} color="#1F2937" />
       </TouchableOpacity>
-      
-      <View style={styles.header}>
-        <Text style={styles.title}>Crear cuenta</Text>
-        <Text style={styles.subtitle}>Completa tus datos para comenzar</Text>
+
+      <View className="mb-8">
+        <Text className="text-2xl text-gray-800 font-bold mb-2">Crear cuenta</Text>
+        <Text className="text-gray-600 font-regular">Completa tus datos para comenzar</Text>
       </View>
 
       {error && (
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>{error}</Text>
+        <View className="bg-red-50 border border-red-200 p-3 rounded-lg mb-4">
+          <Text className="text-red-500 font-medium text-sm">{error}</Text>
         </View>
       )}
-      
-      <View style={styles.form}>
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Nombre completo</Text>
+
+      <View className="mb-6">
+        <View className="mb-4">
+          <Text className="text-sm font-medium text-gray-700 mb-2">Nombre completo</Text>
           <TextInput
-            style={styles.input}
+            className="h-12 border border-gray-300 rounded-lg px-4 text-base text-gray-800 font-regular"
             placeholder="Tu nombre"
             value={name}
             onChangeText={setName}
           />
         </View>
-        
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Correo electrónico</Text>
+
+        <View className="mb-4">
+          <Text className="text-sm font-medium text-gray-700 mb-2">Correo electrónico</Text>
           <TextInput
-            style={styles.input}
+            className="h-12 border border-gray-300 rounded-lg px-4 text-base text-gray-800 font-regular"
             placeholder="tucorreo@ejemplo.com"
             value={email}
             onChangeText={setEmail}
@@ -84,184 +80,64 @@ export default function RegisterScreen() {
             keyboardType="email-address"
           />
         </View>
-        
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Contraseña</Text>
-          <View style={styles.passwordContainer}>
+
+        <View className="mb-4">
+          <Text className="text-sm font-medium text-gray-700 mb-2">Contraseña</Text>
+          <View className="flex-row items-center border border-gray-300 rounded-lg h-12">
             <TextInput
-              style={styles.passwordInput}
+              className="flex-1 px-4 text-base text-gray-800 font-regular"
               placeholder="Crea una contraseña segura"
               secureTextEntry={!showPassword}
               value={password}
               onChangeText={setPassword}
             />
-            <TouchableOpacity
-              onPress={() => setShowPassword(!showPassword)}
-              style={styles.eyeIcon}
-            >
+            <TouchableOpacity onPress={() => setShowPassword(!showPassword)} className="p-3">
               {showPassword ? (
-                <EyeOff size={20} color={Colors.gray[500]} />
+                <EyeOff size={20} color="#9CA3AF" />
               ) : (
-                <Eye size={20} color={Colors.gray[500]} />
+                <Eye size={20} color="#9CA3AF" />
               )}
             </TouchableOpacity>
           </View>
         </View>
-        
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Confirmar contraseña</Text>
-          <View style={styles.passwordContainer}>
+
+        <View className="mb-4">
+          <Text className="text-sm font-medium text-gray-700 mb-2">Confirmar contraseña</Text>
+          <View className="flex-row items-center border border-gray-300 rounded-lg h-12">
             <TextInput
-              style={styles.passwordInput}
+              className="flex-1 px-4 text-base text-gray-800 font-regular"
               placeholder="Repite tu contraseña"
               secureTextEntry={!showConfirmPassword}
               value={confirmPassword}
               onChangeText={setConfirmPassword}
             />
-            <TouchableOpacity
-              onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-              style={styles.eyeIcon}
-            >
+            <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)} className="p-3">
               {showConfirmPassword ? (
-                <EyeOff size={20} color={Colors.gray[500]} />
+                <EyeOff size={20} color="#9CA3AF" />
               ) : (
-                <Eye size={20} color={Colors.gray[500]} />
+                <Eye size={20} color="#9CA3AF" />
               )}
             </TouchableOpacity>
           </View>
         </View>
-        
-        <View style={styles.termsContainer}>
-          <Text style={styles.termsText}>
+
+        <View className="my-6">
+          <Text className="text-sm font-regular text-gray-600 leading-5">
             Al registrarte, aceptas nuestros{' '}
-            <Text style={styles.termsLink}>Términos y Condiciones</Text> y{' '}
-            <Text style={styles.termsLink}>Política de Privacidad</Text>
+            <Text className="text-primary-500 font-medium">Términos y Condiciones</Text> y{' '}
+            <Text className="text-primary-500 font-medium">Política de Privacidad</Text>
           </Text>
         </View>
-        
-        <Button 
-          onPress={handleRegister} 
-          loading={loading}
-          label="Crear cuenta"
-        />
+
+        <Button onPress={handleRegister} loading={loading} label="Crear cuenta" />
       </View>
-      
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>¿Ya tienes una cuenta?</Text>
+
+      <View className="flex-row justify-center mb-6">
+        <Text className="text-base text-gray-600 font-regular">¿Ya tienes una cuenta?</Text>
         <TouchableOpacity onPress={() => router.push('/auth/login')}>
-          <Text style={styles.loginLink}>Inicia sesión</Text>
+          <Text className="text-base text-primary-500 font-semibold ml-1">Inicia sesión</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: 'white',
-  },
-  contentContainer: {
-    padding: 24,
-  },
-  backButton: {
-    marginTop: 40,
-    marginBottom: 20,
-  },
-  header: {
-    marginBottom: 32,
-  },
-  title: {
-    fontFamily: 'Inter-Bold',
-    fontSize: 28,
-    color: Colors.gray[800],
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontFamily: 'Inter-Regular',
-    fontSize: 16,
-    color: Colors.gray[600],
-  },
-  form: {
-    marginBottom: 24,
-  },
-  errorContainer: {
-    backgroundColor: '#fef2f2',
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: '#fee2e2',
-  },
-  errorText: {
-    fontFamily: 'Inter-Medium',
-    color: '#ef4444',
-    fontSize: 14,
-  },
-  inputContainer: {
-    marginBottom: 16,
-  },
-  label: {
-    fontFamily: 'Inter-Medium',
-    fontSize: 14,
-    marginBottom: 8,
-    color: Colors.gray[700],
-  },
-  input: {
-    height: 50,
-    borderWidth: 1,
-    borderColor: Colors.gray[300],
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    fontFamily: 'Inter-Regular',
-    fontSize: 16,
-    color: Colors.gray[800],
-  },
-  passwordContainer: {
-    flexDirection: 'row',
-    borderWidth: 1,
-    borderColor: Colors.gray[300],
-    borderRadius: 8,
-    height: 50,
-    alignItems: 'center',
-  },
-  passwordInput: {
-    flex: 1,
-    paddingHorizontal: 16,
-    fontFamily: 'Inter-Regular',
-    fontSize: 16,
-    color: Colors.gray[800],
-  },
-  eyeIcon: {
-    padding: 12,
-  },
-  termsContainer: {
-    marginVertical: 24,
-  },
-  termsText: {
-    fontFamily: 'Inter-Regular',
-    fontSize: 14,
-    color: Colors.gray[600],
-    lineHeight: 20,
-  },
-  termsLink: {
-    fontFamily: 'Inter-Medium',
-    color: Colors.primary[500],
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginBottom: 24,
-  },
-  footerText: {
-    fontFamily: 'Inter-Regular',
-    fontSize: 16,
-    color: Colors.gray[600],
-  },
-  loginLink: {
-    fontFamily: 'Inter-SemiBold',
-    fontSize: 16,
-    color: Colors.primary[500],
-    marginLeft: 4,
-  },
-});

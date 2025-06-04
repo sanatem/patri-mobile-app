@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.gray[300],
   },
   buttonText: {
-    fontFamily: 'Inter-SemiBold',
+    fontFamily: 'Poppins-SemiBold',
     textAlign: 'center',
   },
   primaryText: {

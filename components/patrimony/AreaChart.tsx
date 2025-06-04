@@ -164,12 +164,12 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start'
   },
   tooltipDate: {
-    fontFamily: 'Inter-Medium',
+    fontFamily: 'Poppins-Regular',
     fontSize: 12,
     color: Colors.gray[500],
   },
   tooltipValue: {
-    fontFamily: 'Inter-SemiBold',
+    fontFamily: 'Poppins-SemiBold',
     fontSize: 14,
     color: Colors.gray[900],
   },
@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
   },
   labelText: {
     fontSize: 12,
-    fontFamily: 'Inter-Regular',
+    fontFamily: 'Poppins-Regular',
     color: Colors.gray[500],
   },
 });

@@ -120,13 +120,13 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   expertTitle: {
-    fontFamily: 'Inter-Bold',
+    fontFamily: 'Poppins-Bold',
     fontSize: 20,
     color: Colors.gray[800],
     marginBottom: 8,
   },
   expertDescription: {
-    fontFamily: 'Inter-Regular',
+    fontFamily: 'Poppins-Regular',
     fontSize: 14,
     color: Colors.gray[600],
     lineHeight: 22,
@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   expertFeature: {
-    fontFamily: 'Inter-Medium',
+    fontFamily: 'Poppins-Medium',
     fontSize: 13,
     color: Colors.gray[600],
     textAlign: 'center',
@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.primary[200],
   },
   topicText: {
-    fontFamily: 'Inter-Medium',
+    fontFamily: 'Poppins-Medium',
     fontSize: 13,
     color: Colors.gray[700],
     marginLeft: 8,
