@@ -9,6 +9,7 @@ type ButtonProps = {
   loading?: boolean;
   disabled?: boolean;
   fullWidth?: boolean;
+  size?: 'small' | 'medium' | 'large';
   icon?: React.ReactNode;
 };
 
@@ -25,7 +26,7 @@ export function Button({
   const variants: Record<typeof variant, string> = {
     primary: 'bg-primary-500 text-white',
     outline: 'border border-primary-500 text-primary-500 bg-white',
-    ghost: 'bg-transparent text-primary-500',
+    ghost: 'bg-transparent text-primary-500 border border-primary-500',
   };
 
   const textColor = variant === 'primary' ? 'text-white' : 'text-primary-500';
