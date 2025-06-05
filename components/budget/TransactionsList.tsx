@@ -174,18 +174,18 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   transactionTitle: {
-    fontFamily: 'Inter-Medium',
+    fontFamily: 'Poppins-Medium',
     fontSize: 16,
     color: '#1f2937',
     marginBottom: 4,
   },
   transactionDescription: {
-    fontFamily: 'Inter-Regular',
+    fontFamily: 'Poppins-Regular',
     fontSize: 14,
     color: '#6b7280',
   },
   transactionAmount: {
-    fontFamily: 'Inter-SemiBold',
+    fontFamily: 'Poppins-SemiBold',
     fontSize: 16,
   },
   incomeAmount: {
@@ -200,7 +200,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   loadMoreText: {
-    fontFamily: 'Inter-Medium',
+    fontFamily: 'Poppins-Medium',
     fontSize: 16,
     color: '#3b82f6',
   },

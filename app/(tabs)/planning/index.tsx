@@ -1,7 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { Settings } from 'lucide-react-native';
-import Colors from '@/constants/Colors';
 import { AdvisorCard, ExpertCard, BenefitsCard, PlanningCarousel } from '@/components/planning';
 import { useRouter } from 'expo-router';
 
@@ -9,114 +8,50 @@ export default function PlanningScreen() {
   const router = useRouter();
 
   const handleSchedulePress = () => {
-    // Aquí puedes agregar la lógica para programar una reunión
     console.log('Programar reunión');
   };
 
   const handleChatPress = () => {
-    // Aquí puedes agregar la lógica para iniciar un chat
     console.log('Iniciar chat');
   };
 
   const handleExploreServicesPress = () => {
-    // Aquí puedes agregar la lógica para explorar servicios
     console.log('Explorar servicios');
   };
 
   const handleTopicPress = (topic: string) => {
-    // Aquí puedes agregar la lógica para navegar a un tema específico
     console.log('Tema seleccionado:', topic);
   };
 
   const handleCarouselCardPress = (card: any) => {
-    // Aquí puedes agregar la lógica para cuando se selecciona una card del carrusel
     console.log('Plan seleccionado:', card.title, card.price);
   };
 
   const handleAIPress = (card: any) => {
-    // Aquí puedes agregar la lógica para cuando se presiona el botón de IA
     console.log('IA solicitada para:', card.title);
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.headerGradient}>
-          <View style={styles.headerContent}>
-            <View style={styles.headerTextContainer}>
-              <Text style={styles.headerTitle}>Planificación Financiera</Text>
-              <Text style={styles.headerSubtitle}>Tu camino hacia el éxito financiero</Text>
-            </View>
-            <TouchableOpacity 
-              style={styles.settingsButton}
-              onPress={() => router.push('/settings')}
-            >
-              <Settings size={24} color="white" />
-            </TouchableOpacity>
+    <View className="flex-1 bg-slate-50">
+      <View className="pt-[50px] bg-primary-500 px-5 pb-6 rounded-b-3xl">
+        <View className="flex-row items-center">
+          <View className="flex-1">
+            <Text className="text-white text-2xl font-bold text-center" style={{ marginTop: 30 }}>Planificación Financiera</Text>
+            <Text className="text-white/80 text-sm font-medium text-center mt-1" style={{ fontFamily: 'Poppins-Medium' }}>Tu camino hacia el éxito financiero</Text>
           </View>
+          <TouchableOpacity className="p-2" onPress={() => router.push('/settings')}>
+            <Settings size={24} color="white" />
+          </TouchableOpacity>
         </View>
       </View>
 
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        <AdvisorCard
-          onSchedule={handleSchedulePress}
-          onChat={handleChatPress}
-        />
+      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+        <AdvisorCard onSchedule={handleSchedulePress} onChat={handleChatPress} />
 
-        <PlanningCarousel 
-          onCardPress={handleCarouselCardPress} 
-          onAIPress={handleAIPress}
-        />
-        
-        <View style={styles.bottomSpace} />
+        <PlanningCarousel onCardPress={handleCarouselCardPress} onAIPress={handleAIPress} />
+
+        <View className="h-5" />
       </ScrollView>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f8fafc',
-  },
-  header: {
-    paddingTop: 50,
-  },
-  headerGradient: {
-    backgroundColor: Colors.primary[500],
-    paddingHorizontal: 20,
-    paddingBottom: 24,
-    paddingTop: 16,
-    borderBottomLeftRadius: 24,
-    borderBottomRightRadius: 24,
-  },
-  headerContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  headerTextContainer: {
-    flex: 1,
-  },
-  headerTitle: {
-    fontFamily: 'Inter-Bold',
-    fontSize: 24,
-    color: '#ffffff',
-    textAlign: 'center',
-  },
-  headerSubtitle: {
-    fontFamily: 'Inter-Medium',
-    fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.8)',
-    textAlign: 'center',
-    marginTop: 4,
-  },
-  settingsButton: {
-    padding: 8,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  bottomSpace: {
-    height: 20,
-  },
-});

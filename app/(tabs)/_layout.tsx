@@ -21,7 +21,7 @@ export default function TabsLayout() {
           paddingTop: 6,
         },
         tabBarLabelStyle: {
-          fontFamily: 'Inter-Medium',
+          fontFamily: 'Poppins-Medium',
           fontSize: 12,
         },
       }}

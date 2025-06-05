@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
   benefitsTitle: {
-    fontFamily: 'Inter-Bold',
+    fontFamily: 'Poppins-Bold',
     fontSize: 18,
     color: Colors.gray[800],
     marginBottom: 16,
@@ -83,13 +83,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   benefitTitle: {
-    fontFamily: 'Inter-SemiBold',
+    fontFamily: 'Poppins-SemiBold',
     fontSize: 15,
     color: Colors.gray[800],
     marginBottom: 2,
   },
   benefitDescription: {
-    fontFamily: 'Inter-Regular',
+    fontFamily: 'Poppins-Regular',
     fontSize: 13,
     color: Colors.gray[600],
     lineHeight: 18,

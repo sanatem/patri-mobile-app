@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal, FlatList } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Modal, FlatList } from 'react-native';
 import { ChevronLeft, ChevronRight, Search, X, Settings } from 'lucide-react-native';
-import Colors from '@/constants/Colors';
 import BudgetChart from '@/components/budget/BudgetChart';
 import TransactionsList from '@/components/budget/TransactionsList';
 import transactionsData from '@/transacciones_simplificadas.json';
@@ -12,27 +11,24 @@ const months = [
   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
 ];
 
-// Función para convertir nombre de mes a número
 const getMonthNumber = (monthName: string): number => {
   return months.indexOf(monthName) + 1;
 };
 
-// Función para calcular totales de ingresos y gastos por mes
 const calculateTotalsByMonth = (selectedMonth: string) => {
   const data = transactionsData[0];
   const transactions = data.transactions.accounts[0].transactions;
   const monthNumber = getMonthNumber(selectedMonth);
-  
+
   let totalIncome = 0;
   let totalExpenses = 0;
   let incomeCount = 0;
   let expenseCount = 0;
-  
+
   transactions.forEach((transaction: any) => {
     const transactionDate = new Date(transaction.date);
-    const transactionMonth = transactionDate.getMonth() + 1; // getMonth() es 0-based
-    
-    // Solo contar transacciones del mes seleccionado
+    const transactionMonth = transactionDate.getMonth() + 1;
+
     if (transactionMonth === monthNumber) {
       if (transaction.in > 0) {
         totalIncome += transaction.in;
@@ -44,7 +40,7 @@ const calculateTotalsByMonth = (selectedMonth: string) => {
       }
     }
   });
-  
+
   return { totalIncome, totalExpenses, incomeCount, expenseCount };
 };
 
@@ -54,25 +50,16 @@ export default function BudgetScreen() {
   const [isMonthModalVisible, setIsMonthModalVisible] = useState(false);
   const router = useRouter();
 
-  // Calcular totales para el mes seleccionado
   const { totalIncome, totalExpenses, incomeCount, expenseCount } = calculateTotalsByMonth(selectedMonth);
 
   const handlePreviousMonth = () => {
     const currentIndex = months.indexOf(selectedMonth);
-    if (currentIndex > 0) {
-      setSelectedMonth(months[currentIndex - 1]);
-    } else {
-      setSelectedMonth(months[months.length - 1]);
-    }
+    setSelectedMonth(currentIndex > 0 ? months[currentIndex - 1] : months[months.length - 1]);
   };
 
   const handleNextMonth = () => {
     const currentIndex = months.indexOf(selectedMonth);
-    if (currentIndex < months.length - 1) {
-      setSelectedMonth(months[currentIndex + 1]);
-    } else {
-      setSelectedMonth(months[0]);
-    }
+    setSelectedMonth(currentIndex < months.length - 1 ? months[currentIndex + 1] : months[0]);
   };
 
   const handleMonthSelect = (month: string) => {
@@ -82,151 +69,105 @@ export default function BudgetScreen() {
 
   const renderMonthItem = ({ item }: { item: string }) => (
     <TouchableOpacity
-      style={[
-        styles.monthItem,
-        selectedMonth === item && styles.selectedMonthItem
-      ]}
+      className={`px-4 py-4 rounded-lg my-0.5 ${selectedMonth === item ? 'bg-primary-500' : ''}`}
       onPress={() => handleMonthSelect(item)}
     >
-      <Text style={[
-        styles.monthItemText,
-        selectedMonth === item && styles.selectedMonthItemText
-      ]}>
-        {item}
-      </Text>
+      <Text className={`text-base font-medium text-center ${selectedMonth === item ? 'text-white' : 'text-gray-800'}`}>{item}</Text>
     </TouchableOpacity>
   );
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Presupuestos</Text>
-        <TouchableOpacity 
-          style={styles.settingsButton}
-          onPress={() => router.push('/settings')}
-        >
-          <Settings size={24} color={Colors.gray[600]} />
+    <View className="flex-1 bg-white">
+      <View className="px-4 pb-4 bg-white border-b border-gray-100 flex-row justify-between items-center" style={{ marginTop: 15 }}>
+        <Text className="text-lg font-semibold text-gray-800">Presupuestos</Text>
+        <TouchableOpacity className="p-2" onPress={() => router.push('/settings')}>
+          <Settings size={24} color="#525252" />
         </TouchableOpacity>
       </View>
 
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        <View style={styles.budgetCard}>
-          <View style={styles.monthSelector}>
+      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+        <View className="p-4">
+          <View className="flex-row justify-between items-center mb-6">
             <TouchableOpacity onPress={handlePreviousMonth}>
-              <ChevronLeft size={24} color={Colors.gray[700]} />
+              <ChevronLeft size={24} color="#374151" />
             </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={styles.monthButton}
-              onPress={() => setIsMonthModalVisible(true)}
-            >
-              <Text style={styles.monthText}>{selectedMonth}</Text>
-              <ChevronRight size={16} color={Colors.gray[500]} style={{ transform: [{ rotate: '90deg' }] }} />
+
+            <TouchableOpacity className="flex-row items-center bg-gray-100 px-4 py-2 rounded-full" onPress={() => setIsMonthModalVisible(true)}>
+              <Text className="text-base font-medium text-gray-800 mr-1">{selectedMonth}</Text>
+              <ChevronRight size={16} color="#9CA3AF" style={{ transform: [{ rotate: '90deg' }] }} />
             </TouchableOpacity>
-            
+
             <TouchableOpacity onPress={handleNextMonth}>
-              <ChevronRight size={24} color={Colors.gray[700]} />
+              <ChevronRight size={24} color="#374151" />
             </TouchableOpacity>
           </View>
 
           <BudgetChart selectedMonth={selectedMonth} />
-          
-          <View style={styles.legend}>
-            <View style={styles.legendItem}>
-              <View style={[styles.legendColor, { backgroundColor: Colors.secondary[500] }]} />
-              <Text style={styles.legendText}>Vivienda</Text>
-            </View>
-            <View style={styles.legendItem}>
-              <View style={[styles.legendColor, { backgroundColor: '#3B82F6' }]} />
-              <Text style={styles.legendText}>Transporte</Text>
-            </View>
-            <View style={styles.legendItem}>
-              <View style={[styles.legendColor, { backgroundColor: '#EC4899' }]} />
-              <Text style={styles.legendText}>Ocio</Text>
-            </View>
-            <View style={styles.legendItem}>
-              <View style={[styles.legendColor, { backgroundColor: '#06B6D4' }]} />
-              <Text style={styles.legendText}>Salud</Text>
-            </View>
-            <View style={styles.legendItem}>
-              <View style={[styles.legendColor, { backgroundColor: '#10B981' }]} />
-              <Text style={styles.legendText}>Servicios</Text>
-            </View>
+
+          <View className="flex-row flex-wrap justify-center mt-5 mb-2 px-2 " >
+            {[
+              { label: 'Vivienda', color: 'bg-secondary-500' },
+              { label: 'Transporte', color: 'bg-blue-500' },
+              { label: 'Ocio', color: 'bg-pink-500' },
+              { label: 'Salud', color: 'bg-cyan-500' },
+              { label: 'Servicios', color: 'bg-green-500' },
+            ].map((item, idx) => (
+              <View key={idx} className="flex-row items-center mx-2 mb-2">
+                <View className={`w-[10px] h-[10px] rounded-full mr-1.5 ${item.color}`} />
+                <Text className="text-sm font-medium text-gray-700 leading-4 ">{item.label}</Text>
+              </View>
+            ))}
           </View>
         </View>
 
-        <View style={styles.tabsContainer}>
-          <TouchableOpacity
-            style={[
-              styles.tab,
-              activeTab === 'income' && styles.activeTab,
-            ]}
-            onPress={() => setActiveTab('income')}
-          >
-            <Text
-              style={[
-                styles.tabText,
-                activeTab === 'income' && styles.activeTabText,
-              ]}
+        <View className="flex-row border-b border-gray-200 mt-4">
+          {[
+            { key: 'income', label: 'Ingresos', count: incomeCount },
+            { key: 'expenses', label: 'Gastos', count: expenseCount },
+          ].map((tab) => (
+            <TouchableOpacity
+              key={tab.key}
+              className={`flex-1 py-4 items-center ${activeTab === tab.key ? 'border-b-2 border-primary-500' : ''}`}
+              onPress={() => setActiveTab(tab.key as 'income' | 'expenses')}
             >
-              Ingresos <Text style={styles.tabCount}>{incomeCount}</Text>
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[
-              styles.tab,
-              activeTab === 'expenses' && styles.activeTab,
-            ]}
-            onPress={() => setActiveTab('expenses')}
-          >
-            <Text
-              style={[
-                styles.tabText,
-                activeTab === 'expenses' && styles.activeTabText,
-              ]}
-            >
-              Gastos <Text style={styles.tabCount}>{expenseCount}</Text>
-            </Text>
-          </TouchableOpacity>
+              <Text className={`text-base font-medium ${activeTab === tab.key ? 'text-primary-500' : 'text-gray-500'}`}>
+                {tab.label} <Text className="bg-gray-100 rounded-xl px-2 py-0.5 text-xs text-gray-600 min-w-[20px] text-center">{tab.count}</Text>
+              </Text>
+            </TouchableOpacity>
+          ))}
         </View>
 
-        <View style={styles.searchContainer}>
-          <Search size={20} color={Colors.gray[400]} style={styles.searchIcon} />
-          <Text style={styles.searchPlaceholder}>
-            Buscar en {activeTab === 'income' ? 'ingresos' : 'gastos'}
-          </Text>
+        <View className="flex-row items-center bg-gray-50 rounded-lg px-3 mt-4 mx-4 mb-4">
+          <Search size={20} color="#9CA3AF" className="mr-2" />
+          <Text className="flex-1 h-12 text-base font-regular text-gray-400 py-3">Buscar en {activeTab === 'income' ? 'ingresos' : 'gastos'}</Text>
         </View>
 
         <TransactionsList type={activeTab} selectedMonth={selectedMonth} />
 
-        <View style={styles.bottomSpace} />
+        <View className="h-24" />
       </ScrollView>
 
-      {/* Modal para seleccionar mes */}
       <Modal
         visible={isMonthModalVisible}
         animationType="fade"
         transparent={true}
         onRequestClose={() => setIsMonthModalVisible(false)}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Seleccionar mes</Text>
-              <TouchableOpacity
-                onPress={() => setIsMonthModalVisible(false)}
-                style={styles.closeButton}
-              >
-                <X size={24} color={Colors.gray[600]} />
+        <View className="flex-1 bg-black/50 justify-center items-center">
+          <View className="bg-white p-5 rounded-2xl w-4/5 items-center">
+            <View className="flex-row items-center justify-between w-full mb-4">
+              <Text className="text-lg font-semibold text-gray-800">Seleccionar mes</Text>
+              <TouchableOpacity onPress={() => setIsMonthModalVisible(false)} className="p-2">
+                <X size={24} color="#525252" />
               </TouchableOpacity>
             </View>
-            
+
             <FlatList
               data={months}
               renderItem={renderMonthItem}
               keyExtractor={(item) => item}
               showsVerticalScrollIndicator={false}
-              style={styles.monthsList}
+              className="w-full"
             />
           </View>
         </View>
@@ -234,189 +175,3 @@ export default function BudgetScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: 'white',
-  },
-  header: {
-    paddingTop: 60,
-    paddingHorizontal: 16,
-    paddingBottom: 16,
-    backgroundColor: 'white',
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.gray[100],
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  headerTitle: {
-    fontFamily: 'Inter-SemiBold',
-    fontSize: 18,
-    color: Colors.gray[800],
-  },
-  scrollView: {
-    flex: 1,
-  },
-  budgetCard: {
-    padding: 16,
-  },
-  monthSelector: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  monthButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: Colors.gray[100],
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 16,
-  },
-  monthText: {
-    fontFamily: 'Inter-Medium',
-    fontSize: 16,
-    color: Colors.gray[800],
-    marginRight: 4,
-  },
-  legend: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    marginTop: 20,
-    marginBottom: 8,
-    paddingHorizontal: 8,
-  },
-  legendItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginHorizontal: 8,
-    marginBottom: 10,
-  },
-  legendColor: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    marginRight: 6,
-  },
-  legendText: {
-    fontFamily: 'Inter-Medium',
-    fontSize: 13,
-    color: Colors.gray[700],
-    lineHeight: 16,
-  },
-  tabsContainer: {
-    flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.gray[200],
-    marginTop: 16,
-  },
-  tab: {
-    flex: 1,
-    paddingVertical: 16,
-    alignItems: 'center',
-  },
-  activeTab: {
-    borderBottomWidth: 2,
-    borderBottomColor: Colors.primary[500],
-  },
-  tabText: {
-    fontFamily: 'Inter-Medium',
-    fontSize: 16,
-    color: Colors.gray[500],
-  },
-  activeTabText: {
-    color: Colors.primary[500],
-  },
-  tabCount: {
-    backgroundColor: Colors.gray[100],
-    borderRadius: 12,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    fontSize: 12,
-    color: Colors.gray[600],
-    marginLeft: 6,
-    fontFamily: 'Inter-Medium',
-    overflow: 'hidden',
-    minWidth: 20,
-    textAlign: 'center',
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: Colors.gray[50],
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    marginTop: 16,
-    marginHorizontal: 16,
-    marginBottom: 16,
-  },
-  searchIcon: {
-    marginRight: 8,
-  },
-  searchPlaceholder: {
-    flex: 1,
-    height: 48,
-    fontFamily: 'Inter-Regular',
-    fontSize: 16,
-    color: Colors.gray[400],
-    paddingVertical: 12,
-  },
-  bottomSpace: {
-    height: 100,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContent: {
-    backgroundColor: 'white',
-    padding: 20,
-    borderRadius: 20,
-    width: '80%',
-    alignItems: 'center',
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    width: '100%',
-    marginBottom: 16,
-  },
-  modalTitle: {
-    fontFamily: 'Inter-SemiBold',
-    fontSize: 18,
-    color: Colors.gray[800],
-  },
-  closeButton: {
-    padding: 8,
-  },
-  monthsList: {
-    width: '100%',
-  },
-  monthItem: {
-    padding: 16,
-    borderRadius: 8,
-    marginVertical: 2,
-  },
-  selectedMonthItem: {
-    backgroundColor: Colors.primary[500],
-  },
-  monthItemText: {
-    fontFamily: 'Inter-Medium',
-    fontSize: 16,
-    color: Colors.gray[800],
-    textAlign: 'center',
-  },
-  selectedMonthItemText: {
-    color: 'white',
-  },
-  settingsButton: {
-    padding: 8,
-  },
-});

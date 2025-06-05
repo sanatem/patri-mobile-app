@@ -228,14 +228,14 @@ const styles = StyleSheet.create({
     height: '60%',
   },
   centerAmount: {
-    fontFamily: 'Inter-Bold',
+    fontFamily: 'Poppins-Bold',
     fontSize: 26,
     color: Colors.gray[900],
     textAlign: 'center',
     marginBottom: 4,
   },
   centerSubtitle: {
-    fontFamily: 'Inter-Regular',
+    fontFamily: 'Poppins-Regular',
     fontSize: 12,
     color: Colors.gray[500],
     textAlign: 'center',

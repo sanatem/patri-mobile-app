@@ -149,7 +149,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   advisorName: {
-    fontFamily: 'Inter-Bold',
+    fontFamily: 'Poppins-Bold',
     fontSize: 18,
     color: Colors.gray[800],
     marginRight: 8,
@@ -163,24 +163,24 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   ratingText: {
-    fontFamily: 'Inter-SemiBold',
+    fontFamily: 'Poppins-SemiBold',
     fontSize: 12,
     color: '#F59E0B',
     marginLeft: 2,
   },
   advisorSubtitle: {
-    fontFamily: 'Inter-Medium',
+    fontFamily: 'Poppins-Medium',
     fontSize: 14,
     color: Colors.primary[600],
     marginBottom: 2,
   },
   advisorExperience: {
-    fontFamily: 'Inter-Regular',
+    fontFamily: 'Poppins-Regular',
     fontSize: 12,
     color: Colors.gray[500],
   },
   advisorBio: {
-    fontFamily: 'Inter-Regular',
+    fontFamily: 'Poppins-Regular',
     fontSize: 14,
     color: Colors.gray[700],
     lineHeight: 22,
@@ -211,12 +211,12 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   actionTitle: {
-    fontFamily: 'Inter-SemiBold',
+    fontFamily: 'Poppins-SemiBold',
     fontSize: 14,
     color: Colors.gray[800],
   },
   actionSubtitle: {
-    fontFamily: 'Inter-Regular',
+    fontFamily: 'Poppins-Regular',
     fontSize: 12,
     color: Colors.gray[500],
     marginTop: 2,

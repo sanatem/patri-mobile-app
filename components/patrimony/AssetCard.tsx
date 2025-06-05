@@ -1,115 +1,63 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import Colors from '@/constants/Colors';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { Asset } from '@/types';
-
+import { twMerge } from 'tailwind-merge';
+import Colors from '@/constants/Colors';
 interface AssetCardProps {
   asset: Asset;
 }
 
 const AssetCard: React.FC<AssetCardProps> = ({ asset }) => {
+  const isPositive = asset.change >= 0;
+
   return (
-    <TouchableOpacity style={styles.container}>
-      <View style={styles.leftContainer}>
-        <View style={[styles.iconContainer, { backgroundColor: asset.color }]}>
-          <Text style={styles.icon}>{asset.name.charAt(0)}</Text>
+    <TouchableOpacity className="flex-row justify-between items-center py-4 px-4 border-b border-gray-200"
+    style={{ borderBottomWidth: 1, borderBottomColor: Colors.gray[200] }}
+    >
+      <View className="flex-row items-center flex-1">
+        <View
+          className="rounded-xl justify-center items-center"
+          style={{ backgroundColor: asset.color, width: 40, height: 40 }}
+        >
+          <Text className="text-white text-base font-semibold">
+            {asset.name.charAt(0)}
+          </Text>
         </View>
-        <View style={styles.nameContainer}>
-          <Text style={styles.name}>{asset.name}</Text>
-          <Text style={styles.type}>{asset.type}</Text>
+
+        <View className="ml-4">
+          <Text className="text-[15px] font-semibold text-gray-900">
+            {asset.name}
+          </Text>
+          <Text className="text-sm text-gray-500 font-regular">
+            {asset.type}
+          </Text>
         </View>
       </View>
-      <View style={styles.valueContainer}>
-        <Text style={styles.value}>${asset.value.toLocaleString('es-CL')}</Text>
-        <View style={[
-          styles.changeBadge,
-          asset.change >= 0 ? styles.positiveBadge : styles.negativeBadge
-        ]}>
-          <Text style={[
-            styles.changeText,
-            asset.change >= 0 ? styles.positiveText : styles.negativeText
-          ]}>
-            {asset.change >= 0 ? '+' : ''}{asset.change}%
+
+      <View className="items-end">
+        <Text className="text-[15px] font-semibold text-error-500">
+          -${Math.abs(asset.value).toLocaleString('es-CL')}
+        </Text>
+
+        <View
+          className={twMerge(
+            'px-2 py-[2px] rounded-full mt-1',
+            isPositive ? 'bg-success-500' : 'bg-error-100'
+          )}
+        >
+          <Text
+            className={twMerge(
+              'text-xs font-medium',
+              isPositive ? 'text-success-500' : 'text-error-500'
+            )}
+          >
+            {isPositive ? '+' : ''}
+            {asset.change}%
           </Text>
         </View>
       </View>
     </TouchableOpacity>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.gray[200],
-  },
-  leftContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  iconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  icon: {
-    fontFamily: 'Inter-Bold',
-    fontSize: 18,
-    color: 'white',
-  },
-  nameContainer: {
-    marginLeft: 12,
-  },
-  name: {
-    fontFamily: 'Inter-SemiBold',
-    fontSize: 16,
-    color: Colors.gray[800],
-    marginBottom: 2,
-  },
-  type: {
-    fontFamily: 'Inter-Regular',
-    fontSize: 14,
-    color: Colors.gray[500],
-  },
-  valueContainer: {
-    alignItems: 'flex-end',
-  },
-  value: {
-    fontFamily: 'Inter-SemiBold',
-    fontSize: 16,
-    color: Colors.gray[800],
-    marginBottom: 2,
-  },
-  changeBadge: {
-    borderRadius: 16,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    minWidth: 50,
-    alignItems: 'center',
-    marginTop: 4,
-  },
-  positiveBadge: {
-    backgroundColor: 'rgba(34, 197, 94, 0.1)',
-  },
-  negativeBadge: {
-    backgroundColor: 'rgba(239, 68, 68, 0.1)',
-  },
-  changeText: {
-    fontFamily: 'Inter-Medium',
-    fontSize: 12,
-  },
-  positiveText: {
-    color: '#16A34A',
-  },
-  negativeText: {
-    color: '#DC2626',
-  },
-});
 
 export default AssetCard;

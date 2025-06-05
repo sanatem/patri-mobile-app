@@ -110,18 +110,18 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   categoryText: {
-    fontFamily: 'Inter-Medium',
+    fontFamily: 'Poppins-Medium',
     fontSize: 12,
     marginLeft: 6,
   },
   cardTitle: {
-    fontFamily: 'Inter-SemiBold',
+    fontFamily: 'Poppins-SemiBold',
     fontSize: 22,
     color: '#1f2937',
     marginBottom: 6,
   },
   cardDescription: {
-    fontFamily: 'Inter-Regular',
+    fontFamily: 'Poppins-Regular',
     fontSize: 14,
     color: '#6b7280',
     lineHeight: 18,

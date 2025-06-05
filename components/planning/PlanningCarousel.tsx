@@ -219,13 +219,13 @@ const styles = StyleSheet.create({
     paddingRight: 16,
   },
   cardTitle: {
-    fontFamily: 'Inter-SemiBold',
+    fontFamily: 'Poppins-SemiBold',
     fontSize: 17,
     color: Colors.gray[900],
     marginBottom: 8,
   },
   cardDescription: {
-    fontFamily: 'Inter-Regular',
+    fontFamily: 'Poppins-Regular',
     fontSize: 13,
     color: Colors.gray[700],
     lineHeight: 18,
@@ -241,7 +241,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   fileType: {
-    fontFamily: 'Inter-Medium',
+    fontFamily: 'Poppins-Medium',
     fontSize: 12,
     color: Colors.gray[700],
     backgroundColor: Colors.gray[100],
@@ -251,7 +251,7 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   fileSize: {
-    fontFamily: 'Inter-Regular',
+    fontFamily: 'Poppins-Regular',
     fontSize: 12,
     color: Colors.gray[500],
   },
@@ -278,7 +278,7 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   pointText: {
-    fontFamily: 'Inter-Regular',
+    fontFamily: 'Poppins-Regular',
     fontSize: 13,
     color: Colors.gray[700],
     lineHeight: 16,
