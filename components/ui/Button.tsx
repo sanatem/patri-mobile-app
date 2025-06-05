@@ -1,171 +1,55 @@
 import React from 'react';
-import { 
-  TouchableOpacity, 
-  Text, 
-  StyleSheet, 
-  ActivityIndicator,
-  StyleProp,
-  ViewStyle,
-  TextStyle
-} from 'react-native';
-import Colors from '@/constants/Colors';
+import { TouchableOpacity, Text, ActivityIndicator, View } from 'react-native';
+import { cn } from '@/lib/utils';
 
-interface ButtonProps {
-  label: string;
+type ButtonProps = {
+  title: string;
   onPress: () => void;
-  variant?: 'primary' | 'secondary' | 'outline';
-  size?: 'small' | 'medium' | 'large';
+  variant?: 'primary' | 'outline' | 'ghost';
   loading?: boolean;
   disabled?: boolean;
-  style?: StyleProp<ViewStyle>;
-  textStyle?: StyleProp<TextStyle>;
-}
+  fullWidth?: boolean;
+  icon?: React.ReactNode;
+};
 
-const Button: React.FC<ButtonProps> = ({
-  label,
+export function Button({
+  title,
   onPress,
   variant = 'primary',
-  size = 'medium',
   loading = false,
   disabled = false,
-  style,
-  textStyle,
-}) => {
-  const getButtonStyle = () => {
-    let buttonStyle: StyleProp<ViewStyle> = [styles.button];
-    
-    // Variant styles
-    if (variant === 'primary') {
-      buttonStyle = [...buttonStyle, styles.primaryButton];
-    } else if (variant === 'secondary') {
-      buttonStyle = [...buttonStyle, styles.secondaryButton];
-    } else if (variant === 'outline') {
-      buttonStyle = [...buttonStyle, styles.outlineButton];
-    }
-    
-    // Size styles
-    if (size === 'small') {
-      buttonStyle = [...buttonStyle, styles.smallButton];
-    } else if (size === 'large') {
-      buttonStyle = [...buttonStyle, styles.largeButton];
-    }
-    
-    // Disabled state
-    if (disabled || loading) {
-      buttonStyle = [...buttonStyle, styles.disabledButton];
-    }
-    
-    return buttonStyle;
+  fullWidth = false,
+  icon,
+}: ButtonProps) {
+  const baseStyles = 'flex-row items-center justify-center h-12 rounded-2xl px-4 font-semibold';
+  const variants: Record<typeof variant, string> = {
+    primary: 'bg-primary-500 text-white',
+    outline: 'border border-primary-500 text-primary-500 bg-white',
+    ghost: 'bg-transparent text-primary-500',
   };
-  
-  const getTextStyle = () => {
-    let labelStyle: StyleProp<TextStyle> = [styles.buttonText];
-    
-    // Variant text styles
-    if (variant === 'primary') {
-      labelStyle = [...labelStyle, styles.primaryText];
-    } else if (variant === 'secondary') {
-      labelStyle = [...labelStyle, styles.secondaryText];
-    } else if (variant === 'outline') {
-      labelStyle = [...labelStyle, styles.outlineText];
-    }
-    
-    // Size text styles
-    if (size === 'small') {
-      labelStyle = [...labelStyle, styles.smallText];
-    } else if (size === 'large') {
-      labelStyle = [...labelStyle, styles.largeText];
-    }
-    
-    // Disabled state
-    if (disabled || loading) {
-      labelStyle = [...labelStyle, styles.disabledText];
-    }
-    
-    return labelStyle;
-  };
+
+  const textColor = variant === 'primary' ? 'text-white' : 'text-primary-500';
 
   return (
     <TouchableOpacity
-      style={[getButtonStyle(), style]}
       onPress={onPress}
       disabled={disabled || loading}
-      activeOpacity={0.8}
+      className={cn(
+        baseStyles,
+        variants[variant],
+        disabled && 'opacity-50',
+        fullWidth && 'w-full',
+        loading && 'opacity-80'
+      )}
     >
       {loading ? (
-        <ActivityIndicator 
-          size="small" 
-          color={variant === 'outline' ? Colors.primary[500] : 'white'} 
-        />
+        <ActivityIndicator color={variant === 'primary' ? '#fff' : '#FF6503'} />
       ) : (
-        <Text style={[getTextStyle(), textStyle]}>{label}</Text>
+        <View className="flex-row items-center">
+          {icon && <View className="mr-2">{icon}</View>}
+          <Text className={cn('text-base font-semibold', textColor)}>{title}</Text>
+        </View>
       )}
     </TouchableOpacity>
   );
-};
-
-const styles = StyleSheet.create({
-  button: {
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'row',
-  },
-  primaryButton: {
-    backgroundColor: Colors.primary[500],
-  },
-  secondaryButton: {
-    backgroundColor: Colors.gray[900],
-  },
-  outlineButton: {
-    backgroundColor: 'transparent',
-    borderWidth: 1,
-    borderColor: Colors.primary[500],
-  },
-  smallButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    height: 36,
-  },
-  mediumButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    height: 48,
-  },
-  largeButton: {
-    paddingVertical: 16,
-    paddingHorizontal: 32,
-    height: 56,
-  },
-  disabledButton: {
-    backgroundColor: Colors.gray[300],
-    borderColor: Colors.gray[300],
-  },
-  buttonText: {
-    fontFamily: 'Poppins-SemiBold',
-    textAlign: 'center',
-  },
-  primaryText: {
-    color: 'white',
-  },
-  secondaryText: {
-    color: 'white',
-  },
-  outlineText: {
-    color: Colors.primary[500],
-  },
-  smallText: {
-    fontSize: 14,
-  },
-  mediumText: {
-    fontSize: 16,
-  },
-  largeText: {
-    fontSize: 18,
-  },
-  disabledText: {
-    color: Colors.gray[500],
-  },
-});
-
-export default Button;
+}
