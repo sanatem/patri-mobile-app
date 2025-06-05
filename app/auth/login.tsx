@@ -69,7 +69,7 @@ export default function LoginScreen() {
           </View>
         </View>
       </View>
-      <View className="bg-white mx-6 -mt-10 rounded-3xl p-7 border border-orange-100 shadow-md">
+      <View className="bg-white mx-6 -mt-10 rounded-3xl p-7 border-2 border-gray-200">
         <Text className="text-2xl font-bold text-gray-800 text-center mb-2">Bienvenido</Text>
         <Text className="text-sm text-gray-600 text-center mb-6 font-regular">Accede a tu cuenta para continuar</Text>
         {submitError && (
@@ -146,7 +146,7 @@ export default function LoginScreen() {
         <View className="flex-row justify-between">
           <TouchableOpacity
             onPress={() => handleSocialLogin('google')}
-            className="flex-1 h-12 border-2 border-gray-200 rounded-xl justify-center items-center mx-1 bg-white shadow-sm"
+            className="flex-1 h-12 border-2 border-gray-200 rounded-xl justify-center items-center mx-1 bg-white"
           >
             <View className="flex-row items-center">
               <GoogleIcon />
@@ -155,7 +155,7 @@ export default function LoginScreen() {
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => handleSocialLogin('apple')}
-            className="flex-1 h-12 border-2 border-gray-200 rounded-xl justify-center items-center mx-1 bg-white shadow-sm"
+            className="flex-1 h-12 border-2 border-gray-200 rounded-xl justify-center items-center mx-1 bg-white"
           >
             <View className="flex-row items-center">
               <AppleIcon />
