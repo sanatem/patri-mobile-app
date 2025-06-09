@@ -13,6 +13,8 @@ interface HeaderProps {
   rightAction?: React.ReactNode;
   variant?: 'default' | 'transparent';
   className?: string;
+  titleClassName?: string;
+  subtitleClassName?: string;
 }
 
 export function Header({
@@ -23,6 +25,8 @@ export function Header({
   rightAction,
   variant = 'default',
   className,
+  titleClassName,
+  subtitleClassName,
 }: HeaderProps) {
   const router = useRouter();
 
@@ -30,6 +34,14 @@ export function Header({
     default: 'bg-white border-b border-gray-100',
     transparent: 'bg-transparent',
   };
+
+  const defaultTitleStyles = variant === 'transparent' 
+    ? 'text-white' 
+    : 'text-gray-800';
+    
+  const defaultSubtitleStyles = variant === 'transparent' 
+    ? 'text-white/80' 
+    : 'text-gray-600';
 
   return (
     <>
@@ -42,41 +54,42 @@ export function Header({
         )}
         style={{ paddingTop: 64 }}
       >
-        <View className="flex-row items-center flex-1">
+        <View className="flex-row items-center">
           {showBackButton && (
             <TouchableOpacity
               onPress={() => router.back()}
-              className="mr-3 p-1"
+              className="p-1 mr-3"
             >
               <ChevronLeft size={24} color={Colors.gray[600]} />
             </TouchableOpacity>
           )}
-          
-          {leftAction && (
-            <View className="mr-3">
-              {leftAction}
-            </View>
-          )}
-          
-          <View className="flex-1">
-            {title && (
-              <Text className="text-xl font-bold text-gray-800 text-center">
-                {title}
-              </Text>
-            )}
-            {subtitle && (
-              <Text className="text-sm text-gray-600 mt-1 text-center">
-                {subtitle}
-              </Text>
-            )}
-          </View>
+          {leftAction && leftAction}
         </View>
 
-        {rightAction && (
-          <View className="ml-3">
-            {rightAction}
-          </View>
-        )}
+        <View className="flex-1 items-center justify-center">
+          {title && (
+            <Text className={cn(
+              'text-xl font-bold',
+              defaultTitleStyles,
+              titleClassName
+            )}>
+              {title}
+            </Text>
+          )}
+          {subtitle && (
+            <Text className={cn(
+              'text-sm font-regular mt-1',
+              defaultSubtitleStyles,
+              subtitleClassName
+            )}>
+              {subtitle}
+            </Text>
+          )}
+        </View>
+
+        <View className="flex-row items-center">
+          {rightAction && rightAction}
+        </View>
       </View>
     </>
   );
