@@ -10,6 +10,7 @@ import {
   Dropdown,
 } from '@/components/ui';
 import BudgetChart from '@/components/budget/BudgetChart';
+import ForYouCarousel from '@/components/common/ForYouCarousel';
 import TransactionsList from '@/components/budget/TransactionsList';
 import transactionsData from '@/transacciones_simplificadas.json';
 
@@ -164,6 +165,7 @@ export default function BudgetScreen() {
         </Container>
 
         <TransactionsList type={activeTab} selectedMonth={selectedMonth} />
+        <ForYouCarousel />
 
         <View className="h-24" />
       </ScrollView>
