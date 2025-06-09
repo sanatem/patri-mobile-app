@@ -1,8 +1,8 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { View, Text, Image, TouchableOpacity } from 'react-native';
 import { Calendar, MessageSquare, Star, Award } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
-import { Button } from '@/components/ui/Button';
+import { Button, Card } from '@/components/ui';
 
 interface AdvisorCardProps {
   onSchedule?: () => void;
@@ -13,218 +13,109 @@ export default function AdvisorCard({ onSchedule, onChat }: AdvisorCardProps) {
   const advisorImage = 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260';
   
   return (
-    <View style={styles.advisorCard}>
-      <View style={styles.advisorHeader}>
-        <View style={styles.advisorImageContainer}>
+    <Card variant="default" className="m-4 mb-2">
+      <View className="flex-row mb-4">
+        <View style={{ position: 'relative' }}>
           <Image 
             source={{ uri: advisorImage }} 
-            style={styles.advisorImage} 
+            style={{
+              width: 64,
+              height: 64,
+              borderRadius: 32,
+              borderWidth: 3,
+              borderColor: Colors.primary[100],
+            }}
           />
-          <View style={styles.onlineBadge}>
-            <View style={styles.onlineDot} />
+          <View style={{
+            position: 'absolute',
+            bottom: 2,
+            right: 2,
+            width: 16,
+            height: 16,
+            borderRadius: 8,
+            backgroundColor: '#ffffff',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}>
+            <View style={{
+              width: 10,
+              height: 10,
+              borderRadius: 5,
+              backgroundColor: Colors.success[500],
+            }} />
           </View>
-          <View style={styles.verifiedBadge}>
+          <View 
+            className="absolute -top-0.5 -right-0.5 w-5 h-5 rounded-full items-center justify-center"
+            style={{ backgroundColor: Colors.primary[500] }}
+          >
             <Award size={12} color="#ffffff" />
           </View>
         </View>
-        <View style={styles.advisorInfo}>
-          <View style={styles.advisorNameContainer}>
-            <Text style={styles.advisorName}>Fernando Slebe</Text>
-            <View style={styles.ratingContainer}>
+        
+        <View className="ml-4 flex-1 justify-center">
+          <View className="flex-row items-center mb-1">
+            <Text className="text-lg font-bold text-gray-800 mr-2">Fernando Slebe</Text>
+            <View className="flex-row items-center bg-yellow-100 px-1.5 py-0.5 rounded-lg">
               <Star size={14} color="#F59E0B" fill="#F59E0B" />
-              <Text style={styles.ratingText}>4.9</Text>
+              <Text className="text-xs font-semibold text-yellow-600 ml-1">4.9</Text>
             </View>
           </View>
-          <Text style={styles.advisorSubtitle}>Asesor de Inversiones Certificado</Text>
-          <Text style={styles.advisorExperience}>+10 años de experiencia</Text>
+          <Text className="text-sm font-medium mb-0.5" style={{ color: Colors.primary[600] }}>
+            Asesor de Inversiones Certificado
+          </Text>
+          <Text className="text-xs text-gray-500 font-regular">+10 años de experiencia</Text>
         </View>
       </View>
       
-      <Text style={styles.advisorBio}>
+      <Text className="text-sm text-gray-700 leading-5 mb-5 font-regular">
         Fernando Slebe es un Asesor de Inversiones acreditado especializado en planificación financiera integral y estrategias de inversión a largo plazo.
       </Text>
       
-      <View style={styles.advisorActions}>
-        <View style={styles.advisorAction}>
-          <View style={styles.actionIcon}>
-            <Calendar size={18} color={Colors.primary[500]} />
+      <View className="border-t border-gray-100 pt-4 mb-4">
+        <View className="flex-row justify-between items-center">
+          <View className="flex-row items-center flex-1">
+            <View 
+              className="w-10 h-10 rounded-full items-center justify-center"
+              style={{ backgroundColor: Colors.gray[50] }}
+            >
+              <Calendar size={18} color={Colors.primary[500]} />
+            </View>
+            <View className="ml-3">
+              <Text className="text-sm font-semibold text-gray-800">Próxima reunión</Text>
+              <Text className="text-xs text-gray-500 mt-0.5 font-regular">Ninguna programada</Text>
+            </View>
           </View>
-          <View style={styles.actionTextContainer}>
-            <Text style={styles.actionTitle}>Próxima reunión</Text>
-            <Text style={styles.actionSubtitle}>Ninguna programada</Text>
-          </View>
+          <Button 
+            title="Programar" 
+            onPress={onSchedule || (() => {})} 
+            size="small"
+            variant="ghost"
+          />
         </View>
-        <Button 
-          title="Programar" 
-          onPress={onSchedule || (() => {})} 
-          size="small"
-          variant="ghost"
-        />
       </View>
       
-      <View style={styles.advisorActions}>
-        <View style={styles.advisorAction}>
-          <View style={styles.actionIcon}>
-            <MessageSquare size={18} color={Colors.secondary[500]} />
+      <View className="border-t border-gray-100 pt-4">
+        <View className="flex-row justify-between items-center">
+          <View className="flex-row items-center flex-1">
+            <View 
+              className="w-10 h-10 rounded-full items-center justify-center"
+              style={{ backgroundColor: Colors.gray[50] }}
+            >
+              <MessageSquare size={18} color={Colors.secondary[500]} />
+            </View>
+            <View className="ml-3">
+              <Text className="text-sm font-semibold text-gray-800">Bandeja de entrada</Text>
+              <Text className="text-xs text-gray-500 mt-0.5 font-regular">No hay mensajes nuevos</Text>
+            </View>
           </View>
-          <View style={styles.actionTextContainer}>
-            <Text style={styles.actionTitle}>Bandeja de entrada</Text>
-            <Text style={styles.actionSubtitle}>No hay mensajes nuevos</Text>
-          </View>
+          <Button
+            title="Chat" 
+            onPress={onChat || (() => {})} 
+            size="small"
+            variant="ghost"
+          />
         </View>
-        <Button
-          title="Chat" 
-          onPress={onChat || (() => {})} 
-          size="small"
-          variant="ghost"
-        />
       </View>
-    </View>
+    </Card>
   );
-}
-
-const styles = StyleSheet.create({
-  advisorCard: {
-    margin: 16,
-    marginBottom: 8,
-    padding: 20,
-    backgroundColor: '#ffffff',
-    borderRadius: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 6,
-  },
-  advisorHeader: {
-    flexDirection: 'row',
-    marginBottom: 16,
-  },
-  advisorImageContainer: {
-    position: 'relative',
-  },
-  advisorImage: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    borderWidth: 3,
-    borderColor: Colors.primary[100],
-  },
-  onlineBadge: {
-    position: 'absolute',
-    bottom: 2,
-    right: 2,
-    width: 16,
-    height: 16,
-    borderRadius: 8,
-    backgroundColor: '#ffffff',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  onlineDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: Colors.success[500],
-  },
-  verifiedBadge: {
-    position: 'absolute',
-    top: -2,
-    right: -2,
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: Colors.primary[500],
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  advisorInfo: {
-    marginLeft: 16,
-    justifyContent: 'center',
-    flex: 1,
-  },
-  advisorNameContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 4,
-  },
-  advisorName: {
-    fontFamily: 'Poppins-Bold',
-    fontSize: 18,
-    color: Colors.gray[800],
-    marginRight: 8,
-  },
-  ratingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FEF3C7',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 8,
-  },
-  ratingText: {
-    fontFamily: 'Poppins-SemiBold',
-    fontSize: 12,
-    color: '#F59E0B',
-    marginLeft: 2,
-  },
-  advisorSubtitle: {
-    fontFamily: 'Poppins-Medium',
-    fontSize: 14,
-    color: Colors.primary[600],
-    marginBottom: 2,
-  },
-  advisorExperience: {
-    fontFamily: 'Poppins-Regular',
-    fontSize: 12,
-    color: Colors.gray[500],
-  },
-  advisorBio: {
-    fontFamily: 'Poppins-Regular',
-    fontSize: 14,
-    color: Colors.gray[700],
-    lineHeight: 22,
-    marginBottom: 20,
-  },
-  advisorActions: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 16,
-    borderTopWidth: 1,
-    borderTopColor: Colors.gray[100],
-  },
-  advisorAction: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  actionIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: Colors.gray[50],
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  actionTextContainer: {
-    marginLeft: 12,
-  },
-  actionTitle: {
-    fontFamily: 'Poppins-SemiBold',
-    fontSize: 14,
-    color: Colors.gray[800],
-  },
-  actionSubtitle: {
-    fontFamily: 'Poppins-Regular',
-    fontSize: 12,
-    color: Colors.gray[500],
-    marginTop: 2,
-  },
-  actionButton: {
-    minWidth: 100,
-  },
-  chatButton: {
-    backgroundColor: Colors.secondary[500],
-  },
-}); 
+} 
