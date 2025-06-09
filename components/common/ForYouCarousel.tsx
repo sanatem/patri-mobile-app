@@ -1,5 +1,6 @@
 import React from 'react';
 import { CreditCard, DollarSign, PiggyBank } from 'lucide-react-native';
+import { FOR_YOU_CARDS } from '@/constants/AppConstants';
 import { Carousel, CarouselCard } from '@/components/ui';
 
 interface ForYouCarouselProps {
@@ -7,38 +8,14 @@ interface ForYouCarouselProps {
 }
 
 const ForYouCarousel: React.FC<ForYouCarouselProps> = ({ style }) => {
-  const forYouCards = [
-    {
-      id: '1',
-      category: 'Gastos',
-      icon: CreditCard,
-      iconColor: '#06b6d4',
-      bgColor: '#e0f2fe',
-      title: '$89,500/mes',
-      description: 'gastado en servicios básicos, encuentra formas de ahorrar ahora',
-    },
-    {
-      id: '2',
-      category: 'Análisis de gastos',
-      icon: DollarSign,
-      iconColor: '#f59e0b',
-      bgColor: '#fef3c7',
-      title: '$1.250.000 típicamente',
-      description: 'profundiza en tus gastos de los últimos seis meses',
-    },
-    {
-      id: '3',
-      category: 'Ahorro',
-      icon: PiggyBank,
-      iconColor: '#10b981',
-      bgColor: '#d1fae5',
-      title: 'Meta mensual',
-      description: 'establece metas de ahorro y alcanza tus objetivos financieros',
-    },
-  ];
+  const iconMap = {
+    'Gastos': CreditCard,
+    'Análisis de gastos': DollarSign,
+    'Ahorro': PiggyBank,
+  };
 
   const renderCard = ({ item }: { item: any }) => {
-    const Icon = item.icon;
+    const Icon = iconMap[item.category as keyof typeof iconMap];
     
     return (
       <CarouselCard
@@ -59,7 +36,7 @@ const ForYouCarousel: React.FC<ForYouCarouselProps> = ({ style }) => {
 
   return (
     <Carousel
-      data={forYouCards}
+      data={Array.from(FOR_YOU_CARDS)}
       renderItem={renderCard}
       className="mt-8 mb-6"
       style={[{ height: 200 }, style]}

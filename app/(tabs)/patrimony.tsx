@@ -3,6 +3,13 @@ import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { Settings } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
+import { 
+  PATRIMONY_DATA, 
+  LABELS, 
+  TIME_RANGES, 
+  USER_LABELS, 
+  TAB_CONFIG 
+} from '@/constants/AppConstants';
 import { useAuth } from '@/providers/AuthProvider';
 import AreaChart from '@/components/patrimony/AreaChart';
 import { PatrimonySummary } from '@/components/patrimony/PatrimonySummary';
@@ -17,40 +24,6 @@ import {
   UserSelector,
 } from '@/components/ui';
 
-const myAssets: Asset[] = [
-  { id: '1', name: 'Cuenta Corriente', type: 'Banco de Chile', value: 7204483, change: 2.8, color: '#4285F4' },
-  { id: '2', name: 'Cuenta de Ahorro', type: 'Banco de Chile', value: 5382610, change: 1.4, color: '#EA4335' },
-  { id: '3', name: 'Inversión', type: 'Fondo Mutuo Santander', value: 892147, change: -0.5, color: '#FBBC05' },
-  { id: '4', name: 'Inversión', type: 'Inversiones Vector', value: 280000000, change: 3.2, color: '#6366F1' },
-];
-
-const partnerAssets: Asset[] = [
-  { id: '5', name: 'Cuenta Corriente', type: 'Banco Falabella', value: 280000, change: 3.2, color: '#6366F1' },
-  { id: '6', name: 'Cuenta de Ahorro', type: 'Banco Itaú', value: 150000, change: 0.8, color: '#10B981' },
-  { id: '7', name: 'Inversión', type: 'Inversión Nevasa', value: 500000, change: 1.2, color: '#F59E0B' },
-];
-
-const myLiabilities: Liability[] = [
-  { id: '8', name: 'Crédito Hipotecario', type: 'Banco Santander', value: 85000000, change: -2.5, color: '#DC2626' },
-  { id: '9', name: 'Tarjeta de Crédito', type: 'Banco de Chile', value: 1250000, change: 15.2, color: '#7C2D12' },
-  { id: '10', name: 'Crédito Vehicular', type: 'Forus', value: 12500000, change: -5.8, color: '#B91C1C' },
-];
-
-const partnerLiabilities: Liability[] = [
-  { id: '11', name: 'Crédito Educativo', type: 'Banco Scotiabank', value: 8500000, change: -3.2, color: '#991B1B' },
-  { id: '12', name: 'Tarjeta de Crédito', type: 'Banco de Chile', value: 890000, change: 8.4, color: '#7F1D1D' },
-  { id: '13', name: 'Línea de Crédito', type: 'Banco de Chile', value: 2500000, change: 0.0, color: '#6B1D1D' },
-];
-
-const timeRangeMapping = {
-  '1 Mes': '1m',
-  '6 Meses': '6m',
-  '1 Año': '1y',
-  Todo: 'all',
-} as const;
-
-const timeRanges = Object.keys(timeRangeMapping) as Array<keyof typeof timeRangeMapping>;
-
 export default function PatrimonyScreen() {
   const { user } = useAuth();
   const { rangeSize, setRangeSize } = useChartRangeStore();
@@ -60,6 +33,11 @@ export default function PatrimonyScreen() {
   const [showSelector, setShowSelector] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
   const router = useRouter();
+
+  const myAssets = PATRIMONY_DATA.MY_ASSETS;
+  const partnerAssets = PATRIMONY_DATA.PARTNER_ASSETS;
+  const myLiabilities = PATRIMONY_DATA.MY_LIABILITIES;
+  const partnerLiabilities = PATRIMONY_DATA.PARTNER_LIABILITIES;
 
   const combinedAssets = [...myAssets, ...partnerAssets];
   const combinedLiabilities = [...myLiabilities, ...partnerLiabilities];
@@ -81,15 +59,17 @@ export default function PatrimonyScreen() {
   const totalLiabilities = currentLiabilities.reduce((sum, l) => sum + l.value, 0);
   const netWorth = totalAssets - totalLiabilities;
 
-  const currentTimeRangeLabel = Object.keys(timeRangeMapping).find((key) => timeRangeMapping[key as keyof typeof timeRangeMapping] === rangeSize) || '6 Meses';
+  const currentTimeRangeLabel = Object.keys(TIME_RANGES.MAPPING).find((key) => 
+    TIME_RANGES.MAPPING[key as keyof typeof TIME_RANGES.MAPPING] === rangeSize
+  ) || '6 Meses';
   
   const handleUserViewChange = (view: 'mine' | 'partner' | 'both') => {
     setOwnerView(view);
     setShowSelector(false);
   };
 
-  const handleTimeRangeChange = (range: keyof typeof timeRangeMapping) => {
-    setRangeSize(timeRangeMapping[range]);
+  const handleTimeRangeChange = (range: keyof typeof TIME_RANGES.MAPPING) => {
+    setRangeSize(TIME_RANGES.MAPPING[range]);
   };
 
   const assetsData = filteredAssets.map(asset => ({
@@ -122,31 +102,25 @@ export default function PatrimonyScreen() {
     }
   }));
 
-  const tabs = [
-    {
-      key: 'assets',
-      label: 'Activos',
-      badge: currentAssets.length.toString()
-    },
-    {
-      key: 'liabilities', 
-      label: 'Pasivos',
-      badge: currentLiabilities.length.toString()
-    }
-  ];
+  const tabs = TAB_CONFIG.PATRIMONY.map(tab => ({
+    ...tab,
+    badge: (tab.key === 'assets' ? currentAssets : currentLiabilities).length.toString()
+  }));
 
   const currentData = activeTab === 'assets' ? assetsData : liabilitiesData;
 
   return (
     <Container variant="secondaryPage" style={{ padding: 20 }}>
       <Header
-        title=""
+        title={LABELS.PATRIMONY.TITLE}
         leftAction={
           <UserSelector
             selectedView={ownerView}
             onViewChange={handleUserViewChange}
             showSelector={showSelector}
             onToggle={() => setShowSelector(!showSelector)}
+            myLabel={USER_LABELS.MY_LABEL}
+            partnerLabel={USER_LABELS.PARTNER_LABEL}
           />
         }
         rightAction={
@@ -166,13 +140,13 @@ export default function PatrimonyScreen() {
             onToggleTooltip={() => setShowTooltip(!showTooltip)}
           />
           <View className="flex-row justify-center mb-6">
-            {timeRanges.map((range) => {
+            {TIME_RANGES.LABELS.map((range) => {
               const isSelected = currentTimeRangeLabel === range;
               return (
                 <TouchableOpacity
                   key={range}
                   className={`px-4 py-2 rounded-full mx-1 ${isSelected ? 'bg-gray-100' : ''}`}
-                  onPress={() => handleTimeRangeChange(range)}
+                  onPress={() => handleTimeRangeChange(range as keyof typeof TIME_RANGES.MAPPING)}
                 >
                   <Text className={`text-sm font-medium ${isSelected ? 'text-gray-900' : 'text-gray-500'}`}>
                     {range}
@@ -183,7 +157,7 @@ export default function PatrimonyScreen() {
           </View>
           <AreaChart />
           <SearchBar
-            placeholder="Buscar activo o pasivo"
+            placeholder={LABELS.PATRIMONY.SEARCH_PLACEHOLDER}
             value={searchQuery}
             onChangeText={setSearchQuery}
             className="mt-6"
@@ -196,7 +170,7 @@ export default function PatrimonyScreen() {
           />
           <View className="flex-row justify-between px-4 py-4 border-b border-gray-200">
             <Text className="text-base font-regular text-gray-700">
-              Total en {activeTab === 'assets' ? 'activos' : 'pasivos'}
+              {activeTab === 'assets' ? LABELS.PATRIMONY.TOTAL_ASSETS : LABELS.PATRIMONY.TOTAL_LIABILITIES}
             </Text>
             <Text 
               className={`text-base font-semibold ${
