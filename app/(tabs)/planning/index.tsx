@@ -2,6 +2,7 @@ import React from 'react';
 import { View, ScrollView, TouchableOpacity } from 'react-native';
 import { Settings } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
+import { LABELS } from '@/constants/AppConstants';
 import {
   Header,
   Container,
@@ -32,8 +33,8 @@ export default function PlanningScreen() {
     <Container variant="secondaryPage">
       <Container variant="content" className="bg-primary-500">
         <Header
-          title="Planificación Financiera"
-          subtitle="Tu camino hacia el éxito financiero"
+          title={LABELS.PLANNING.TITLE}
+          subtitle={LABELS.PLANNING.SUBTITLE}
           variant="transparent"
           titleClassName="text-white font-bold"
           subtitleClassName="text-white"

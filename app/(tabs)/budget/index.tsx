@@ -3,6 +3,12 @@ import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { ChevronLeft, ChevronRight, Settings } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import {
+  MONTHS,
+  LABELS,
+  BUDGET_CATEGORIES,
+  TAB_CONFIG,
+} from '@/constants/AppConstants';
+import {
   Header,
   SearchBar,
   Container,
@@ -14,21 +20,18 @@ import ForYouCarousel from '@/components/common/ForYouCarousel';
 import TransactionsList from '@/components/budget/TransactionsList';
 import transactionsData from '@/transacciones_simplificadas.json';
 
-const months = [
-  'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
-];
+type MonthType = typeof MONTHS[number];
 
-const monthOptions = months.map(month => ({
+const monthOptions = MONTHS.map(month => ({
   label: month,
   value: month
 }));
 
-const getMonthNumber = (monthName: string): number => {
-  return months.indexOf(monthName) + 1;
+const getMonthNumber = (monthName: MonthType): number => {
+  return MONTHS.indexOf(monthName) + 1;
 };
 
-const calculateTotalsByMonth = (selectedMonth: string) => {
+const calculateTotalsByMonth = (selectedMonth: MonthType) => {
   const data = transactionsData[0];
   const transactions = data.transactions.accounts[0].transactions;
   const monthNumber = getMonthNumber(selectedMonth);
@@ -58,7 +61,7 @@ const calculateTotalsByMonth = (selectedMonth: string) => {
 };
 
 export default function BudgetScreen() {
-  const [selectedMonth, setSelectedMonth] = useState('Enero');
+  const [selectedMonth, setSelectedMonth] = useState<MonthType>('Enero');
   const [activeTab, setActiveTab] = useState<'income' | 'expenses'>('income');
   const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
@@ -67,32 +70,28 @@ export default function BudgetScreen() {
     calculateTotalsByMonth(selectedMonth);
 
   const handlePreviousMonth = () => {
-    const currentIndex = months.indexOf(selectedMonth);
-    setSelectedMonth(currentIndex > 0 ? months[currentIndex - 1] : months[months.length - 1]);
+    const currentIndex = MONTHS.indexOf(selectedMonth);
+    setSelectedMonth(currentIndex > 0 ? MONTHS[currentIndex - 1] : MONTHS[MONTHS.length - 1]);
   };
 
   const handleNextMonth = () => {
-    const currentIndex = months.indexOf(selectedMonth);
-    setSelectedMonth(currentIndex < months.length - 1 ? months[currentIndex + 1] : months[0]);
+    const currentIndex = MONTHS.indexOf(selectedMonth);
+    setSelectedMonth(currentIndex < MONTHS.length - 1 ? MONTHS[currentIndex + 1] : MONTHS[0]);
   };
 
-  const tabs = [
-    { 
-      key: 'income', 
-      label: 'Ingresos', 
-      badge: incomeCount.toString() 
-    },
-    { 
-      key: 'expenses', 
-      label: 'Gastos', 
-      badge: expenseCount.toString() 
-    },
-  ];
+  const handleMonthSelect = (month: string) => {
+    setSelectedMonth(month as MonthType);
+  };
+
+  const tabs = TAB_CONFIG.BUDGET.map(tab => ({
+    ...tab,
+    badge: (tab.key === 'income' ? incomeCount : expenseCount).toString()
+  }));
 
   return (
     <Container variant="secondaryPage" style={{ padding: 20 }}>
       <Header
-        title="Presupuestos"
+        title={LABELS.BUDGET.TITLE}
         rightAction={
           <TouchableOpacity onPress={() => router.push('/settings')}>
             <Settings size={24} color="#525252" />
@@ -109,7 +108,7 @@ export default function BudgetScreen() {
               <Dropdown
                 options={monthOptions}
                 selectedValue={selectedMonth}
-                onSelect={setSelectedMonth}
+                onSelect={handleMonthSelect}
               />
             </View>
             <TouchableOpacity onPress={handleNextMonth} className="p-2">
@@ -118,13 +117,7 @@ export default function BudgetScreen() {
           </View>
           <BudgetChart selectedMonth={selectedMonth} />
           <View className="flex-row flex-wrap justify-center mt-5 mb-2 px-2">
-            {[
-              { label: 'Vivienda', color: '#8e24aa' },
-              { label: 'Transporte', color: '#3b82f6' },
-              { label: 'Ocio', color: '#ec4899' },
-              { label: 'Salud', color: '#06b6d4' },
-              { label: 'Servicios', color: '#10b981' },
-            ].map((item, idx) => (
+            {BUDGET_CATEGORIES.map((item, idx) => (
               <View key={idx} className="flex-row items-center mx-2 mb-2">
                 <View 
                   className="w-[10px] h-[10px] rounded-full mr-1.5"
@@ -145,7 +138,7 @@ export default function BudgetScreen() {
         />
         <View className="flex-row justify-between px-4 py-4 border-b border-gray-200">
           <Text className="text-base font-regular text-gray-700">
-            Total en {activeTab === 'income' ? 'ingresos' : 'gastos'}
+            {activeTab === 'income' ? LABELS.BUDGET.TOTAL_INCOME : LABELS.BUDGET.TOTAL_EXPENSES}
           </Text>
           <Text 
             className={`text-base font-semibold ${
@@ -158,7 +151,7 @@ export default function BudgetScreen() {
 
         <Container variant="content" className="mt-4 mb-4">
           <SearchBar
-            placeholder={`Buscar en ${activeTab === 'income' ? 'ingresos' : 'gastos'}`}
+            placeholder={activeTab === 'income' ? LABELS.BUDGET.SEARCH_INCOME_PLACEHOLDER : LABELS.BUDGET.SEARCH_EXPENSES_PLACEHOLDER}
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
