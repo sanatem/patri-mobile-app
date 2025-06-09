@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { Calendar, MessageSquare, Star, Award } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
-import Button from '@/components/ui/Button';
+import { Button } from '@/components/ui/Button';
 
 interface AdvisorCardProps {
   onSchedule?: () => void;
@@ -55,10 +55,10 @@ export default function AdvisorCard({ onSchedule, onChat }: AdvisorCardProps) {
           </View>
         </View>
         <Button 
-          label="Programar" 
+          title="Programar" 
           onPress={onSchedule || (() => {})} 
           size="small"
-          style={styles.actionButton}
+          variant="ghost"
         />
       </View>
       
@@ -72,11 +72,11 @@ export default function AdvisorCard({ onSchedule, onChat }: AdvisorCardProps) {
             <Text style={styles.actionSubtitle}>No hay mensajes nuevos</Text>
           </View>
         </View>
-        <Button 
-          label="Chat" 
+        <Button
+          title="Chat" 
           onPress={onChat || (() => {})} 
           size="small"
-          style={[styles.actionButton, styles.chatButton]}
+          variant="ghost"
         />
       </View>
     </View>

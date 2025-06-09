@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
-import Colors from '@/constants/Colors';
-import transactionsData from '@/transacciones_simplificadas.json';
+import React from 'react';
+import { ListItem } from '@/components/ui';
 import ForYouCarousel from '@/components/common/ForYouCarousel';
+import transactionsData from '@/transacciones_simplificadas.json';
 
 interface TransactionsListProps {
   type: 'income' | 'expenses';
@@ -14,87 +13,91 @@ const months = [
   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
 ];
 
-// Función para convertir nombre de mes a número
 const getMonthNumber = (monthName: string): number => {
   return months.indexOf(monthName) + 1;
 };
 
-// Función para procesar las transacciones del JSON filtradas por mes
 const processTransactionsByMonth = (selectedMonth: string) => {
-  const data = transactionsData[0]; // Tomamos el primer caso
+  const data = transactionsData[0];
   const transactions = data.transactions.accounts[0].transactions;
   const monthNumber = getMonthNumber(selectedMonth);
   
   const income: any[] = [];
   const expenses: any[] = [];
   
-  transactions.forEach((transaction: any, index: number) => {
+  // Primero calcular totales para obtener porcentajes
+  let totalIncome = 0;
+  let totalExpenses = 0;
+  
+  transactions.forEach((transaction: any) => {
     const transactionDate = new Date(transaction.date);
-    const transactionMonth = transactionDate.getMonth() + 1; // getMonth() es 0-based
+    const transactionMonth = transactionDate.getMonth() + 1;
     
-    // Solo procesar transacciones del mes seleccionado
+    if (transactionMonth === monthNumber) {
+      if (transaction.in > 0) totalIncome += transaction.in;
+      if (transaction.out > 0) totalExpenses += transaction.out;
+    }
+  });
+  
+  // Ahora procesar transacciones con porcentajes
+  transactions.forEach((transaction: any) => {
+    const transactionDate = new Date(transaction.date);
+    const transactionMonth = transactionDate.getMonth() + 1;
+    
     if (transactionMonth === monthNumber) {
       if (transaction.in > 0) {
-        // Es un ingreso
         let title = 'Ingreso';
         let description = transaction.description;
         
-        // Categorizar ingresos por descripción
         if (description.includes('Depósito de sueldo') || description.includes('sueldo')) {
           title = 'Salario';
           description = 'Depósito de sueldo';
         } else if (description.includes('Transferencia de')) {
           title = 'Transferencia';
-          description = description; // Mantener el nombre de la persona
         } else {
           title = 'Otros ingresos';
-          description = description;
         }
+        
+        // Calcular porcentaje del total de ingresos
+        const percentage = ((transaction.in / totalIncome) * 100).toFixed(1);
         
         income.push({
           id: transaction.id,
           title,
-          description,
-          amount: transaction.in,
-          date: transaction.date,
+          subtitle: description,
+          value: transaction.in,
+          badge: {
+            text: `${percentage}%`,
+            variant: 'positive' as const
+          }
         });
       }
       
       if (transaction.out > 0) {
-        // Es un gasto
-        let title = transaction.description; // Usar la descripción directamente como título
-        let description = transaction.description;
         let category = 'Otros';
-        
-        // Categorizar por tipo de empresa/servicio
         const companyName = transaction.description.toLowerCase();
         
         if (companyName.includes('metrogas') || companyName.includes('aguas andinas') || 
-            companyName.includes('enel')) {
-          category = 'Servicios';
-        } else if (companyName.includes('movistar') || companyName.includes('entel') || 
-                   companyName.includes('claro') || companyName.includes('wom') ||
-                   companyName.includes('vtr') || companyName.includes('gtd')) {
+            companyName.includes('enel') || companyName.includes('movistar') || 
+            companyName.includes('entel')) {
           category = 'Servicios';
         } else if (companyName.includes('amazon') || companyName.includes('mercadolibre') || 
-                   companyName.includes('falabella') || companyName.includes('sony') ||
-                   companyName.includes('ripley') || companyName.includes('linio')) {
+                   companyName.includes('falabella')) {
           category = 'Ocio';
-        } else if (companyName.includes('envío a ') || companyName.includes('transferencia a ')) {
-          category = 'Transporte';
-        } else if (companyName.includes('comisión') || companyName.includes('banco')) {
-          category = 'Servicios';
-        } else {
-          category = 'Otros';
         }
+        
+        // Calcular porcentaje del total de gastos
+        const percentage = ((transaction.out / totalExpenses) * 100).toFixed(1);
         
         expenses.push({
           id: transaction.id,
-          title,
-          description,
-          amount: -transaction.out, // Negativo para gastos
-          category,
-          date: transaction.date,
+          title: transaction.description,
+          subtitle: category,
+          value: transaction.out,
+          badge: {
+            text: `${percentage}%`,
+            variant: 'negative' as const
+          }
         });
       }
     }
@@ -104,106 +107,19 @@ const processTransactionsByMonth = (selectedMonth: string) => {
 };
 
 const TransactionsList: React.FC<TransactionsListProps> = ({ type, selectedMonth }) => {
-  const { income: incomeData, expenses: expensesData } = processTransactionsByMonth(selectedMonth);
-  const allData = type === 'income' ? incomeData : expensesData;
-  
-  const [visibleCount, setVisibleCount] = useState(10);
-  
-  // Mostrar solo las transacciones visibles
-  const data = allData.slice(0, visibleCount);
-  const hasMore = visibleCount < allData.length;
-
-  const loadMore = () => {
-    setVisibleCount(prev => prev + 10);
-  };
-
-  // Reiniciar cuando cambie el mes o tipo
-  React.useEffect(() => {
-    setVisibleCount(10);
-  }, [selectedMonth, type]);
-
-  const renderItem = ({ item }: { item: any }) => (
-    <View style={styles.transactionItem}>
-      <View style={styles.transactionInfo}>
-        <Text style={styles.transactionTitle}>{item.title}</Text>
-        <Text style={styles.transactionDescription}>{item.description}</Text>
-      </View>
-      <Text style={[
-        styles.transactionAmount,
-        item.amount >= 0 ? styles.incomeAmount : styles.expenseAmount
-      ]}>
-        {item.amount >= 0 ? '+' : ''}${Math.abs(item.amount).toLocaleString('es-CL')}
-      </Text>
-    </View>
-  );
+  const { income, expenses } = processTransactionsByMonth(selectedMonth);
+  const data = type === 'income' ? income : expenses;
 
   return (
-    <View style={styles.container}>
-      <FlatList
+    <>
+      <ListItem 
         data={data}
-        renderItem={renderItem}
-        keyExtractor={item => item.id}
-        scrollEnabled={false}
+        className="px-4"
+        initialItemCount={10}
+        loadMoreStep={10}
       />
-      {hasMore && (
-        <TouchableOpacity style={styles.loadMoreButton} onPress={loadMore}>
-          <Text style={styles.loadMoreText}>
-            Ver más ({allData.length - visibleCount} restantes)
-          </Text>
-        </TouchableOpacity>
-      )}
-      
-      <ForYouCarousel />
-    </View>
+    </>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    paddingHorizontal: 16,
-  },
-  transactionItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e5e5',
-  },
-  transactionInfo: {
-    flex: 1,
-  },
-  transactionTitle: {
-    fontFamily: 'Poppins-Medium',
-    fontSize: 16,
-    color: '#1f2937',
-    marginBottom: 4,
-  },
-  transactionDescription: {
-    fontFamily: 'Poppins-Regular',
-    fontSize: 14,
-    color: '#6b7280',
-  },
-  transactionAmount: {
-    fontFamily: 'Poppins-SemiBold',
-    fontSize: 16,
-  },
-  incomeAmount: {
-    color: '#10b981',
-  },
-  expenseAmount: {
-    color: '#ef4444',
-  },
-  loadMoreButton: {
-    alignItems: 'center',
-    paddingVertical: 16,
-    marginTop: 8,
-  },
-  loadMoreText: {
-    fontFamily: 'Poppins-Medium',
-    fontSize: 16,
-    color: '#3b82f6',
-  },
-});
 
 export default TransactionsList;

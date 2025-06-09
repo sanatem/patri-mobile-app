@@ -4,10 +4,16 @@ import { useForm, Controller, SubmitHandler } from 'react-hook-form';
 import { useAuth } from '@/providers/AuthProvider';
 import { router } from 'expo-router';
 import { Mail, Lock, Eye, EyeOff, Shield, Star } from 'lucide-react-native';
+
+// Importación directa de componentes
 import { Input } from '@/components/ui/Input';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { Badge } from '@/components/ui/Badge';
+import { Container } from '@/components/ui/Container';
+
 import { GoogleIcon } from '@/components/icons/GoogleIcon';
 import { AppleIcon } from '@/components/icons/AppleIcon';
-import { Button } from '@/components/ui/Button';
 
 const { height } = Dimensions.get('window');
 
@@ -56,7 +62,8 @@ export default function LoginScreen() {
   return (
     <ScrollView className="flex-1 bg-gray-50">
       <View className="absolute top-0 left-0 w-full rounded-b-[40px] bg-primary-500" style={{ height: height * 0.45 }} />
-      <View className="pt-12 px-6 pb-16 items-center">
+      
+      <Container variant="content" className="pt-12 pb-16 items-center">
         <Text className="text-white text-4xl font-bold">Patrimore</Text>
         <View className="flex-row mt-2">
           <View className="flex-row items-center bg-white/15 px-3 py-1.5 rounded-full mx-1 border border-white/20">
@@ -68,15 +75,18 @@ export default function LoginScreen() {
             <Text className="text-xs text-white font-semibold ml-1">100% seguro</Text>
           </View>
         </View>
-      </View>
-      <View className="bg-white mx-6 -mt-10 rounded-3xl p-7 border-2 border-gray-200">
+      </Container>
+
+      <Card variant="elevated" size="lg" className="mx-6 -mt-10">
         <Text className="text-2xl font-bold text-gray-800 text-center mb-2">Bienvenido</Text>
         <Text className="text-sm text-gray-600 text-center mb-6 font-regular">Accede a tu cuenta para continuar</Text>
+        
         {submitError && (
           <Text className="bg-red-50 border border-red-200 text-red-600 rounded p-3 mb-4 text-sm text-center">
             {submitError}
           </Text>
         )}
+
         <Controller
           control={control}
           name="email"
@@ -98,10 +108,10 @@ export default function LoginScreen() {
               keyboardType="email-address"
               error={errors.email?.message}
               underlineColorAndroid="transparent"
-
             />
           )}
         />
+        
         <Controller
           control={control}
           name="password"
@@ -125,24 +135,27 @@ export default function LoginScreen() {
               secureTextEntry={!showPassword}
               error={errors.password?.message}
               underlineColorAndroid="transparent"
-
             />
           )}
         />
+        
         <TouchableOpacity className="self-center mb-2 mt-1">
           <Text className="text-sm font-semibold text-primary-500">¿Olvidaste tu contraseña?</Text>
         </TouchableOpacity>
+        
         <Button
           title={loading ? 'Iniciando sesión...' : 'Iniciar sesión'}
           onPress={handleSubmit(onSubmit)}
           loading={loading}
           fullWidth
         />
+        
         <View className="flex-row items-center my-5">
           <View className="flex-1 h-px bg-gray-200" />
           <Text className="text-gray-500 text-sm mx-3 font-regular">o continúa con</Text>
           <View className="flex-1 h-px bg-gray-200" />
         </View>
+        
         <View className="flex-row justify-between">
           <TouchableOpacity
             onPress={() => handleSocialLogin('google')}
@@ -167,7 +180,7 @@ export default function LoginScreen() {
         <TouchableOpacity className="self-center mt-5" onPress={() => router.push('/auth/register')}>
           <Text className="text-sm font-semibold text-primary-600 underline">Regístrate gratis</Text>
         </TouchableOpacity>
-      </View>
+      </Card>
     </ScrollView>
   );
 }
