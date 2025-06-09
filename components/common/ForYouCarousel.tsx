@@ -1,13 +1,12 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import { CreditCard, TrendingUp, DollarSign, PiggyBank } from 'lucide-react-native';
+import { CreditCard, DollarSign, PiggyBank } from 'lucide-react-native';
+import { Carousel, CarouselCard } from '@/components/ui';
 
 interface ForYouCarouselProps {
   style?: any;
 }
 
 const ForYouCarousel: React.FC<ForYouCarouselProps> = ({ style }) => {
-  // Cards para el carrusel "FOR YOU"
   const forYouCards = [
     {
       id: '1',
@@ -38,94 +37,35 @@ const ForYouCarousel: React.FC<ForYouCarouselProps> = ({ style }) => {
     },
   ];
 
-  const renderForYouCard = ({ item }: { item: any }) => {
+  const renderCard = ({ item }: { item: any }) => {
     const Icon = item.icon;
+    
     return (
-      <TouchableOpacity style={styles.forYouCard}>
-        <View style={[styles.categoryBadge, { backgroundColor: item.bgColor }]}>
-          <Icon size={16} color={item.iconColor} />
-          <Text style={[styles.categoryText, { color: item.iconColor }]}>
-            {item.category}
-          </Text>
-        </View>
-        <Text style={styles.cardTitle}>{item.title}</Text>
-        <Text style={styles.cardDescription}>{item.description}</Text>
-      </TouchableOpacity>
+      <CarouselCard
+        title={item.title}
+        description={item.description}
+        badge={{
+          text: item.category,
+          icon: <Icon size={16} color={item.iconColor} />,
+          bgColor: item.bgColor,
+          textColor: item.iconColor,
+        }}
+        onPress={() => {
+          console.log('Card pressed:', item.category);
+        }}
+      />
     );
   };
 
   return (
-    <View style={[styles.forYouSection, style]}>
-      <ScrollView 
-        horizontal 
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.carouselContainer}
-      >
-        {forYouCards.map((card) => (
-          <View key={card.id} style={styles.cardWrapper}>
-            {renderForYouCard({ item: card })}
-          </View>
-        ))}
-      </ScrollView>
-    </View>
+    <Carousel
+      data={forYouCards}
+      renderItem={renderCard}
+      className="mt-8 mb-6"
+      style={[{ height: 200 }, style]}
+      contentContainerStyle={{ paddingLeft: 0 }}
+    />
   );
 };
-
-const styles = StyleSheet.create({
-  forYouSection: {
-    marginTop: 32,
-    marginBottom: 24,
-    height: 200,
-  },
-  carouselContainer: {
-    paddingLeft: 0,
-    alignItems: 'flex-start',
-  },
-  cardWrapper: {
-    marginRight: 16,
-    height: 180,
-  },
-  forYouCard: {
-    width: 280,
-    height: 180,
-    padding: 20,
-    backgroundColor: '#ffffff',
-    borderRadius: 16,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  categoryBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'flex-start',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
-    marginBottom: 12,
-  },
-  categoryText: {
-    fontFamily: 'Poppins-Medium',
-    fontSize: 12,
-    marginLeft: 6,
-  },
-  cardTitle: {
-    fontFamily: 'Poppins-SemiBold',
-    fontSize: 22,
-    color: '#1f2937',
-    marginBottom: 6,
-  },
-  cardDescription: {
-    fontFamily: 'Poppins-Regular',
-    fontSize: 14,
-    color: '#6b7280',
-    lineHeight: 18,
-  },
-});
 
 export default ForYouCarousel; 
