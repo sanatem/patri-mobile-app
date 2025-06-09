@@ -9,6 +9,7 @@ interface HeaderProps {
   title?: string;
   subtitle?: string;
   showBackButton?: boolean;
+  leftAction?: React.ReactNode;
   rightAction?: React.ReactNode;
   variant?: 'default' | 'transparent';
   className?: string;
@@ -18,6 +19,7 @@ export function Header({
   title,
   subtitle,
   showBackButton = false,
+  leftAction,
   rightAction,
   variant = 'default',
   className,
@@ -50,14 +52,20 @@ export function Header({
             </TouchableOpacity>
           )}
           
+          {leftAction && (
+            <View className="mr-3">
+              {leftAction}
+            </View>
+          )}
+          
           <View className="flex-1">
             {title && (
-              <Text className="text-xl font-bold text-gray-800">
+              <Text className="text-xl font-bold text-gray-800 text-center">
                 {title}
               </Text>
             )}
             {subtitle && (
-              <Text className="text-sm text-gray-600 mt-1">
+              <Text className="text-sm text-gray-600 mt-1 text-center">
                 {subtitle}
               </Text>
             )}
