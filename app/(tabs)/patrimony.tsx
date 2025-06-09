@@ -1,29 +1,21 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  ScrollView,
-  TouchableOpacity,
-  Pressable,
-} from 'react-native';
-import {
-  Search,
-  ChevronRight,
-  Users,
-  ChevronDown,
-  ArrowUp,
-  ArrowDown,
-  Settings,
-} from 'lucide-react-native';
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { Settings } from 'lucide-react-native';
+import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
 import { useAuth } from '@/providers/AuthProvider';
 import AreaChart from '@/components/patrimony/AreaChart';
-import AssetCard from '@/components/patrimony/AssetCard';
-import LiabilityCard from '@/components/patrimony/LiabilityCard';
+import { PatrimonySummary } from '@/components/patrimony/PatrimonySummary';
 import { useChartRangeStore } from '@/store/chartRangeStore';
 import { Asset, Liability } from '@/types';
-import { useRouter } from 'expo-router';
+import { 
+  SearchBar, 
+  Tabs,
+  ListItem,
+  Header,
+  Container,
+  UserSelector,
+} from '@/components/ui';
 
 const myAssets: Asset[] = [
   { id: '1', name: 'Cuenta Corriente', type: 'Banco de Chile', value: 7204483, change: 2.8, color: '#4285F4' },
@@ -50,9 +42,6 @@ const partnerLiabilities: Liability[] = [
   { id: '13', name: 'Línea de Crédito', type: 'Banco de Chile', value: 2500000, change: 0.0, color: '#6B1D1D' },
 ];
 
-const combinedAssets = [...myAssets, ...partnerAssets];
-const combinedLiabilities = [...myLiabilities, ...partnerLiabilities];
-
 const timeRangeMapping = {
   '1 Mes': '1m',
   '6 Meses': '6m',
@@ -67,114 +56,115 @@ export default function PatrimonyScreen() {
   const { rangeSize, setRangeSize } = useChartRangeStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'assets' | 'liabilities'>('assets');
-  const [mineSelected, setMineSelected] = useState(true);
-  const [partnerSelected, setPartnerSelected] = useState(false);
+  const [ownerView, setOwnerView] = useState<'mine' | 'partner' | 'both'>('mine');
   const [showSelector, setShowSelector] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
   const router = useRouter();
 
-  const ownerView: 'mine' | 'partner' | 'both' =
-    mineSelected && partnerSelected ? 'both' : mineSelected ? 'mine' : 'partner';
+  const combinedAssets = [...myAssets, ...partnerAssets];
+  const combinedLiabilities = [...myLiabilities, ...partnerLiabilities];
 
   const currentAssets = ownerView === 'mine' ? myAssets : ownerView === 'partner' ? partnerAssets : combinedAssets;
   const currentLiabilities = ownerView === 'mine' ? myLiabilities : ownerView === 'partner' ? partnerLiabilities : combinedLiabilities;
 
-  const filteredAssets = currentAssets.filter((a) => a.name.toLowerCase().includes(searchQuery.toLowerCase()) || a.type.toLowerCase().includes(searchQuery.toLowerCase()));
-  const filteredLiabilities = currentLiabilities.filter((l) => l.name.toLowerCase().includes(searchQuery.toLowerCase()) || l.type.toLowerCase().includes(searchQuery.toLowerCase()));
+  const filteredAssets = currentAssets.filter((a) => 
+    a.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    a.type.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+  
+  const filteredLiabilities = currentLiabilities.filter((l) => 
+    l.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    l.type.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const totalAssets = currentAssets.reduce((sum, a) => sum + a.value, 0);
   const totalLiabilities = currentLiabilities.reduce((sum, l) => sum + l.value, 0);
   const netWorth = totalAssets - totalLiabilities;
 
   const currentTimeRangeLabel = Object.keys(timeRangeMapping).find((key) => timeRangeMapping[key as keyof typeof timeRangeMapping] === rangeSize) || '6 Meses';
-  const handleTimeRangeChange = (range: keyof typeof timeRangeMapping) => setRangeSize(timeRangeMapping[range]);
+  
+  const handleUserViewChange = (view: 'mine' | 'partner' | 'both') => {
+    setOwnerView(view);
+    setShowSelector(false);
+  };
+
+  const handleTimeRangeChange = (range: keyof typeof timeRangeMapping) => {
+    setRangeSize(timeRangeMapping[range]);
+  };
+
+  const assetsData = filteredAssets.map(asset => ({
+    id: asset.id,
+    title: asset.name,
+    subtitle: asset.type,
+    value: asset.value,
+    icon: {
+      backgroundColor: asset.color,
+      text: asset.name.charAt(0)
+    },
+    badge: {
+      text: `${asset.change >= 0 ? '+' : ''}${asset.change}%`,
+      variant: asset.change >= 0 ? 'positive' as const : 'negative' as const
+    }
+  }));
+
+  const liabilitiesData = filteredLiabilities.map(liability => ({
+    id: liability.id,
+    title: liability.name,
+    subtitle: liability.type,
+    value: -liability.value,
+    icon: {
+      backgroundColor: liability.color,
+      text: liability.name.charAt(0)
+    },
+    badge: {
+      text: `${liability.change >= 0 ? '+' : ''}${liability.change}%`,
+      variant: liability.change < 0 ? 'positive' as const : 'negative' as const
+    }
+  }));
+
+  const tabs = [
+    {
+      key: 'assets',
+      label: 'Activos',
+      badge: currentAssets.length.toString()
+    },
+    {
+      key: 'liabilities', 
+      label: 'Pasivos',
+      badge: currentLiabilities.length.toString()
+    }
+  ];
+
+  const currentData = activeTab === 'assets' ? assetsData : liabilitiesData;
 
   return (
-    <View className="flex-1 bg-white">
-      <View className="pt-16 px-4 pb-4 border-b border-gray-100 flex-row justify-between items-center" style={{ paddingTop: 64 }}>
-        <View className="flex-row items-center space-x-3">
-        <Pressable
-  onPress={() => setShowSelector(!showSelector)}
-  className="flex-row items-center bg-white px-3 py-1.5 rounded-full shadow-sm border border-gray-200"
->
-  <View className="w-8 h-8 rounded-full border-2 border-primary-500 px-1 items-center justify-center bg-white">
-    <Text className="text-xs font-bold text-gray-500">GD</Text>
-  </View>
-  <ChevronRight size={14} color="#9CA3AF" className="ml-2" />
-</Pressable>
-{showSelector && (
-  <View style={{ position: 'absolute', left: 90, flexDirection: 'row', alignItems: 'center', backgroundColor: 'white', borderWidth: 1, borderColor: '#E5E7EB', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 4, borderRadius: 9999, paddingHorizontal: 12, paddingVertical: 8, zIndex: 50 }}>
-    {[
-      { id: 'mine', label: 'GD', isActive: ownerView === 'mine' },
-      { id: 'partner', label: 'JM', isActive: ownerView === 'partner' },
-      { id: 'both', label: 'both', isActive: ownerView === 'both' },
-    ].map((item) => (
-      <TouchableOpacity
-        key={item.id}
-        onPress={() => {
-          setShowSelector(false);
-          setMineSelected(item.id !== 'partner');
-          setPartnerSelected(item.id !== 'mine');
-        }}
-        className={`w-8 h-8 rounded-full items-center justify-center border ${
-          item.isActive
-            ? 'border-primary-500 bg-white'
-            : 'border-gray-100 bg-white'
-        }`}
-        style={{ width: 30, height: 30 }}
-      >
-        {item.id === 'both' ? (
-          <Users size={14} color="#4B5563" />
-        ) : (
-          <Text className="text-[11px] font-bold text-gray-500">{item.label}</Text>
-        )}
-      </TouchableOpacity>
-    ))}
-  </View>
-)}   
-        </View>
-        <TouchableOpacity className="p-1.5" onPress={() => router.push('/settings')}>
-          <Settings size={24} color={Colors.gray[600]} />
-        </TouchableOpacity>
-      </View>
-
+    <Container variant="secondaryPage" style={{ padding: 20 }}>
+      <Header
+        title=""
+        leftAction={
+          <UserSelector
+            selectedView={ownerView}
+            onViewChange={handleUserViewChange}
+            showSelector={showSelector}
+            onToggle={() => setShowSelector(!showSelector)}
+          />
+        }
+        rightAction={
+          <TouchableOpacity onPress={() => router.push('/settings')}>
+            <Settings size={24} color={Colors.gray[600]} />
+          </TouchableOpacity>
+        }
+        className="border-b border-gray-100"
+      />
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-        <View className="px-4 py-4">
-          <Text className="text-center text-gray-600 text-lg font-medium mb-2">Patrimonio Neto</Text>
-          <View className="flex-row items-center justify-center mb-1">
-            <Text className="text-3xl font-bold text-green-600">${netWorth.toLocaleString('es-CL')}</Text>
-            <TouchableOpacity className="ml-2 pb-1" onPress={() => setShowTooltip(!showTooltip)}>
-              <ChevronDown
-                size={20}
-                color={Colors.gray[500]}
-                style={showTooltip ? { transform: [{ rotate: '180deg' }] } : {}}
-              />
-            </TouchableOpacity>
-          </View>
-
-          {showTooltip && (
-            <View className="mt-3 mb-4 self-center">
-              <View className="flex-row justify-between items-center px-3 mb-1">
-                <View className="flex-row items-center space-x-1">
-                  <ArrowUp size={16} color={Colors.success[500]} />
-                  <Text className="text-sm font-medium text-gray-600">Activos</Text>
-                </View>
-                <Text className="text-sm font-semibold text-green-600">+${totalAssets.toLocaleString('es-CL')}</Text>
-              </View>
-              <View className="flex-row justify-between items-center px-3">
-                <View className="flex-row items-center space-x-1">
-                  <ArrowDown size={16} color={Colors.error[500]} />
-                  <Text className="text-sm font-medium text-gray-600">Pasivos</Text>
-                </View>
-                <Text className="text-sm font-semibold text-red-600">-${totalLiabilities.toLocaleString('es-CL')}</Text>
-              </View>
-            </View>
-          )}
-
-          <Text className="text-center text-sm text-gray-500 mb-6 font-regular">
-            <Text className="text--10 font-medium">$7,151,936 (71.52%)</Text> · vs último mes
-          </Text>
-
+        <Container variant="content" className="py-4">
+          <PatrimonySummary
+            netWorth={netWorth}
+            totalAssets={totalAssets}
+            totalLiabilities={totalLiabilities}
+            showTooltip={showTooltip}
+            onToggleTooltip={() => setShowTooltip(!showTooltip)}
+          />
           <View className="flex-row justify-center mb-6">
             {timeRanges.map((range) => {
               const isSelected = currentTimeRangeLabel === range;
@@ -184,46 +174,44 @@ export default function PatrimonyScreen() {
                   className={`px-4 py-2 rounded-full mx-1 ${isSelected ? 'bg-gray-100' : ''}`}
                   onPress={() => handleTimeRangeChange(range)}
                 >
-                  <Text className={`text-sm font-medium ${isSelected ? 'text-gray-900' : 'text-gray-500'}`}>{range}</Text>
+                  <Text className={`text-sm font-medium ${isSelected ? 'text-gray-900' : 'text-gray-500'}`}>
+                    {range}
+                  </Text>
                 </TouchableOpacity>
               );
             })}
           </View>
-
           <AreaChart />
-
-          <View className="flex-row items-center bg-gray-50 rounded-lg px-3 mt-6">
-            <Search size={20} color={Colors.gray[400]} className="mr-2" />
-            <TextInput
-              className="flex-1 h-12 text-base font-regular text-gray-800"
-              placeholder="Buscar activo o pasivo"
-              placeholderTextColor={Colors.gray[400]}
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-            />
-          </View>
-
-          <View className="flex-row border-b border-gray-200 mt-6">
-            <TouchableOpacity className={`flex-1 items-center py-4 ${activeTab === 'assets' ? 'border-b-2 border-primary-500' : ''}`} onPress={() => setActiveTab('assets')}>
-              <Text className={`text-base font-medium ${activeTab === 'assets' ? 'text-primary-500' : 'text-gray-500'}`}>Activos <Text className="text-sm bg-gray-200 rounded-full px-3 py-1.5">{currentAssets.length}</Text></Text>
-            </TouchableOpacity>
-            <TouchableOpacity className={`flex-1 items-center py-4 ${activeTab === 'liabilities' ? 'border-b-2 border-primary-500' : ''}`} onPress={() => setActiveTab('liabilities')}>
-              <Text className={`text-base font-medium ${activeTab === 'liabilities' ? 'text-primary-500' : 'text-gray-500'}`}>Pasivos <Text className="text-sm bg-gray-200 rounded-full px-3 py-1.5">{currentLiabilities.length}</Text></Text>
-            </TouchableOpacity>
-          </View>
-
+          <SearchBar
+            placeholder="Buscar activo o pasivo"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            className="mt-6"
+          />
+          <Tabs
+            tabs={tabs}
+            activeTab={activeTab}
+            onTabChange={(key) => setActiveTab(key as 'assets' | 'liabilities')}
+            className="mt-6"
+          />
           <View className="flex-row justify-between px-4 py-4 border-b border-gray-200">
-            <Text className="text-base font-regular text-gray-700">Total en {activeTab === 'assets' ? 'activos' : 'pasivos'}</Text>
-            <Text className={`text-base font-semibold ${activeTab === 'liabilities' ? 'text-red-600' : 'text-gray-900'}`}>
+            <Text className="text-base font-regular text-gray-700">
+              Total en {activeTab === 'assets' ? 'activos' : 'pasivos'}
+            </Text>
+            <Text 
+              className={`text-base font-semibold ${
+                activeTab === 'liabilities' ? 'text-red-600' : 'text-gray-900'
+              }`}
+            >
               {activeTab === 'assets' ? '+' : '-'}${(activeTab === 'assets' ? totalAssets : totalLiabilities).toLocaleString('es-CL')}
             </Text>
           </View>
-
-          {(activeTab === 'assets' ? filteredAssets : filteredLiabilities).map((item) => (
-            activeTab === 'assets' ? <AssetCard key={item.id} asset={item} /> : <LiabilityCard key={item.id} liability={item} />
-          ))}
-        </View>
+          <ListItem
+            data={currentData}
+            showLoadMore={false}
+          />
+        </Container>
       </ScrollView>
-    </View>
+    </Container>
   );
 }
