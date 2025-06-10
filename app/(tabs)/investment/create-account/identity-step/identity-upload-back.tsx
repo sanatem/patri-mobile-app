@@ -6,8 +6,8 @@ import { Button } from '@/components/ui';
 import { useState } from 'react';
 import * as ImagePicker from 'expo-image-picker';
 
-export default function IdentityUpload() {
-  const [frontImage, setFrontImage] = useState<string | null>(null);
+export default function IdentityUploadBack() {
+  const [backImage, setBackImage] = useState<string | null>(null);
 
   const pickImageWeb = () => {
     if (Platform.OS === 'web') {
@@ -19,7 +19,7 @@ export default function IdentityUpload() {
         if (file) {
           const reader = new FileReader();
           reader.onload = (event: any) => {
-            setFrontImage(event.target.result);
+            setBackImage(event.target.result);
           };
           reader.readAsDataURL(file);
         }
@@ -45,7 +45,7 @@ export default function IdentityUpload() {
       });
 
       if (!result.canceled) {
-        setFrontImage(result.assets[0].uri);
+        setBackImage(result.assets[0].uri);
       }
     } catch (error) {
       console.error('Error picking image:', error);
@@ -69,7 +69,7 @@ export default function IdentityUpload() {
       });
 
       if (!result.canceled) {
-        setFrontImage(result.assets[0].uri);
+        setBackImage(result.assets[0].uri);
       }
     } catch (error) {
       console.error('Error taking photo:', error);
@@ -94,36 +94,33 @@ export default function IdentityUpload() {
   };
 
   const removeImage = () => {
-    setFrontImage(null);
+    setBackImage(null);
   };
 
   const handleContinue = () => {
-    router.push('/investment/create-account/identity-step/identity-upload-back' as any);
+    router.push('/investment/create-account/identity-step/identity-confirm' as any);
   };
 
   return (
     <Container variant="secondaryPage" style={{ padding: 20 }}>
-      <Header title="Verificación de identidad" />
+      <Header title="Verificación de identidad" showBackButton />
       <ScrollView className="flex-1 bg-white px-6" showsVerticalScrollIndicator={false}>
-        <Text className="text-xl font-bold mb-2">Sube tu carnet (Frente)</Text>
+        <Text className="text-xl font-bold mb-2">Sube tu carnet (Reverso)</Text>
         <Text className="text-base text-gray-500 mb-6">
-          {Platform.OS === 'web' 
-            ? 'Haz click en el recuadro para seleccionar una imagen'
-            : 'Haz click en el recuadro para subir la foto o tomar una nueva'
-          }
+          Ahora necesitamos la parte trasera de tu carnet de identidad
         </Text>
 
         <TouchableOpacity
           className={`border border-dashed rounded-xl items-center mb-5 ${
-            frontImage ? 'border-green-500' : 'border-primary-500'
+            backImage ? 'border-green-500' : 'border-primary-500'
           }`}
-          style={{ padding: frontImage ? 10 : 100 }}
-          onPress={frontImage ? undefined : showImageOptions}
+          style={{ padding: backImage ? 10 : 100 }}
+          onPress={backImage ? undefined : showImageOptions}
         >
-          {frontImage ? (
+          {backImage ? (
             <View className="relative">
               <Image 
-                source={{ uri: frontImage }} 
+                source={{ uri: backImage }} 
                 className="w-full rounded-lg"
                 style={{ height: 200 }}
                 resizeMode="cover"
@@ -136,11 +133,11 @@ export default function IdentityUpload() {
               </TouchableOpacity>
             </View>
           ) : (
-            <Text className="text-primary-500 text-base font-medium">+ Subir foto del carnet (Frente)</Text>
+            <Text className="text-primary-500 text-base font-medium">+ Subir foto del carnet (Reverso)</Text>
           )}
         </TouchableOpacity>
 
-        {frontImage && (
+        {backImage && (
           <TouchableOpacity
             className="mb-4 items-center"
             onPress={showImageOptions}
@@ -156,17 +153,13 @@ export default function IdentityUpload() {
           <Text className="text-sm text-blue-700">• Evita reflejos o sombras</Text>
         </View>
 
-        <Text className="text-sm text-gray-500 mb-6">
-          ¿Qué datos obtendrán de mi carnet?
-        </Text>
-
         <View className="mb-6">
           <Button
             title="Continuar"
             onPress={handleContinue}
             variant="primary"
             fullWidth
-            disabled={!frontImage}
+            disabled={!backImage}
           />
         </View>
       </ScrollView>
