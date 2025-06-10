@@ -1,79 +1,55 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { router } from 'expo-router';
+import { Container } from '@/components/ui/Container';
+import { Header } from '@/components/ui/Header';
+import { Button } from '@/components/ui';
+import { Check, Clock } from 'lucide-react-native';
 
 export default function SummaryStep() {
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>¡Tu perfil está casi listo!</Text>
-      <Text style={styles.subtitle}>Estamos validando tu información. Una vez listo, podrás comenzar a invertir 🚀</Text>
-
-      <View style={styles.stepBox}>
-        <Text style={styles.stepTitle}>✔️ Verificación de identidad</Text>
-        <Text style={styles.stepDetail}>Documento recibido y en revisión</Text>
-      </View>
-
-      <View style={styles.stepBox}>
-        <Text style={styles.stepTitle}>✔️ Información básica</Text>
-        <Text style={styles.stepDetail}>Tus datos fueron registrados correctamente</Text>
-      </View>
-
-      <View style={styles.stepBox}>
-        <Text style={styles.stepTitle}>⏳ Contrato y validación de correo</Text>
-        <Text style={styles.stepDetail}>Firmarás una vez que terminemos de verificar tu información</Text>
-      </View>
-
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => router.push('/(tabs)/investment')}
-      >
-        <Text style={styles.buttonText}>Volver al inicio</Text>
-      </TouchableOpacity>
-    </View>
+    <Container variant="secondaryPage" style={{ padding: 20 }}>
+      <Header title="Tu perfil está casi listo" />
+      <ScrollView className="flex-1 bg-white px-6" showsVerticalScrollIndicator={false}>
+        <Text className="text-lg text-gray-600 text-center mb-6">
+          Estamos validando tu información. Una vez listo, podrás comenzar a invertir 🚀
+        </Text>
+        <View className="bg-primary-500 p-4 rounded-xl mb-4 flex-row justify-between items-center" style={{paddingLeft: 10, paddingRight: 10, paddingTop: 10, paddingBottom: 10 }}>
+          <View>
+            <Text className="text-white font-semibold text-base">Verificación de identidad</Text>
+            <Text className="text-white mt-1 font-regular">Documento validado correctamente</Text>
+          </View>
+          <Check size={24} color="white" className="mr-2" />
+        </View>
+        <View className="bg-primary-500 p-4 rounded-xl mb-4 flex-row justify-between items-center" style={{paddingLeft: 10, paddingRight: 10, paddingTop: 10, paddingBottom: 10 }}>
+          <View>
+            <Text className="text-white font-semibold text-base">Información básica</Text>
+            <Text className="text-white mt-1 font-regular">Perfil completado exitosamente</Text>
+          </View>
+          <Check size={24} color="white" className="mr-2" />
+        </View>
+        <View className="bg-gray-100 p-4 rounded-xl mb-4 flex-row justify-between items-center" style={{paddingLeft: 10, paddingRight: 10, paddingTop: 10, paddingBottom: 10 }}>
+          <View>
+            <Text className="text-gray-400 font-semibold text-base">Contrato y validación correo</Text>
+            <Text className="text-gray-400 mt-1 font-regular">En proceso de validación...</Text>
+          </View>
+          <Clock size={24} color="#9CA3AF" className="mr-2" />
+        </View>
+        <View className="bg-gray-100 p-4 rounded-xl mb-4 flex-row justify-between items-center" style={{paddingLeft: 10, paddingRight: 10, paddingTop: 10, paddingBottom: 10 }}>
+          <View>
+            <Text className="text-gray-400 font-semibold text-base">Comenzar a invertir</Text>
+            <Text className="text-gray-400 mt-1 font-regular">Elige qué quieres hacer con tu plata</Text>
+          </View>
+          <Clock size={24} color="#9CA3AF" className="mr-2" />
+        </View>
+        
+        <Button
+          title="Volver al inicio"
+          onPress={() => router.push('/(tabs)/investment')}
+          variant="primary"
+          fullWidth
+        />
+      </ScrollView>
+    </Container>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: '#fff',
-    justifyContent: 'center'
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: '700',
-    textAlign: 'center',
-    marginBottom: 12
-  },
-  subtitle: {
-    fontSize: 16,
-    textAlign: 'center',
-    color: '#6b7280',
-    marginBottom: 24
-  },
-  stepBox: {
-    backgroundColor: '#f3f4f6',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12
-  },
-  stepTitle: {
-    fontWeight: '600',
-    marginBottom: 4
-  },
-  stepDetail: {
-    color: '#6b7280'
-  },
-  button: {
-    backgroundColor: '#ff5603',
-    padding: 14,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 24
-  },
-  buttonText: {
-    color: '#fff',
-    fontWeight: '600'
-  }
-});
