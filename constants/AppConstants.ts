@@ -1,4 +1,3 @@
-
 export const IMAGES = {
   ADVISOR: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
   EXPERT_1: 'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
@@ -230,3 +229,204 @@ export const TAB_CONFIG = {
     { key: 'expenses', label: 'Gastos' }
   ]
 } as const;
+
+export const INVESTMENT_SURVEY_QUESTIONS = [
+  {
+    text: '¿Cuál es el principal objetivo de tu inversión?',
+    options: [
+      'Ahorrar para la educación de mis hijos',
+      'Asegurar mi jubilación',
+      'Incrementar mi patrimonio',
+      'Planificar un viaje'
+    ]
+  },
+  {
+    text: '¿Cuál de estas alternativas representa mejor tu horizonte de inversión?',
+    options: [
+      'Podría necesitar el dinero en cualquier momento',
+      'Necesitaré parte del dinero este año',
+      'Quizás haga retiros esporádicos, pero la mayor parte de la inversión será a largo plazo',
+      'No usaré este dinero en los próximos 3 años'
+    ]
+  },
+  {
+    text: '¿Qué grado de conocimiento financiero posees?',
+    options: [
+      'Nulo',
+      'Entiendo la diferencia entre acciones y renta fija',
+      'Conozco distintas opciones de inversión y sus niveles de riesgo',
+      'Tengo un amplio conocimiento sobre productos y estrategias de inversión'
+    ]
+  },
+  {
+    text: '¿En qué productos has invertido anteriormente?',
+    options: [
+      'Cuenta de ahorro, depósitos a plazo y/o instrumentos de renta fija',
+      'Fondos mutuos',
+      'Acciones',
+      'Productos Derivados'
+    ]
+  },
+  {
+    text: '¿Con cuál de las siguientes afirmaciones te identificas mejor?',
+    options: [
+      'Lo más importante es que mi inversión crezca de manera estable, no acepto fluctuaciones negativas del mercado',
+      'Acepto oscilaciones negativas en el valor de mi patrimonio durante períodos de tiempo inferiores a un año',
+      'Me importa la rentabilidad a mediano y largo plazo, sin sufrir fluctuaciones negativas importantes en el valor de mi patrimonio',
+      'Puedo asumir fluctuaciones de mercado importantes en mis inversiones a cambio de mayores rentabilidades en el largo plazo'
+    ]
+  },
+  {
+    text: 'Si tienes una inversión con una rentabilidad del 30% y tiene una baja de 20% obteniendo un 10% a favor, ¿qué harías?',
+    options: [
+      'Me cambiaría a instrumentos sin riesgo',
+      'Transferiría parte de los fondos a inversiones de menor riesgo',
+      'Me preocuparía, pero no tomaría ninguna acción',
+      'Invertiría más si hay fundamentos para ello'
+    ]
+  },
+  {
+    text: '¿Cuál es tu nivel de renta líquida mensual considerando todas tus fuentes de ingresos?',
+    options: [
+      'Menos de 1 millón de pesos',
+      'Entre 1 y 3 millones de pesos',
+      'Entre 3 y 5 millones de pesos',
+      'Más de 5 millones de pesos'
+    ]
+  },
+  {
+    text: '¿Cuánto de tus ahorros estás dispuesto a invertir?',
+    options: [
+      'Menos del 30%',
+      'Entre el 30% y el 60%',
+      'Más del 60%'
+    ]
+  },
+  {
+    text: '¿Qué relación tiene tu profesión respecto a temas financieros?',
+    options: [
+      'Está muy relacionada',
+      'Tiene cierta relación',
+      'Tiene poca relación',
+      'No tiene relación'
+    ]
+  },
+  {
+    text: '¿Cuál es el valor aproximado de su patrimonio disponible para inversión?',
+    options: [
+      'Más de $200 millones',
+      'Entre $50 y $200 millones',
+      'Menos de $50 millones'
+    ]
+  }
+] as const;
+
+export const REGIONS_AND_COMMUNES = {
+  "Región Metropolitana": ["Santiago", "Puente Alto", "Maipú", "La Florida", "Las Condes"],
+  "Valparaíso": ["Valparaíso", "Viña del Mar", "Quilpué", "Villa Alemana", "San Antonio"],
+  "Biobío": ["Concepción", "Talcahuano", "Los Ángeles", "Coronel", "San Pedro de la Paz"],
+  "Araucanía": ["Temuco", "Padre Las Casas", "Villarrica", "Angol", "Pucón"],
+  "Los Lagos": ["Puerto Montt", "Osorno", "Castro", "Ancud", "Puerto Varas"],
+  "Antofagasta": ["Antofagasta", "Calama", "Mejillones", "Tocopilla"],
+} as const;
+
+export const PERSONAL_INFORMATION_QUESTIONS = [
+  {
+    id: 'gender',
+    type: 'choice',
+    text: '¿Cómo nos dirigimos a ti?',
+    options: [
+      { label: 'En femenino', value: 'femenino' },
+      { label: 'En masculino', value: 'masculino' }
+    ]
+  },
+  {
+    id: 'nationality',
+    type: 'choice',
+    text: '¿Tu nacionalidad es chilena?',
+    options: [
+      { label: 'Sí', value: 'si' },
+      { label: 'No', value: 'no' }
+    ]
+  },
+  {
+    id: 'us_person',
+    type: 'choice',
+    text: '¿Eres US Person?',
+    options: [
+      { label: 'Sí', value: 'si' },
+      { label: 'No', value: 'no' }
+    ]
+  },
+  {
+    id: 'foreign_tax',
+    type: 'choice',
+    text: '¿Tienes residencia tributaria en otro país?',
+    options: [
+      { label: 'Sí', value: 'si' },
+      { label: 'No', value: 'no' }
+    ]
+  },
+  {
+    id: 'pep',
+    type: 'choice',
+    text: '¿Eres una persona expuesta políticamente (PEP)?',
+    options: [
+      { label: 'Sí', value: 'si' },
+      { label: 'No', value: 'no' }
+    ]
+  },
+  {
+    id: 'address',
+    type: 'form',
+    text: '¿Cuál es tu dirección?',
+    fields: [
+      { name: 'address', type: 'text', placeholder: 'Dirección' },
+      { name: 'region', type: 'select', placeholder: 'Selecciona una región', options: Object.keys(REGIONS_AND_COMMUNES) },
+      { name: 'commune', type: 'select', placeholder: 'Selecciona una comuna', dependsOn: 'region' }
+    ]
+  },
+  {
+    id: 'phone',
+    type: 'input',
+    text: '¿Cuál es tu número de teléfono?',
+    subtitle: 'Lo pedimos por razones regulatorias',
+    placeholder: '9 1234 5678',
+    inputType: 'phone-pad',
+    validation: (value: string) => value.length >= 9
+  },
+  {
+    id: 'income_source',
+    type: 'choice',
+    text: '¿De dónde proviene el dinero que quieres invertir?',
+    options: [
+      { label: 'Sueldo/Honorarios', value: 'sueldo' },
+      { label: 'Inversiones', value: 'inversiones' },
+      { label: 'Ingresos de negocio', value: 'negocio' },
+      { label: 'Bienes raíces', value: 'bienes_raices' },
+      { label: 'Herencia', value: 'herencia' },
+      { label: 'Ahorros', value: 'ahorros' }
+    ]
+  },
+  {
+    id: 'occupation',
+    type: 'form',
+    text: '¿A qué te dedicas?',
+    fields: [
+      { name: 'employment', type: 'text', placeholder: 'Situación laboral' },
+      { name: 'occupation', type: 'text', placeholder: 'Ocupación o profesión' }
+    ]
+  },
+  {
+    id: 'monthly_income',
+    type: 'choice',
+    text: '¿Cuál es tu ingreso mensual?',
+    subtitle: 'Una estimación está bien',
+    options: [
+      { label: 'Menos de $500.000', value: 'menos_500' },
+      { label: 'Entre $500.000 y $1.000.000', value: '500_1000' },
+      { label: 'Entre $1.000.000 y $2.000.000', value: '1000_2000' },
+      { label: 'Más de $2.000.000', value: 'mas_2000' }
+    ]
+  }
+] as const;

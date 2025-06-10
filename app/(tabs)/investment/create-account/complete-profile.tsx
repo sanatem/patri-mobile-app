@@ -1,79 +1,46 @@
-// app/(tabs)/investment/complete-profile.tsx
-
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { router } from 'expo-router';
+import { Container } from '@/components/ui/Container';
+import { Header } from '@/components/ui/Header';
 
 export default function CompleteProfile() {
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Completa tu perfil</Text>
+    <Container variant="secondaryPage" style={{ padding: 20 }}>
+      <Header title="Completa tu perfil" />
+      <ScrollView className="flex-1 bg-white px-6" showsVerticalScrollIndicator={false}>
+        <TouchableOpacity
+          className="bg-primary-500 p-4 rounded-xl mb-4"
+          onPress={() => router.push("/investment/create-account/identity-step/identity-method" as any)}
+        >
+          <View className="flex-row items-center">
+            <View className="bg-primary-500 p-4 rounded-xl mb-4" style={{paddingLeft: 10, paddingRight: 10, paddingTop: 10, paddingBottom: 10 }}>
+              <Text className="text-white font-semibold text-base">Verificación de identidad</Text>
+              <Text className="text-white mt-1 font-regular">Sube un documento de identidad</Text>
+            </View>
+          </View>
+        </TouchableOpacity>
 
-      <TouchableOpacity
-        style={styles.stepActive}
-        onPress={() => router.push("/investment/create-account/identity-step/identity-method" as any)}
-      >
-        <Text style={styles.stepTitle}>Verificación de identidad</Text>
-        <Text style={styles.stepSubtitle}>Sube un documento de identidad</Text>
-      </TouchableOpacity>
+        <View className="flex-row">
+          <View className="bg-gray-100 p-4 rounded-xl mb-4" style={{paddingLeft: 10, paddingRight: 10, paddingTop: 10, paddingBottom: 10 }}>
+            <Text className="text-gray-400 font-semibold text-base">Información básica</Text>
+            <Text className="text-gray-400 mt-1 font-regular">Compártenos un poco sobre ti</Text>
+          </View>
+        </View>
 
-      <View style={styles.stepDisabled}>
-        <Text style={styles.stepTitleDisabled}>Información básica</Text>
-        <Text style={styles.stepSubtitleDisabled}>Compártenos un poco sobre ti</Text>
-      </View>
+        <View className="flex-row">
+          <View className="bg-gray-100 p-4 rounded-xl mb-4" style={{paddingLeft: 10, paddingRight: 10, paddingTop: 10, paddingBottom: 10 }}>
+            <Text className="text-gray-400 font-semibold text-base">Contrato y validación correo</Text>
+            <Text className="text-gray-400 mt-1 font-regular">Firma tu contrato y verifica tu cuenta</Text>
+          </View>
+        </View>
 
-      <View style={styles.stepDisabled}>
-        <Text style={styles.stepTitleDisabled}>Contrato y validación correo</Text>
-        <Text style={styles.stepSubtitleDisabled}>Firma tu contrato y verifica tu cuenta</Text>
-      </View>
-
-      <View style={styles.stepDisabled}>
-        <Text style={styles.stepTitleDisabled}>Comenzar a invertir</Text>
-        <Text style={styles.stepSubtitleDisabled}>Elige qué quieres hacer con tu plata</Text>
-      </View>
-    </View>
+        <View className="flex-row">
+          <View className="bg-gray-100 p-4 rounded-xl mb-4" style={{paddingLeft: 10, paddingRight: 10, paddingTop: 10, paddingBottom: 10 }}>
+            <Text className="text-gray-400 font-semibold text-base">Comenzar a invertir</Text>
+            <Text className="text-gray-400 mt-1 font-regular">Elige qué quieres hacer con tu plata</Text>
+          </View>
+        </View>
+      </ScrollView>
+    </Container>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 24,
-    backgroundColor: '#fff',
-    paddingTop: 80
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: '700',
-    marginBottom: 24
-  },
-  stepActive: {
-    backgroundColor: '#ff5603',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 16
-  },
-  stepTitle: {
-    color: '#fff',
-    fontWeight: '600',
-    fontSize: 16
-  },
-  stepSubtitle: {
-    color: '#fff',
-    marginTop: 4
-  },
-  stepDisabled: {
-    backgroundColor: '#f3f4f6',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 16
-  },
-  stepTitleDisabled: {
-    fontWeight: '600',
-    color: '#9ca3af',
-    fontSize: 16
-  },
-  stepSubtitleDisabled: {
-    color: '#9ca3af',
-    marginTop: 4
-  }
-});

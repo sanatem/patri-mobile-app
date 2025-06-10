@@ -1,60 +1,30 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
+import { Container } from '@/components/ui/Container';
 
 export default function ProfileResult() {
   return (
-    <View style={styles.container}>
-      <Text style={styles.emoji}>🕵️‍♀️</Text>
-      <Text style={styles.title}>Tu perfil es conservador</Text>
-      <Text style={styles.subtitle}>
+    <Container variant="secondaryPage" style={{ padding: 20 }}>
+    <View className="flex-1 justify-center bg-white p-6">
+      <Text className="text-[64px] text-center mb-5">🕵️‍♀️</Text>
+      <Text className="text-xl font-bold text-center mb-3">
+        Tu perfil es conservador
+      </Text>
+      <Text className="text-base text-gray-500 text-center mb-2">
         Valorás principalmente la estabilidad, pero tolerás un poco de riesgo en tus inversiones.
       </Text>
-      <Text style={styles.subtitle}>Puedes cambiarlo más adelante si lo deseas.</Text>
+      <Text className="text-base text-gray-500 text-center mb-2">
+        Puedes cambiarlo más adelante si lo deseas.
+      </Text>
 
       <TouchableOpacity
-        style={styles.button}
+        className="bg-primary-500 py-3 px-4 rounded-lg items-center"
         onPress={() => router.push('/investment/create-account/complete-profile' as any)}
       >
-        <Text style={styles.buttonText}>Entendido, continuemos</Text>
+        <Text className="text-white font-semibold text-base">Entendido, continuemos</Text>
       </TouchableOpacity>
     </View>
+    </Container>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 24,
-    backgroundColor: '#fff'
-  },
-  emoji: {
-    fontSize: 64,
-    textAlign: 'center',
-    marginBottom: 20
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: '700',
-    textAlign: 'center',
-    marginBottom: 12
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#6b7280',
-    textAlign: 'center',
-    marginBottom: 8
-  },
-  button: {
-    backgroundColor: '#ff5603',
-    padding: 14,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 24
-  },
-  buttonText: {
-    color: '#fff',
-    fontWeight: '600'
-  }
-});

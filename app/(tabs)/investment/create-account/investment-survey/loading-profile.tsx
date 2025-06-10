@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
 
 export default function LoadingProfile() {
@@ -12,22 +12,11 @@ export default function LoadingProfile() {
   }, []);
 
   return (
-    <View style={styles.container}>
+    <View className="flex-1 justify-center items-center">
       <ActivityIndicator size="large" color="#ff5603" />
-      <Text style={styles.text}>Definiendo tu perfil de inversor...</Text>
+      <Text className="mt-4 text-base text-gray-700">
+        Definiendo tu perfil de inversor...
+      </Text>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  text: {
-    marginTop: 16,
-    fontSize: 16,
-    color: '#374151'
-  }
-});
