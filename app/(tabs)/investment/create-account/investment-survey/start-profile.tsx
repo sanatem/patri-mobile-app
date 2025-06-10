@@ -1,69 +1,29 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
+import { Container } from '@/components/ui/Container';
 
 export default function StartProfile() {
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Veamos qué tipo de inversionista eres</Text>
-      <Text style={styles.subtitle}>
+    <Container variant="secondaryPage" style={{ padding: 20 }}>
+    <View className="flex-1 p-6 justify-center bg-white">
+      <Text className="text-xl font-bold text-center mb-3">
+        Veamos qué tipo de inversionista eres
+      </Text>
+
+      <Text className="text-base text-center text-gray-500 mb-6">
         Te haremos algunas preguntas para determinar tu perfil de inversionista. Puedes cambiarlo más adelante si lo necesitas.
       </Text>
 
       <TouchableOpacity
-        style={styles.button}
+        className="bg-primary-500 py-3 px-4 rounded-lg items-center"
         onPress={() => router.push('/investment/create-account/investment-survey/profile-question' as any)}
       >
-        <Text style={styles.buttonText}>Empecemos</Text>
+        <Text className="text-white font-semibold text-base">Empecemos</Text>
       </TouchableOpacity>
 
-      <Text style={styles.estimate}>⏱ aprox. 4 minutos</Text>
+      <Text className="text-center text-gray-500 mt-3">⏱ aprox. 4 minutos</Text>
     </View>
+    </Container>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 24,
-    justifyContent: 'center',
-    backgroundColor: '#fff'
-  },
-  emojis: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 10,
-    marginBottom: 20
-  },
-  emoji: {
-    fontSize: 36
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: '700',
-    textAlign: 'center',
-    marginBottom: 12
-  },
-  subtitle: {
-    fontSize: 16,
-    textAlign: 'center',
-    color: '#6b7280',
-    marginBottom: 24
-  },
-  button: {
-    backgroundColor: '#ff5603',
-    padding: 14,
-    borderRadius: 8,
-    alignItems: 'center'
-  },
-  buttonText: {
-    color: '#fff',
-    fontWeight: '600',
-    fontSize: 16
-  },
-  estimate: {
-    textAlign: 'center',
-    color: '#6b7280',
-    marginTop: 12
-  }
-});
