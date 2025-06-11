@@ -22,7 +22,7 @@ export default function InvestmentGuest() {
       </Container>
         <Button
           title="Comenzar"
-          onPress={() => router.push('/(tabs)/investment/portfolio/portfolio' as any)}
+          onPress={() => router.push('/(tabs)/investment/portfolio' as any)}
           variant="primary"
           fullWidth
         />
