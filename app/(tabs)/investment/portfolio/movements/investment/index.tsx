@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import {
   View,
-  Text,
-  StyleSheet,
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
@@ -10,6 +8,8 @@ import {
 } from 'react-native';
 import { ChevronLeft, X } from 'lucide-react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import { Header } from '@/components/ui/Header';
+import { Container } from '@/components/ui/Container';
 import GoalSelectionStep from './goal-step';
 import AmountStep from './amount-step';
 
@@ -21,7 +21,6 @@ export default function InvestmentMovementFlow() {
   const [currentStep, setCurrentStep] = useState<Step>('goal-step');
   const [selectedGoal, setSelectedGoal] = useState('Reserva');
   const [amount, setAmount] = useState('');
-  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const handleContinueGoalSelection = () => {
     setCurrentStep('amount-step');
@@ -52,62 +51,46 @@ export default function InvestmentMovementFlow() {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      style={styles.container}
-    >
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={handleBack}>
-          <ChevronLeft size={24} color="#FF5603" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle} numberOfLines={1}>
-          {getHeaderTitle()}
-        </Text>
-        {currentStep === 'amount-step' ? (
-          <TouchableOpacity onPress={() => router.back()}>
-            <X size={22} color="#6B7280" />
+    <Container variant="secondaryPage" style={{ padding: 20 }}>
+      <Header 
+        title={getHeaderTitle()}
+        leftAction={
+          <TouchableOpacity
+            onPress={handleBack}
+            className="p-1 mr-3"
+          >
+            <ChevronLeft size={24} color="#FF5603" />
           </TouchableOpacity>
-        ) : (
-          <View style={{ width: 24 }} />
+        }
+        rightAction={
+          currentStep === 'amount-step' ? (
+            <TouchableOpacity onPress={() => router.back()}>
+              <X size={22} color="#6B7280" />
+            </TouchableOpacity>
+          ) : undefined
+        }
+      />
+
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        className="flex-1"
+      >
+        {currentStep === 'goal-step' && (
+          <GoalSelectionStep
+            selectedGoal={selectedGoal}
+            onGoalSelect={setSelectedGoal}
+            onContinue={handleContinueGoalSelection}
+          />
         )}
-      </View>
-
-      {/* Content */}
-      {currentStep === 'goal-step' && (
-        <GoalSelectionStep
-          selectedGoal={selectedGoal}
-          onGoalSelect={setSelectedGoal}
-          onContinue={handleContinueGoalSelection}
-          dropdownOpen={dropdownOpen}
-          setDropdownOpen={setDropdownOpen}
-        />
-      )}
-      
-      {currentStep === 'amount-step' && (
-        <AmountStep
-          amount={amount}
-          onAmountChange={setAmount}
-          onFinish={handleFinish}
-        />
-      )}
-    </KeyboardAvoidingView>
+        
+        {currentStep === 'amount-step' && (
+          <AmountStep
+            amount={amount}
+            onAmountChange={setAmount}
+            onFinish={handleFinish}
+          />
+        )}
+      </KeyboardAvoidingView>
+    </Container>
   );
-}
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F9FAFB', paddingTop: 64 },
-  header: {
-    padding: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  headerTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#111827',
-    flex: 1,
-    textAlign: 'center',
-  },
-}); 
+} 
