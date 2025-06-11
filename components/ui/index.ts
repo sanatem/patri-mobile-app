@@ -12,3 +12,4 @@ export { ListItem } from './ListItem';
 export { Carousel } from './Carousel';
 export { CarouselCard } from './CarouselCard';
 export { UserSelector } from './UserSelector';
+export { Select } from './Select';

@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 type ButtonProps = {
   title: string;
   onPress: () => void;
-  variant?: 'primary' | 'outline' | 'ghost';
+  variant?: 'primary' | 'outline' | 'ghost' | 'disabled';
   loading?: boolean;
   disabled?: boolean;
   fullWidth?: boolean;
@@ -27,6 +27,7 @@ export function Button({
     primary: 'bg-primary-500 text-white',
     outline: 'border border-primary-500 text-primary-500 bg-white',
     ghost: 'bg-transparent text-primary-500 border border-primary-500',
+    disabled: 'bg-gray-300 text-gray-500',
   };
 
   const textColor = variant === 'primary' ? 'text-white' : 'text-primary-500';

@@ -17,7 +17,7 @@ export function Card({
   style,
   ...props
 }: CardProps) {
-  const baseStyles = 'bg-white rounded-xl';
+  const baseStyles = 'bg-white rounded-xl font-regular';
   
   const variants = {
     default: 'border border-gray-200',
