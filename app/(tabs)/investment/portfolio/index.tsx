@@ -86,7 +86,7 @@ export default function InvestmentPortfolioScreen() {
       <ScrollView className="flex-1 px-5 pb-10 mt-16" showsVerticalScrollIndicator={false}>
         <PortfolioHeader
           patrimony="$59.809"
-          onInvestPress={() => router.push('/investment/portfolio/movements/investment/goal-step')}
+          onInvestPress={() => router.push('/investment/portfolio/movements/investment')}
           onCreatePress={() => router.push('/investment/portfolio/goals/create-goals')}
         />
         <View className="flex-row justify-between items-center mt-10" style={{ marginBottom: 10 }}>
