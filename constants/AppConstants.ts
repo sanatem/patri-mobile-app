@@ -430,3 +430,150 @@ export const PERSONAL_INFORMATION_QUESTIONS = [
     ]
   }
 ] as const;
+
+export const INVESTMENT_GOALS = [
+  { 
+    label: 'Reserva', 
+    value: 'Reserva', 
+    icon: '🏦',
+    description: 'Fondo de reserva para emergencias'
+  },
+  { 
+    label: 'Casa', 
+    value: 'Casa', 
+    icon: '🏠',
+    description: 'Ahorro para comprar casa'
+  },
+  { 
+    label: 'Mejorar mi jubilación', 
+    value: 'Mejorar mi jubilación', 
+    icon: '💰',
+    description: 'Plan de jubilación con APV-B'
+  },
+] as const;
+
+export const INVESTMENT_PORTFOLIO_DATA = [
+  {
+    id: 'reserva',
+    title: 'Reserva',
+    subtitle: '',
+    amount: '$0',
+    icon: 'PiggyBank',
+    category: 'investment',
+    hasDetails: false
+  },
+  {
+    id: 'emergencias',
+    title: 'Emergencias',
+    subtitle: 'Corto plazo',
+    amount: '$59.809',
+    icon: 'LineChart',
+    category: 'investment',
+    hasDetails: true
+  },
+  {
+    id: 'casa',
+    title: 'Casa',
+    subtitle: 'Largo plazo',
+    amount: '$0',
+    icon: 'Home',
+    category: 'investment',
+    hasDetails: false
+  },
+  {
+    id: 'jubilacion',
+    title: 'Mejorar mi jubilación',
+    subtitle: 'Jubilación con APV-B',
+    amount: '$0',
+    icon: 'ShieldCheck',
+    category: 'investment',
+    hasDetails: false
+  },
+] as const;
+
+export const INVESTMENT_ACTIONS_DATA = [
+  {
+    id: 'dolares',
+    title: 'Dólares',
+    subtitle: 'Compra para invertir o ahorrar',
+    icon: 'DollarSign',
+    category: 'action',
+    hasDetails: false
+  },
+  {
+    id: 'acciones',
+    title: 'Acciones',
+    subtitle: 'Invierte desde US $1',
+    icon: 'BarChart',
+    category: 'action',
+    hasDetails: false
+  },
+] as const;
+
+export const INVESTMENT_RISK_LEVELS = [
+  { value: 'muy-conservador', label: 'Muy conservador' },
+  { value: 'conservador', label: 'Conservador' },
+  { value: 'moderado', label: 'Moderado' },
+  { value: 'agresivo', label: 'Agresivo' },
+  { value: 'muy-agresivo', label: 'Muy agresivo' },
+] as const;
+
+export const INVESTMENT_PERIODS = [
+  { value: '3-meses', label: '3 meses' },
+  { value: '6-meses', label: '6 meses' },
+  { value: '1-año', label: '1 año' },
+  { value: '2-años', label: '2 años' },
+  { value: '5-años', label: '5 años' },
+  { value: 'largo-plazo', label: 'Largo plazo' },
+] as const;
+
+export const INVESTMENT_ACCOUNT_TYPES = [
+  { value: 'inversion', label: 'Cuenta de inversión' },
+  { value: 'ahorro', label: 'Cuenta de ahorro' },
+  { value: 'apv', label: 'APV-B' },
+] as const;
+
+export const INVESTMENT_TIPS = {
+  PORTFOLIO_PERFORMANCE: 'En 28 meses tu inversión ha rentado un 19,55%',
+  APV_RESTRICTION: 'No aplica para objetivos APV',
+  DOLLAR_RATE: '(a $946 el dólar)',
+  CHART_UPDATE: 'Actualizado al cierre del martes 27 de mayo',
+} as const;
+
+export const INVESTMENT_MESSAGES = {
+  WELCOME_TITLE: 'Un solo lugar para hacer crecer tu patrimonio.',
+  WELCOME_SUBTITLE: 'Opciones de ahorro e inversión personalizadas, para todo tipo de inversionista.',
+  GUEST_TITLE: 'Invierte en Acciones o ETF',
+  GUEST_SUBTITLE: 'La forma más fácil de invertir en la bolsa de Estados Unidos',
+  GUEST_FEATURES: [
+    '💸 Más de 2000 ETFs y acciones disponibles para comprar',
+    '🕒 Al instante: invierte en segundos cuando el mercado está abierto',
+    '🧾 Te ayudamos con tu declaración de tus acciones en el SII'
+  ],
+  GOAL_SELECTION_QUESTION: '¿A qué meta quieres mover tu dinero?',
+  GOAL_SELECTION_PLACEHOLDER: 'Selecciona una meta',
+  AMOUNT_STEP_TITLE: 'Ingresar monto',
+  AMOUNT_CURRENCY_LABEL: 'Pesos chilenos',
+} as const;
+
+export const INVESTMENT_SAMPLE_DATA = {
+  PATRIMONY_AMOUNT: '$59.809',
+  DEPOSITED_AMOUNT: '$50.017',
+  VARIATION_AMOUNT: '$9.792',
+  INVESTMENT_DETAILS: [
+    {
+      label: 'Nivel de riesgo',
+      value: 'Muy conservador',
+    },
+    {
+      label: 'Plazo de inversión',
+      value: '6 meses',
+      subtitle: 'Llevas 28 meses',
+    },
+    {
+      label: 'Very Conservative Streep A',
+      value: '$59.809',
+      subtitle: '100,00%',
+    },
+  ],
+} as const;

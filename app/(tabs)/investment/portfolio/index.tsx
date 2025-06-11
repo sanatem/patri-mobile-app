@@ -14,61 +14,43 @@ import { Header } from '@/components/ui/Header';
 import { Container } from '@/components/ui/Container';
 import { PortfolioHeader } from '@/components/investment/portfolio/PortfolioHeader';
 import { InvestmentCard } from '@/components/investment/portfolio/InvestmentCard';
+import { 
+  INVESTMENT_PORTFOLIO_DATA, 
+  INVESTMENT_ACTIONS_DATA, 
+  INVESTMENT_SAMPLE_DATA 
+} from '@/constants/AppConstants';
 
 export default function InvestmentPortfolioScreen() {
   const router = useRouter();
 
-  const investmentData = [
-    {
-      title: 'Reserva',
-      subtitle: '',
-      amount: '$0',
-      icon: <PiggyBank size={24} color="#ff5630" />,
-    },
-    {
-      title: 'Emergencias',
-      subtitle: 'Corto plazo',
-      amount: '$59.809',
-      icon: <LineChart size={24} color="#ff5630" />,
-      onPress: () => router.push({
-        pathname: '/investment/portfolio/portfolio-details',
-        params: {
-          title: 'Emergencias',
-          subtitle: 'Corto plazo',
-          amount: '$59.809',
-        },
-      }),
-    },
-    {
-      title: 'Casa',
-      subtitle: 'Largo plazo',
-      amount: '$0',
-      icon: <Home size={24} color="#ff5630" />,
-    },
-    {
-      title: 'Mejorar mi jubilación',
-      subtitle: 'Jubilación con APV-B',
-      amount: '$0',
-      icon: <ShieldCheck size={24} color="#ff5630" />,
-    },
-  ];
+  const iconMap = {
+    PiggyBank: <PiggyBank size={24} color="#ff5630" />,
+    LineChart: <LineChart size={24} color="#ff5630" />,
+    Home: <Home size={24} color="#ff5630" />,
+    ShieldCheck: <ShieldCheck size={24} color="#ff5630" />,
+    DollarSign: <DollarSign size={24} color="#ff5630" />,
+    BarChart: <BarChart size={24} color="#ff5630" />,
+  };
 
-  const actionsData = [
-    {
-      title: 'Dólares',
-      subtitle: 'Compra para invertir o ahorrar',
-      amount: '',
-      icon: <DollarSign size={24} color="#ff5630" />,
-      onPress: undefined,
-    },
-    {
-      title: 'Acciones',
-      subtitle: 'Invierte desde US $1',
-      amount: '',
-      icon: <BarChart size={24} color="#ff5630" />,
-      onPress: undefined,
-    },
-  ];
+  const investmentData = INVESTMENT_PORTFOLIO_DATA.map(item => ({
+    ...item,
+    icon: iconMap[item.icon as keyof typeof iconMap],
+    onPress: item.hasDetails ? () => router.push({
+      pathname: '/investment/portfolio/portfolio-details',
+      params: {
+        title: item.title,
+        subtitle: item.subtitle,
+        amount: item.amount,
+      },
+    }) : undefined,
+  }));
+
+  const actionsData = INVESTMENT_ACTIONS_DATA.map(item => ({
+    ...item,
+    icon: iconMap[item.icon as keyof typeof iconMap],
+    amount: '',
+    onPress: undefined,
+  }));
 
   return (
     <Container variant="secondaryPage" className="bg-white" style={{ padding: 20 }}>
@@ -85,7 +67,7 @@ export default function InvestmentPortfolioScreen() {
       />
       <ScrollView className="flex-1 px-5 pb-10 mt-16" showsVerticalScrollIndicator={false}>
         <PortfolioHeader
-          patrimony="$59.809"
+          patrimony={INVESTMENT_SAMPLE_DATA.PATRIMONY_AMOUNT}
           onInvestPress={() => router.push('/investment/portfolio/movements/investment')}
           onCreatePress={() => router.push('/investment/portfolio/goals/create-goals')}
         />
