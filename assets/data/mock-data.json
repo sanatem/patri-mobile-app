@@ -221,7 +221,7 @@
     "totalVariationPercentage": 5.49,
     "investments": [
       {
-        "id": "reserva",
+        "id": "1",
         "title": "Reserva",
         "subtitle": "",
         "amount": "$0",
@@ -234,7 +234,7 @@
         "riskLevel": "muy-conservador"
       },
       {
-        "id": "emergencias",
+        "id": "2",
         "title": "Emergencias",
         "subtitle": "Corto plazo",
         "amount": "$892.147",
@@ -256,7 +256,7 @@
         }
       },
       {
-        "id": "casa",
+        "id": "3",
         "title": "Casa",
         "subtitle": "Largo plazo",
         "amount": "$2.800.000",
@@ -278,7 +278,7 @@
         }
       },
       {
-        "id": "jubilacion",
+        "id": "4",
         "title": "Mejorar mi jubilación",
         "subtitle": "Jubilación con APV-B",
         "amount": "$0",
@@ -293,7 +293,7 @@
     ],
     "actions": [
       {
-        "id": "dolares",
+        "id": "1",
         "title": "Dólares",
         "subtitle": "Compra para invertir o ahorrar",
         "icon": "DollarSign",
@@ -303,7 +303,7 @@
         "minAmount": 1000
       },
       {
-        "id": "acciones",
+        "id": "2",
         "title": "Acciones",
         "subtitle": "Invierte desde US $1",
         "icon": "BarChart",
@@ -324,7 +324,7 @@
         "balance": 1850000,
         "transactions": [
           {
-            "id": "tx-001",
+            "id": "1",
             "date": "2024-12-15",
             "description": "Depósito de sueldo",
             "type": "income",
@@ -333,7 +333,7 @@
             "balance": 1850000
           },
           {
-            "id": "tx-002",
+            "id": "2",
             "date": "2024-12-14",
             "description": "Transferencia a inversión Emergencias",
             "type": "expense",
@@ -342,7 +342,7 @@
             "balance": 650000
           },
           {
-            "id": "tx-003",
+            "id": "3",
             "date": "2024-12-13",
             "description": "Pago servicio de Internet",
             "type": "expense",
@@ -351,7 +351,7 @@
             "balance": 610140
           },
           {
-            "id": "tx-004",
+            "id": "4",
             "date": "2024-12-12",
             "description": "Compra supermercado",
             "type": "expense",
@@ -360,7 +360,7 @@
             "balance": 485140
           },
           {
-            "id": "tx-005",
+            "id": "5",
             "date": "2024-12-11",
             "description": "Transferencia de Carlos Rojas",
             "type": "income",
@@ -378,7 +378,7 @@
         "balance": 1250000,
         "transactions": [
           {
-            "id": "tx-006",
+            "id": "6",
             "date": "2024-12-15",
             "description": "Transferencia desde cuenta corriente",
             "type": "income",
@@ -387,7 +387,7 @@
             "balance": 1250000
           },
           {
-            "id": "tx-007",
+            "id": "7",
             "date": "2024-12-10",
             "description": "Retiro para gastos personales",
             "type": "expense",
@@ -441,7 +441,7 @@
       "description": "Aporte mensual a ahorro casa"
     },
     {
-      "id": "mov-005",
+      "id": "5",
       "date": "2024-10-15",
       "type": "deposit",
       "amount": 75000,
@@ -517,7 +517,7 @@
       },
       {
         "id": "2",
-        "title": "Vacaciones familia",
+        "title": "Vacaciones Corea del Sur",
         "targetAmount": 1500000,
         "currentAmount": 0,
         "deadline": "2024-12-31",
@@ -528,7 +528,7 @@
     "mediumTerm": [
       {
         "id": "3",
-        "title": "Pago deuda tarjeta",
+        "title": "Pago Masterplop",
         "targetAmount": 0,
         "currentAmount": 1250000,
         "deadline": "2025-06-30",
@@ -557,7 +557,7 @@
       },
       {
         "id": "6",
-        "title": "Educación hijo",
+        "title": "Educación de mi hijo",
         "targetAmount": 8000000,
         "currentAmount": 0,
         "deadline": "2030-12-31",
