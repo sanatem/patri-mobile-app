@@ -504,7 +504,7 @@
       "frequency": "monthly"
     }
   ],
-  "financialGoals": {
+  "goals": {
     "shortTerm": [
       {
         "id": "1",
