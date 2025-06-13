@@ -1,0 +1,635 @@
+{
+  "userProfile": {
+    "id": "1",
+    "name": "Rommina Cáceres",
+    "initials": "RC",
+    "email": "rommina.caceres@gmail.com",
+    "phone": "+56912345678",
+    "hasPartner": true,
+    "partner": {
+      "name": "Carlos Rojas",
+      "initials": "CR",
+      "email": "carlos.rojas@gmail.com"
+    },
+    "personalInfo": {
+      "age": 30,
+      "occupation": "Programador",
+      "company": "Patrimore",
+      "yearsOfExperience": 8,
+      "education": "Instituto Profesional AIEP", 
+      "maritalStatus": "Soltero",
+      "children": 1
+    }
+  },
+  "investmentProfile": {
+    "riskLevel": "conservador",
+    "riskLevelLabel": "Conservador",
+    "investmentHorizon": "5-años",
+    "investmentHorizonLabel": "5 años",
+    "financialKnowledge": "Entiendo la diferencia entre acciones y renta fija",
+    "previousInvestments": ["Cuenta de ahorro, depósitos a plazo y/o instrumentos de renta fija", "Fondos mutuos"],
+    "monthlyIncome": "Entre 1 y 3 millones de pesos",
+    "investmentPercentage": "Entre el 30% y el 60%",
+    "professionRelation": "Tiene cierta relación",
+    "availablePatrimony": "Menos de $50 millones",
+    "mainObjective": "Incrementar mi patrimonio",
+    "surveyAnswers": {
+      "objective": "Incrementar mi patrimonio",
+      "horizon": "Quizás haga retiros esporádicos, pero la mayor parte de la inversión será a largo plazo",
+      "knowledge": "Entiendo la diferencia entre acciones y renta fija",
+      "experience": "Fondos mutuos",
+      "riskTolerance": "Me importa la rentabilidad a mediano y largo plazo, sin sufrir fluctuaciones negativas importantes en el valor de mi patrimonio",
+      "marketReaction": "Me preocuparía, pero no tomaría ninguna acción",
+      "income": "Entre 1 y 3 millones de pesos",
+      "savingsPercentage": "Entre el 30% y el 60%",
+      "professionRelation": "Tiene cierta relación",
+      "patrimony": "Menos de $50 millones"
+    }
+  },
+  "patrimony": {
+    "currentView": "mine",
+    "assets": {
+      "mine": [
+        {
+          "id": "1",
+          "name": "Cuenta Corriente",
+          "type": "Banco de Chile",
+          "value": 1850000,
+          "change": 2.8,
+          "color": "#4285F4",
+          "accountNumber": "18495792",
+          "currency": "CLP"
+        },
+        {
+          "id": "2",
+          "name": "Cuenta de Ahorro",
+          "type": "Banco de Chile",
+          "value": 1250000,
+          "change": 1.4,
+          "color": "#EA4335",
+          "accountNumber": "12564830940",
+          "currency": "CLP"
+        },
+        {
+          "id": "3",
+          "name": "Fondo Mutuo",
+          "type": "Santander Asset Management",
+          "value": 892147,
+          "change": -0.5,
+          "color": "#FBBC05",
+          "accountNumber": "SM-001",
+          "currency": "CLP"
+        },
+        {
+          "id": "4",
+          "name": "Inversión",
+          "type": "Inversiones Vector",
+          "value": 2800000,
+          "change": 3.2,
+          "color": "#6366F1",
+          "accountNumber": "IV-001",
+          "currency": "CLP"
+        }
+      ],
+      "partner": [
+        {
+          "id": "5",
+          "name": "Cuenta Corriente",
+          "type": "Banco Falabella",
+          "value": 280000,
+          "change": 3.2,
+          "color": "#6366F1",
+          "accountNumber": "98765432",
+          "currency": "CLP"
+        },
+        {
+          "id": "6",
+          "name": "Cuenta de Ahorro",
+          "type": "Banco Itaú",
+          "value": 150000,
+          "change": 0.8,
+          "color": "#10B981",
+          "accountNumber": "87654321",
+          "currency": "CLP"
+        },
+        {
+          "id": "7",
+          "name": "Inversión",
+          "type": "Inversión Nevasa",
+          "value": 500000,
+          "change": 1.2,
+          "color": "#F59E0B",
+          "accountNumber": "NV-001",
+          "currency": "CLP"
+        }
+      ]
+    },
+    "liabilities": {
+      "mine": [
+        {
+          "id": "8",
+          "name": "Crédito Hipotecario",
+          "type": "Banco Santander",
+          "value": 8500000,
+          "change": -2.5,
+          "color": "#DC2626",
+          "accountNumber": "CH-001",
+          "currency": "CLP",
+          "monthlyPayment": 350000,
+          "remainingMonths": 120
+        },
+        {
+          "id": "9",
+          "name": "Tarjeta de Crédito",
+          "type": "Banco de Chile",
+          "value": 1250000,
+          "change": 15.2,
+          "color": "#7C2D12",
+          "accountNumber": "TC-001",
+          "currency": "CLP",
+          "monthlyPayment": 125000,
+          "creditLimit": 3000000
+        },
+        {
+          "id": "10",
+          "name": "Crédito Vehicular",
+          "type": "Forus",
+          "value": 2500000,
+          "change": -5.8,
+          "color": "#B91C1C",
+          "accountNumber": "CV-001",
+          "currency": "CLP",
+          "monthlyPayment": 150000,
+          "remainingMonths": 36
+        }
+      ],
+      "partner": [
+        {
+          "id": "11",
+          "name": "Crédito Educativo",
+          "type": "Banco Scotiabank",
+          "value": 8500000,
+          "change": -3.2,
+          "color": "#991B1B",
+          "accountNumber": "CE-001",
+          "currency": "CLP",
+          "monthlyPayment": 180000,
+          "remainingMonths": 48
+        },
+        {
+          "id": "12",
+          "name": "Tarjeta de Crédito",
+          "type": "Banco de Chile",
+          "value": 890000,
+          "change": 8.4,
+          "color": "#7F1D1D",
+          "accountNumber": "TC-002",
+          "currency": "CLP",
+          "monthlyPayment": 89000,
+          "creditLimit": 2000000
+        },
+        {
+          "id": "13",
+          "name": "Línea de Crédito",
+          "type": "Banco de Chile",
+          "value": 2500000,
+          "change": 0.0,
+          "color": "#6B1D1D",
+          "accountNumber": "LC-001",
+          "currency": "CLP",
+          "monthlyPayment": 0,
+          "creditLimit": 5000000
+        }
+      ]
+    },
+    "totals": {
+      "myAssets": 6792147,
+      "partnerAssets": 930000,
+      "totalAssets": 7722147,
+      "myLiabilities": 12250000,
+      "partnerLiabilities": 11890000,
+      "totalLiabilities": 24140000,
+      "myNetWorth": -5457853,
+      "partnerNetWorth": -10960000,
+      "totalNetWorth": -16417853
+    }
+  },
+  "investmentPortfolio": {
+    "totalPatrimony": "$3.692.147",
+    "totalDeposited": "$3.500.000",
+    "totalVariation": "$192.147",
+    "totalVariationPercentage": 5.49,
+    "investments": [
+      {
+        "id": "reserva",
+        "title": "Reserva",
+        "subtitle": "",
+        "amount": "$0",
+        "icon": "PiggyBank",
+        "category": "investment",
+        "hasDetails": false,
+        "goal": "Fondo de reserva para emergencias",
+        "targetAmount": 3000000,
+        "currentAmount": 0,
+        "riskLevel": "muy-conservador"
+      },
+      {
+        "id": "emergencias",
+        "title": "Emergencias",
+        "subtitle": "Corto plazo",
+        "amount": "$892.147",
+        "icon": "LineChart",
+        "category": "investment",
+        "hasDetails": true,
+        "goal": "Fondo de emergencia",
+        "targetAmount": 3000000,
+        "currentAmount": 892147,
+        "riskLevel": "muy-conservador",
+        "investmentDetails": {
+          "depositedAmount": 850000,
+          "variationAmount": 42147,
+          "variationPercentage": 4.96,
+          "investmentMonths": 12,
+          "fundName": "Fondo Mutuo Conservador Santander",
+          "fundPercentage": 100.00,
+          "lastUpdate": "2024-12-15"
+        }
+      },
+      {
+        "id": "casa",
+        "title": "Casa",
+        "subtitle": "Largo plazo",
+        "amount": "$2.800.000",
+        "icon": "Home",
+        "category": "investment",
+        "hasDetails": true,
+        "goal": "Ahorro para comprar casa",
+        "targetAmount": 15000000,
+        "currentAmount": 2800000,
+        "riskLevel": "moderado",
+        "investmentDetails": {
+          "depositedAmount": 2650000,
+          "variationAmount": 150000,
+          "variationPercentage": 5.66,
+          "investmentMonths": 18,
+          "fundName": "Fondo Mutuo Moderado Vector",
+          "fundPercentage": 100.00,
+          "lastUpdate": "2024-12-15"
+        }
+      },
+      {
+        "id": "jubilacion",
+        "title": "Mejorar mi jubilación",
+        "subtitle": "Jubilación con APV-B",
+        "amount": "$0",
+        "icon": "ShieldCheck",
+        "category": "investment",
+        "hasDetails": false,
+        "goal": "Plan de jubilación con APV-B",
+        "targetAmount": 10000000,
+        "currentAmount": 0,
+        "riskLevel": "conservador"
+      }
+    ],
+    "actions": [
+      {
+        "id": "dolares",
+        "title": "Dólares",
+        "subtitle": "Compra para invertir o ahorrar",
+        "icon": "DollarSign",
+        "category": "action",
+        "hasDetails": false,
+        "exchangeRate": 946,
+        "minAmount": 1000
+      },
+      {
+        "id": "acciones",
+        "title": "Acciones",
+        "subtitle": "Invierte desde US $1",
+        "icon": "BarChart",
+        "category": "action",
+        "hasDetails": false,
+        "minAmount": 1,
+        "currency": "USD"
+      }
+    ]
+  },
+  "transactions": {
+    "accounts": [
+      {
+        "account_number": 18495792,
+        "account_type": "vista",
+        "bank": "Banco de Chile",
+        "currency": "CLP",
+        "balance": 1850000,
+        "transactions": [
+          {
+            "id": "tx-001",
+            "date": "2024-12-15",
+            "description": "Depósito de sueldo",
+            "type": "income",
+            "amount": 1200000,
+            "category": "salary",
+            "balance": 1850000
+          },
+          {
+            "id": "tx-002",
+            "date": "2024-12-14",
+            "description": "Transferencia a inversión Emergencias",
+            "type": "expense",
+            "amount": 50000,
+            "category": "investment",
+            "balance": 650000
+          },
+          {
+            "id": "tx-003",
+            "date": "2024-12-13",
+            "description": "Pago servicio de Internet",
+            "type": "expense",
+            "amount": 39860,
+            "category": "utilities",
+            "balance": 610140
+          },
+          {
+            "id": "tx-004",
+            "date": "2024-12-12",
+            "description": "Compra supermercado",
+            "type": "expense",
+            "amount": 125000,
+            "category": "groceries",
+            "balance": 485140
+          },
+          {
+            "id": "tx-005",
+            "date": "2024-12-11",
+            "description": "Transferencia de Carlos Rojas",
+            "type": "income",
+            "amount": 150000,
+            "category": "transfer",
+            "balance": 635140
+          }
+        ]
+      },
+      {
+        "account_number": 12564830940,
+        "account_type": "ahorro",
+        "bank": "Banco de Chile",
+        "currency": "CLP",
+        "balance": 1250000,
+        "transactions": [
+          {
+            "id": "tx-006",
+            "date": "2024-12-15",
+            "description": "Transferencia desde cuenta corriente",
+            "type": "income",
+            "amount": 200000,
+            "category": "transfer",
+            "balance": 1250000
+          },
+          {
+            "id": "tx-007",
+            "date": "2024-12-10",
+            "description": "Retiro para gastos personales",
+            "type": "expense",
+            "amount": 50000,
+            "category": "personal",
+            "balance": 1050000
+          }
+        ]
+      }
+    ]
+  },
+  "investmentMovements": [
+    {
+      "id": "1",
+      "date": "2024-12-14",
+      "type": "deposit",
+      "amount": 50000,
+      "from": "Cuenta Corriente",
+      "to": "Emergencias",
+      "status": "completed",
+      "description": "Transferencia a fondo de emergencia"
+    },
+    {
+      "id": "2",
+      "date": "2024-12-01",
+      "type": "deposit",
+      "amount": 100000,
+      "from": "Cuenta Corriente",
+      "to": "Casa",
+      "status": "completed",
+      "description": "Aporte mensual a ahorro casa"
+    },
+    {
+      "id": "3",
+      "date": "2024-11-15",
+      "type": "deposit",
+      "amount": 80000,
+      "from": "Cuenta Corriente",
+      "to": "Emergencias",
+      "status": "completed",
+      "description": "Aporte mensual a emergencias"
+    },
+    {
+      "id": "4",
+      "date": "2024-11-01",
+      "type": "deposit",
+      "amount": 120000,
+      "from": "Cuenta Corriente",
+      "to": "Casa",
+      "status": "completed",
+      "description": "Aporte mensual a ahorro casa"
+    },
+    {
+      "id": "mov-005",
+      "date": "2024-10-15",
+      "type": "deposit",
+      "amount": 75000,
+      "from": "Cuenta Corriente",
+      "to": "Emergencias",
+      "status": "completed",
+      "description": "Aporte mensual a emergencias"
+    }
+  ],
+  "monthlyIncome": [
+    {
+      "title": "Salario",
+      "description": "Sueldo mensual",
+      "amount": 1200000,
+      "category": "salary",
+      "frequency": "monthly"
+    },
+    {
+      "title": "Bonos",
+      "description": "Bonos de productividad",
+      "amount": 150000,
+      "category": "bonus",
+      "frequency": "quarterly"
+    }
+  ],
+  "monthlyExpenses": [
+    {
+      "title": "Hipoteca",
+      "description": "Pago crédito hipotecario",
+      "amount": 350000,
+      "category": "housing",
+      "frequency": "monthly"
+    },
+    {
+      "title": "Crédito Vehicular",
+      "description": "Pago crédito auto",
+      "amount": 150000,
+      "category": "transport",
+      "frequency": "monthly"
+    },
+    {
+      "title": "Tarjeta de Crédito",
+      "description": "Pago tarjeta principal",
+      "amount": 125000,
+      "category": "credit",
+      "frequency": "monthly"
+    },
+    {
+      "title": "Servicios",
+      "description": "Internet, luz, gas, agua",
+      "amount": 120000,
+      "category": "utilities",
+      "frequency": "monthly"
+    },
+    {
+      "title": "Supermercado",
+      "description": "Compras de alimentos",
+      "amount": 200000,
+      "category": "groceries",
+      "frequency": "monthly"
+    }
+  ],
+  "financialGoals": {
+    "shortTerm": [
+      {
+        "id": "1",
+        "title": "Fondo de emergencia",
+        "targetAmount": 3000000,
+        "currentAmount": 892147,
+        "deadline": "2024-06-30",
+        "priority": "high",
+        "category": "emergency"
+      },
+      {
+        "id": "2",
+        "title": "Vacaciones familia",
+        "targetAmount": 1500000,
+        "currentAmount": 0,
+        "deadline": "2024-12-31",
+        "priority": "medium",
+        "category": "leisure"
+      }
+    ],
+    "mediumTerm": [
+      {
+        "id": "3",
+        "title": "Pago deuda tarjeta",
+        "targetAmount": 0,
+        "currentAmount": 1250000,
+        "deadline": "2025-06-30",
+        "priority": "high",
+        "category": "debt"
+      },
+      {
+        "id": "4",
+        "title": "Ahorro casa",
+        "targetAmount": 15000000,
+        "currentAmount": 2800000,
+        "deadline": "2027-12-31",
+        "priority": "medium",
+        "category": "housing"
+      }
+    ],
+    "longTerm": [
+      {
+        "id": "5",
+        "title": "Jubilación APV-B",
+        "targetAmount": 10000000,
+        "currentAmount": 0,
+        "deadline": "2035-12-31",
+        "priority": "medium",
+        "category": "retirement"
+      },
+      {
+        "id": "6",
+        "title": "Educación hijo",
+        "targetAmount": 8000000,
+        "currentAmount": 0,
+        "deadline": "2030-12-31",
+        "priority": "high",
+        "category": "education"
+      }
+    ]
+  },
+  "monthlyTrends": {
+    "patrimonyGrowth": {
+      "lastMonth": 7151936,
+      "percentage": 71.52,
+      "trend": "positive"
+    },
+    "incomeVsExpenses": {
+      "averageIncome": 1200000,
+      "averageExpenses": 945000,
+      "savingsRate": 21.25
+    },
+    "investmentPerformance": {
+      "monthlyReturn": 2.1,
+      "yearlyReturn": 19.55,
+      "benchmark": 12.5
+    }
+  },
+  "context": {
+    "currency": "CLP",
+    "locale": "es-CL",
+    "timeRanges": ["1 Mes", "6 Meses", "1 Año", "Todo"],
+    "defaultTimeRange": "6 Meses",
+    "lastUpdated": "2024-12-15",
+    "exchangeRates": {
+      "USD": 946,
+      "EUR": 1032,
+      "UF": 32045
+    }
+  },
+  "insights": [
+    "Tu mayor activo es la inversión en Fondo Mutuo Moderado Vector con $2,800,000",
+    "Tu mayor pasivo es el crédito hipotecario con $8,500,000",
+    "Tu patrimonio neto total es de -$16,417,853",
+    "Tienes un 21.25% de tasa de ahorro mensual",
+    "Tu portafolio de inversiones ha crecido 5.49% en el último año",
+    "Tu fondo de emergencia está al 29.7% de su meta objetivo",
+    "Tu ahorro para casa está al 18.7% de su meta objetivo",
+    "El crédito hipotecario representa el 35.2% de tus pasivos totales",
+    "Tu perfil conservador es apropiado para tu situación financiera actual"
+  ],
+  "recommendations": [
+    {
+      "id": "1",
+      "title": "Aumentar fondo de emergencia",
+      "description": "Tu fondo de emergencia está muy por debajo de la meta recomendada de 6 meses de gastos",
+      "priority": "high",
+      "action": "Aumentar aportes mensuales a $200,000",
+      "impact": "Alta seguridad financiera"
+    },
+    {
+      "id": "2",
+      "title": "Diversificar inversiones",
+      "description": "El 95% de tus inversiones están concentradas en un solo instrumento",
+      "priority": "medium",
+      "action": "Considerar fondos mutuos de diferentes categorías",
+      "impact": "Reducción de riesgo"
+    },
+    {
+      "id": "3",
+      "title": "Optimizar deuda",
+      "description": "Tu tarjeta de crédito tiene una tasa de interés alta",
+      "priority": "medium",
+      "action": "Evaluar consolidación de deuda",
+      "impact": "Ahorro en intereses"
+    }
+  ]
+} 
