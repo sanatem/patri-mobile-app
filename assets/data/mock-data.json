@@ -631,5 +631,74 @@
       "action": "Evaluar consolidación de deuda",
       "impact": "Ahorro en intereses"
     }
-  ]
+  ],
+  "budget": {
+    "categories": [
+      { "label": "Vivienda", "color": "#FF6503", "description": "Arriendo, hipoteca, servicios básicos del hogar" },
+      { "label": "Transporte", "color": "#3B82F6", "description": "Combustible, transporte público, mantenimiento vehículo" },
+      { "label": "Ocio", "color": "#EC4899", "description": "Entretenimiento, restaurantes, compras recreativas" },
+      { "label": "Salud", "color": "#06B6D4", "description": "Seguro médico, medicamentos, consultas médicas" },
+      { "label": "Servicios", "color": "#10B981", "description": "Internet, teléfono, streaming, servicios financieros" }
+    ],
+    "monthlyIncome": [
+      {
+        "title": "Salario",
+        "description": "Sueldo mensual",
+        "amount": 1200000,
+        "category": "salary",
+        "frequency": "monthly",
+        "date": "2024-01-01"
+      },
+      {
+        "title": "Bonos",
+        "description": "Bonos de productividad",
+        "amount": 150000,
+        "category": "bonus",
+        "frequency": "quarterly",
+        "date": "2024-01-15"
+      },
+      {
+        "title": "Salario",
+        "description": "Sueldo mensual",
+        "amount": 1200000,
+        "category": "salary",
+        "frequency": "monthly",
+        "date": "2024-02-01"
+      }
+    ],
+    "monthlyExpenses": [
+      {
+        "title": "Hipoteca",
+        "description": "Pago crédito hipotecario",
+        "amount": 350000,
+        "category": "Vivienda",
+        "frequency": "monthly",
+        "date": "2024-01-05"
+      },
+      {
+        "title": "Supermercado",
+        "description": "Compras de alimentos",
+        "amount": 200000,
+        "category": "Vivienda",
+        "frequency": "monthly",
+        "date": "2024-01-10"
+      },
+      {
+        "title": "Crédito Vehicular",
+        "description": "Pago crédito auto",
+        "amount": 150000,
+        "category": "Transporte",
+        "frequency": "monthly",
+        "date": "2024-02-08"
+      },
+      {
+        "title": "Servicios",
+        "description": "Internet, luz, gas, agua",
+        "amount": 120000,
+        "category": "Servicios",
+        "frequency": "monthly",
+        "date": "2024-02-12"
+      }
+    ]
+  }
 } 

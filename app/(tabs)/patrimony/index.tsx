@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Settings } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
 import { 
-  PATRIMONY_DATA, 
   LABELS, 
   TIME_RANGES, 
   USER_LABELS, 
@@ -15,6 +14,7 @@ import AreaChart from '@/components/patrimony/AreaChart';
 import { PatrimonySummary } from '@/components/patrimony/PatrimonySummary';
 import { useChartRangeStore } from '@/store/chartRangeStore';
 import { Asset, Liability } from '@/types';
+import { patrimonyService } from '@/services/patrimony/get-patrimony';
 import { 
   SearchBar, 
   Tabs,
@@ -23,6 +23,9 @@ import {
   Container,
   UserSelector,
 } from '@/components/ui';
+import { userService } from '@/services/user/get-user-profile';
+import type { UserProfile } from '@/services/types';
+import assetsHistory from '@/assets/data/assets-history.json';
 
 export default function PatrimonyScreen() {
   const { user } = useAuth();
@@ -32,12 +35,61 @@ export default function PatrimonyScreen() {
   const [ownerView, setOwnerView] = useState<'mine' | 'partner' | 'both'>('mine');
   const [showSelector, setShowSelector] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [patrimonyData, setPatrimonyData] = useState<{
+    MY_ASSETS: Asset[];
+    PARTNER_ASSETS: Asset[];
+    MY_LIABILITIES: Liability[];
+    PARTNER_LIABILITIES: Liability[];
+  }>({
+    MY_ASSETS: [],
+    PARTNER_ASSETS: [],
+    MY_LIABILITIES: [],
+    PARTNER_LIABILITIES: []
+  });
   const router = useRouter();
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [isLoadingProfile, setIsLoadingProfile] = useState(true);
 
-  const myAssets = PATRIMONY_DATA.MY_ASSETS;
-  const partnerAssets = PATRIMONY_DATA.PARTNER_ASSETS;
-  const myLiabilities = PATRIMONY_DATA.MY_LIABILITIES;
-  const partnerLiabilities = PATRIMONY_DATA.PARTNER_LIABILITIES;
+  const loadPatrimonyData = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const data = patrimonyService.getPatrimonyDataForComponents();
+      setPatrimonyData(data);
+    } catch (err) {
+      setError('Error al cargar los datos del patrimonio');
+      console.error('Error loading patrimony data:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadPatrimonyData();
+  }, []);
+
+  useEffect(() => {
+    const loadUserData = () => {
+      try {
+        setIsLoadingProfile(true);
+        const profile = userService.getUserProfile();
+        setUserProfile(profile);
+      } catch (err) {
+        console.error('Error loading user profile:', err);
+      } finally {
+        setIsLoadingProfile(false);
+      }
+    };
+
+    loadUserData();
+  }, []);
+
+  const myAssets = patrimonyData.MY_ASSETS;
+  const partnerAssets = patrimonyData.PARTNER_ASSETS;
+  const myLiabilities = patrimonyData.MY_LIABILITIES;
+  const partnerLiabilities = patrimonyData.PARTNER_LIABILITIES;
 
   const combinedAssets = [...myAssets, ...partnerAssets];
   const combinedLiabilities = [...myLiabilities, ...partnerLiabilities];
@@ -72,20 +124,42 @@ export default function PatrimonyScreen() {
     setRangeSize(TIME_RANGES.MAPPING[range]);
   };
 
-  const assetsData = filteredAssets.map(asset => ({
-    id: asset.id,
-    title: asset.name,
-    subtitle: asset.type,
-    value: asset.value,
-    icon: {
-      backgroundColor: asset.color,
-      text: asset.name.charAt(0)
-    },
-    badge: {
-      text: `${asset.change >= 0 ? '+' : ''}${asset.change}%`,
-      variant: asset.change >= 0 ? 'positive' as const : 'negative' as const
-    }
-  }));
+  function getLastTwoValues(history: { date: string, value: number }[]) {
+    if (history.length < 2) return { current: null, previous: null };
+    const sorted = [...history].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    return {
+      previous: sorted[sorted.length - 2].value,
+      current: sorted[sorted.length - 1].value
+    };
+  }
+
+  function calculateChange(current: number, previous: number) {
+    if (!previous || previous === 0) return 0;
+    return ((current - previous) / previous) * 100;
+  }
+
+  const assetsData = filteredAssets.map(asset => {
+    const history = assetsHistory[asset.id as keyof typeof assetsHistory] || [];
+    const { current, previous } = getLastTwoValues(history);
+    const change = (current !== null && previous !== null)
+      ? calculateChange(current, previous)
+      : asset.change;
+
+    return {
+      id: asset.id,
+      title: asset.name,
+      subtitle: asset.type,
+      value: asset.value,
+      icon: {
+        backgroundColor: asset.color,
+        text: asset.name.charAt(0)
+      },
+      badge: {
+        text: `${change >= 0 ? '+' : ''}${change.toFixed(2)}%`,
+        variant: change >= 0 ? 'positive' as const : 'negative' as const
+      }
+    };
+  });
 
   const liabilitiesData = filteredLiabilities.map(liability => ({
     id: liability.id,
@@ -109,6 +183,45 @@ export default function PatrimonyScreen() {
 
   const currentData = activeTab === 'assets' ? assetsData : liabilitiesData;
 
+  if (isLoading) {
+    return (
+      <Container variant="secondaryPage" style={{ padding: 20 }}>
+        <Header
+          title={LABELS.PATRIMONY.TITLE}
+          className="border-b border-gray-100"
+        />
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator size="large" color="#007AFF" />
+          <Text className="mt-4 text-gray-600">Cargando datos del patrimonio...</Text>
+        </View>
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container variant="secondaryPage" style={{ padding: 20 }}>
+        <Header
+          title={LABELS.PATRIMONY.TITLE}
+          className="border-b border-gray-100"
+        />
+        <View className="flex-1 items-center justify-center">
+          <Text className="text-red-600 mb-2">{error}</Text>
+          <TouchableOpacity 
+            className="bg-primary px-4 py-2 rounded-lg"
+            onPress={() => {
+              setError(null);
+              setIsLoading(true);
+              loadPatrimonyData();
+            }}
+          >
+            <Text className="text-white">Reintentar</Text>
+          </TouchableOpacity>
+        </View>
+      </Container>
+    );
+  }
+
   return (
     <Container variant="secondaryPage" style={{ padding: 20 }}>
       <Header
@@ -119,8 +232,8 @@ export default function PatrimonyScreen() {
             onViewChange={handleUserViewChange}
             showSelector={showSelector}
             onToggle={() => setShowSelector(!showSelector)}
-            myLabel={USER_LABELS.MY_LABEL}
-            partnerLabel={USER_LABELS.PARTNER_LABEL}
+            myLabel={userProfile?.initials || ''}
+            partnerLabel={userProfile?.partner?.initials || ''}
           />
         }
         rightAction={

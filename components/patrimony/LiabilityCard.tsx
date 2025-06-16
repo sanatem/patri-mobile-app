@@ -31,7 +31,6 @@ const LiabilityCard: React.FC<LiabilityCardProps> = ({ liability }) => {
         </View>
       </View>
 
-      {/* Derecha: valor + badge */}
       <View className="items-end">
         <Text className="text-[16px] font-semibold text-red-500 mb-[2px]">
           -${liability.value.toLocaleString('es-CL')}
