@@ -18,7 +18,7 @@ import {
 import BudgetChart from '@/components/budget/BudgetChart';
 import ForYouCarousel from '@/components/common/ForYouCarousel';
 import TransactionsList from '@/components/budget/TransactionsList';
-import transactionsData from '@/transacciones_simplificadas.json';
+import { budgetService } from '@/services/budget/get-budget';
 
 type MonthType = typeof MONTHS[number];
 
@@ -32,32 +32,19 @@ const getMonthNumber = (monthName: MonthType): number => {
 };
 
 const calculateTotalsByMonth = (selectedMonth: MonthType) => {
-  const data = transactionsData[0];
-  const transactions = data.transactions.accounts[0].transactions;
-  const monthNumber = getMonthNumber(selectedMonth);
+  const budget = budgetService.getBudget();
+  const monthlyIncome = budgetService.getMonthlyIncome();
+  const monthlyExpenses = budgetService.getMonthlyExpenses();
+  
+  const incomeCount = budget.monthlyIncome.length;
+  const expenseCount = budget.monthlyExpenses.length;
 
-  let totalIncome = 0;
-  let totalExpenses = 0;
-  let incomeCount = 0;
-  let expenseCount = 0;
-
-  transactions.forEach((transaction: any) => {
-    const transactionDate = new Date(transaction.date);
-    const transactionMonth = transactionDate.getMonth() + 1;
-
-    if (transactionMonth === monthNumber) {
-      if (transaction.in > 0) {
-        totalIncome += transaction.in;
-        incomeCount++;
-      }
-      if (transaction.out > 0) {
-        totalExpenses += transaction.out;
-        expenseCount++;
-      }
-    }
-  });
-
-  return { totalIncome, totalExpenses, incomeCount, expenseCount };
+  return { 
+    totalIncome: monthlyIncome, 
+    totalExpenses: monthlyExpenses, 
+    incomeCount, 
+    expenseCount 
+  };
 };
 
 export default function BudgetScreen() {

@@ -176,3 +176,12 @@ export interface PatrimonyData {
     totalNetWorth: number;
   };
 }
+
+export interface BudgetItem {
+  title: string;
+  description: string;
+  amount: number;
+  category: string;
+  frequency: string;
+  date: string;
+}
