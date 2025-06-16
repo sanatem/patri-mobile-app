@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import Colors from '@/constants/Colors';
-import transactionsData from '@/transacciones_simplificadas.json';
+import { budgetService } from '@/services/budget/get-budget';
 
 interface BudgetChartProps {
   selectedMonth: string;
@@ -18,112 +18,32 @@ const getMonthNumber = (monthName: string): number => {
   return months.indexOf(monthName) + 1;
 };
 
-// Función para calcular gastos por categoría usando datos reales filtrados por mes
+// Función para calcular gastos por categoría usando solo datos del presupuesto
 const calculateBudgetDataByMonth = (selectedMonth: string) => {
-  const data = transactionsData[0];
-  const transactions = data.transactions.accounts[0].transactions;
-  const monthNumber = getMonthNumber(selectedMonth);
+  // Obtener datos del presupuesto del servicio
+  const budget = budgetService.getBudget();
+  const categories = budgetService.getCategories();
+  const monthlyIncome = budgetService.getMonthlyIncome();
+  const monthlyExpenses = budgetService.getMonthlyExpenses();
+  const categoryTotals = budgetService.getCategoryTotals();
   
-  let totalIncome = 0;
-  let totalExpenses = 0;
-  
-  // Categorías de gastos
-  const categories = {
-    vivienda: 0,
-    transporte: 0,
-    ocio: 0,
-    salud: 0,
-    servicios: 0,
-  };
-  
-  transactions.forEach((transaction: any) => {
-    const transactionDate = new Date(transaction.date);
-    const transactionMonth = transactionDate.getMonth() + 1; // getMonth() es 0-based
-    
-    // Solo procesar transacciones del mes seleccionado
-    if (transactionMonth === monthNumber) {
-      if (transaction.in > 0) {
-        totalIncome += transaction.in;
-      }
-      
-      if (transaction.out > 0) {
-        totalExpenses += transaction.out;
-        const description = transaction.description.toLowerCase();
-        
-        // Categorizar gastos usando los nombres de empresas del JSON
-        if (description.includes('metrogas') || description.includes('aguas andinas') || 
-            description.includes('enel') || description.includes('movistar') || 
-            description.includes('entel') || description.includes('claro') || 
-            description.includes('wom') || description.includes('vtr') || 
-            description.includes('gtd') || description.includes('comisión') || 
-            description.includes('banco')) {
-          categories.servicios += transaction.out;
-        } else if (description.includes('envío a ') || description.includes('transferencia a ')) {
-          categories.transporte += transaction.out;
-        } else if (description.includes('amazon') || description.includes('mercadolibre') || 
-                   description.includes('falabella') || description.includes('sony') ||
-                   description.includes('ripley') || description.includes('linio')) {
-          categories.ocio += transaction.out;
-        } else {
-          // Para otros gastos, categorizar por monto
-          if (transaction.out > 100000) {
-            categories.vivienda += transaction.out * 0.6;
-            categories.servicios += transaction.out * 0.4;
-          } else if (transaction.out > 50000) {
-            categories.ocio += transaction.out;
-          } else {
-            categories.ocio += transaction.out * 0.7;
-            categories.servicios += transaction.out * 0.3;
-          }
-        }
-      }
-    }
+  // Mapear categorías del servicio a las categorías del gráfico
+  const budgetData = categories.map(category => {
+    const amount = categoryTotals[category.label.toLowerCase()] || 0;
+    return {
+      label: category.label,
+      value: Math.round(amount),
+      color: category.color,
+      percentage: monthlyExpenses > 0 ? (amount / monthlyExpenses) * 100 : 0
+    };
   });
   
-  // Si no hay datos suficientes, usar valores por defecto más realistas
-  if (categories.vivienda === 0 && totalExpenses > 0) {
-    categories.vivienda = totalExpenses * 0.35; // 35% para vivienda es típico
-  }
-  
-  const budgetData = [
-    { 
-      label: 'Vivienda', 
-      value: Math.round(categories.vivienda), 
-      color: Colors.secondary[500], 
-      percentage: totalExpenses > 0 ? (categories.vivienda / totalExpenses) * 100 : 0
-    },
-    { 
-      label: 'Transporte', 
-      value: Math.round(categories.transporte), 
-      color: '#3B82F6', 
-      percentage: totalExpenses > 0 ? (categories.transporte / totalExpenses) * 100 : 0
-    },
-    { 
-      label: 'Ocio', 
-      value: Math.round(categories.ocio), 
-      color: '#EC4899', 
-      percentage: totalExpenses > 0 ? (categories.ocio / totalExpenses) * 100 : 0
-    },
-    { 
-      label: 'Salud', 
-      value: Math.round(categories.salud), 
-      color: '#06B6D4', 
-      percentage: totalExpenses > 0 ? (categories.salud / totalExpenses) * 100 : 0
-    },
-    { 
-      label: 'Servicios', 
-      value: Math.round(categories.servicios), 
-      color: '#10B981', 
-      percentage: totalExpenses > 0 ? (categories.servicios / totalExpenses) * 100 : 0
-    },
-  ];
-  
-  const remaining = Math.round(totalIncome - totalExpenses);
+  const remaining = Math.round(monthlyIncome - monthlyExpenses);
   
   return {
     budgetData,
-    totalBudget: Math.round(totalIncome),
-    totalExpenses: Math.round(totalExpenses),
+    totalBudget: Math.round(monthlyIncome),
+    totalExpenses: Math.round(monthlyExpenses),
     remaining: remaining > 0 ? remaining : 0
   };
 };
