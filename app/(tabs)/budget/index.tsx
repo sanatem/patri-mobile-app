@@ -14,11 +14,13 @@ import {
   Container,
   Tabs,
   Dropdown,
+  SegmentedControl,
 } from '@/components/ui';
 import BudgetChart from '@/components/budget/BudgetChart';
 import ForYouCarousel from '@/components/common/ForYouCarousel';
 import TransactionsList from '@/components/budget/TransactionsList';
 import { budgetService } from '@/services/budget/get-budget';
+import { LinearGradient } from 'expo-linear-gradient';
 
 type MonthType = typeof MONTHS[number];
 
@@ -51,6 +53,7 @@ export default function BudgetScreen() {
   const [selectedMonth, setSelectedMonth] = useState<MonthType>('Enero');
   const [activeTab, setActiveTab] = useState<'income' | 'expenses'>('income');
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const router = useRouter();
 
   const { totalIncome, totalExpenses, incomeCount, expenseCount } = 
@@ -75,17 +78,40 @@ export default function BudgetScreen() {
     badge: (tab.key === 'income' ? incomeCount : expenseCount).toString()
   }));
 
+  const categoryOptions = [
+    { label: 'Todas', value: 'all' },
+    ...BUDGET_CATEGORIES.map(category => ({
+      label: category.label,
+      value: category.label.toLowerCase()
+    }))
+  ];
+
   return (
-    <Container variant="secondaryPage" style={{ padding: 20 }}>
+    <Container variant="secondaryPage">
       <Header
         title={LABELS.BUDGET.TITLE}
         rightAction={
           <TouchableOpacity onPress={() => router.push('/settings')}>
-            <Settings size={24} color="#525252" />
+            <Settings size={24} color="white" />
           </TouchableOpacity>
         }
       />
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+        <LinearGradient
+          colors={['#FF6503', '#E55A02', '#CC5200']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={{ marginTop: -10, marginBottom: 10, paddingHorizontal: 8, paddingVertical: 18, borderBottomLeftRadius: 25, borderBottomRightRadius: 25 }}
+        >
+          <View style={{ width: '100%' }}>
+            <SegmentedControl
+              options={categoryOptions}
+              value={selectedCategory}
+              onChange={setSelectedCategory}
+              style={{ width: '100%' }}
+            />
+          </View>
+        </LinearGradient>
         <Container variant="content" className="py-4">
           <View className="flex-row justify-between items-center mb-6">
             <TouchableOpacity onPress={handlePreviousMonth} className="p-2">
@@ -103,28 +129,22 @@ export default function BudgetScreen() {
             </TouchableOpacity>
           </View>
           <BudgetChart selectedMonth={selectedMonth} />
-          <View className="flex-row flex-wrap justify-center mt-5 mb-2 px-2">
-            {BUDGET_CATEGORIES.map((item, idx) => (
-              <View key={idx} className="flex-row items-center mx-2 mb-2">
-                <View 
-                  className="w-[10px] h-[10px] rounded-full mr-1.5"
-                  style={{ backgroundColor: item.color }}
-                />
-                <Text className="text-sm font-medium text-gray-700 leading-4">
-                  {item.label}
-                </Text>
-              </View>
-            ))}
-          </View>
-        </Container>
+        </Container>  
+        <Container variant="content" className="py-4">
+        <SearchBar
+            placeholder={activeTab === 'income' ? LABELS.BUDGET.SEARCH_INCOME_PLACEHOLDER : LABELS.BUDGET.SEARCH_EXPENSES_PLACEHOLDER}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
         <Tabs
           tabs={tabs}
           activeTab={activeTab}
           onTabChange={(key) => setActiveTab(key as 'income' | 'expenses')}
           className="mt-4"
         />
-        <View className="flex-row justify-between px-4 py-4 border-b border-gray-200">
-          <Text className="text-base font-regular text-gray-700">
+        </Container>
+        <View className="flex-row justify-between px-4 py-4 border-b border-gray-200 mx-6">
+          <Text className="text-base font-regular text-gray-500">
             {activeTab === 'income' ? LABELS.BUDGET.TOTAL_INCOME : LABELS.BUDGET.TOTAL_EXPENSES}
           </Text>
           <Text 
@@ -135,18 +155,10 @@ export default function BudgetScreen() {
             {activeTab === 'income' ? '+' : '-'}${(activeTab === 'income' ? totalIncome : totalExpenses).toLocaleString('es-CL')}
           </Text>
         </View>
-
-        <Container variant="content" className="mt-4 mb-4">
-          <SearchBar
-            placeholder={activeTab === 'income' ? LABELS.BUDGET.SEARCH_INCOME_PLACEHOLDER : LABELS.BUDGET.SEARCH_EXPENSES_PLACEHOLDER}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-          />
-        </Container>
-
         <TransactionsList type={activeTab} selectedMonth={selectedMonth} />
+        <Container variant="content">
         <ForYouCarousel />
-
+        </Container>
         <View className="h-24" />
       </ScrollView>
     </Container>
