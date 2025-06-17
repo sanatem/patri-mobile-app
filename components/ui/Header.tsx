@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { ChevronLeft } from 'lucide-react-native';
 import { cn } from '@/lib/utils';
 import Colors from '@/constants/Colors';
+import { headerStyles } from '@/styles/ui/Header.styles';
 
 interface HeaderProps {
   title?: string;
@@ -52,7 +53,7 @@ export function Header({
           variants[variant],
           className
         )}
-        style={{ paddingTop: 64 }}
+        style={headerStyles.container}
       >
         <View className="flex-row items-center">
           {showBackButton && (

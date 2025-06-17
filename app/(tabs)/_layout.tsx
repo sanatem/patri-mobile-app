@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { useColorScheme } from 'react-native';
+import { useColorScheme, Platform } from 'react-native';
 import TabBarIcon from '@/components/navigation/TabBarIcon';
 import MoreTabButton from '@/components/navigation/MoreTabButton';
 import Colors from '@/constants/Colors';
@@ -17,8 +17,9 @@ export default function TabsLayout() {
           borderTopWidth: 1,
           borderTopColor: Colors.gray[200],
           height: 60,
-          paddingBottom: 6,
           paddingTop: 6,
+          marginBottom: Platform.OS === 'ios' ? 0 : 20,
+          paddingBottom: Platform.OS === 'ios' ? 6 : 26,
         },
         tabBarLabelStyle: {
           fontFamily: 'Poppins-Medium',

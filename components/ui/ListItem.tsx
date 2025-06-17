@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, FlatList } from 'react-native';
 import { cn } from '@/lib/utils';
+import { listItemStyles } from '@/styles/ui/ListItem.styles';
 
 interface ListItem {
   id: string;
@@ -52,13 +53,26 @@ export function ListItem({
   const getBadgeColors = (variant: 'positive' | 'negative' | 'neutral') => {
     switch (variant) {
       case 'positive':
-        return { backgroundColor: '#dcfce7', color: '#16a34a' };
+        return listItemStyles.badgePositive;
       case 'negative':
-        return { backgroundColor: '#fecaca', color: '#dc2626' };
+        return listItemStyles.badgeNegative;
       case 'neutral':
-        return { backgroundColor: '#f3f4f6', color: '#4b5563' };
+        return listItemStyles.badgeNeutral;
       default:
-        return { backgroundColor: '#f3f4f6', color: '#4b5563' };
+        return listItemStyles.badgeNeutral;
+    }
+  };
+
+  const getBadgeTextColors = (variant: 'positive' | 'negative' | 'neutral') => {
+    switch (variant) {
+      case 'positive':
+        return listItemStyles.badgeTextPositive;
+      case 'negative':
+        return listItemStyles.badgeTextNegative;
+      case 'neutral':
+        return listItemStyles.badgeTextNeutral;
+      default:
+        return listItemStyles.badgeTextNeutral;
     }
   };
 
@@ -68,10 +82,7 @@ export function ListItem({
         'flex-row justify-between items-center py-4 px-4',
         itemClassName
       )}
-      style={{
-        borderBottomWidth: showSeparators && index < visibleData.length - 1 ? 1 : 0,
-        borderBottomColor: '#E5E7EB',
-      }}
+      style={showSeparators && index < visibleData.length - 1 ? listItemStyles.itemContainer : listItemStyles.itemContainerNoSeparator}
       onPress={() => {
         item.onPress?.();
         onItemPress?.(item);
@@ -86,11 +97,10 @@ export function ListItem({
             ) : (
               <View
                 className="rounded-xl justify-center items-center"
-                style={{ 
-                  backgroundColor: item.icon.backgroundColor || '#6B7280',
-                  width: 40, 
-                  height: 40 
-                }}
+                style={[
+                  listItemStyles.iconContainer,
+                  { backgroundColor: item.icon.backgroundColor || '#6B7280' }
+                ]}
               >
                 <Text className="text-white text-base font-semibold">
                   {item.icon.text || item.title.charAt(0)}
@@ -127,7 +137,7 @@ export function ListItem({
           >
             <Text
               className="text-xs font-medium"
-              style={{ color: getBadgeColors(item.badge.variant).color }}
+              style={getBadgeTextColors(item.badge.variant)}
             >
               {item.badge.text}
             </Text>
