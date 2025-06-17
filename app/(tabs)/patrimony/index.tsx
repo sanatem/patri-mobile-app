@@ -6,7 +6,6 @@ import Colors from '@/constants/Colors';
 import { 
   LABELS, 
   TIME_RANGES, 
-  USER_LABELS, 
   TAB_CONFIG 
 } from '@/constants/AppConstants';
 import { useAuth } from '@/providers/AuthProvider';
@@ -22,10 +21,12 @@ import {
   Header,
   Container,
   UserSelector,
+  SegmentedControl,
 } from '@/components/ui';
 import { userService } from '@/services/user/get-user-profile';
 import type { UserProfile } from '@/services/types';
 import assetsHistory from '@/assets/data/assets-history.json';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function PatrimonyScreen() {
   const { user } = useAuth();
@@ -223,7 +224,7 @@ export default function PatrimonyScreen() {
   }
 
   return (
-    <Container variant="secondaryPage" style={{ padding: 20 }}>
+    <Container variant="secondaryPage">
       <Header
         title={LABELS.PATRIMONY.TITLE}
         leftAction={
@@ -238,51 +239,51 @@ export default function PatrimonyScreen() {
         }
         rightAction={
           <TouchableOpacity onPress={() => router.push('/settings')}>
-            <Settings size={24} color={Colors.gray[600]} />
+            <Settings size={24} color="white" />
           </TouchableOpacity>
         }
         className="border-b border-gray-100"
       />
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-        <Container variant="content" className="py-4">
-          <PatrimonySummary
-            netWorth={netWorth}
-            totalAssets={totalAssets}
-            totalLiabilities={totalLiabilities}
-            showTooltip={showTooltip}
-            onToggleTooltip={() => setShowTooltip(!showTooltip)}
+        <PatrimonySummary
+          netWorth={netWorth}
+          totalAssets={totalAssets}
+          totalLiabilities={totalLiabilities}
+          showTooltip={showTooltip}
+          onToggleTooltip={() => setShowTooltip(!showTooltip)}
+        />
+        <LinearGradient
+          colors={['#FF6503', '#E55A02', '#CC5200']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={{ marginTop: -30, marginBottom: 40, paddingHorizontal: 16, paddingVertical: 18, height: 200, borderBottomLeftRadius: 25, borderBottomRightRadius: 25 }}
+        >
+          <SegmentedControl
+            options={TIME_RANGES.LABELS.map(label => ({ label, value: label }))}
+            value={currentTimeRangeLabel}
+            onChange={val => handleTimeRangeChange(val as keyof typeof TIME_RANGES.MAPPING)}
           />
-          <View className="flex-row justify-center mb-6">
-            {TIME_RANGES.LABELS.map((range) => {
-              const isSelected = currentTimeRangeLabel === range;
-              return (
-                <TouchableOpacity
-                  key={range}
-                  className={`px-4 py-2 rounded-full mx-1 ${isSelected ? 'bg-gray-100' : ''}`}
-                  onPress={() => handleTimeRangeChange(range as keyof typeof TIME_RANGES.MAPPING)}
-                >
-                  <Text className={`text-sm font-medium ${isSelected ? 'text-gray-900' : 'text-gray-500'}`}>
-                    {range}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
+        </LinearGradient>
+        <View className="flex-1" style={{ marginTop: -110 }}>
           <AreaChart />
-          <SearchBar
-            placeholder={LABELS.PATRIMONY.SEARCH_PLACEHOLDER}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            className="mt-6"
-          />
-          <Tabs
-            tabs={tabs}
-            activeTab={activeTab}
-            onTabChange={(key) => setActiveTab(key as 'assets' | 'liabilities')}
-            className="mt-6"
-          />
+          </View>
+          <Container variant="content">
+            <SearchBar
+              placeholder={LABELS.PATRIMONY.SEARCH_PLACEHOLDER}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              className="mt-6"
+            />
+            <Tabs
+              tabs={tabs}
+              activeTab={activeTab}
+              onTabChange={(key) => setActiveTab(key as 'assets' | 'liabilities')}
+              className="mt-6"
+            />
+          </Container>
+          <Container variant="content">
           <View className="flex-row justify-between px-4 py-4 border-b border-gray-200">
-            <Text className="text-base font-regular text-gray-700">
+            <Text className="text-base font-regular" style={{ color: Colors.gray[500] }}>
               {activeTab === 'assets' ? LABELS.PATRIMONY.TOTAL_ASSETS : LABELS.PATRIMONY.TOTAL_LIABILITIES}
             </Text>
             <Text 
@@ -297,7 +298,7 @@ export default function PatrimonyScreen() {
             data={currentData}
             showLoadMore={false}
           />
-        </Container>
+          </Container>
       </ScrollView>
     </Container>
   );

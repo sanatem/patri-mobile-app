@@ -7,6 +7,7 @@ import Svg, { Path, Circle, Defs, LinearGradient, Stop, Line } from 'react-nativ
 import Colors from '@/constants/Colors';
 import { useChartRangeStore } from '@/store/chartRangeStore';
 import data from '@/assets/data/patrimony-daily.json';
+import { areaChartCardStyles } from '@/styles/patrimony/AreaChartCard.styles';
 
 interface PatrimonyEntry {
   date: string;
@@ -15,7 +16,7 @@ interface PatrimonyEntry {
 
 const { width: screenWidth } = Dimensions.get('window');
 const CHART_HEIGHT = 180;
-const CHART_MARGIN = 24;
+const CHART_MARGIN = 16;
 
 export default function AreaChart() {
   const { rangeSize } = useChartRangeStore();
@@ -50,7 +51,7 @@ export default function AreaChart() {
   const values = filteredData.map((d) => d.value);
   const dates = filteredData.map((d) => d.date);
 
-  const chartWidth = screenWidth - 2 * CHART_MARGIN;
+  const chartWidth = screenWidth - (2 * 16) - (2 * 28); // screenWidth - card margins - card padding
 
   const x = scale
     .scaleLinear()
@@ -99,44 +100,46 @@ export default function AreaChart() {
   }, [rangeSize]);
 
   return (
-    <View style={styles.container} {...panResponder.panHandlers}>
-      <View style={[styles.tooltipCardStatic, { left: CHART_MARGIN }]} pointerEvents="none">
-        <Text style={styles.tooltipDate}>
-          {new Date(activeData.date).toLocaleDateString('es-CL', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-          })}
-        </Text>
-        <Text style={styles.tooltipValue}>
-          ${activeData.value.toLocaleString('es-CL')}
-        </Text>
-      </View>
+    <View style={areaChartCardStyles.card}>
+      <View style={styles.container} {...panResponder.panHandlers}>
+        <View style={[styles.tooltipCardStatic, { left: CHART_MARGIN }]} pointerEvents="none">
+          <Text style={styles.tooltipDate}>
+            {new Date(activeData.date).toLocaleDateString('es-CL', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            })}
+          </Text>
+          <Text style={styles.tooltipValue}>
+            ${activeData.value.toLocaleString('es-CL')}
+          </Text>
+        </View>
 
-      <View style={{ marginHorizontal: CHART_MARGIN }}>
-        <Svg width={chartWidth} height={CHART_HEIGHT} ref={chartRef}>
-          <Defs>
-            <LinearGradient id="gradient" x1="0" y1="0" x2="0" y2="1">
-              <Stop offset="0%" stopColor="#22C55E" stopOpacity={0.2} />
-              <Stop offset="100%" stopColor="#22C55E" stopOpacity={0.05} />
-            </LinearGradient>
-          </Defs>
-          {area && <Path d={area} fill="url(#gradient)" />}
-          {line && <Path d={line} fill="none" stroke="#22C55E" strokeWidth={2.5} />}
+        <View style={{ marginHorizontal: CHART_MARGIN }}>
+          <Svg width={chartWidth} height={CHART_HEIGHT} ref={chartRef}>
+            <Defs>
+              <LinearGradient id="gradient" x1="0" y1="0" x2="0" y2="1">
+                <Stop offset="0%" stopColor="#22C55E" stopOpacity={0.2} />
+                <Stop offset="100%" stopColor="#22C55E" stopOpacity={0.05} />
+              </LinearGradient>
+            </Defs>
+            {area && <Path d={area} fill="url(#gradient)" />}
+            {line && <Path d={line} fill="none" stroke="#22C55E" strokeWidth={2.5} />}
 
-          <Line
-            x1={cx}
-            x2={cx}
-            y1={0}
-            y2={CHART_HEIGHT}
-            stroke={Colors.gray[200]}
-            strokeDasharray="4,4"
-          />
+            <Line
+              x1={cx}
+              x2={cx}
+              y1={0}
+              y2={CHART_HEIGHT}
+              stroke={Colors.gray[200]}
+              strokeDasharray="4,4"
+            />
 
-          <Circle cx={cx} cy={cy} r={14} fill="rgba(34,197,94,0.2)" />
-          <Circle cx={cx} cy={cy} r={7} fill="#22C55E" />
-        </Svg>
+            <Circle cx={cx} cy={cy} r={14} fill="rgba(34,197,94,0.2)" />
+            <Circle cx={cx} cy={cy} r={7} fill="#22C55E" />
+          </Svg>
 
+        </View>
       </View>
     </View>
   );
