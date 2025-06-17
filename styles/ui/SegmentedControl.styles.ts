@@ -10,16 +10,18 @@ export const segmentedControlStyles = StyleSheet.create({
     justifyContent: 'center',
   },
   option: {
+    flex: 1,
     borderRadius: 18,
-    paddingHorizontal: 22,
-    paddingVertical: 10,
-    marginHorizontal: 2,
-    minWidth: 60,
+    paddingHorizontal: 8,
+    paddingVertical: 16,
+    marginHorizontal: -1,
+    minWidth: 0,
     alignItems: 'center',
     justifyContent: 'center',
   },
   optionText: {
     fontSize: 14,
     fontFamily: 'Poppins-Regular',
+    textAlign: 'center',
   },
 }); 
