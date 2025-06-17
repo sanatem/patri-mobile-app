@@ -19,6 +19,7 @@ export const segmentedControlStyles = StyleSheet.create({
     justifyContent: 'center',
   },
   optionText: {
-    fontSize: 16,
+    fontSize: 14,
+    fontFamily: 'Poppins-Regular',
   },
 }); 
