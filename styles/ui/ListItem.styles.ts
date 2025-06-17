@@ -27,19 +27,19 @@ export const listItemStyles = StyleSheet.create({
   iconText: {
     color: Colors.primary[500],
     fontFamily: 'Poppins-Bold',
-    fontSize: 18,
+    fontSize: 16,
   },
   info: {
     flex: 1,
     fontFamily: 'Poppins-Regular',
   },
   title: {
-    fontSize: 18,
+    fontSize: 16,
     fontFamily: 'Poppins-Bold',
     color: '#18181B',
   },
   subtitle: {
-    fontSize: 15,
+    fontSize: 12,
     color: Colors.gray[500],
     fontFamily: 'Poppins-Regular',
     marginTop: 2,
@@ -49,7 +49,7 @@ export const listItemStyles = StyleSheet.create({
     minWidth: 90,
   },
   value: {
-    fontSize: 22,
+    fontSize: 16,
     fontFamily: 'Poppins-Bold',
     color: '#18181B',
   },
@@ -64,35 +64,35 @@ export const listItemStyles = StyleSheet.create({
     justifyContent: 'center',
   },
   badgeArrowPositive: {
-    fontSize: 14,
+    fontSize: 12,
     fontFamily: 'Poppins-SemiBold',
     color: '#22C55E',
     marginRight: 4,
   },
   badgeArrowNegative: {
-    fontSize: 14,
+    fontSize: 12,
     fontFamily: 'Poppins-SemiBold',
     color: '#EF4444',
     marginRight: 4,
   },
   badgeArrowNeutral: {
-    fontSize: 14,
+    fontSize: 12,
     fontFamily: 'Poppins-SemiBold',
     color: '#4b5563',
     marginRight: 4,
   },
   badgeTextPositive: {
-    fontSize: 14,
+    fontSize: 12,
     fontFamily: 'Poppins-SemiBold',
     color: '#22C55E',
   },
   badgeTextNegative: {
-    fontSize: 14,
+    fontSize: 12,
     fontFamily: 'Poppins-SemiBold',
     color: '#EF4444',
   },
   badgeTextNeutral: {
-    fontSize: 14,
+    fontSize: 12,
     fontFamily: 'Poppins-SemiBold',
     color: '#4b5563',
   },
