@@ -13,21 +13,16 @@ const months = [
   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
 ];
 
-// Función para convertir nombre de mes a número
 const getMonthNumber = (monthName: string): number => {
   return months.indexOf(monthName) + 1;
 };
 
-// Función para calcular gastos por categoría usando solo datos del presupuesto
 const calculateBudgetDataByMonth = (selectedMonth: string) => {
-  // Obtener datos del presupuesto del servicio
   const budget = budgetService.getBudget();
   const categories = budgetService.getCategories();
   const monthlyIncome = budgetService.getMonthlyIncome();
   const monthlyExpenses = budgetService.getMonthlyExpenses();
-  const categoryTotals = budgetService.getCategoryTotals();
-  
-  // Mapear categorías del servicio a las categorías del gráfico
+  const categoryTotals = budgetService.getCategoryTotals();    
   const budgetData = categories.map(category => {
     const amount = categoryTotals[category.label.toLowerCase()] || 0;
     return {
@@ -56,7 +51,6 @@ const BudgetChart: React.FC<BudgetChartProps> = ({ selectedMonth }) => {
   const center = chartSize / 2;
   const radius = (chartSize / 2) - 30;
 
-  // Crear arcos usando Circle con strokeDasharray
   const createArcs = () => {
     if (totalExpenses === 0) return [];
     
@@ -87,7 +81,6 @@ const BudgetChart: React.FC<BudgetChartProps> = ({ selectedMonth }) => {
     <View style={styles.container}>
       <View style={[styles.chartContainer, { width: chartSize, height: chartSize }]}>
         <Svg width={chartSize} height={chartSize}>
-          {/* Fondo del donut */}
           <Circle
             cx={center}
             cy={center}
@@ -97,7 +90,6 @@ const BudgetChart: React.FC<BudgetChartProps> = ({ selectedMonth }) => {
             strokeWidth={25}
           />
           
-          {/* Segmentos del donut */}
           {arcs.map((arc, index) => (
             <Circle
               key={index}
@@ -108,14 +100,13 @@ const BudgetChart: React.FC<BudgetChartProps> = ({ selectedMonth }) => {
               stroke={arc.color}
               strokeWidth={25}
               strokeDasharray={arc.strokeDasharray}
-              strokeDashoffset={-(arc.circumference * 0.25)} // Empezar desde arriba
+              strokeDashoffset={-(arc.circumference * 0.25)}
               transform={`rotate(${arc.rotation} ${center} ${center})`}
               strokeLinecap="round"
             />
           ))}
         </Svg>
         
-        {/* Contenido central */}
         <View style={styles.centerContent}>
           <Text style={styles.centerAmount}>
             ${remaining.toLocaleString('es-CL')}

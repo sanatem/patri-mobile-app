@@ -60,6 +60,7 @@ export const SegmentedControl: React.FC<SegmentedControlProps> = ({
             key={option.value}
             style={[
               segmentedControlStyles.option,
+              isActive ? { flex: 2 } : { flex: 1 },
               isActive && {
                 backgroundColor: mergedColors.activeBg,
                 shadowColor: mergedColors.activeBg,
@@ -74,9 +75,11 @@ export const SegmentedControl: React.FC<SegmentedControlProps> = ({
               style={[
                 segmentedControlStyles.optionText,
                 isActive
-                  ? { color: mergedColors.activeText, fontWeight: 'bold' }
-                  : { color: 'rgba(255,255,255,0.8)' },
+                  ? { color: mergedColors.activeText, fontWeight: 'bold', fontSize: 16 }
+                  : { color: 'rgba(255,255,255,0.8)', fontSize: 12 },
               ]}
+              numberOfLines={1}
+              {...(!isActive && { adjustsFontSizeToFit: true })}
             >
               {option.label}
             </Text>
