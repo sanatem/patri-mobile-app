@@ -9,6 +9,7 @@ export const inputStyles = StyleSheet.create({
     alignItems: 'center',
     height: 56,
     backgroundColor: '#fff',
+    marginHorizontal: 7,
 
   },
   containerDisabled: {
