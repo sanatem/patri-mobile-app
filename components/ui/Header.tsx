@@ -3,7 +3,8 @@ import { View, Text, TouchableOpacity, StatusBar } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ChevronLeft } from 'lucide-react-native';
 import { cn } from '@/lib/utils';
-import Colors from '@/constants/Colors';
+import { headerStyles } from '@/styles/ui/Header.styles';
+import { LinearGradient } from 'expo-linear-gradient';
 
 interface HeaderProps {
   title?: string;
@@ -29,68 +30,51 @@ export function Header({
   subtitleClassName,
 }: HeaderProps) {
   const router = useRouter();
-
-  const variants = {
-    default: 'bg-white border-b border-gray-100',
-    transparent: 'bg-transparent',
-  };
-
-  const defaultTitleStyles = variant === 'transparent' 
-    ? 'text-white' 
-    : 'text-gray-800';
-    
-  const defaultSubtitleStyles = variant === 'transparent' 
-    ? 'text-white/80' 
-    : 'text-gray-600';
+  const gradientColors = ['#FF6503', '#E55A02', '#CC5200'] as const;
 
   return (
     <>
-      <StatusBar barStyle="dark-content" backgroundColor="white" />
-      <View
-        className={cn(
-          'pt-16 px-4 pb-4 flex-row items-center justify-between',
-          variants[variant],
-          className
-        )}
-        style={{ paddingTop: 64 }}
+      <LinearGradient
+        colors={gradientColors}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}
+        style={headerStyles.gradient}
       >
-        <View className="flex-row items-center">
-          {showBackButton && (
-            <TouchableOpacity
-              onPress={() => router.back()}
-              className="p-1 mr-3"
-            >
-              <ChevronLeft size={24} color={Colors.gray[600]} />
-            </TouchableOpacity>
-          )}
-          {leftAction && leftAction}
-        </View>
+        <View style={[headerStyles.container, headerStyles.content]}>
+          <View className="flex-row items-center">
+            {showBackButton && (
+              <TouchableOpacity
+                onPress={() => router.back()}
+                className="p-1 mr-3"
+              >
+                <ChevronLeft size={24} color="white" />
+              </TouchableOpacity>
+            )}
+            {leftAction && leftAction}
+          </View>
 
-        <View className="flex-1 items-center justify-center">
-          {title && (
-            <Text className={cn(
-              'text-xl font-bold',
-              defaultTitleStyles,
-              titleClassName
-            )}>
-              {title}
-            </Text>
-          )}
-          {subtitle && (
-            <Text className={cn(
-              'text-sm font-regular mt-1',
-              defaultSubtitleStyles,
-              subtitleClassName
-            )}>
-              {subtitle}
-            </Text>
-          )}
-        </View>
+          <View className="flex-1 items-center justify-center">
+            {title && (
+              <Text className={cn(
+                'text-xl font-bold',
+                'text-white',
+                titleClassName
+              )}>
+                {title}
+              </Text>
+            )}
+            {subtitle && (
+              <Text className={cn('text-sm font-regular mt-1', subtitleClassName)} style={{ color: 'rgba(255,255,255,0.8)' }}>
+                {subtitle}
+              </Text>
+            )}
+          </View>
 
-        <View className="flex-row items-center">
-          {rightAction && rightAction}
+          <View className="flex-row items-center">
+            {rightAction && rightAction}
+          </View>
         </View>
-      </View>
+      </LinearGradient>
     </>
   );
 } 

@@ -13,3 +13,4 @@ export { Carousel } from './Carousel';
 export { CarouselCard } from './CarouselCard';
 export { UserSelector } from './UserSelector';
 export { Select } from './Select';
+export { SegmentedControl } from './SegmentedControl';

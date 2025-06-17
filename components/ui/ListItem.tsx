@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, FlatList } from 'react-native';
 import { cn } from '@/lib/utils';
+import { listItemStyles } from '@/styles/ui/ListItem.styles';
 
 interface ListItem {
   id: string;
@@ -52,82 +53,95 @@ export function ListItem({
   const getBadgeColors = (variant: 'positive' | 'negative' | 'neutral') => {
     switch (variant) {
       case 'positive':
-        return { backgroundColor: '#dcfce7', color: '#16a34a' };
+        return listItemStyles.badgeBgPositive;
       case 'negative':
-        return { backgroundColor: '#fecaca', color: '#dc2626' };
+        return listItemStyles.badgeBgNegative;
       case 'neutral':
-        return { backgroundColor: '#f3f4f6', color: '#4b5563' };
+        return listItemStyles.badgeBgNeutral;
       default:
-        return { backgroundColor: '#f3f4f6', color: '#4b5563' };
+        return listItemStyles.badgeBgNeutral;
+    }
+  };
+
+  const getBadgeTextColors = (variant: 'positive' | 'negative' | 'neutral') => {
+    switch (variant) {
+      case 'positive':
+        return listItemStyles.badgeTextPositive;
+      case 'negative':
+        return listItemStyles.badgeTextNegative;
+      case 'neutral':
+        return listItemStyles.badgeTextNeutral;
+      default:
+        return listItemStyles.badgeTextNeutral;
     }
   };
 
   const renderItem = ({ item, index }: { item: ListItem; index: number }) => (
     <TouchableOpacity
-      className={cn(
-        'flex-row justify-between items-center py-4 px-4',
-        itemClassName
-      )}
-      style={{
-        borderBottomWidth: showSeparators && index < visibleData.length - 1 ? 1 : 0,
-        borderBottomColor: '#E5E7EB',
-      }}
+      className={cn('', itemClassName)}
+      style={listItemStyles.card}
       onPress={() => {
         item.onPress?.();
         onItemPress?.(item);
       }}
       disabled={!item.onPress && !onItemPress}
-    >
-      <View className="flex-row items-center flex-1">
-        {item.icon && (
-          <View className="mr-3">
-            {item.icon.component ? (
-              item.icon.component
-            ) : (
-              <View
-                className="rounded-xl justify-center items-center"
-                style={{ 
-                  backgroundColor: item.icon.backgroundColor || '#6B7280',
-                  width: 40, 
-                  height: 40 
-                }}
-              >
-                <Text className="text-white text-base font-semibold">
-                  {item.icon.text || item.title.charAt(0)}
-                </Text>
-              </View>
-            )}
-          </View>
-        )}
-
-        <View className="flex-1">
-          <Text className="text-base font-semibold text-gray-800 mb-1">
-            {item.title}
+      >
+        {/* Icono circular */}
+      {item.icon && (
+        <View style={listItemStyles.icon}>
+          <Text style={listItemStyles.iconText}>
+            {item.icon.text || item.title.charAt(0)}
           </Text>
-          {item.subtitle && (
-            <Text className="text-sm text-gray-500 font-regular">
-              {item.subtitle}
-            </Text>
-          )}
         </View>
+      )}
+      {/* Info */}
+      <View style={listItemStyles.info}>
+        <Text style={listItemStyles.title}>
+          {item.title}
+        </Text>
+        {item.subtitle && (
+          <Text style={listItemStyles.subtitle}>
+            {item.subtitle}
+          </Text>
+        )}
       </View>
-
-      <View className="items-end">
-        <Text className="text-base font-semibold text-gray-800 mb-1">
+      {/* Valor y badge */}
+      <View style={listItemStyles.valueContainer}>
+        <Text style={listItemStyles.value}>
           {typeof item.value === 'number' 
             ? `$${Math.abs(item.value).toLocaleString('es-CL')}`
             : item.value
           }
         </Text>
-        
         {item.badge && (
           <View
-            className="rounded-full px-2 py-1 min-w-[50px] items-center"
-            style={getBadgeColors(item.badge.variant)}
+            style={[listItemStyles.badge,
+              item.badge.variant === 'positive'
+                ? listItemStyles.badgeBgPositive
+                : item.badge.variant === 'negative'
+                ? listItemStyles.badgeBgNegative
+                : listItemStyles.badgeBgNeutral
+            ]}
           >
             <Text
-              className="text-xs font-medium"
-              style={{ color: getBadgeColors(item.badge.variant).color }}
+              style={
+                item.badge.variant === 'positive'
+                  ? listItemStyles.badgeArrowPositive
+                  : item.badge.variant === 'negative'
+                  ? listItemStyles.badgeArrowNegative
+                  : listItemStyles.badgeArrowNeutral
+              }
+            >
+              {item.badge.variant === 'positive' ? '↑' : item.badge.variant === 'negative' ? '↓' : ''}
+            </Text>
+            <Text
+              style={
+                item.badge.variant === 'positive'
+                  ? listItemStyles.badgeTextPositive
+                  : item.badge.variant === 'negative'
+                  ? listItemStyles.badgeTextNegative
+                  : listItemStyles.badgeTextNeutral
+              }
             >
               {item.badge.text}
             </Text>

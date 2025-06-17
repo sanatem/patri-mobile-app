@@ -9,6 +9,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import { cn } from '@/lib/utils';
+import { inputStyles } from '@/styles/ui/Input.styles';
 
 type InputProps = TextInputProps & {
   label?: string;
@@ -42,7 +43,7 @@ export function Input({
 
   const animatedBorderColor = borderAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: ['#E5E7EB', '#FF6503'], 
+    outputRange: ['#ECECEC', '#FF6503'],
   });
 
   return (
@@ -53,30 +54,18 @@ export function Input({
 
       <Animated.View
         style={[
+          inputStyles.container,
           {
-            borderWidth: 2,
-            borderRadius: 12,
-            paddingHorizontal: 16,
-            flexDirection: 'row',
-            alignItems: 'center',
-            height: 56,
             borderColor: error ? '#DC2626' : animatedBorderColor,
-            backgroundColor: editable ? '#F9FAFB' : '#F3F4F6',
+            backgroundColor: '#fff',
           },
         ]}
       >
-        {icon && <View style={{ marginRight: 8 }}>{icon}</View>}
+        {icon && <View style={inputStyles.iconContainer}>{icon}</View>}
 
         <TextInput
         className="flex-1 text-base text-gray-800 font-regular "
-          style={{flex: 1,
-            backgroundColor: 'transparent',
-            borderWidth: 0,
-            padding: 0,
-            margin: 0,
-            fontSize: 16,
-            fontFamily: 'Poppins-Regular',
-            color: '#1F2937', }}
+          style={inputStyles.textInput}
           placeholderTextColor="#9CA3AF"
           underlineColorAndroid="transparent"
           editable={editable}
@@ -87,7 +76,7 @@ export function Input({
         />
 
         {rightIcon && (
-          <TouchableOpacity onPress={onRightIconPress} style={{ marginLeft: 'auto', paddingLeft: 8, paddingRight: 4 }}>
+          <TouchableOpacity onPress={onRightIconPress} style={inputStyles.rightIconContainer}>
             {rightIcon}
           </TouchableOpacity>
         )}

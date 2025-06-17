@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { TrendingUp, Plus } from 'lucide-react-native';
+import { portfolioHeaderStyles } from '@/styles/investment/PortfolioHeader.styles';
 
 interface PortfolioHeaderProps {
   patrimony: string;
@@ -20,11 +21,11 @@ export function PortfolioHeader({
       </Text>
       <Text className="text-xl font-bold text-gray-900 mb-4">{patrimony}</Text>
 
-      <View className="flex-row" style={{ gap: 30 }}>
+      <View className="flex-row" style={portfolioHeaderStyles.buttonsContainer}>
         <View className="items-center">
           <TouchableOpacity
             className="rounded-full justify-center items-center mb-2"
-            style={{ backgroundColor: '#FF5603', width: 35, height: 35 }}
+            style={portfolioHeaderStyles.actionButton}
             onPress={onInvestPress}
           >
             <TrendingUp size={20} color="white" />
@@ -35,7 +36,7 @@ export function PortfolioHeader({
         <View className="items-center">
           <TouchableOpacity
             className="rounded-full justify-center items-center mb-2"
-            style={{ backgroundColor: '#FF5603', width: 35, height: 35 }}
+            style={portfolioHeaderStyles.actionButton}
             onPress={onCreatePress}
           >
             <Plus size={20} color="white" />
