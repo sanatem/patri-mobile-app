@@ -1,3 +1,4 @@
+import Colors from '@/constants/Colors';
 import { StyleSheet } from 'react-native';
 
 export const portfolioHeaderStyles = StyleSheet.create({
@@ -5,7 +6,7 @@ export const portfolioHeaderStyles = StyleSheet.create({
     gap: 30,
   },
   actionButton: {
-    backgroundColor: '#FF5603',
+    backgroundColor: Colors.primary[500],
     width: 35,
     height: 35,
   },

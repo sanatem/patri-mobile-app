@@ -2,13 +2,14 @@ import { StyleSheet } from 'react-native';
 
 export const inputStyles = StyleSheet.create({
   container: {
-    borderWidth: 2,
-    borderRadius: 12,
+    borderWidth: 1,
+    borderRadius: 16,
     paddingHorizontal: 16,
     flexDirection: 'row',
     alignItems: 'center',
     height: 56,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#fff',
+
   },
   containerDisabled: {
     backgroundColor: '#F3F4F6',
