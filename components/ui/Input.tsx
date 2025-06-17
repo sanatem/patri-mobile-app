@@ -43,7 +43,7 @@ export function Input({
 
   const animatedBorderColor = borderAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: ['#E5E7EB', '#FF6503'], 
+    outputRange: ['#ECECEC', '#FF6503'],
   });
 
   return (
@@ -57,7 +57,7 @@ export function Input({
           inputStyles.container,
           {
             borderColor: error ? '#DC2626' : animatedBorderColor,
-            backgroundColor: editable ? '#F9FAFB' : '#F3F4F6',
+            backgroundColor: '#fff',
           },
         ]}
       >

@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { View, TextInput, TouchableOpacity } from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
+import { View, TextInput, TouchableOpacity, Animated } from 'react-native';
 import { Search, X } from 'lucide-react-native';
-import { cn } from '@/lib/utils';
+import { inputStyles } from '@/styles/ui/Input.styles';
 import Colors from '@/constants/Colors';
 
 interface SearchBarProps {
@@ -23,9 +23,23 @@ export function SearchBar({
 }: SearchBarProps) {
   const [internalValue, setInternalValue] = useState('');
   const [isFocused, setIsFocused] = useState(false);
+  const borderAnim = useRef(new Animated.Value(0)).current;
 
   const currentValue = value !== undefined ? value : internalValue;
   const handleChangeText = onChangeText || setInternalValue;
+
+  useEffect(() => {
+    Animated.timing(borderAnim, {
+      toValue: isFocused ? 1 : 0,
+      duration: 200,
+      useNativeDriver: false,
+    }).start();
+  }, [isFocused]);
+
+  const animatedBorderColor = borderAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['#E5E7EB', '#FF6503'],
+  });
 
   const handleClear = () => {
     handleChangeText('');
@@ -33,20 +47,22 @@ export function SearchBar({
   };
 
   return (
-    <View
-      className={cn(
-        'flex-row items-center bg-gray-50 rounded-xl px-4 h-12 border',
-        isFocused ? 'border-primary-500 bg-white' : 'border-gray-200',
-        className
-      )}
+    <Animated.View
+      style={[
+        inputStyles.container,
+        {
+          borderColor: animatedBorderColor,
+          backgroundColor: '#fff',
+        },
+      ]}
     >
       <Search 
         size={20} 
         color={isFocused ? Colors.primary[500] : Colors.gray[400]} 
-        className="mr-3" 
+        style={inputStyles.iconContainer}
       />
       <TextInput
-        className="flex-1 text-base font-regular text-gray-800"
+        style={inputStyles.textInput}
         placeholder={placeholder}
         placeholderTextColor={Colors.gray[400]}
         value={currentValue}
@@ -56,10 +72,10 @@ export function SearchBar({
         autoFocus={autoFocus}
       />
       {currentValue.length > 0 && (
-        <TouchableOpacity onPress={handleClear} className="ml-2">
+        <TouchableOpacity onPress={handleClear} style={inputStyles.rightIconContainer}>
           <X size={20} color={Colors.gray[400]} />
         </TouchableOpacity>
       )}
-    </View>
+    </Animated.View>
   );
 } 
