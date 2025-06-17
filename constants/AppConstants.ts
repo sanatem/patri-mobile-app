@@ -189,11 +189,6 @@ export const PLANNING_REPORTS = [
   }
 ] as const;
 
-export const USER_LABELS = {
-  MY_LABEL: 'GD',
-  PARTNER_LABEL: 'J',
-  VIEW_OPTIONS: ['mine', 'partner', 'both'] as const,
-} as const;
 
 export const PATRIMONY_DATA = {
   MY_ASSETS: [
