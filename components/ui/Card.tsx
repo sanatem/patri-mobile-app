@@ -21,7 +21,7 @@ export function Card({
   
   const variants = {
     default: 'border border-gray-200',
-    elevated: 'shadow-sm shadow-gray-200',
+    elevated: 'border border-gray-200',
     outlined: 'border-2 border-gray-200',
   };
 
@@ -42,9 +42,9 @@ export function Card({
         {
           shadowColor: variant === 'elevated' ? '#000' : undefined,
           shadowOffset: variant === 'elevated' ? { width: 0, height: 2 } : undefined,
-          shadowOpacity: variant === 'elevated' ? 0.1 : undefined,
+          shadowOpacity: variant === 'elevated' ? 0.08 : undefined,
           shadowRadius: variant === 'elevated' ? 8 : undefined,
-          elevation: variant === 'elevated' ? 4 : undefined,
+          elevation: variant === 'elevated' ? 8 : undefined,
           ...sizes[size],
         },
         style,

@@ -7,8 +7,9 @@ import {
   Header,
   Container,
 } from '@/components/ui';
-
-import { AdvisorCard, PlanningCarousel } from '@/components/planning';
+import { PlanningCarousel } from '@/components/planning';
+import AdvisorSection from '@/components/planning/AdvisorSection';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function PlanningScreen() {
   const router = useRouter();
@@ -31,7 +32,6 @@ export default function PlanningScreen() {
 
   return (
     <Container variant="secondaryPage">
-      <Container variant="content" className="bg-primary-500">
         <Header
           title={LABELS.PLANNING.TITLE}
           subtitle={LABELS.PLANNING.SUBTITLE}
@@ -44,13 +44,17 @@ export default function PlanningScreen() {
             </TouchableOpacity>
           }
         />
-      </Container>
-      <Container variant="content" className="bg-slate-50 rounded-t-3xl flex-1 mt-6" style={{ padding: 20 }}>
-        <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-          <AdvisorCard onSchedule={handleSchedulePress} onChat={handleChatPress} />
+        <LinearGradient
+          colors={['#FF6503', '#E55A02', '#CC5200']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={{ marginTop: -10, marginBottom: 10, paddingHorizontal: 8, paddingVertical: 18, borderBottomLeftRadius: 25, borderBottomRightRadius: 25, height: 50 }}
+        >
+           </LinearGradient>
+        <ScrollView className="flex-1 mx-2" showsVerticalScrollIndicator={false} style={{ marginTop: -40 }}>
+          <AdvisorSection onSchedule={handleSchedulePress} onChat={handleChatPress} />
           <PlanningCarousel onCardPress={handleCarouselCardPress} onAIPress={handleAIPress} />
         </ScrollView>
-      </Container>
     </Container>
   );
 }
