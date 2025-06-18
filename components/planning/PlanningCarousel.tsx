@@ -26,7 +26,7 @@ interface PlanningCarouselProps {
 
 const { width: screenWidth } = Dimensions.get('window');
 const cardWidth = screenWidth * 0.8;
-const sideMargin = (screenWidth - cardWidth) / 2;
+const sideMargin = (screenWidth - cardWidth) / 10;
 
 const reportCards: ReportCard[] = [
   {
@@ -77,7 +77,7 @@ export default function PlanningCarousel({ onCardPress, onAIPress }: PlanningCar
   };
 
   const renderCard = (card: ReportCard, index: number) => {
-    let marginLeft = 10;
+    let marginLeft = 0;
     let marginRight = 10;
     
     if (index === 0) {
@@ -112,7 +112,7 @@ export default function PlanningCarousel({ onCardPress, onAIPress }: PlanningCar
   };
 
   return (
-    <View style={{ marginVertical: 4 }}>
+    <View style={{ marginVertical: 4, paddingHorizontal: 12 }}>
       <ScrollView
         ref={scrollViewRef}
         horizontal
