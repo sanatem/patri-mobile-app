@@ -8,6 +8,7 @@ import { Header } from '@/components/ui/Header';
 import { CopilotWelcome } from '@/components/copilot/CopilotWelcome';
 import { CopilotChat } from '@/components/copilot/CopilotChat';
 import { Container } from '@/components/ui/Container';
+import Colors from '@/constants/Colors';
 
 export default function CopilotScreen() {
   const { user } = useAuth();
@@ -50,7 +51,7 @@ export default function CopilotScreen() {
       onPress={() => router.push('/settings')} 
       className="w-10 h-10 rounded-full justify-center items-center"
     >
-      <Settings size={24} color="#fff" />
+      <Settings size={24} color={Colors.primary[500]} />
     </TouchableOpacity>
   );
 

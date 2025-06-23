@@ -76,7 +76,7 @@ export const SegmentedControl: React.FC<SegmentedControlProps> = ({
                 segmentedControlStyles.optionText,
                 isActive
                   ? { color: mergedColors.activeText, fontWeight: 'bold', fontSize: 16 }
-                  : { color: 'rgba(255,255,255,0.8)', fontSize: 12 },
+                  : { color: mergedColors.inactiveText, fontSize: 12 },
               ]}
               numberOfLines={1}
               {...(!isActive && { adjustsFontSizeToFit: true })}

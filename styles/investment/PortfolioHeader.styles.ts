@@ -10,4 +10,13 @@ export const portfolioHeaderStyles = StyleSheet.create({
     width: 35,
     height: 35,
   },
+  gradient: {
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24, 
+    marginBottom: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 }); 

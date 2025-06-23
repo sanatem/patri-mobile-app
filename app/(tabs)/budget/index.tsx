@@ -21,6 +21,8 @@ import ForYouCarousel from '@/components/common/ForYouCarousel';
 import TransactionsList from '@/components/budget/TransactionsList';
 import { budgetService } from '@/services/budget/get-budget';
 import { LinearGradient } from 'expo-linear-gradient';
+import Colors from '@/constants/Colors';
+import { listItemStyles } from '@/styles/ui/ListItem.styles';
 
 type MonthType = typeof MONTHS[number];
 
@@ -92,75 +94,70 @@ export default function BudgetScreen() {
         title={LABELS.BUDGET.TITLE}
         rightAction={
           <TouchableOpacity onPress={() => router.push('/settings')}>
-            <Settings size={24} color="white" />
+            <Settings size={24} color={Colors.primary[500]} />
           </TouchableOpacity>
         }
       />
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-        <LinearGradient
-          colors={['#FF6503', '#E55A02', '#CC5200']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          style={{ marginTop: -10, marginBottom: 10, paddingHorizontal: 8, paddingVertical: 18, borderBottomLeftRadius: 25, borderBottomRightRadius: 25 }}
-        >
-          <View style={{ width: '100%' }}>
-            <SegmentedControl
-              options={categoryOptions}
-              value={selectedCategory}
-              onChange={setSelectedCategory}
-              style={{ width: '100%' }}
-            />
-          </View>
-        </LinearGradient>
-        <Container variant="content" className="py-4">
-          <View className="flex-row justify-between items-center mb-6">
-            <TouchableOpacity onPress={handlePreviousMonth} className="p-2">
-              <ChevronLeft size={24} color="#374151" />
-            </TouchableOpacity>
-            <View className="flex-1 items-center">
-              <Dropdown
-                options={monthOptions}
-                selectedValue={selectedMonth}
-                onSelect={handleMonthSelect}
-              />
-            </View>
-            <TouchableOpacity onPress={handleNextMonth} className="p-2">
-              <ChevronRight size={24} color="#374151" />
-            </TouchableOpacity>
-          </View>
-          <BudgetChart selectedMonth={selectedMonth} />
-        </Container>  
-        <Container variant="content" className="py-4">
-        <SearchBar
-            placeholder={activeTab === 'income' ? LABELS.BUDGET.SEARCH_INCOME_PLACEHOLDER : LABELS.BUDGET.SEARCH_EXPENSES_PLACEHOLDER}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
+      <View style={{ flex: 1 }}>
+        {/* SegmentedControl sticky */}
+        <View style={{ position: 'absolute', top: 60, left: 0, right: 0, zIndex: 10, paddingHorizontal: 16 }}>
+          <SegmentedControl
+            options={categoryOptions}
+            value={selectedCategory}
+            onChange={setSelectedCategory}
+            style={{ width: '100%' }}
           />
-        <Tabs
-          tabs={tabs}
-          activeTab={activeTab}
-          onTabChange={(key) => setActiveTab(key as 'income' | 'expenses')}
-          className="mt-4"
-        />
-        </Container>
-        <View className="flex-row justify-between px-4 py-4 border-b border-gray-200 mx-6">
-          <Text className="text-base font-regular text-gray-500">
-            {activeTab === 'income' ? LABELS.BUDGET.TOTAL_INCOME : LABELS.BUDGET.TOTAL_EXPENSES}
-          </Text>
-          <Text 
-            className={`text-base font-semibold ${
-              activeTab === 'income' ? 'text-green-600' : 'text-red-600'
-            }`}
-          >
-            {activeTab === 'income' ? '+' : '-'}${(activeTab === 'income' ? totalIncome : totalExpenses).toLocaleString('es-CL')}
-          </Text>
         </View>
-        <TransactionsList type={activeTab} selectedMonth={selectedMonth} />
-        <Container variant="content">
-        <ForYouCarousel />
-        </Container>
-        <View className="h-24" />
-      </ScrollView>
+        <ScrollView className="flex-1" showsVerticalScrollIndicator={false} style={{ marginTop: 60 }}>
+          <Container variant="content" className="py-4">
+            <View className="flex-row justify-between items-center mb-6">
+              <TouchableOpacity onPress={handlePreviousMonth} className="p-2">
+                <ChevronLeft size={24} color="#374151" />
+              </TouchableOpacity>
+              <View className="flex-1 items-center">
+                <Dropdown
+                  options={monthOptions}
+                  selectedValue={selectedMonth}
+                  onSelect={handleMonthSelect}
+                />
+              </View>
+              <TouchableOpacity onPress={handleNextMonth} className="p-2">
+                <ChevronRight size={24} color="#374151" />
+              </TouchableOpacity>
+            </View>
+            <BudgetChart selectedMonth={selectedMonth} />
+          </Container>  
+          <Container variant="content" className="mt-4 mb-4">
+            <SearchBar
+                placeholder={activeTab === 'income' ? LABELS.BUDGET.SEARCH_INCOME_PLACEHOLDER : LABELS.BUDGET.SEARCH_EXPENSES_PLACEHOLDER}
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+              />
+          </Container>
+          <Container variant="content" className="mb-4">
+            <View style={listItemStyles.cardContainer}>
+              <Tabs
+                tabs={tabs}
+                activeTab={activeTab}
+                onTabChange={(key) => setActiveTab(key as 'income' | 'expenses')}
+              />
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingBottom: 20, paddingTop: 12, borderBottomWidth: 1, borderBottomColor: Colors.gray[200] }}>
+                <Text style={{ color: Colors.gray[700], fontSize: 16, fontFamily: 'Poppins-Regular' }}>
+                  {activeTab === 'income' ? LABELS.BUDGET.TOTAL_INCOME : LABELS.BUDGET.TOTAL_EXPENSES}
+                </Text>
+                <Text style={{ color: Colors.gray[700], fontSize: 18, fontFamily: 'Poppins-medium' }}>
+                  {activeTab === 'income' ? '+' : '-'}${(activeTab === 'income' ? totalIncome : totalExpenses).toLocaleString('es-CL')}
+                </Text>
+              </View>
+              <TransactionsList type={activeTab} selectedMonth={selectedMonth} showContainer={false} />
+            </View>
+          </Container>
+          <Container variant="content">
+          <ForYouCarousel />
+          </Container>
+          <View className="h-24" />
+        </ScrollView>
+      </View>
     </Container>
   );
 }
