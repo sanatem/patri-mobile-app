@@ -117,7 +117,10 @@ export function UserSelector({
         flexDirection: 'row',
         alignItems: 'center',
         width: widthAnim,
+        maxWidth: '100%',
+        alignSelf: 'center',
         overflow: 'hidden',
+
       }}
     >
       <View

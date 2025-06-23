@@ -274,7 +274,7 @@ export default function PatrimonyScreen() {
                 activeTab={activeTab}
                 onTabChange={(key) => setActiveTab(key as 'assets' | 'liabilities')}
               />
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingBottom: 20, borderBottomWidth: 1, borderBottomColor: Colors.gray[200] }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingBottom: 20, paddingTop: 12, borderBottomWidth: 1, borderBottomColor: Colors.gray[200] }}>
                 <Text style={{ color: Colors.gray[700], fontSize: 16, fontFamily: 'Poppins-Regular' }}>
                   {activeTab === 'assets' ? LABELS.PATRIMONY.TOTAL_ASSETS : LABELS.PATRIMONY.TOTAL_LIABILITIES}
                 </Text>

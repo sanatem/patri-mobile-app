@@ -141,7 +141,7 @@ export default function BudgetScreen() {
                 activeTab={activeTab}
                 onTabChange={(key) => setActiveTab(key as 'income' | 'expenses')}
               />
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingBottom: 20, borderBottomWidth: 1, borderBottomColor: Colors.gray[200] }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingBottom: 20, paddingTop: 12, borderBottomWidth: 1, borderBottomColor: Colors.gray[200] }}>
                 <Text style={{ color: Colors.gray[700], fontSize: 16, fontFamily: 'Poppins-Regular' }}>
                   {activeTab === 'income' ? LABELS.BUDGET.TOTAL_INCOME : LABELS.BUDGET.TOTAL_EXPENSES}
                 </Text>
