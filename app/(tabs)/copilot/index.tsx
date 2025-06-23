@@ -38,7 +38,7 @@ export default function CopilotScreen() {
     <View className="flex-row items-center">
       {isChatActive && (
         <TouchableOpacity onPress={handleGoBack} className="mr-2 p-1">
-          <ChevronLeft size={24} color="#FF6503" />
+          <ChevronLeft size={24} color="#fff" />
         </TouchableOpacity>
       )}
       <MessageSquare size={24} color="#FF6503" />
@@ -50,17 +50,17 @@ export default function CopilotScreen() {
       onPress={() => router.push('/settings')} 
       className="w-10 h-10 rounded-full justify-center items-center"
     >
-      <Settings size={24} color="#6B7280" />
+      <Settings size={24} color="#fff" />
     </TouchableOpacity>
   );
 
   return (
-    <Container variant="secondaryPage" style={{ padding: 20}}>
+    <Container variant="secondaryPage">
       <Header 
         title="Copiloto"
         leftAction={leftAction}
         rightAction={rightAction}
-        titleClassName="text-lg font-semibold text-gray-800"
+        titleClassName="text-lg font-semibold text-white"
       />
 
       {!isChatActive ? (
