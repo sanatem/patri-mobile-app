@@ -16,7 +16,7 @@ export function Container({
 }: ContainerProps) {
   const variants = {
     page: 'flex-1 bg-gray-50',
-    secondaryPage: 'flex-1 bg-gray-50', 
+    secondaryPage: 'flex-1 bg-white', 
     section: 'px-4 py-4',
     content: 'px-4',
   };

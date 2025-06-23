@@ -1,17 +1,13 @@
+import Colors from '@/constants/Colors';
 import { StyleSheet } from 'react-native';
 
 export const tabsStyles = StyleSheet.create({
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: 'white',
     borderRadius: 16,
-    padding: 6,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.10,
-    shadowRadius: 16,
-    elevation: 8,
-    marginHorizontal: 8,
-    marginBottom: 24,
+    padding: 4,
+    marginHorizontal: 0,
+    marginBottom: 10,
     flexDirection: 'row',
     alignItems: 'center',
   },
@@ -20,45 +16,46 @@ export const tabsStyles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'center',
-    borderRadius: 16,
-    paddingVertical: 14,
+    borderRadius: 0,
+    paddingVertical: 20,
     marginHorizontal: 2,
-  },
-  tabActive: {
-    backgroundColor: '#FF6503',
-  },
-  tabInactive: {
     backgroundColor: 'transparent',
   },
-  tabText: {
-    fontSize: 15,
-    fontFamily: 'Poppins-SemiBold',
+  tabActive: {
+    borderBottomWidth: 4,
+    borderBottomColor: Colors.secondary[500],
   },
-  tabTextActive: {
-    color: '#fff',
+  tabInactive: {
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.gray[300],
+  },
+  tabText: {
+    fontSize: 18,
+    fontFamily: 'Poppins-medium',
+    color: Colors.gray[700],
   },
   tabTextInactive: {
-    color: '#6B7280',
+    color: Colors.gray[300],
+    fontFamily: 'Poppins-medium',
   },
   badge: {
-    width: 28,
+    minWidth: 28,
     height: 28,
-    borderRadius: 14,
+    borderRadius: 12,
     marginLeft: 8,
-    marginTop: -5,
     alignItems: 'center',
     justifyContent: 'center',
     textAlign: 'center',
     fontWeight: 'bold',
     fontSize: 16,
     overflow: 'hidden',
+    paddingHorizontal: 6,
+    backgroundColor: Colors.gray[100],
   },
   badgeActive: {
-    backgroundColor: 'rgba(255,255,255,0.3)',
-    color: '#fff',
+    backgroundColor: Colors.gray[100],
   },
   badgeInactive: {
-    backgroundColor: 'rgba(255,101,3,0.15)',
-    color: '#FF6503',
+    backgroundColor: Colors.gray[100],
   },
 }); 

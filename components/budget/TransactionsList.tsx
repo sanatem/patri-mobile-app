@@ -5,6 +5,7 @@ import { budgetService } from '@/services/budget/get-budget';
 interface TransactionsListProps {
   type: 'income' | 'expenses';
   selectedMonth: string;
+  showContainer?: boolean;
 }
 
 const months = [
@@ -69,19 +70,17 @@ const processTransactionsByMonth = (selectedMonth: string, type: 'income' | 'exp
   return { income, expenses };
 };
 
-const TransactionsList: React.FC<TransactionsListProps> = ({ type, selectedMonth }) => {
+const TransactionsList: React.FC<TransactionsListProps> = ({ type, selectedMonth, showContainer }) => {
   const { income, expenses } = processTransactionsByMonth(selectedMonth, type);
   const data = type === 'income' ? income : expenses;
 
   return (
-    <>
-      <ListItem 
-        data={data}
-        className="px-4"
-        initialItemCount={10}
-        loadMoreStep={10}
-      />
-    </>
+    <ListItem 
+      data={data}
+      showContainer={showContainer}
+      initialItemCount={10}
+      loadMoreStep={10}
+    />
   );
 };
 

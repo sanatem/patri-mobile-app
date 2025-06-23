@@ -6,6 +6,7 @@ export const headerStyles = StyleSheet.create({
     alignSelf: 'stretch',
     paddingTop: 50,
     paddingBottom: 16,
+    backgroundColor: '#fff',
   },
   container: {
     paddingTop: 0,

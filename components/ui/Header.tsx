@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { ChevronLeft } from 'lucide-react-native';
 import { cn } from '@/lib/utils';
 import { headerStyles } from '@/styles/ui/Header.styles';
-import { LinearGradient } from 'expo-linear-gradient';
+import Colors from '@/constants/Colors';
 
 interface HeaderProps {
   title?: string;
@@ -30,14 +30,10 @@ export function Header({
   subtitleClassName,
 }: HeaderProps) {
   const router = useRouter();
-  const gradientColors = ['#FF6503', '#E55A02', '#CC5200'] as const;
 
   return (
     <>
-      <LinearGradient
-        colors={gradientColors}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 0 }}
+      <View
         style={headerStyles.gradient}
       >
         <View style={[headerStyles.container, headerStyles.content]}>
@@ -57,14 +53,15 @@ export function Header({
             {title && (
               <Text className={cn(
                 'text-xl font-bold',
-                'text-white',
                 titleClassName
               )}>
-                {title}
+                <Text style={{ color: Colors.primary[500] }}>
+                  {title}
+                </Text>
               </Text>
             )}
             {subtitle && (
-              <Text className={cn('text-sm font-regular mt-1', subtitleClassName)} style={{ color: 'rgba(255,255,255,0.8)' }}>
+              <Text className={cn('text-sm font-regular mt-1', subtitleClassName)} style={{ color: Colors.primary[500] }}>
                 {subtitle}
               </Text>
             )}
@@ -74,7 +71,7 @@ export function Header({
             {rightAction && rightAction}
           </View>
         </View>
-      </LinearGradient>
+      </View>
     </>
   );
 } 

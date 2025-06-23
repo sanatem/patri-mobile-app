@@ -10,6 +10,7 @@ import {
 import { PlanningCarousel } from '@/components/planning';
 import AdvisorSection from '@/components/planning/AdvisorSection';
 import { LinearGradient } from 'expo-linear-gradient';
+import Colors from '@/constants/Colors';
 
 export default function PlanningScreen() {
   const router = useRouter();
@@ -40,18 +41,11 @@ export default function PlanningScreen() {
           subtitleClassName="text-white"
           rightAction={
             <TouchableOpacity onPress={() => router.push('/settings')}>
-              <Settings size={24} color="white" />
+              <Settings size={24} color={Colors.primary[500]} />
             </TouchableOpacity>
           }
         />
-        <LinearGradient
-          colors={['#FF6503', '#E55A02', '#CC5200']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          style={{ marginTop: -10, marginBottom: 10, paddingHorizontal: 8, paddingVertical: 18, borderBottomLeftRadius: 25, borderBottomRightRadius: 25, height: 50 }}
-        >
-           </LinearGradient>
-        <ScrollView className="flex-1 mx-2" showsVerticalScrollIndicator={false} style={{ marginTop: -40 }}>
+        <ScrollView className="flex-1 mx-2" showsVerticalScrollIndicator={false} style={{ marginTop: 10 }}>
           <AdvisorSection onSchedule={handleSchedulePress} onChat={handleChatPress} />
           <PlanningCarousel onCardPress={handleCarouselCardPress} onAIPress={handleAIPress} />
         </ScrollView>

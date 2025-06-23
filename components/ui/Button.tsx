@@ -45,7 +45,7 @@ export function Button({
       )}
     >
       {loading ? (
-        <ActivityIndicator color={variant === 'primary' ? '#fff' : '#FF6503'} />
+        <ActivityIndicator color={variant === 'primary' ? '#fff' : '#FF6501'} />
       ) : (
         <View className="flex-row items-center">
           {icon && <View className="mr-2">{icon}</View>}

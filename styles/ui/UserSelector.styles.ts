@@ -18,10 +18,11 @@ export const userSelectorStyles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 4,
+    borderWidth: 2,
   },
   closedCircleText: {
-    color: Colors.primary[500],
-    fontWeight: 'bold',
+    color: Colors.gray[700],
+    fontFamily: 'Poppins-SemiBold',
     fontSize: 16,
   },
   openedContainer: {
@@ -47,5 +48,9 @@ export const userSelectorStyles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
     fontFamily: 'Poppins-SemiBold',
+    color: Colors.gray[500],
+  },
+  optionTextActive: {
+    color: Colors.gray[700],
   },
 }); 

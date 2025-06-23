@@ -2,6 +2,7 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { DollarSign, Settings } from 'lucide-react-native';
 import { Header } from '@/components/ui';
+import Colors from '@/constants/Colors';
 
 export default function InvestmentIndex() {
   const router = useRouter();
@@ -12,7 +13,7 @@ export default function InvestmentIndex() {
         title="Inversiones"
         rightAction={
           <TouchableOpacity className="p-2" onPress={() => router.push('/settings')}>
-            <Settings size={24} color="#374151" />
+            <Settings size={24} color={Colors.primary[500]} />
           </TouchableOpacity>
         }
       />
@@ -39,7 +40,7 @@ export default function InvestmentIndex() {
           <Text className="text-white font-semibold text-base">Comenzar</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => router.push('/investment/investment-guest' as any)}>
+        <TouchableOpacity onPress={() => router.push('/investment/portfolio' as any)}>
           <Text className="text-primary-500 text-center mt-4 font-regular">Continuar sin cuenta</Text>
         </TouchableOpacity>
       </View>

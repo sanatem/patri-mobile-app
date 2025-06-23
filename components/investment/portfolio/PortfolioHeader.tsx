@@ -1,49 +1,27 @@
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
-import { TrendingUp, Plus } from 'lucide-react-native';
+import { View, Text } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { portfolioHeaderStyles } from '@/styles/investment/PortfolioHeader.styles';
 
 interface PortfolioHeaderProps {
   patrimony: string;
-  onInvestPress: () => void;
-  onCreatePress: () => void;
 }
 
-export function PortfolioHeader({ 
-  patrimony, 
-  onInvestPress, 
-  onCreatePress 
-}: PortfolioHeaderProps) {
+export function PortfolioHeader({ patrimony }: PortfolioHeaderProps) {
   return (
-    <View className="items-center mb-8">
-      <Text className="text-xl text-gray-500 mb-1">
-        Tu patrimonio <Text className="text-gray-400 text-xl">ⓘ</Text>
+    <LinearGradient
+      colors={['#FF6503', '#E55A02', '#CC5200']}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 0 }}
+      style={[portfolioHeaderStyles.gradient]}
+    >
+      <Text className="text-center text-lg font-bold mb-2" style={{ color: 'rgba(255,255,255,0.8)' }}>
+        Patrimonio Neto
       </Text>
-      <Text className="text-xl font-bold text-gray-900 mb-4">{patrimony}</Text>
-
-      <View className="flex-row" style={portfolioHeaderStyles.buttonsContainer}>
-        <View className="items-center">
-          <TouchableOpacity
-            className="rounded-full justify-center items-center mb-2"
-            style={portfolioHeaderStyles.actionButton}
-            onPress={onInvestPress}
-          >
-            <TrendingUp size={20} color="white" />
-          </TouchableOpacity>
-          <Text className="text-primary-500 font-semibold text-sm">Invertir</Text>
-        </View>
-
-        <View className="items-center">
-          <TouchableOpacity
-            className="rounded-full justify-center items-center mb-2"
-            style={portfolioHeaderStyles.actionButton}
-            onPress={onCreatePress}
-          >
-            <Plus size={20} color="white" />
-          </TouchableOpacity>
-          <Text className="text-primary-500 font-semibold text-sm">Crear</Text>
-        </View>
-      </View>
-    </View>
+      <Text className="text-center text-4xl font-bold mb-6" style={{ color: 'white', letterSpacing: 1 }}>
+        {patrimony}
+      </Text>
+      
+    </LinearGradient>
   );
 }

@@ -27,6 +27,7 @@ import { userService } from '@/services/user/get-user-profile';
 import type { UserProfile } from '@/services/types';
 import assetsHistory from '@/assets/data/assets-history.json';
 import { LinearGradient } from 'expo-linear-gradient';
+import { listItemStyles } from '@/styles/ui/ListItem.styles';
 
 export default function PatrimonyScreen() {
   const { user } = useAuth();
@@ -239,10 +240,9 @@ export default function PatrimonyScreen() {
         }
         rightAction={
           <TouchableOpacity onPress={() => router.push('/settings')}>
-            <Settings size={24} color="white" />
+            <Settings size={24} color={Colors.primary[500]} />
           </TouchableOpacity>
         }
-        className="border-b border-gray-100"
       />
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         <PatrimonySummary
@@ -252,52 +252,42 @@ export default function PatrimonyScreen() {
           showTooltip={showTooltip}
           onToggleTooltip={() => setShowTooltip(!showTooltip)}
         />
-        <LinearGradient
-          colors={['#FF6503', '#E55A02', '#CC5200']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          style={{ marginTop: -30, marginBottom: 40, paddingHorizontal: 16, paddingVertical: 18, height: 200, borderBottomLeftRadius: 25, borderBottomRightRadius: 25 }}
-        >
+        <Container variant="content" className="mb-4 mt-4">
           <SegmentedControl
             options={TIME_RANGES.LABELS.map(label => ({ label, value: label }))}
             value={currentTimeRangeLabel}
             onChange={val => handleTimeRangeChange(val as keyof typeof TIME_RANGES.MAPPING)}
           />
-        </LinearGradient>
-        <View className="flex-1" style={{ marginTop: -110 }}>
-          <AreaChart />
-          </View>
-          <Container variant="content">
+        </Container>
+        <AreaChart />
+          <Container variant="content" className="mb-4">
             <SearchBar
               placeholder={LABELS.PATRIMONY.SEARCH_PLACEHOLDER}
               value={searchQuery}
               onChangeText={setSearchQuery}
-              className="mt-6"
             />
-            <Tabs
-              tabs={tabs}
-              activeTab={activeTab}
-              onTabChange={(key) => setActiveTab(key as 'assets' | 'liabilities')}
-              className="mt-6"
-            />
-          </Container>
+            </Container>
           <Container variant="content">
-          <View className="flex-row justify-between px-4 py-4 border-b border-gray-200">
-            <Text className="text-base font-regular" style={{ color: Colors.gray[500] }}>
-              {activeTab === 'assets' ? LABELS.PATRIMONY.TOTAL_ASSETS : LABELS.PATRIMONY.TOTAL_LIABILITIES}
-            </Text>
-            <Text 
-              className={`text-base font-semibold ${
-                activeTab === 'liabilities' ? 'text-red-600' : 'text-gray-900'
-              }`}
-            >
-              {activeTab === 'assets' ? '+' : '-'}${(activeTab === 'assets' ? totalAssets : totalLiabilities).toLocaleString('es-CL')}
-            </Text>
-          </View>
-          <ListItem
-            data={currentData}
-            showLoadMore={false}
-          />
+            <View style={listItemStyles.cardContainer}>
+              <Tabs
+                tabs={tabs}
+                activeTab={activeTab}
+                onTabChange={(key) => setActiveTab(key as 'assets' | 'liabilities')}
+              />
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingBottom: 20, borderBottomWidth: 1, borderBottomColor: Colors.gray[200] }}>
+                <Text style={{ color: Colors.gray[700], fontSize: 16, fontFamily: 'Poppins-Regular' }}>
+                  {activeTab === 'assets' ? LABELS.PATRIMONY.TOTAL_ASSETS : LABELS.PATRIMONY.TOTAL_LIABILITIES}
+                </Text>
+                <Text style={{ color: Colors.gray[700], fontSize: 18, fontFamily: 'Poppins-medium' }}>
+                  {activeTab === 'assets' ? '+' : '-'}${(activeTab === 'assets' ? totalAssets : totalLiabilities).toLocaleString('es-CL')}
+                </Text>
+              </View>
+              <ListItem
+                data={currentData}
+                showLoadMore={false}
+                showContainer={false}
+              />
+            </View>
           </Container>
       </ScrollView>
     </Container>

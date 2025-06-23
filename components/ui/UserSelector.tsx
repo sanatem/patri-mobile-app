@@ -109,7 +109,6 @@ export function UserSelector({
     onToggle();
   };
 
-  // Opciones a la derecha: solo las no seleccionadas
   const optionsRight = options.filter(opt => !opt.isActive);
 
   return (
@@ -119,15 +118,6 @@ export function UserSelector({
         alignItems: 'center',
         width: widthAnim,
         overflow: 'hidden',
-        backgroundColor: Colors.segmentedControl.background,
-        borderColor: Colors.segmentedControl.border,
-        borderWidth: 1.5,
-        borderRadius: 24,
-        shadowColor: Colors.primary[500],
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.10,
-        shadowRadius: 6,
-        elevation: 2,
       }}
     >
       <View
@@ -150,9 +140,12 @@ export function UserSelector({
           activeOpacity={0.85}
           style={{}}
         >
-          <View style={userSelectorStyles.closedCircle}>
+          <View style={[
+            userSelectorStyles.closedCircle,
+            { borderColor: Colors.secondary[500] }
+          ]}>
             {selectedView === 'both' ? (
-              <Users size={18} color={Colors.primary[500]} />
+              <Users size={18} color={Colors.gray[500]} />
             ) : (
               <Text style={userSelectorStyles.closedCircleText}>
                 {selectedView === 'mine' ? myLabel : partnerLabel}
@@ -166,12 +159,11 @@ export function UserSelector({
           style={{ marginLeft: 6 }}
         >
           <Animated.View style={{ transform: [{ rotate: chevronRotate }] }}>
-            <ChevronRight size={18} color={'#fff'} />
+            <ChevronRight size={18} color={Colors.gray[800]} />
           </Animated.View>
         </TouchableOpacity>
       </View>
 
-      {/* Panel oculto para medir el ancho: solo opciones no seleccionadas, mismo layout y padding que el animado */}
       <View
         style={{
           position: 'absolute',
@@ -191,19 +183,16 @@ export function UserSelector({
               style={[
                 userSelectorStyles.optionCircle,
                 {
-                  borderColor: Colors.segmentedControl.border,
+                  borderColor: Colors.gray[300],
                   backgroundColor: Colors.segmentedControl.inactiveBg,
                 },
               ]}
             >
               {item.id === 'both' ? (
-                <Users size={16} color={Colors.segmentedControl.inactiveText} />
+                <Users size={16} color={Colors.gray[400]} />
               ) : (
                 <Text
-                  style={[
-                    userSelectorStyles.optionText,
-                    { color: Colors.segmentedControl.inactiveText },
-                  ]}
+                  style={userSelectorStyles.optionText}
                 >
                   {item.label}
                 </Text>
@@ -247,19 +236,16 @@ export function UserSelector({
               style={[
                 userSelectorStyles.optionCircle,
                 {
-                  borderColor: Colors.segmentedControl.border,
+                  borderColor: Colors.gray[300],
                   backgroundColor: Colors.segmentedControl.inactiveBg,
                 },
               ]}
             >
               {item.id === 'both' ? (
-                <Users size={16} color={Colors.segmentedControl.inactiveText} />
+                <Users size={16} color={Colors.gray[400]} />
               ) : (
                 <Text
-                  style={[
-                    userSelectorStyles.optionText,
-                    { color: Colors.segmentedControl.inactiveText },
-                  ]}
+                  style={userSelectorStyles.optionText}
                 >
                   {item.label}
                 </Text>
