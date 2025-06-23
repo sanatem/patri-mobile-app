@@ -25,7 +25,7 @@ export function PatrimonySummary({
   changePercentage = '71.52%',
 }: PatrimonySummaryProps) {
   return (
-    <View style={{ marginTop: 10, marginBottom: 20, paddingHorizontal: 16, paddingVertical: 18, height: 200, borderBottomLeftRadius: 25, borderBottomRightRadius: 25 }}>
+    <View style={{ marginTop: 10, marginBottom: 10, paddingHorizontal: 16, paddingVertical: 18, height: 150, borderBottomLeftRadius: 25, borderBottomRightRadius: 25 }}>
       <Text className="text-center text-lg font-medium mb-2" style={{ color: Colors.gray[700] }}>
         Patrimonio Neto
       </Text>
