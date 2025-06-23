@@ -1,8 +1,13 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import Colors from '@/constants/Colors';
 
 interface SuggestionButtonsProps {
-  suggestions: string[];
+  suggestions: Array<{
+    text: string;
+    icon: keyof typeof Ionicons.glyphMap;
+  }>;
   onSuggestionPress: (suggestion: string) => void;
 }
 
@@ -13,23 +18,29 @@ export function SuggestionButtons({ suggestions, onSuggestionPress }: Suggestion
   }
 
   return (
-    <View className="w-full">
+    <View className="w-full px-4">
       {pairs.map((pair, pairIndex) => (
         <View key={pairIndex} className="flex-row justify-between mb-4">
-          {pair.map((text) => (
+          {pair.map((item) => (
             <TouchableOpacity
-              key={text}
-              className="bg-gray-50 py-3 px-3 rounded-full flex-1 mx-2"
-              onPress={() => onSuggestionPress(text)}
+              key={item.text}
+              className="bg-white py-6 px-4 rounded-2xl flex-1 mx-2 border border-gray-200"
+              style={{
+                elevation: 2,
+              }}
+              onPress={() => onSuggestionPress(item.text)}
             >
-              <Text 
-                className="text-sm font-medium text-gray-700 text-center"
-                numberOfLines={2}
-                adjustsFontSizeToFit
-                minimumFontScale={0.8}
-              >
-                {text}
-              </Text>
+              <View className="items-center">
+                <Ionicons name={item.icon} size={24} color={Colors.primary[500]} className="mb-3" />
+                <Text 
+                  className="text-xs font-medium text-[#1E293B] text-center mt-2"
+                  numberOfLines={2}
+                  adjustsFontSizeToFit
+                  minimumFontScale={0.8}
+                >
+                  {item.text}
+                </Text>
+              </View>
             </TouchableOpacity>
           ))}
           {pair.length === 1 && <View className="flex-1 mx-2" />}
