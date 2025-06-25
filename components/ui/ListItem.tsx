@@ -52,31 +52,6 @@ export function ListItem({
     setVisibleCount(prev => Math.min(prev + loadMoreStep, data.length));
   };
 
-  const getBadgeColors = (variant: 'positive' | 'negative' | 'neutral') => {
-    switch (variant) {
-      case 'positive':
-        return listItemStyles.badgeBgPositive;
-      case 'negative':
-        return listItemStyles.badgeBgNegative;
-      case 'neutral':
-        return listItemStyles.badgeBgNeutral;
-      default:
-        return listItemStyles.badgeBgNeutral;
-    }
-  };
-
-  const getBadgeTextColors = (variant: 'positive' | 'negative' | 'neutral') => {
-    switch (variant) {
-      case 'positive':
-        return listItemStyles.badgeTextPositive;
-      case 'negative':
-        return listItemStyles.badgeTextNegative;
-      case 'neutral':
-        return listItemStyles.badgeTextNeutral;
-      default:
-        return listItemStyles.badgeTextNeutral;
-    }
-  };
 
   const renderItem = ({ item, index }: { item: ListItem; index: number }) => (
     <>
