@@ -3,6 +3,7 @@ import { View } from 'react-native';
 import { Button } from '@/components/ui/Button';
 import { TrendingUp, Plus } from 'lucide-react-native';
 import { portfolioActionsBarStyles } from '../../../styles/investment/PortfolioActionsBar.styles';
+import Colors from '@/constants/Colors';
 
 interface PortfolioActionsBarProps {
   onInvestPress: () => void;
@@ -27,7 +28,8 @@ export function PortfolioActionsBar({ onInvestPress, onCreatePress }: PortfolioA
               title="Crear"
               onPress={onCreatePress}
               variant="outline"
-              icon={<Plus size={22} color="#FF6503" />}
+              icon={<Plus size={22} color={Colors.gray[300]} />}
+              disabled={true}
             />
           </View>
         </View>
