@@ -37,8 +37,8 @@ export default function InvestmentPortfolioScreen() {
     LineChart: <LineChart size={24} color={Colors.gray[500]} />,
     Home: <Home size={24} color={Colors.gray[500]} />,
     ShieldCheck: <ShieldCheck size={24} color={Colors.gray[500]} />,
-    DollarSign: <DollarSign size={24} color={Colors.secondary[500]} />,
-    BarChart: <BarChart size={24} color={Colors.secondary[500]} />,
+    DollarSign: <DollarSign size={24} color={Colors.gray[500]} />,
+    BarChart: <BarChart size={24} color={Colors.gray[500]} />,
   };
 
   const investmentData = INVESTMENT_PORTFOLIO_DATA.map(item => ({
@@ -69,8 +69,8 @@ export default function InvestmentPortfolioScreen() {
     value: '',
     icon: {
       component: iconMap[item.icon as keyof typeof iconMap],
-      backgroundColor: Colors.secondary[50],
-      color: Colors.secondary[500],
+      backgroundColor: Colors.gray[50],
+      color: Colors.gray[500],
       text: item.title.charAt(0)
     },
     onPress: undefined,
