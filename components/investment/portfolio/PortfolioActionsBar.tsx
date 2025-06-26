@@ -9,6 +9,7 @@ interface ActionButton {
   variant?: 'primary' | 'outline' | 'ghost' | 'disabled';
   icon?: React.ReactElement | null | undefined;
   disabled?: boolean;
+  fullWidth?: boolean;
 }
 
 interface PortfolioActionsBarProps {
@@ -17,6 +18,23 @@ interface PortfolioActionsBarProps {
 }
 
 export function PortfolioActionsBar({ actions, containerStyle }: PortfolioActionsBarProps) {
+  if (actions.length === 1 && actions[0].fullWidth) {
+    return (
+      <View style={[portfolioActionsBarStyles.container, containerStyle]}>
+        <View style={portfolioActionsBarStyles.card}>
+          <Button
+            title={actions[0].title}
+            onPress={actions[0].onPress}
+            variant={actions[0].variant}
+            icon={actions[0].icon}
+            disabled={actions[0].disabled}
+            fullWidth
+          />
+        </View>
+      </View>
+    );
+  }
+
   return (
     <View style={[portfolioActionsBarStyles.container, containerStyle]}>
       <View style={portfolioActionsBarStyles.card}>

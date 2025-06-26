@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, Animated, Modal, Pressable, Dimensions, P
 import { ChevronDown } from 'lucide-react-native';
 import { cn } from '@/lib/utils';
 import { inputStyles } from '@/styles/ui/Input.styles';
-import { selectStyles, SCREEN_HEIGHT } from './Select.styles';
+import { selectStyles, SCREEN_HEIGHT } from '@/styles/ui/Select.styles';
 import Colors from '@/constants/Colors';
 
 interface SelectOption {
@@ -125,7 +125,7 @@ export function Select({
   return (
     <View className={cn('mb-5 w-full', className)}>
       {label && (
-        <Text className="text-base font-semibold text-gray-700 mb-2">{label}</Text>
+        <Text className="text-base font-medium mb-2" style={{ color: Colors.primary[500] }}>{label}</Text>
       )}
       <Animated.View
         style={[
@@ -153,7 +153,7 @@ export function Select({
             )}
             style={{ flex: 1 }}
           >
-            {selectedOption?.label || placeholder}
+                     <Text className="text-base font-regular" style={{ color: Colors.primary[500] }}>{placeholder}</Text>
           </Text>
           <ChevronDown
             size={18}
@@ -208,7 +208,7 @@ export function Select({
         </View>
       </Modal>
 
-      {error && <Text className="text-sm text-[#DC2626] mt-1 font-regular">{error}</Text>}
+      {error && <Text className="text-sm mt-1 font-regular" style={{ color: Colors.error[500] }}>{error}</Text>}
     </View>
   );
 } 

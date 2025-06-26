@@ -64,7 +64,7 @@ export default function PortfolioDetailsScreen() {
   }
 
   return (
-    <Container variant="secondaryPage" className="px-4">
+    <Container variant="secondaryPage" className="px-1">
       <View className="flex-1 bg-white">
         <Header 
           title="Detalles de la meta" 
@@ -77,7 +77,7 @@ export default function PortfolioDetailsScreen() {
             </TouchableOpacity>
           }
         />
-        <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 120 }} showsVerticalScrollIndicator={false}>
+        <ScrollView className="flex-1 px-3" contentContainerStyle={{ paddingBottom: 120 }} showsVerticalScrollIndicator={false}>
           <PortfolioDetailsHeader meta={metaDetails} />
           <PortfolioProgress meta={metaDetails} />
           <ChartSection updatedDate="Actualizado al cierre del martes 27 de mayo" />
@@ -85,6 +85,7 @@ export default function PortfolioDetailsScreen() {
           <PortfolioAssets assets={metaDetails.assets} />
           <PortfolioMovements movements={movements} />
         </ScrollView>
+        <View className="px-3">
         <PortfolioActionsBar
           actions={[
             {
@@ -95,12 +96,15 @@ export default function PortfolioDetailsScreen() {
             },
             {
               title: 'Retirar',
-              onPress: () => {},
+              onPress: () => {
+                router.push('/investment/portfolio/movements/sales' as any);
+              },
               icon: <ArrowUp size={20} color="#FF5603" />,
               variant: 'outline'
             }
-          ]}  
-        />
+            ]}  
+          />
+        </View>
       </View>
     </Container>
   );

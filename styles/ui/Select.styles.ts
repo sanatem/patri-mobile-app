@@ -1,6 +1,17 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Dimensions } from 'react-native';
+
+const SCREEN_HEIGHT = Dimensions.get('window').height;
 
 export const selectStyles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    zIndex: 1,
+  },
   modalSheet: {
     position: 'absolute',
     left: 0,
@@ -18,13 +29,18 @@ export const selectStyles = StyleSheet.create({
     shadowOpacity: 0.12,
     shadowRadius: 16,
     elevation: 16,
+    zIndex: 2,
+  },
+  dragIndicatorContainer: {
+    alignItems: 'center',
+    marginBottom: 16,
   },
   dragIndicator: {
     width: 48,
     height: 5,
     borderRadius: 3,
     backgroundColor: '#E5E7EB',
-    alignSelf: 'center',
-    marginBottom: 16,
   },
 });
+
+export { SCREEN_HEIGHT }; 
