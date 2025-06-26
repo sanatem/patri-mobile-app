@@ -1,37 +1,37 @@
 import React from 'react';
 import { View } from 'react-native';
 import { Button } from '@/components/ui/Button';
-import { TrendingUp, Plus } from 'lucide-react-native';
 import { portfolioActionsBarStyles } from '../../../styles/investment/PortfolioActionsBar.styles';
-import Colors from '@/constants/Colors';
 
-interface PortfolioActionsBarProps {
-  onInvestPress: () => void;
-  onCreatePress: () => void;
+interface ActionButton {
+  title: string;
+  onPress: () => void;
+  variant?: 'primary' | 'outline' | 'ghost' | 'disabled';
+  icon?: React.ReactElement | null | undefined;
+  disabled?: boolean;
 }
 
-export function PortfolioActionsBar({ onInvestPress, onCreatePress }: PortfolioActionsBarProps) {
+interface PortfolioActionsBarProps {
+  actions: ActionButton[];
+  containerStyle?: any;
+}
+
+export function PortfolioActionsBar({ actions, containerStyle }: PortfolioActionsBarProps) {
   return (
-    <View style={portfolioActionsBarStyles.container}>
+    <View style={[portfolioActionsBarStyles.container, containerStyle]}>
       <View style={portfolioActionsBarStyles.card}>
         <View style={portfolioActionsBarStyles.buttonRow}>
-          <View style={portfolioActionsBarStyles.button}>
-            <Button
-              title="Invertir"
-              onPress={onInvestPress}
-              variant="primary"
-              icon={<TrendingUp size={22} color="#fff" />}
-            />
-          </View>
-          <View style={portfolioActionsBarStyles.button}>
-            <Button
-              title="Crear"
-              onPress={onCreatePress}
-              variant="outline"
-              icon={<Plus size={22} color={Colors.gray[300]} />}
-              disabled={true}
-            />
-          </View>
+          {actions.map((action, idx) => (
+            <View style={portfolioActionsBarStyles.button} key={idx}>
+              <Button
+                title={action.title}
+                onPress={action.onPress}
+                variant={action.variant}
+                icon={action.icon}
+                disabled={action.disabled}
+              />
+            </View>
+          ))}
         </View>
       </View>
     </View>

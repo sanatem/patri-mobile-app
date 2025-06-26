@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
+import { View, Text, TouchableOpacity, Animated, Modal, Pressable, Dimensions, Platform } from 'react-native';
 import { ChevronDown } from 'lucide-react-native';
 import { cn } from '@/lib/utils';
+import { inputStyles } from '@/styles/ui/Input.styles';
+import { selectStyles, SCREEN_HEIGHT } from './Select.styles';
+import Colors from '@/constants/Colors';
 
 interface SelectOption {
   label: string;
@@ -31,8 +34,58 @@ export function Select({
   className,
 }: SelectProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const borderAnim = useRef(new Animated.Value(0)).current;
+  const overlayAnim = useRef(new Animated.Value(0)).current;
+  const sheetAnim = useRef(new Animated.Value(0)).current;
 
   const selectedOption = options.find(option => option.value === value);
+
+  useEffect(() => {
+    Animated.timing(borderAnim, {
+      toValue: isOpen ? 1 : 0,
+      duration: 200,
+      useNativeDriver: false,
+    }).start();
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (isOpen) {
+      setModalVisible(true);
+      Animated.parallel([
+        Animated.timing(overlayAnim, {
+          toValue: 1,
+          duration: 220,
+          useNativeDriver: true,
+        }),
+        Animated.timing(sheetAnim, {
+          toValue: 1,
+          duration: 260,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    } else if (modalVisible) {
+      Animated.parallel([
+        Animated.timing(overlayAnim, {
+          toValue: 0,
+          duration: 180,
+          useNativeDriver: true,
+        }),
+        Animated.timing(sheetAnim, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ]).start(() => {
+        setModalVisible(false);
+      });
+    }
+  }, [isOpen]);
+
+  const animatedBorderColor = borderAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [error ? '#DC2626' : '#ECECEC', '#FF6503'],
+  });
 
   const handleSelect = (optionValue: string) => {
     onSelect(optionValue);
@@ -45,87 +98,117 @@ export function Select({
     }
   };
 
+  const overlayStyle = [
+    selectStyles.overlay,
+    {
+      backgroundColor: overlayAnim.interpolate({
+        inputRange: [0, 1],
+        outputRange: ['rgba(0,0,0,0)', 'rgba(0,0,0,0.45)'],
+      }),
+    },
+  ];
+
+  const sheetStyle = [
+    selectStyles.modalSheet,
+    {
+      transform: [
+        {
+          translateY: sheetAnim.interpolate({
+            inputRange: [0, 1],
+            outputRange: [SCREEN_HEIGHT, 0],
+          }),
+        },
+      ],
+    },
+  ];
+
   return (
-    <View className={cn("relative", className)}>
+    <View className={cn('mb-5 w-full', className)}>
       {label && (
-        <Text className="text-sm font-medium text-gray-700 mb-2">
-          {label}
-        </Text>
+        <Text className="text-base font-semibold text-gray-700 mb-2">{label}</Text>
       )}
-      
-      <TouchableOpacity
-        className={cn(
-          "bg-gray-50 rounded-lg p-3 border border-gray-200",
-          disabled && "opacity-50",
-          error && "border-red-500",
-          isOpen && "border-primary-500"
-        )}
-        onPress={toggleDropdown}
-        activeOpacity={0.7}
-        disabled={disabled}
+      <Animated.View
+        style={[
+          inputStyles.container,
+          {
+            borderColor: error ? '#DC2626' : animatedBorderColor,
+            backgroundColor: disabled ? '#F3F4F6' : '#fff',
+          },
+        ]}
       >
-        <View className="flex-row justify-between items-center">
-          <View className="flex-row items-center flex-1">
-            {selectedOption?.icon && (
-              <View className="mr-2">{selectedOption.icon}</View>
-            )}
-            <Text className={cn(
-              "text-base",
-              selectedOption ? "text-gray-900 font-medium" : "text-gray-500"
-            )}>
-              {selectedOption?.label || placeholder}
-            </Text>
-          </View>
-          
-          <ChevronDown 
-            size={18} 
-            color="#6B7280"
-            style={{ 
-              transform: [{ rotate: isOpen ? '180deg' : '0deg' }] 
-            }}
-          />
-        </View>
-      </TouchableOpacity>
-
-      {isOpen && (
-        <View 
-          className="absolute top-full left-0 right-0 bg-white rounded-lg mt-1 border border-gray-200 shadow-lg z-50"
-          style={{ 
-            elevation: 8,
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.1,
-            shadowRadius: 8,
-          }}
+        <TouchableOpacity
+          className="flex-1 flex-row items-center"
+          onPress={toggleDropdown}
+          activeOpacity={0.7}
+          disabled={disabled}
         >
-          {options.map((option, index) => (
-            <TouchableOpacity
-              key={option.value}
-              className={cn(
-                "py-3 px-4 flex-row items-center",
-                index !== options.length - 1 && "border-b border-gray-100",
-                option.value === value && "bg-primary-50"
-              )}
-              onPress={() => handleSelect(option.value)}
-              activeOpacity={0.7}
-            >
-              {option.icon && (
-                <View className="mr-3">{option.icon}</View>
-              )}
-              <Text className={cn(
-                "text-base",
-                option.value === value ? "text-primary-600 font-medium" : "text-gray-900"
-              )}>
-                {option.label}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      )}
+          {selectedOption?.icon && (
+            <View style={inputStyles.iconContainer}>{selectedOption.icon}</View>
+          )}
+          <Text
+            className={cn(
+              'text-base',
+              selectedOption ? 'text-gray-700 font-medium' : 'text-gray-500',
+              disabled && 'text-gray-400'
+            )}
+            style={{ flex: 1 }}
+          >
+            {selectedOption?.label || placeholder}
+          </Text>
+          <ChevronDown
+            size={18}
+            color={disabled ? '#D1D5DB' : '#6B7280'}
+            style={{ transform: [{ rotate: isOpen ? '180deg' : '0deg' }] }}
+          />
+        </TouchableOpacity>
+      </Animated.View>
 
-      {error && (
-        <Text className="text-sm text-red-600 mt-1">{error}</Text>
-      )}
+      <Modal
+        visible={modalVisible}
+        transparent
+        animationType="none"
+        onRequestClose={() => setIsOpen(false)}
+      >
+        <View style={{ flex: 1, justifyContent: 'flex-end' }}>
+          <Animated.View style={overlayStyle}>
+            <Pressable style={{ flex: 1 }} onPress={() => setIsOpen(false)} />
+          </Animated.View>
+          <Animated.View style={sheetStyle}>
+            <View style={selectStyles.dragIndicatorContainer}>
+              <View style={selectStyles.dragIndicator} />
+            </View>
+            {label && (
+              <Text className="text-base font-medium mb-4" style={{ color: Colors.primary[500] }}>{label}</Text>
+            )}
+            {options.map((option, index) => (
+              <TouchableOpacity
+                key={option.value}
+                style={{
+                  paddingVertical: 16,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  borderBottomWidth: index !== options.length - 1 ? 1 : 0,
+                  borderColor: '#F3F4F6',
+                }}
+                onPress={() => handleSelect(option.value)}
+                activeOpacity={0.7}
+              >
+                {option.icon && <View style={{ marginRight: 12 }}>{option.icon}</View>}
+                <Text
+                  className={cn(
+                    'text-base',
+                    option.value === value ? 'text-primary-500 font-medium' : 'font-regular text-gray-700'
+                  )}
+                >
+                  {option.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </Animated.View>
+        </View>
+      </Modal>
+
+      {error && <Text className="text-sm text-[#DC2626] mt-1 font-regular">{error}</Text>}
     </View>
   );
 } 

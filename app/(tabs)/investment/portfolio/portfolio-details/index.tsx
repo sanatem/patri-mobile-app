@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
-import { ChevronLeft } from 'lucide-react-native';
+import { ChevronLeft, ArrowDown, ArrowUp, Plus } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { Header } from '@/components/ui/Header';
 import { Container } from '@/components/ui/Container';
@@ -14,6 +14,7 @@ import PortfolioMovements from '@/components/investment/portfolio/portfolio-deta
 import { getMovementsByGoal, Movement } from '@/services/investment/get-movements';
 import { getPortfolioDetails, MetaDetails } from '@/services/investment/get-portfolio-details';
 import Colors from '@/constants/Colors';
+import { PortfolioActionsBar } from '@/components/investment/portfolio/PortfolioActionsBar';
 
 export default function PortfolioDetailsScreen() {
   const router = useRouter();
@@ -46,29 +47,24 @@ export default function PortfolioDetailsScreen() {
 
   if (loading || !metaDetails) {
     return (
-      <Container variant="secondaryPage" className="px-3">
-        <View className="flex-1 bg-white">
+      <Container variant="secondaryPage">
           <Header 
             title="Detalles de la meta" 
             leftAction={
               <TouchableOpacity
                 onPress={() => router.push('/investment/portfolio')}
-                className="p-1 mr-3"
+                className="w-10 h-10 rounded-full justify-center items-center"
               >
-                <ChevronLeft size={24} color={Colors.primary[500]} />
+                <ChevronLeft size={24} color={Colors.primary[700]} />
               </TouchableOpacity>
             }
           />
-          <View className="flex-1 justify-center items-center">
-            <Text className="text-gray-500">Cargando...</Text>
-          </View>
-        </View>
       </Container>
     );
   }
 
   return (
-    <Container variant="secondaryPage" className="px-3">
+    <Container variant="secondaryPage" className="px-4">
       <View className="flex-1 bg-white">
         <Header 
           title="Detalles de la meta" 
@@ -89,10 +85,22 @@ export default function PortfolioDetailsScreen() {
           <PortfolioAssets assets={metaDetails.assets} />
           <PortfolioMovements movements={movements} />
         </ScrollView>
-        <View className="bg-white border-t border-gray-200 p-5 flex-col" style={{ gap: 12 }}>
-          <Button title="Retirar" variant="outline" onPress={() => {}} fullWidth />
-          <Button title="Depositar" variant="primary" onPress={() => {}} fullWidth />
-        </View>
+        <PortfolioActionsBar
+          actions={[
+            {
+              title: 'Invertir',
+              onPress: () => router.push('/investment/portfolio/movements/investment' as any),
+              icon: <ArrowDown size={20} color="#fff" />,
+              variant: 'primary'
+            },
+            {
+              title: 'Retirar',
+              onPress: () => {},
+              icon: <ArrowUp size={20} color="#FF5603" />,
+              variant: 'outline'
+            }
+          ]}  
+        />
       </View>
     </Container>
   );

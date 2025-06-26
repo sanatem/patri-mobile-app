@@ -49,15 +49,6 @@ export default function PortfolioMovementCard({ item }: PortfolioMovementCardPro
     return null;
   };
 
-  const getMovementColor = (type: string) => {
-    if (type === 'deposit') {
-      return colors.success[500];
-    } else if (type === 'withdrawal') {
-      return colors.error[500];
-    }
-    return colors.gray[700];
-  };
-
   const rotate = rotateAnim.interpolate({
     inputRange: [0, 1],
     outputRange: ['0deg', '180deg'],
@@ -79,15 +70,14 @@ export default function PortfolioMovementCard({ item }: PortfolioMovementCardPro
         </View>
         <View className="flex-row items-center gap-2">
           <Text 
-            className="text-base font-regular" 
-            style={{ color: getMovementColor(item.type) }}
+            className="text-base font-regular" style={{ color: colors.primary[700] }}
           >
             ${item.value.toLocaleString('es-CL')}
           </Text>
           <Animated.View style={{ transform: [{ rotate }] }}>
             <ChevronDown 
               className="px-1"
-              size={20} 
+              size={28} 
               color={colors.gray[700]} 
             />
           </Animated.View>
@@ -96,10 +86,10 @@ export default function PortfolioMovementCard({ item }: PortfolioMovementCardPro
       {expanded && (
         item.details ? (
           <View className="mt-2 pl-1">
-            <Text className="text-xs mb-1">Tipo: <Text className="text-gray-700 font-medium">{item.details.tipo}</Text></Text>
-            <Text className="text-xs mb-1">Método de pago: <Text className="text-gray-700 font-medium">{item.details.metodo}</Text></Text>
-            <Text className="text-xs mb-1">Portafolio: <Text className="text-gray-700 font-medium">{item.details.portafolio}</Text></Text>
-            <Text className="text-xs mb-1">Estado: <Text className="text-gray-700 font-medium">{item.details.estado}</Text></Text>
+            <Text className="text-xs mb-1 font-medium">Tipo: <Text className="text-gray-700 font-regular">{item.details.tipo}</Text></Text>
+            <Text className="text-xs mb-1 font-medium">Método de pago: <Text className="text-gray-700 font-regular">{item.details.metodo}</Text></Text>
+            <Text className="text-xs mb-1 font-medium">Portafolio: <Text className="text-gray-700 font-regular">{item.details.portafolio}</Text></Text>
+            <Text className="text-xs mb-1 font-medium">Estado: <Text className="text-gray-700 font-regular">{item.details.estado}</Text></Text>
           </View>
         ) : (
           <View className="mt-2 pl-1">

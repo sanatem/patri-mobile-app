@@ -9,6 +9,8 @@ import {
   BarChart,
   Settings,
   ChevronLeft,
+  ArrowDown,
+  Plus,
 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { Header } from '@/components/ui/Header';
@@ -24,6 +26,7 @@ import {
 import Colors from '@/constants/Colors';
 import { listItemStyles } from '@/styles/ui/ListItem.styles';
 import { PortfolioActionsBar } from '@/components/investment/portfolio/PortfolioActionsBar';
+import { Button } from '@/components/ui/Button';
 
 export default function InvestmentPortfolioScreen() {
   const router = useRouter();
@@ -107,8 +110,20 @@ export default function InvestmentPortfolioScreen() {
           patrimony={INVESTMENT_SAMPLE_DATA.PATRIMONY_AMOUNT}
         />
         <PortfolioActionsBar
-          onInvestPress={handleInvestPress}
-          onCreatePress={handleCreatePress}
+          actions={[
+            {
+              title: 'Invertir',
+              onPress: handleInvestPress,
+              icon: <ArrowDown size={22} color="#fff" />
+            },
+            {
+              title: 'Crear meta',
+              onPress: handleCreatePress,
+              icon: <Plus size={22} color={Colors.gray[300]} />,
+              variant: 'outline',
+              disabled: true,
+            }
+          ]}
         />
         <View style={listItemStyles.cardContainer}>
           <Tabs
