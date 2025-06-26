@@ -12,6 +12,7 @@ import { Header } from '@/components/ui/Header';
 import { Container } from '@/components/ui/Container';
 import GoalSelectionStep from './goal-step';
 import AmountStep from './amount-step';
+import Colors from '@/constants/Colors';
 
 type Step = 'goal-step' | 'amount-step';
 
@@ -28,13 +29,13 @@ export default function InvestmentMovementFlow() {
 
   const handleFinish = () => {
     Keyboard.dismiss();
-    router.push('/investment/portfolio/portfolio' as any);
+    router.push('/investment/portfolio' as any);
   };
 
   const getHeaderTitle = () => {
     switch (currentStep) {
       case 'goal-step':
-        return `Mover desde 🚒 ${from}`;
+        return `Mover desde ${from}`;
       case 'amount-step':
         return 'Ingresar monto';
       default:
@@ -46,28 +47,21 @@ export default function InvestmentMovementFlow() {
     if (currentStep === 'amount-step') {
       setCurrentStep('goal-step');
     } else {
-      router.back();
+      router.push('/investment/portfolio' as any);
     }
   };
 
   return (
-    <Container variant="secondaryPage" style={{ padding: 20 }}>
+    <Container variant="secondaryPage" className="px-1">
       <Header 
         title={getHeaderTitle()}
         leftAction={
           <TouchableOpacity
             onPress={handleBack}
-            className="p-1 mr-3"
+            className="p-1"
           >
-            <ChevronLeft size={24} color="#FF5603" />
+            <ChevronLeft size={24} color={Colors.primary[500]} />
           </TouchableOpacity>
-        }
-        rightAction={
-          currentStep === 'amount-step' ? (
-            <TouchableOpacity onPress={() => router.back()}>
-              <X size={22} color="#6B7280" />
-            </TouchableOpacity>
-          ) : undefined
         }
       />
 

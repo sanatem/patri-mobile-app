@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView } from 'react-native';
-import { Info } from 'lucide-react-native';
+import { Container } from '@/components/ui/Container';
 import { Button } from '@/components/ui/Button';
 import { Select } from '@/components/ui/Select';
+import Colors from '@/constants/Colors';
 
 interface GoalSelectionStepProps {
   selectedGoal?: string;
@@ -18,13 +19,12 @@ export default function GoalSelectionStep({
   const [selectedGoal, setSelectedGoal] = useState(initialGoal);
 
   const goalOptions = [
-    { label: 'Reserva', value: 'Reserva', icon: <Text>🏦</Text> },
-    { label: 'Casa', value: 'Casa', icon: <Text>🏠</Text> },
-    { label: 'Mejorar mi jubilación', value: 'Mejorar mi jubilación', icon: <Text>💰</Text> },
+    { label: 'Reserva', value: 'Reserva' },
+    { label: 'Casa', value: 'Casa' },
+    { label: 'Mejorar mi jubilación', value: 'Mejorar mi jubilación' },
   ];
 
   const handleGoalSelect = (goal: string) => {
-    console.log('Selecting goal:', goal);
     setSelectedGoal(goal);
     if (onGoalSelect) {
       onGoalSelect(goal);
@@ -32,21 +32,20 @@ export default function GoalSelectionStep({
   };
 
   const handleContinue = () => {
-    console.log('Continue pressed with goal:', selectedGoal);
     if (onContinue) {
       onContinue();
     }
   };
 
   return (
-    <View className="flex-1 bg-white">
+    <Container variant="secondaryPage">
       <ScrollView 
-        className="flex-1 px-5" 
+        className="flex-1 px-3" 
         contentContainerStyle={{ paddingBottom: 120, paddingTop: 20 }}
         showsVerticalScrollIndicator={false}
       >
-        <Text className="text-base font-semibold text-gray-900 mb-6">
-          ¿A qué meta quieres mover tu dinero?
+        <Text className="text-base font-semibold mb-6" style={{ color: Colors.primary[500] }}>
+          ¿A qué meta quieres invertir?
         </Text>
 
         <Select
@@ -58,13 +57,7 @@ export default function GoalSelectionStep({
         />
       </ScrollView>
 
-      {/* Footer */}
-      <View className="bg-gray-50 border-t border-gray-200 p-5">
-        <View className="flex-row items-center mb-3" style={{ gap: 4 }}>
-          <Text className="text-sm text-gray-500">No aplica para objetivos APV</Text>
-          <Info size={16} color="#6B7280" />
-        </View>
-
+      <View className="mb-4 mt-4 px-3">
         <Button
           title="Continuar"
           variant="primary"
@@ -73,6 +66,6 @@ export default function GoalSelectionStep({
           disabled={!selectedGoal}
         />
       </View>
-    </View>
+    </Container>
   );
 } 

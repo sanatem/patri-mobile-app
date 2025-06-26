@@ -6,6 +6,9 @@ import {
   TouchableOpacity,
   TextInput,
 } from 'react-native';
+import { Container } from '@/components/ui/Container';
+import { Button } from '@/components/ui/Button';
+import Colors from '@/constants/Colors';
 
 interface AmountStepProps {
   amount: string;
@@ -25,40 +28,28 @@ export default function AmountStep({
 
   return (
     <>
-      {/* Monto */}
-      <View style={styles.amountBox}>
-        <Text style={styles.label}>Pesos chilenos</Text>
+      <Container variant="secondaryPage">
+      <View className="flex-1 justify-center items-center px-3">
+        <Text className="text-base font-medium mb-2" style={{ color: Colors.primary[700] }}>Pesos chilenos</Text>
         <TextInput
           style={styles.amountInput}
           keyboardType="number-pad"
           placeholder="$0"
-          placeholderTextColor="#9CA3AF"
+          placeholderTextColor={Colors.gray[500]}
           value={amount}
           onChangeText={handleAmountChange}
         />
-        <Text style={styles.rateText}>(a $946 el dólar)</Text>
+        <Text className="text-sm font-regular mt-1" style={{ color: Colors.primary[500] }}>(a $946 el dólar)</Text>
       </View>
-
-      {/* Botón finalizar */}
-      <View style={styles.footer}>
-        <TouchableOpacity
-          style={[
-            styles.primaryBtn,
-            amount ? styles.btnEnabled : styles.btnDisabled,
-          ]}
+      <View className="px-3 mb-4 mt-4">
+        <Button
+          title="Finalizar"
           disabled={!amount}
           onPress={onFinish}
-        >
-          <Text
-            style={[
-              styles.primaryText,
-              amount ? styles.textEnabled : styles.textDisabled,
-            ]}
-          >
-            Finalizar
-          </Text>
-        </TouchableOpacity>
+          variant="primary"
+        />
       </View>
+      </Container>
     </>
   );
 }
