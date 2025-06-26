@@ -44,8 +44,8 @@ export default function GoalSelectionStep({
         contentContainerStyle={{ paddingBottom: 120, paddingTop: 20 }}
         showsVerticalScrollIndicator={false}
       >
-        <Text className="text-base font-semibold mb-6" style={{ color: Colors.primary[500] }}>
-          ¿A qué meta quieres invertir?
+        <Text className="text-base font-regular mb-6" style={{ color: Colors.primary[500] }}>
+          ¿A qué <Text className="font-semibold">meta</Text> quieres invertir?
         </Text>
 
         <Select
