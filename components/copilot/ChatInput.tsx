@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { View, TextInput, TouchableOpacity } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { View, TouchableOpacity } from 'react-native';
 import { Send } from 'lucide-react-native';
+import { Input } from '@/components/ui/Input';
 
 interface ChatInputProps {
   onSendMessage: (message: string) => void;
@@ -8,34 +9,57 @@ interface ChatInputProps {
 
 export function ChatInput({ onSendMessage }: ChatInputProps) {
   const [message, setMessage] = useState('');
+  const inputRef = useRef<any>(null);
 
   const handleSend = () => {
     if (!message.trim()) return;
-    
     const messageToSend = message.trim();
     setMessage('');
     onSendMessage(messageToSend);
   };
 
   return (
-    <View className="flex-row px-4 py-4 border-t border-gray-200 items-end">
-      <TextInput
-        className="flex-1 min-h-[40px] max-h-[120px] bg-gray-50 rounded-full px-4 py-2 mr-2 text-base font-regular text-gray-800"
-        placeholder="¿En qué te puedo ayudar hoy?"
-        placeholderTextColor="#9CA3AF"
-        value={message}
-        onChangeText={setMessage}
-        multiline
-      />
-      <TouchableOpacity
-        className={`w-10 h-10 rounded-full justify-center items-center ${
-          message.trim() ? 'bg-primary-500' : 'bg-gray-200'
-        }`}
-        onPress={handleSend}
-        disabled={!message.trim()}
-      >
-        <Send size={20} color={message.trim() ? 'white' : '#9CA3AF'} />
-      </TouchableOpacity>
+    <View
+      style={{
+        flexDirection: 'row',
+        paddingHorizontal: 16,
+        paddingVertical: 16,
+        borderTopWidth: 1,
+        borderTopColor: '#E5E7EB',
+        alignItems: 'flex-end',
+      }}
+    >
+      <View style={{ flex: 1, position: 'relative', justifyContent: 'center' }}>
+        <Input
+          value={message}
+          onChangeText={setMessage}
+          placeholder="¿En qué te puedo ayudar hoy?"
+          placeholderTextColor="#9CA3AF"
+          multiline
+          style={{ paddingRight: 48 }}
+          onSubmitEditing={handleSend}
+          returnKeyType="send"
+        />
+        <TouchableOpacity
+          onPress={handleSend}
+          disabled={!message.trim()}
+          style={{
+            position: 'absolute',
+            right: 8,
+            top: 0,
+            bottom: 20,
+            marginVertical: 'auto',
+            width: 40,
+            height: 40,
+            borderRadius: 20,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: message.trim() ? '#FF6503' : '#ECECEC',
+          }}
+        >
+          <Send size={22} color={message.trim() ? 'white' : '#9CA3AF'} />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
