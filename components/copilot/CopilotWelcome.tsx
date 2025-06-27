@@ -13,19 +13,19 @@ interface CopilotWelcomeProps {
 
 const DEFAULT_SUGGESTIONS = [
   {
-    text: 'Ver mis inversiones',
+    text: '¿Cuáles son mis gastos este mes?',
+    icon: 'wallet-outline'
+  },
+  {
+    text: '¿Cómo va mi presupuesto?',
+    icon: 'stats-chart-outline'
+  },
+  {
+    text: '¿Cuánto dinero tengo invertido?',
     icon: 'pie-chart-outline'
   },
   {
-    text: 'Hablar con un asesor',
-    icon: 'chatbubbles-outline'
-  },
-  {
-    text: 'Agendar reunión',
-    icon: 'calendar-outline'
-  },
-  {
-    text: 'Conocer mi patrimonio',
+    text: '¿Cuál es el resumen de mi patrimonio?',
     icon: 'person-outline'
   }
 ];

@@ -17,6 +17,8 @@ type InputProps = TextInputProps & {
   icon?: React.ReactNode;
   rightIcon?: React.ReactNode;
   onRightIconPress?: () => void;
+  rightIconStyle?: any;
+  rightIconDisabled?: boolean;
   className?: string;
 };
 
@@ -28,6 +30,8 @@ export function Input({
   onRightIconPress,
   editable = true,
   className,
+  rightIconStyle,
+  rightIconDisabled,
   ...props
 }: InputProps) {
   const [isFocused, setIsFocused] = useState(false);
@@ -76,7 +80,7 @@ export function Input({
         />
 
         {rightIcon && (
-          <TouchableOpacity onPress={onRightIconPress} style={inputStyles.rightIconContainer}>
+          <TouchableOpacity onPress={onRightIconPress} style={[inputStyles.rightIconContainer, rightIconStyle]} disabled={rightIconDisabled}>
             {rightIcon}
           </TouchableOpacity>
         )}
