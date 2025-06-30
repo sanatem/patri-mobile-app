@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, TextInput, TouchableOpacity, Animated } from 'react-native';
+import { View, TextInput, TouchableOpacity, Animated, Keyboard } from 'react-native';
 import { Search, X } from 'lucide-react-native';
 import { inputStyles } from '@/styles/ui/Input.styles';
 import Colors from '@/constants/Colors';
@@ -11,6 +11,9 @@ interface SearchBarProps {
   onClear?: () => void;
   className?: string;
   autoFocus?: boolean;
+  onSubmitEditing?: () => void;
+  returnKeyType?: 'done' | 'go' | 'next' | 'search' | 'send';
+  blurOnSubmit?: boolean;
 }
 
 export function SearchBar({
@@ -20,6 +23,9 @@ export function SearchBar({
   onClear,
   className,
   autoFocus = false,
+  onSubmitEditing,
+  returnKeyType = 'search',
+  blurOnSubmit = true,
 }: SearchBarProps) {
   const [internalValue, setInternalValue] = useState('');
   const [isFocused, setIsFocused] = useState(false);
@@ -46,6 +52,14 @@ export function SearchBar({
     onClear?.();
   };
 
+  const handleSubmitEditing = () => {
+    if (onSubmitEditing) {
+      onSubmitEditing();
+    } else if (blurOnSubmit) {
+      Keyboard.dismiss();
+    }
+  };
+
   return (
     <Animated.View
       style={[
@@ -70,6 +84,10 @@ export function SearchBar({
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         autoFocus={autoFocus}
+        returnKeyType={returnKeyType}
+        blurOnSubmit={blurOnSubmit}
+        onSubmitEditing={handleSubmitEditing}
+        clearButtonMode="never"
       />
       {currentValue.length > 0 && (
         <TouchableOpacity onPress={handleClear} style={inputStyles.rightIconContainer}>
