@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Animated,
   StyleSheet,
+  Keyboard,
 } from 'react-native';
 import { cn } from '@/lib/utils';
 import { inputStyles } from '@/styles/ui/Input.styles';
@@ -20,6 +21,9 @@ type InputProps = TextInputProps & {
   rightIconStyle?: any;
   rightIconDisabled?: boolean;
   className?: string;
+  blurOnSubmit?: boolean;
+  returnKeyType?: 'done' | 'go' | 'next' | 'search' | 'send';
+  onSubmitEditing?: () => void;
 };
 
 export function Input({
@@ -32,6 +36,9 @@ export function Input({
   className,
   rightIconStyle,
   rightIconDisabled,
+  blurOnSubmit = true,
+  returnKeyType = 'done',
+  onSubmitEditing,
   ...props
 }: InputProps) {
   const [isFocused, setIsFocused] = useState(false);
@@ -49,6 +56,14 @@ export function Input({
     inputRange: [0, 1],
     outputRange: ['#ECECEC', '#FF6503'],
   });
+
+  const handleSubmitEditing = () => {
+    if (onSubmitEditing) {
+      onSubmitEditing();
+    } else if (blurOnSubmit) {
+      Keyboard.dismiss();
+    }
+  };
 
   return (
     <View className="mb-5 w-full">
@@ -75,6 +90,10 @@ export function Input({
           editable={editable}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
+          returnKeyType={returnKeyType}
+          blurOnSubmit={blurOnSubmit}
+          onSubmitEditing={handleSubmitEditing}
+          clearButtonMode="never"
         
           {...props}
         />
