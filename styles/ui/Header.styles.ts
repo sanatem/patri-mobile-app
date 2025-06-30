@@ -4,8 +4,8 @@ export const headerStyles = StyleSheet.create({
   gradient: {
     width: '100%',
     alignSelf: 'stretch',
-    paddingTop: 50,
-    paddingBottom: 16,
+    paddingTop: 30,
+    paddingBottom: 10,
     backgroundColor: '#fff',
   },
   container: {
