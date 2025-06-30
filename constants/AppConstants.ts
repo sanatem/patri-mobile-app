@@ -572,3 +572,42 @@ export const INVESTMENT_SAMPLE_DATA = {
     },
   ],
 } as const;
+
+export const COPILOT_SUGGESTIONS = {
+  WELCOME: [
+    {
+      text: '¿Cuáles son mis gastos este mes?',
+      icon: 'wallet-outline' as const
+    },
+    {
+      text: '¿Cómo va mi presupuesto?',
+      icon: 'stats-chart-outline' as const
+    },
+    {
+      text: '¿Cuánto dinero tengo invertido?',
+      icon: 'pie-chart-outline' as const
+    },
+    {
+      text: '¿Cuál es el resumen de mi patrimonio?',
+      icon: 'person-outline' as const
+    }
+  ],
+  CHAT: [
+    {
+      text: '¿Cuáles son mis gastos este mes?',
+      icon: 'wallet-outline' as const
+    },
+    {
+      text: '¿Cómo va mi presupuesto?',
+      icon: 'stats-chart-outline' as const
+    },
+    {
+      text: '¿Cuánto dinero tengo invertido?',
+      icon: 'pie-chart-outline' as const
+    },
+    {
+      text: '¿Cuál es el resumen de mi patrimonio?',
+      icon: 'person-outline' as const
+    }
+  ]
+};

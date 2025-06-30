@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, TouchableOpacity } from 'react-native';
-import { MessageSquare, ChevronLeft, Settings } from 'lucide-react-native';
+import { ChevronLeft, Settings } from 'lucide-react-native';
 import { useAuth } from '@/providers/AuthProvider';
 import { useCopilotChat } from '@/hooks/useCopilotHooks';
 import { useRouter } from 'expo-router';
@@ -48,10 +48,9 @@ export default function CopilotScreen() {
     <View className="flex-row items-center">
       {isChatActive && (
         <TouchableOpacity onPress={handleGoBack} className="mr-2 p-1">
-          <ChevronLeft size={24} color="#fff" />
+          <ChevronLeft size={24} color={Colors.primary[500]} />
         </TouchableOpacity>
       )}
-      <MessageSquare size={24} color="#FF6503" />
     </View>
   );
 
@@ -70,7 +69,6 @@ export default function CopilotScreen() {
         title="Copiloto"
         leftAction={leftAction}
         rightAction={rightAction}
-        titleClassName="text-lg font-semibold text-white"
       />
 
       {!isChatActive ? (

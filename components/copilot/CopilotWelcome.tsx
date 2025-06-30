@@ -1,34 +1,14 @@
 import React from 'react';
-import { View, Text } from 'react-native';
-import { ChevronRight } from 'lucide-react-native';
+import { Text } from 'react-native';
 import { SuggestionButtons } from '@/components/copilot/SuggestionButtons';
 import { Container } from '@/components/ui/Container';
 import { copilotWelcomeStyles } from '@/styles/copilot/CopilotWelcome.styles';
-import { Ionicons } from '@expo/vector-icons';
+import { COPILOT_SUGGESTIONS } from '@/constants/AppConstants';
 
 interface CopilotWelcomeProps {
   user: any;
   onSuggestionPress: (suggestion: string) => void;
 }
-
-const DEFAULT_SUGGESTIONS = [
-  {
-    text: '¿Cuáles son mis gastos este mes?',
-    icon: 'wallet-outline'
-  },
-  {
-    text: '¿Cómo va mi presupuesto?',
-    icon: 'stats-chart-outline'
-  },
-  {
-    text: '¿Cuánto dinero tengo invertido?',
-    icon: 'pie-chart-outline'
-  },
-  {
-    text: '¿Cuál es el resumen de mi patrimonio?',
-    icon: 'person-outline'
-  }
-];
 
 export function CopilotWelcome({ user, onSuggestionPress }: CopilotWelcomeProps) {
   const userName = user?.isGuest ? 'Invitado' : user?.name?.split(' ')[0] || 'Invitado';
@@ -43,10 +23,7 @@ export function CopilotWelcome({ user, onSuggestionPress }: CopilotWelcomeProps)
       </Text>
       <Container variant="secondaryPage" style={copilotWelcomeStyles.container}>
         <SuggestionButtons 
-          suggestions={DEFAULT_SUGGESTIONS as Array<{
-            text: string;
-            icon: keyof typeof Ionicons.glyphMap;
-          }>}
+          suggestions={COPILOT_SUGGESTIONS.WELCOME}
           onSuggestionPress={onSuggestionPress}
         />
       </Container>
