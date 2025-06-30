@@ -147,13 +147,13 @@ export function Select({
           )}
           <Text
             className={cn(
-              'text-base',
-              selectedOption ? 'text-gray-700 font-medium' : 'text-gray-500',
+              'text-base font-regular',
+              selectedOption ? 'text-gray-700 font-regular' : 'text-gray-500',
               disabled && 'text-gray-400'
             )}
             style={{ flex: 1 }}
           >
-                     <Text className="text-base font-regular" style={{ color: Colors.primary[500] }}>{placeholder}</Text>
+            {selectedOption ? selectedOption.label : placeholder}
           </Text>
           <ChevronDown
             size={18}
