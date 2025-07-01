@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StatusBar } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ChevronLeft } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { cn } from '@/lib/utils';
 import { headerStyles } from '@/styles/ui/Header.styles';
 import Colors from '@/constants/Colors';
@@ -30,11 +31,19 @@ export function Header({
   subtitleClassName,
 }: HeaderProps) {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
 
   return (
     <>
       <View
-        style={headerStyles.gradient}
+        style={[
+          headerStyles.gradient,
+          { 
+            paddingTop: insets.top + 16,
+            paddingLeft: Math.max(insets.left, 16), 
+            paddingRight: Math.max(insets.right, 16), 
+          }
+        ]}
       >
         <View style={[headerStyles.container, headerStyles.content]}>
           <View className="flex-row items-center">
