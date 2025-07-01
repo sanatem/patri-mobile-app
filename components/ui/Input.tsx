@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { cn } from '@/lib/utils';
 import { inputStyles } from '@/styles/ui/Input.styles';
+import Colors from '@/constants/Colors';
 
 type InputProps = TextInputProps & {
   label?: string;
@@ -68,7 +69,7 @@ export function Input({
   return (
     <View className="mb-5 w-full">
       {label && (
-        <Text className="text-base font-semibold text-gray-700 mb-2">{label}</Text>
+        <Text className="text-base font-medium mb-2" style={{ color: Colors.gray[700] }}>{label}</Text>
       )}
 
       <Animated.View

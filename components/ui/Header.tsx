@@ -52,7 +52,7 @@ export function Header({
           <View className="flex-1 items-center justify-center">
             {title && (
               <Text className={cn(
-                'text-xl font-bold',
+                'text-xl font-semibold',
                 titleClassName
               )}>
                 <Text style={{ color: Colors.primary[500] }}>
