@@ -18,7 +18,7 @@ export default function TabsLayout() {
           borderTopColor: Colors.gray[200],
           height: 60,
           paddingTop: 6,
-          marginBottom: Platform.OS === 'ios' ? 0 : 20,
+          marginBottom: Platform.OS === 'ios' ? 0 : 5,
           paddingBottom: Platform.OS === 'ios' ? 6 : 26,
         },
         tabBarLabelStyle: {
