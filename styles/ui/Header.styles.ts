@@ -4,7 +4,6 @@ export const headerStyles = StyleSheet.create({
   gradient: {
     width: '100%',
     alignSelf: 'stretch',
-    paddingTop: 30,
     paddingBottom: 10,
     backgroundColor: '#fff',
   },
@@ -14,7 +13,6 @@ export const headerStyles = StyleSheet.create({
     alignSelf: 'stretch',
   },
   content: {
-    paddingHorizontal: 16,
     width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
