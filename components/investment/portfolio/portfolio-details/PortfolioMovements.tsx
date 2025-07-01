@@ -23,7 +23,7 @@ export default function PortfolioMovements({ movements }: PortfolioMovementsProp
 
   return (
     <Card className="mb-4">
-      <Text className="text-base font-semibold mb-2" style={{ color: colors.primary[500] }}>Movimientos</Text>
+      <Text className="text-base text-center font-semibold mb-4" style={{ color: colors.primary[500] }}>Movimientos</Text>
       {movements.map((item, idx) => (
         <React.Fragment key={item.id}>
           <PortfolioMovementCard item={item} />

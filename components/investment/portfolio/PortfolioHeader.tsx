@@ -1,7 +1,5 @@
 import React from 'react';
 import { View, Text } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { portfolioHeaderStyles } from '@/styles/investment/PortfolioHeader.styles';
 import Colors from '@/constants/Colors';
 
 interface PortfolioHeaderProps {
@@ -14,7 +12,7 @@ export function PortfolioHeader({ patrimony }: PortfolioHeaderProps) {
       <Text className="text-center text-base font-medium mb-2" style={{ color: Colors.gray[500] }}>
         Patrimonio Neto
       </Text>
-      <Text className="text-center text-4xl font-bold mb-6" style={{ color: Colors.gray[700], letterSpacing: 1 }}>
+      <Text className="text-center text-4xl font-semibold mb-6" style={{ color: Colors.gray[700], letterSpacing: 1 }}>
         {patrimony}
       </Text>
     </View>

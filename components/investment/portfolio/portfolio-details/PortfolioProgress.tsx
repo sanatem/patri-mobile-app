@@ -5,7 +5,7 @@ export default function PortfolioProgress({ meta }: { meta: any }) {
   return (
     <View className="pb-4">
       <View className="flex-row items-center justify-between mb-1">
-        <Text className="text-3xl font-bold text-gray-900">${meta.current.toLocaleString('es-CL')} <Text className="text-xs font-normal text-gray-400">{meta.currency}</Text></Text>
+        <Text className="text-3xl font-semibold text-gray-700">${meta.current.toLocaleString('es-CL')} <Text className="text-xs font-medium text-gray-400">{meta.currency}</Text></Text>
       </View>
       <View className="flex-row items-center justify-between mb-2">
         <Text className="text-xs text-gray-500">{(meta.progress * 100).toFixed(2)}% de ${meta.goal.toLocaleString('es-CL')} al {meta.goalDate}</Text>

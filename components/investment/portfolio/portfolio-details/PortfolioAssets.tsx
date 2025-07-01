@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/Button';
 export default function PortfolioAssets({ assets }: { assets: any[] }) {
   return (
     <Card className="mb-4">
-      <Text className="text-base font-semibold" style={{ color: colors.primary[500] }}>Activos</Text>
+      <Text className="text-base text-center font-semibold" style={{ color: colors.primary[500] }}>Activos</Text>
       <ListItem data={assets} showContainer={false} showSeparators={true} />
       <Button icon={<Plus size={20} />} title=" Ver más activos" variant="outline" onPress={() => {}} className="w-full"/>
     </Card>
