@@ -6,7 +6,7 @@ import colors from '@/constants/Colors';
 export default function PortfolioSummary({ summary }: { summary: any }) {
   return (
     <Card className="mb-4">
-      <Text className="text-base font-semibold mb-2" style={{ color: colors.primary[500] }}>Resumen</Text>
+      <Text className="text-base text-center font-semibold mb-4" style={{ color: colors.primary[500] }}>Resumen</Text>
       <View className="flex-row justify-between mb-1">
         <Text className="text-sm font-medium" style={{ color: colors.gray[700] }}>Estrategia</Text>
         <Text className="text-sm font-medium" style={{ color: colors.gray[500] }}>{summary.estrategia}</Text>

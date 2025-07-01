@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Animated, LayoutChangeEvent } from 'react-native';
-import { ChevronRight, ChevronLeft, Users } from 'lucide-react-native';
+import { ChevronRight, Users } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import { userSelectorStyles } from '@/styles/ui/UserSelector.styles';
 
@@ -118,9 +118,9 @@ export function UserSelector({
         alignItems: 'center',
         width: widthAnim,
         maxWidth: '100%',
-        alignSelf: 'center',
-        overflow: 'hidden',
-
+        alignSelf: 'flex-start',
+        overflow: 'visible',
+        marginLeft: 0,
       }}
     >
       <View
@@ -130,6 +130,7 @@ export function UserSelector({
             backgroundColor: 'transparent',
             borderColor: 'transparent',
             marginRight: 0,
+            marginLeft: 0,
             position: 'relative',
             zIndex: 1,
             flexDirection: 'row',
@@ -141,7 +142,7 @@ export function UserSelector({
         <TouchableOpacity
           onPress={onToggle}
           activeOpacity={0.85}
-          style={{}}
+          style={{ marginLeft: 0 }}
         >
           <View style={[
             userSelectorStyles.closedCircle,

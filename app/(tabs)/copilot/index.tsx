@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, TouchableOpacity } from 'react-native';
-import { MessageSquare, ChevronLeft, Settings } from 'lucide-react-native';
+import { ChevronLeft, Settings } from 'lucide-react-native';
 import { useAuth } from '@/providers/AuthProvider';
 import { useCopilotChat } from '@/hooks/useCopilotHooks';
 import { useRouter } from 'expo-router';
@@ -15,12 +15,14 @@ export default function CopilotScreen() {
   const router = useRouter();
   const [isChatActive, setIsChatActive] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
+  const [isSuggestionsOnly, setIsSuggestionsOnly] = useState(false);
 
   const { messages, appendMessage, clearMessages } = useCopilotChat();
 
   const handleStartChat = async (message: string) => {
     setIsTyping(true);
     setIsChatActive(true);
+    setIsSuggestionsOnly(true);
     await appendMessage(message);
   };
 
@@ -28,21 +30,27 @@ export default function CopilotScreen() {
     setIsTyping(false);
     clearMessages();
     setIsChatActive(false);
+    setIsSuggestionsOnly(false);
   };
 
   const handleSendMessage = async (message: string) => {
     setIsTyping(true);
+    setIsSuggestionsOnly(false);
     await appendMessage(message);
+  };
+
+  const handleSuggestionPress = async (suggestion: string) => {
+    setIsTyping(true);
+    await appendMessage(suggestion);
   };
 
   const leftAction = (
     <View className="flex-row items-center">
       {isChatActive && (
         <TouchableOpacity onPress={handleGoBack} className="mr-2 p-1">
-          <ChevronLeft size={24} color="#fff" />
+          <ChevronLeft size={24} color={Colors.primary[500]} />
         </TouchableOpacity>
       )}
-      <MessageSquare size={24} color="#FF6503" />
     </View>
   );
 
@@ -61,7 +69,6 @@ export default function CopilotScreen() {
         title="Copiloto"
         leftAction={leftAction}
         rightAction={rightAction}
-        titleClassName="text-lg font-semibold text-white"
       />
 
       {!isChatActive ? (
@@ -75,6 +82,8 @@ export default function CopilotScreen() {
           isTyping={isTyping}
           onSendMessage={handleSendMessage}
           onTypingComplete={() => setIsTyping(false)}
+          isSuggestionsOnly={isSuggestionsOnly}
+          onSuggestionPress={handleSuggestionPress}
         />
       )}
     </Container>

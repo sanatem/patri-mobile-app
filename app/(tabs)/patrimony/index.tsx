@@ -22,6 +22,7 @@ import {
   Container,
   UserSelector,
   SegmentedControl,
+  KeyboardAwareContainer,
 } from '@/components/ui';
 import { userService } from '@/services/user/get-user-profile';
 import type { UserProfile } from '@/services/types';
@@ -244,29 +245,30 @@ export default function PatrimonyScreen() {
           </TouchableOpacity>
         }
       />
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-        <PatrimonySummary
-          netWorth={netWorth}
-          totalAssets={totalAssets}
-          totalLiabilities={totalLiabilities}
-          showTooltip={showTooltip}
-          onToggleTooltip={() => setShowTooltip(!showTooltip)}
-        />
-        <Container variant="content" className="mb-4 mt-4">
-          <SegmentedControl
-            options={TIME_RANGES.LABELS.map(label => ({ label, value: label }))}
-            value={currentTimeRangeLabel}
-            onChange={val => handleTimeRangeChange(val as keyof typeof TIME_RANGES.MAPPING)}
+      <KeyboardAwareContainer>
+        <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+          <PatrimonySummary
+            netWorth={netWorth}
+            totalAssets={totalAssets}
+            totalLiabilities={totalLiabilities}
+            showTooltip={showTooltip}
+            onToggleTooltip={() => setShowTooltip(!showTooltip)}
           />
-        </Container>
-        <AreaChart />
-          <Container variant="content" className="mb-4">
-            <SearchBar
-              placeholder={LABELS.PATRIMONY.SEARCH_PLACEHOLDER}
-              value={searchQuery}
-              onChangeText={setSearchQuery}
+          <Container variant="content" className="mb-4 mt-4">
+            <SegmentedControl
+              options={TIME_RANGES.LABELS.map(label => ({ label, value: label }))}
+              value={currentTimeRangeLabel}
+              onChange={val => handleTimeRangeChange(val as keyof typeof TIME_RANGES.MAPPING)}
             />
-            </Container>
+          </Container>
+          <AreaChart />
+            <Container variant="content" className="mb-4">
+              <SearchBar
+                placeholder={LABELS.PATRIMONY.SEARCH_PLACEHOLDER}
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+              />
+              </Container>
           <Container variant="content">
             <View style={listItemStyles.cardContainer}>
               <Tabs
@@ -289,7 +291,8 @@ export default function PatrimonyScreen() {
               />
             </View>
           </Container>
-      </ScrollView>
+        </ScrollView>
+      </KeyboardAwareContainer>
     </Container>
   );
 }

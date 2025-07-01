@@ -7,8 +7,9 @@ export const userSelectorStyles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 24,
     borderWidth: 1.5,
-    paddingHorizontal: 12,
+    paddingHorizontal: 8,
     paddingVertical: 6,
+    marginLeft: 0,
   },
   closedCircle: {
     width: 36,
@@ -18,6 +19,7 @@ export const userSelectorStyles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 4,
+    marginLeft: 0,
     borderWidth: 2,
   },
   closedCircleText: {

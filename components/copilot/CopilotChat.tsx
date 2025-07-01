@@ -2,6 +2,8 @@ import React, { useEffect, useRef } from 'react';
 import { View, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { MessageBubble } from '@/components/copilot/MessageBubble';
 import { ChatInput } from '@/components/copilot/ChatInput';
+import { SuggestionButtons } from '@/components/copilot/SuggestionButtons';
+import { COPILOT_SUGGESTIONS } from '@/constants/AppConstants';
 
 interface Message {
   id: string;
@@ -14,9 +16,18 @@ interface CopilotChatProps {
   isTyping: boolean;
   onSendMessage: (message: string) => void;
   onTypingComplete: () => void;
+  isSuggestionsOnly?: boolean;
+  onSuggestionPress?: (suggestion: string) => void;
 }
 
-export function CopilotChat({ messages, isTyping, onSendMessage, onTypingComplete }: CopilotChatProps) {
+export function CopilotChat({ 
+  messages, 
+  isTyping, 
+  onSendMessage, 
+  onTypingComplete,
+  isSuggestionsOnly = false,
+  onSuggestionPress
+}: CopilotChatProps) {
   const scrollViewRef = useRef<ScrollView>(null);
 
   useEffect(() => {
@@ -53,9 +64,20 @@ export function CopilotChat({ messages, isTyping, onSendMessage, onTypingComplet
             message={{ id: 'typing', content: '...', sender: 'assistant' }} 
           />
         )}
+
+        {isSuggestionsOnly && !isTyping && onSuggestionPress && (
+          <View className="mt-4">
+            <SuggestionButtons 
+              suggestions={COPILOT_SUGGESTIONS.CHAT}
+              onSuggestionPress={onSuggestionPress}
+            />
+          </View>
+        )}
       </ScrollView>
 
-      <ChatInput onSendMessage={onSendMessage} />
+      {!isSuggestionsOnly && (
+        <ChatInput onSendMessage={onSendMessage} />
+      )}
     </KeyboardAvoidingView>
   );
 }

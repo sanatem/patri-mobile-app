@@ -14,3 +14,4 @@ export { CarouselCard } from './CarouselCard';
 export { UserSelector } from './UserSelector';
 export { Select } from './Select';
 export { SegmentedControl } from './SegmentedControl';
+export { KeyboardAwareContainer } from './KeyboardAwareContainer';

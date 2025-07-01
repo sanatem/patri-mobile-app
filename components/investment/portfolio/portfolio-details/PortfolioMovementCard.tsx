@@ -64,8 +64,8 @@ export default function PortfolioMovementCard({ item }: PortfolioMovementCardPro
         <View className="flex-row items-center flex-1">
           {getMovementIcon(item.type)}
           <View className="ml-2 flex-1">
-            <Text className="text-sm font-medium" style={{ color: colors.gray[700] }}>{item.title}</Text>
-            <Text className="text-xs font-regular" style={{ color: colors.gray[500] }}>{item.subtitle}</Text>
+            <Text className="font-medium" style={{ color: colors.gray[700], fontSize: 16 }}>{item.title}</Text>
+            <Text className="font-regular" style={{ color: colors.gray[500], fontSize: 13 }}>{item.subtitle}</Text>
           </View>
         </View>
         <View className="flex-row items-center gap-2">

@@ -1,14 +1,14 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
   TextInput,
 } from 'react-native';
 import { Container } from '@/components/ui/Container';
 import { Button } from '@/components/ui/Button';
 import Colors from '@/constants/Colors';
+import { useFormatValue } from '@/hooks/useFormatValue';
 
 interface AmountStepProps {
   amount: string;
@@ -17,26 +17,48 @@ interface AmountStepProps {
 }
 
 export default function AmountStep({
-  amount,
-  onAmountChange,
-  onFinish,
+  amount = '',
+  onAmountChange = () => {},
+  onFinish = () => {},
 }: AmountStepProps) {
+  const { formatValue, cleanNumericValue } = useFormatValue();
+  const [displayValue, setDisplayValue] = useState('');
+
+  useEffect(() => {
+    if (amount) {
+      setDisplayValue(formatValue(amount));
+    } else {
+      setDisplayValue('');
+    }
+  }, [amount, formatValue]);
+
   const handleAmountChange = (text: string) => {
-    const clean = text.replace(/[^\d]/g, '');
-    onAmountChange(clean);
+    const clean = cleanNumericValue(text);
+    
+    if (clean) {
+      setDisplayValue(formatValue(clean));
+      if (typeof onAmountChange === 'function') {
+        onAmountChange(clean);
+      }
+    } else {
+      setDisplayValue('');
+      if (typeof onAmountChange === 'function') {
+        onAmountChange('');
+      }
+    }
   };
 
   return (
     <>
       <Container variant="secondaryPage">
       <View className="flex-1 justify-center items-center px-3">
-        <Text className="text-base font-medium mb-2" style={{ color: Colors.primary[700] }}>Pesos chilenos</Text>
+        <Text className="text-base font-medium mb-2" style={{ color: Colors.primary[700] }}>Ingresar monto</Text>
         <TextInput
           style={styles.amountInput}
           keyboardType="number-pad"
           placeholder="$0"
           placeholderTextColor={Colors.gray[500]}
-          value={amount}
+          value={displayValue}
           onChangeText={handleAmountChange}
         />
         <Text className="text-sm font-regular mt-1" style={{ color: Colors.primary[500] }}>(a $946 el dólar)</Text>
@@ -45,7 +67,7 @@ export default function AmountStep({
         <Button
           title="Finalizar"
           disabled={!amount}
-          onPress={onFinish}
+          onPress={() => typeof onFinish === 'function' && onFinish()}
           variant="primary"
         />
       </View>

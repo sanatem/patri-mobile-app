@@ -5,12 +5,11 @@ import { useRouter } from 'expo-router';
 import { Header } from '@/components/ui/Header';
 import { Container } from '@/components/ui/Container';
 import { Button } from '@/components/ui/Button';
-import { ChartSection } from '@/components/investment/portfolio/portfolio-details/ChartSection';
 import PortfolioDetailsHeader from '@/components/investment/portfolio/portfolio-details/PortfolioDetailsHeader';
-import PortfolioProgress from '@/components/investment/portfolio/portfolio-details/PortfolioProgress';
 import PortfolioSummary from '@/components/investment/portfolio/portfolio-details/PortfolioSummary';
 import PortfolioAssets from '@/components/investment/portfolio/portfolio-details/PortfolioAssets';
 import PortfolioMovements from '@/components/investment/portfolio/portfolio-details/PortfolioMovements';
+import { GoalProgressChart } from '@/components/investment/portfolio/portfolio-details/GoalProgressChart';
 import { getMovementsByGoal, Movement } from '@/services/investment/get-movements';
 import { getPortfolioDetails, MetaDetails } from '@/services/investment/get-portfolio-details';
 import Colors from '@/constants/Colors';
@@ -23,6 +22,47 @@ export default function PortfolioDetailsScreen() {
   const [loading, setLoading] = useState(true);
 
   const metaName = 'Emergencias';
+
+  const generateProjectedData = (metaDetails: MetaDetails) => {
+    if (!metaDetails) return [];
+
+    const startDate = new Date();
+    const endDate = new Date(metaDetails.goalDate.split('/').reverse().join('-'));
+    const monthsDiff = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24 * 30));
+    
+    const monthlyIncrement = (metaDetails.goal - metaDetails.current) / Math.max(monthsDiff, 1);
+    const projectedData = [];
+
+    for (let i = 3; i >= 1; i--) {
+      const date = new Date();
+      date.setMonth(date.getMonth() - i);
+      const amount = Math.max(metaDetails.current - (monthlyIncrement * i), 0);
+      projectedData.push({
+        date: date.toISOString().slice(0, 7),
+        amount: amount,
+        projected: false
+      });
+    }
+
+    projectedData.push({
+      date: new Date().toISOString().slice(0, 7),
+      amount: metaDetails.current,
+      projected: false
+    });
+
+    for (let i = 1; i <= Math.min(monthsDiff, 8); i++) {
+      const date = new Date();
+      date.setMonth(date.getMonth() + i);
+      const amount = Math.min(metaDetails.current + (monthlyIncrement * i), metaDetails.goal);
+      projectedData.push({
+        date: date.toISOString().slice(0, 7),
+        amount: amount,
+        projected: true
+      });
+    }
+
+    return projectedData;
+  };
 
   useEffect(() => {
     const loadData = async () => {
@@ -63,6 +103,8 @@ export default function PortfolioDetailsScreen() {
     );
   }
 
+  const projectedData = generateProjectedData(metaDetails);
+
   return (
     <Container variant="secondaryPage" className="px-1">
       <View className="flex-1 bg-white">
@@ -79,8 +121,12 @@ export default function PortfolioDetailsScreen() {
         />
         <ScrollView className="flex-1 px-3" contentContainerStyle={{ paddingBottom: 120 }} showsVerticalScrollIndicator={false}>
           <PortfolioDetailsHeader meta={metaDetails} />
-          <PortfolioProgress meta={metaDetails} />
-          <ChartSection updatedDate="Actualizado al cierre del martes 27 de mayo" />
+          <GoalProgressChart
+            currentAmount={metaDetails.current}
+            targetAmount={metaDetails.goal}
+            projectedData={projectedData}
+            targetDate={metaDetails.goalDate}
+          />
           <PortfolioSummary summary={metaDetails.summary} />
           <PortfolioAssets assets={metaDetails.assets} />
           <PortfolioMovements movements={movements} />
