@@ -54,13 +54,13 @@ export default function AdvisorCard({ onSchedule, onChat }: AdvisorCardProps) {
         
         <View className="ml-4 flex-1 justify-center">
           <View className="flex-row items-center mb-1">
-            <Text className="text-lg font-bold text-gray-800 mr-2">Fernando Slebe</Text>
+            <Text className="text-lg font-medium text-gray-800 mr-2">Fernando Slebe</Text>
             <View className="flex-row items-center bg-yellow-100 px-1.5 py-0.5 rounded-lg">
               <Star size={14} color="#F59E0B" fill="#F59E0B" />
               <Text className="text-xs font-semibold text-yellow-600 ml-1">4.9</Text>
             </View>
           </View>
-          <Text className="text-sm font-medium mb-0.5" style={{ color: Colors.primary[600] }}>
+          <Text className="text-sm font-medium mb-0.5" style={{ color: Colors.primary[500] }}>
             Asesor de Inversiones Certificado
           </Text>
           <Text className="text-xs text-gray-500 font-regular">+10 años de experiencia</Text>
