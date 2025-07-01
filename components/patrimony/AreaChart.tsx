@@ -51,7 +51,7 @@ export default function AreaChart() {
   const values = filteredData.map((d) => d.value);
   const dates = filteredData.map((d) => d.date);
 
-  const chartWidth = screenWidth - (2 * 16) - (2 * 28); // screenWidth - card margins - card padding
+  const chartWidth = screenWidth - (2 * 16) - (2 * 28); 
 
   const x = scale
     .scaleLinear()
