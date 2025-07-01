@@ -16,7 +16,7 @@ interface PatrimonyEntry {
 
 const { width: screenWidth } = Dimensions.get('window');
 const CHART_HEIGHT = 180;
-const CHART_MARGIN = 16;
+const CHART_MARGIN = 2;
 
 export default function AreaChart() {
   const { rangeSize } = useChartRangeStore();
