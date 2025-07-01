@@ -4,12 +4,9 @@ import { useForm, Controller, SubmitHandler } from 'react-hook-form';
 import { useAuth } from '@/providers/AuthProvider';
 import { router } from 'expo-router';
 import { Mail, Lock, Eye, EyeOff, Shield, Star } from 'lucide-react-native';
-
-// Importación directa de componentes
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import { Badge } from '@/components/ui/Badge';
 import { Container } from '@/components/ui/Container';
 import { KeyboardAwareContainer } from '@/components/ui/KeyboardAwareContainer';
 
@@ -66,7 +63,7 @@ export default function LoginScreen() {
         <View className="absolute top-0 left-0 w-full rounded-b-[40px] bg-primary-500" style={{ height: height * 0.45 }} />
         
         <Container variant="content" className="pt-12 pb-16 items-center">
-          <Text className="text-white text-4xl font-bold">Patrimore</Text>
+          <Text className="text-white text-4xl font-semibold">Patrimore</Text>
           <View className="flex-row mt-2">
             <View className="flex-row items-center bg-white/15 px-3 py-1.5 rounded-full mx-1 border border-white/20">
               <Star size={14} color="#FF6503" fill="#FF6503" />
@@ -80,7 +77,7 @@ export default function LoginScreen() {
         </Container>
 
         <Card className="mx-6 -mt-8 p-6">
-          <Text className="text-2xl font-bold text-gray-800 text-center mb-2">Bienvenido</Text>
+          <Text className="text-2xl font-semibold text-gray-800 text-center mb-2">Bienvenido</Text>
           <Text className="text-sm text-gray-600 text-center mb-6 font-regular">Accede a tu cuenta para continuar</Text>
           
           {submitError && (
@@ -142,7 +139,7 @@ export default function LoginScreen() {
           />
           
           <TouchableOpacity className="self-center mb-2 mt-1">
-            <Text className="text-sm font-semibold text-primary-500">¿Olvidaste tu contraseña?</Text>
+            <Text className="text-sm font-medium text-primary-500">¿Olvidaste tu contraseña?</Text>
           </TouchableOpacity>
           
           <Button
@@ -161,7 +158,7 @@ export default function LoginScreen() {
           <View className="flex-row justify-between">
             <TouchableOpacity
               onPress={() => handleSocialLogin('google')}
-              className="flex-1 h-12 border-2 border-gray-200 rounded-xl justify-center items-center mx-1 bg-white"
+              className="flex-1 h-12 border-2 border-gray-200 rounded-full justify-center items-center mx-1 bg-white"
             >
               <View className="flex-row items-center">
                 <GoogleIcon />
@@ -170,7 +167,7 @@ export default function LoginScreen() {
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => handleSocialLogin('apple')}
-              className="flex-1 h-12 border-2 border-gray-200 rounded-xl justify-center items-center mx-1 bg-white"
+              className="flex-1 h-12 border-2 border-gray-200 rounded-full justify-center items-center mx-1 bg-white"
             >
               <View className="flex-row items-center">
                 <AppleIcon />
