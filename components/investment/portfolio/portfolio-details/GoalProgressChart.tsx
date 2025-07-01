@@ -6,10 +6,16 @@ import * as array from 'd3-array';
 import Svg, { Path, Circle, Defs, LinearGradient, Stop, Line } from 'react-native-svg';
 import Colors from '@/constants/Colors';
 
+interface GoalProgressData {
+  date: string;
+  amount: number;
+  projected?: boolean;
+}
+
 interface GoalProgressChartProps {
   currentAmount: number;
   targetAmount: number;
-  projectedData: Array<{ date: string; amount: number; projected?: boolean }>;
+  projectedData: GoalProgressData[];
   targetDate: string;
 }
 
@@ -39,18 +45,18 @@ export function GoalProgressChart({
 
   const y = scale
     .scaleLinear()
-    .domain([array.min(values) || 0, Math.max(array.max(values) || 0, targetAmount)])
+    .domain([array.min(values) || 0, array.max(values) || 0])
     .range([CHART_HEIGHT - 20, 20]);
 
   const area = shape
-    .area<any>()
+    .area<GoalProgressData>()
     .x((_, i) => x(i))
     .y0(() => y(array.min(values) || 0))
     .y1((d) => y(d.amount))
     .curve(shape.curveMonotoneX)(projectedData);
 
   const line = shape
-    .line<any>()
+    .line<GoalProgressData>()
     .x((_, i) => x(i))
     .y((d) => y(d.amount))
     .curve(shape.curveMonotoneX)(projectedData);
@@ -59,7 +65,7 @@ export function GoalProgressChart({
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
       onPanResponderMove: (_, gestureState) => {
-        const relativeX = gestureState.moveX - CHART_MARGIN - 28; 
+        const relativeX = gestureState.moveX - CHART_MARGIN;
         const pointWidth = chartWidth / (projectedData.length - 1);
 
         let index = Math.round(relativeX / pointWidth);
@@ -102,37 +108,30 @@ export function GoalProgressChart({
           )}
         </View>
 
-        <Svg width={chartWidth} height={CHART_HEIGHT} ref={chartRef}>
-                      <Defs>
-              <LinearGradient id="goalGradient" x1="0" y1="0" x2="0" y2="1">
+        <View style={{ marginHorizontal: CHART_MARGIN }}>
+          <Svg width={chartWidth} height={CHART_HEIGHT} ref={chartRef}>
+            <Defs>
+              <LinearGradient id="goalProgressGradient" x1="0" y1="0" x2="0" y2="1">
                 <Stop offset="0%" stopColor="#22C55E" stopOpacity={0.2} />
                 <Stop offset="100%" stopColor="#22C55E" stopOpacity={0.05} />
               </LinearGradient>
             </Defs>
-          
-                      {area && <Path d={area} fill="url(#goalGradient)" />}
-            
-            {line && (
-              <Path 
-                d={line} 
-                fill="none" 
-                stroke="#22C55E" 
-                strokeWidth={2.5} 
-              />
-            )}
+            {area && <Path d={area} fill="url(#goalProgressGradient)" />}
+            {line && <Path d={line} fill="none" stroke="#22C55E" strokeWidth={2.5} />}
 
-          <Line
-            x1={cx}
-            x2={cx}
-            y1={0}
-            y2={CHART_HEIGHT}
-            stroke={Colors.gray[200]}
-            strokeDasharray="4,4"
-          />
+            <Line
+              x1={cx}
+              x2={cx}
+              y1={0}
+              y2={CHART_HEIGHT}
+              stroke={Colors.gray[200]}
+              strokeDasharray="4,4"
+            />
 
-                                  <Circle cx={cx} cy={cy} r={14} fill="rgba(34,197,94,0.2)" />
+            <Circle cx={cx} cy={cy} r={14} fill="rgba(34,197,94,0.2)" />
             <Circle cx={cx} cy={cy} r={7} fill="#22C55E" />
-        </Svg>
+          </Svg>
+        </View>
       </View>
 
       <View style={styles.progressContainer}>
@@ -166,6 +165,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 32,
     padding: 28,
+    paddingHorizontal: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.10,
@@ -181,8 +181,9 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontFamily: 'Poppins-SemiBold',
-    color: Colors.gray[800],
+    color: Colors.gray[700],
     marginBottom: 4,
+    paddingHorizontal: 16,
   },
   subtitle: {
     fontSize: 14,
@@ -246,6 +247,7 @@ const styles = StyleSheet.create({
   },
   progressContainer: {
     marginTop: 8,
+    paddingHorizontal: 16,
   },
   currentAmountContainer: {
     alignItems: 'flex-end',

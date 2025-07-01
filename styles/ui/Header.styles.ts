@@ -8,7 +8,7 @@ export const headerStyles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   container: {
-    paddingTop: 0,
+    paddingTop: 5,
     width: '100%',
     alignSelf: 'stretch',
   },
