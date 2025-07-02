@@ -12,12 +12,14 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.patrimore.patrimore",
       "infoPlist": {
-        "UIBackgroundModes": ["remote-notification"] // ✅ Required for push notifications
+        "UIBackgroundModes": [
+          "remote-notification"
+        ]
       },
       "entitlements": {
-        "aps-environment": "production", // ✅ Required for push notification, change to "production" for Testflight and App Store builds
+        "aps-environment": "production",
         "com.apple.security.application-groups": [
-          "group.com.patrimore.patrimore.onesignal" // ✅ Required for confirmed delivery
+          "group.com.patrimore.patrimore.onesignal"
         ]
       }
     },
@@ -29,7 +31,9 @@
       "edgeToEdgeEnabled": true,
       "package": "com.patrimore.patrimore"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "web": {
       "bundler": "metro",
       "output": "single",
@@ -51,6 +55,13 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "a5344f00-fb53-49b2-a6bb-5d64c787e0c9"
+      }
+    },
+    "owner": "patrimore"
   }
 }
