@@ -62,6 +62,12 @@
         "projectId": "a5344f00-fb53-49b2-a6bb-5d64c787e0c9"
       }
     },
-    "owner": "patrimore"
+    "owner": "patrimore",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/a5344f00-fb53-49b2-a6bb-5d64c787e0c9"
+    }
   }
 }
