@@ -1,4 +1,3 @@
-// UI Components Styles
 export * from './ui/TipBox.styles';
 export * from './ui/Input.styles';
 export * from './ui/ListItem.styles';
@@ -6,4 +5,6 @@ export * from './ui/Header.styles';
 export * from './planning/PlanningCard.styles';
 export * from './copilot/CopilotWelcome.styles';
 export * from './investment/PortfolioHeader.styles'; 
+export * from './investment/GoalProgressChart.styles';
 export * from './ui/SegmentedControl.styles';
+export * from './ui/InfiniteCarousel.styles'
