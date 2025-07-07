@@ -4,12 +4,15 @@ export const useFormatValue = () => {
   const formatValue = useCallback((value: string) => {
     if (!value) return '';
     
-    const clean = value.replace(/[^\d]/g, '');
+    const clean = value.replace(/[^\d.,]/g, '');
     
     if (!clean) return '';
     
-    const number = parseInt(clean, 10);
-    return `$${number.toLocaleString('es-CL')}`;
+    const number = parseFloat(clean);
+    
+    if (isNaN(number)) return '';
+    
+    return `$${Math.floor(number).toLocaleString('es-CL')}`;
   }, []);
 
   const cleanNumericValue = useCallback((text: string) => {
