@@ -7,7 +7,6 @@ import Colors from '@/constants/Colors';
 interface Tab {
   key: string;
   label: string;
-  badge?: string | number;
 }
 
 interface TabsProps {
@@ -48,20 +47,6 @@ export function Tabs({ tabs, activeTab, onTabChange, className }: TabsProps) {
               ]}>
                 {tab.label}
               </Text>
-              {tab.badge && (
-                <View
-                  style={[
-                    tabsStyles.badge,
-                    isActive ? tabsStyles.badgeActive : tabsStyles.badgeInactive,
-                  ]}
-                >
-                  <Text style={{
-                    color: isActive ? Colors.gray[700] : Colors.gray[300],
-                    fontSize: 16,
-                    fontFamily: 'Poppins-medium',
-                  }}>{tab.badge}</Text>
-                </View>
-              )}
             </TouchableOpacity>
           );
         })}

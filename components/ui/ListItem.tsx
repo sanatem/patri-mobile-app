@@ -18,6 +18,9 @@ interface ListItem {
     text?: string;
   };
   onPress?: () => void;
+  customLayout?: boolean;
+  subtitleLines?: string[];
+  mediumSubtitleIndex?: number;
 }
 
 interface ListProps {
@@ -44,6 +47,7 @@ export function ListItem({
   showContainer = true,
 }: ListProps) {
   const [visibleCount, setVisibleCount] = useState(initialItemCount);
+  const showPercentageBadges = false; // Temporary flag to hide percentage badges
   
   const visibleData = data.slice(0, visibleCount);
   const hasMore = visibleCount < data.length;
@@ -76,55 +80,91 @@ export function ListItem({
             )}
           </View>
         )}
-        <View style={listItemStyles.info}>
-          <Text style={listItemStyles.title}>{item.title}</Text>
-          {item.subtitle && (
-            <Text style={listItemStyles.subtitle}>{item.subtitle}</Text>
-          )}
-        </View>
-        <View style={listItemStyles.valueContainer}>
-          <Text style={listItemStyles.value}>
-            {typeof item.value === 'number' 
-              ? `$${Math.abs(item.value).toLocaleString('es-CL')}`
-              : item.value
-            }
-          </Text>
-          {item.badge && (
-            <View
-              style={[
-                listItemStyles.badge,
-                item.badge.variant === 'positive'
-                  ? listItemStyles.badgeBgPositive
-                  : item.badge.variant === 'negative'
-                  ? listItemStyles.badgeBgNegative
-                  : listItemStyles.badgeBgNeutral
-              ]}
-            >
-              <Text
-                style={
-                  item.badge.variant === 'positive'
-                    ? listItemStyles.badgeArrowPositive
-                    : item.badge.variant === 'negative'
-                    ? listItemStyles.badgeArrowNegative
-                    : listItemStyles.badgeArrowNeutral
+        
+        {item.customLayout ? (
+          <View style={listItemStyles.info}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <View style={{ flex: 1 }}>
+                <Text style={listItemStyles.title}>{item.title}</Text>
+                {item.subtitleLines && item.subtitleLines.map((line, lineIndex) => (
+                  <Text 
+                    key={lineIndex}
+                    style={[
+                      listItemStyles.subtitle,
+                      item.mediumSubtitleIndex === lineIndex && { fontFamily: 'Poppins-Medium' },
+                      lineIndex > 0 && { marginTop: 2 }
+                    ]}
+                  >
+                    {line}
+                  </Text>
+                ))}
+                {item.subtitle && !item.subtitleLines && (
+                  <Text style={listItemStyles.subtitle}>{item.subtitle}</Text>
+                )}
+              </View>
+              
+              <Text style={listItemStyles.value}>
+                {typeof item.value === 'number' 
+                  ? `$${Math.abs(item.value).toLocaleString('es-CL')}`
+                  : item.value
                 }
-              >
-                {item.badge.variant === 'positive' ? '↑' : item.badge.variant === 'negative' ? '↓' : ''}
-              </Text>
-              <Text
-                style={
-                  item.badge.variant === 'positive'
-                    ? listItemStyles.badgeTextPositive
-                    : item.badge.variant === 'negative'
-                    ? listItemStyles.badgeTextNegative
-                    : listItemStyles.badgeTextNeutral
-                }
-              >
-                {item.badge.text}
               </Text>
             </View>
-          )}
-        </View>
+          </View>
+        ) : (
+          <View style={listItemStyles.info}>
+            <Text style={listItemStyles.title}>{item.title}</Text>
+            {item.subtitle && (
+              <Text style={listItemStyles.subtitle}>{item.subtitle}</Text>
+            )}
+          </View>
+        )}
+        
+        {!item.customLayout && (
+          <View style={listItemStyles.valueContainer}>
+            <Text style={listItemStyles.value}>
+              {typeof item.value === 'number' 
+                ? `$${Math.abs(item.value).toLocaleString('es-CL')}`
+                : item.value
+              }
+            </Text>
+            {showPercentageBadges && item.badge && (
+              <View
+                style={[
+                  listItemStyles.badge,
+                  item.badge.variant === 'positive'
+                    ? listItemStyles.badgeBgPositive
+                    : item.badge.variant === 'negative'
+                    ? listItemStyles.badgeBgNegative
+                    : listItemStyles.badgeBgNeutral
+                ]}
+              >
+                <Text
+                  style={
+                    item.badge.variant === 'positive'
+                      ? listItemStyles.badgeArrowPositive
+                      : item.badge.variant === 'negative'
+                      ? listItemStyles.badgeArrowNegative
+                      : listItemStyles.badgeArrowNeutral
+                  }
+                >
+                  {item.badge.variant === 'positive' ? '↑' : item.badge.variant === 'negative' ? '↓' : ''}
+                </Text>
+                <Text
+                  style={
+                    item.badge.variant === 'positive'
+                      ? listItemStyles.badgeTextPositive
+                      : item.badge.variant === 'negative'
+                      ? listItemStyles.badgeTextNegative
+                      : listItemStyles.badgeTextNeutral
+                  }
+                >
+                  {item.badge.text}
+                </Text>
+              </View>
+            )}
+          </View>
+        )}
       </TouchableOpacity>
       {showSeparators && index < visibleData.length - 1 && (
         <View style={listItemStyles.separator} />

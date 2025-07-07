@@ -14,4 +14,7 @@ export { CarouselCard } from './CarouselCard';
 export { UserSelector } from './UserSelector';
 export { Select } from './Select';
 export { SegmentedControl } from './SegmentedControl';
+export { InfiniteCarousel } from './InfiniteCarousel';
 export { KeyboardAwareContainer } from './KeyboardAwareContainer';
+export { InteractiveChart } from './InteractiveChart';
+export { TipBox } from './TipBox';
