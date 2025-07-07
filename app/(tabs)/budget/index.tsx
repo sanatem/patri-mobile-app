@@ -13,8 +13,8 @@ import {
   SearchBar,
   Container,
   Tabs,
-  Dropdown,
-  SegmentedControl,
+  Select,
+  InfiniteCarousel,
   KeyboardAwareContainer,
 } from '@/components/ui';
 import BudgetChart from '@/components/budget/BudgetChart';
@@ -31,9 +31,6 @@ const monthOptions = MONTHS.map(month => ({
   value: month
 }));
 
-const getMonthNumber = (monthName: MonthType): number => {
-  return MONTHS.indexOf(monthName) + 1;
-};
 
 const calculateTotalsByMonth = (selectedMonth: MonthType) => {
   const budget = budgetService.getBudget();
@@ -60,16 +57,6 @@ export default function BudgetScreen() {
 
   const { totalIncome, totalExpenses, incomeCount, expenseCount } = 
     calculateTotalsByMonth(selectedMonth);
-
-  const handlePreviousMonth = () => {
-    const currentIndex = MONTHS.indexOf(selectedMonth);
-    setSelectedMonth(currentIndex > 0 ? MONTHS[currentIndex - 1] : MONTHS[MONTHS.length - 1]);
-  };
-
-  const handleNextMonth = () => {
-    const currentIndex = MONTHS.indexOf(selectedMonth);
-    setSelectedMonth(currentIndex < MONTHS.length - 1 ? MONTHS[currentIndex + 1] : MONTHS[0]);
-  };
 
   const handleMonthSelect = (month: string) => {
     setSelectedMonth(month as MonthType);
@@ -99,65 +86,57 @@ export default function BudgetScreen() {
         }
       />
       <KeyboardAwareContainer>
-        <View style={{ flex: 1 }}>
-          <View style={{ position: 'absolute', top: 20, left: 0, right: 0, zIndex: 10, paddingHorizontal: 16 }}>
-            <SegmentedControl
+      <Container variant="content" className="mt-4 mb-4">
+            <InfiniteCarousel
               options={categoryOptions}
               value={selectedCategory}
               onChange={setSelectedCategory}
               style={{ width: '100%' }}
             />
-          </View>
-          <ScrollView className="flex-1" showsVerticalScrollIndicator={false} style={{ marginTop: 90 }}>
-            <Container variant="content" className="py-4">
-              <View className="flex-row justify-between items-center mb-2">
-                <TouchableOpacity onPress={handlePreviousMonth} className="p-2">
-                  <ChevronLeft size={24} color="#374151" />
-                </TouchableOpacity>
-                <View className="flex-1 items-center">
-                  <Dropdown
-                    options={monthOptions}
-                    selectedValue={selectedMonth}
-                    onSelect={handleMonthSelect}
-                  />
-                </View>
-                <TouchableOpacity onPress={handleNextMonth} className="p-2">
-                  <ChevronRight size={24} color="#374151" />
-                </TouchableOpacity>
-              </View>
-              <BudgetChart selectedMonth={selectedMonth} />
-            </Container>  
-            <Container variant="content" className="mt-4 mb-4">
-              <SearchBar
-                  placeholder={activeTab === 'income' ? LABELS.BUDGET.SEARCH_INCOME_PLACEHOLDER : LABELS.BUDGET.SEARCH_EXPENSES_PLACEHOLDER}
-                  value={searchQuery}
-                  onChangeText={setSearchQuery}
+          </Container>
+        <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+          <Container variant="content" className="py-4">
+            <View className="flex-row justify-between items-center mb-2">
+              <View className="flex-1 items-center text-center">
+                <Select
+                  options={monthOptions}
+                  value={selectedMonth}
+                  onSelect={handleMonthSelect}
                 />
-            </Container>
-            <Container variant="content" className="mb-4">
-              <View style={listItemStyles.cardContainer}>
-                <Tabs
-                  tabs={tabs}
-                  activeTab={activeTab}
-                  onTabChange={(key) => setActiveTab(key as 'income' | 'expenses')}
-                />
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingBottom: 20, paddingTop: 12, borderBottomWidth: 1, borderBottomColor: Colors.gray[200] }}>
-                  <Text style={{ color: Colors.gray[700], fontSize: 16, fontFamily: 'Poppins-Regular' }}>
-                    {activeTab === 'income' ? LABELS.BUDGET.TOTAL_INCOME : LABELS.BUDGET.TOTAL_EXPENSES}
-                  </Text>
-                  <Text style={{ color: Colors.gray[700], fontSize: 18, fontFamily: 'Poppins-medium' }}>
-                    {activeTab === 'income' ? '+' : '-'}${(activeTab === 'income' ? totalIncome : totalExpenses).toLocaleString('es-CL')}
-                  </Text>
-                </View>
-                <TransactionsList type={activeTab} selectedMonth={selectedMonth} showContainer={false} />
               </View>
-            </Container>
-            <Container variant="content">
-            <ForYouCarousel />
-            </Container>
-            <View className="h-24" />
-          </ScrollView>
-        </View>
+            </View>
+            <BudgetChart selectedMonth={selectedMonth} />
+          </Container>
+          <Container variant="content" className="mt-4 mb-4">
+            <SearchBar
+                placeholder={activeTab === 'income' ? LABELS.BUDGET.SEARCH_INCOME_PLACEHOLDER : LABELS.BUDGET.SEARCH_EXPENSES_PLACEHOLDER}
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+              />
+          </Container>
+          <Container variant="content" className="mb-4">
+            <View style={listItemStyles.cardContainer}>
+              <Tabs
+                tabs={tabs}
+                activeTab={activeTab}
+                onTabChange={(key) => setActiveTab(key as 'income' | 'expenses')}
+              />
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingBottom: 20, paddingTop: 12, borderBottomWidth: 1, borderBottomColor: Colors.gray[200] }}>
+                <Text style={{ color: Colors.gray[700], fontSize: 16, fontFamily: 'Poppins-Regular' }}>
+                  {activeTab === 'income' ? LABELS.BUDGET.TOTAL_INCOME : LABELS.BUDGET.TOTAL_EXPENSES}
+                </Text>
+                <Text style={{ color: Colors.gray[700], fontSize: 18, fontFamily: 'Poppins-medium' }}>
+                  {activeTab === 'income' ? '+' : '-'}${(activeTab === 'income' ? totalIncome : totalExpenses).toLocaleString('es-CL')}
+                </Text>
+              </View>
+              <TransactionsList type={activeTab} selectedMonth={selectedMonth} showContainer={false} />
+            </View>
+          </Container>
+          <Container variant="content">
+          <ForYouCarousel />
+          </Container>
+          <View className="h-24" />
+        </ScrollView>
       </KeyboardAwareContainer>
     </Container>
   );
