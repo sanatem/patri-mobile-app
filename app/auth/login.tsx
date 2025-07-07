@@ -63,7 +63,7 @@ export default function LoginScreen() {
         <View className="absolute top-0 left-0 w-full rounded-b-[40px] bg-primary-500" style={{ height: height * 0.45 }} />
         
         <Container variant="content" className="pt-12 pb-16 items-center">
-          <Text className="text-white text-4xl font-semibold">Patrimore</Text>
+          <Text className="text-white text-4xl font-semibold mt-10">Patrimore</Text>
           <View className="flex-row mt-2">
             <View className="flex-row items-center bg-white/15 px-3 py-1.5 rounded-full mx-1 border border-white/20">
               <Star size={14} color="#FF6503" fill="#FF6503" />
