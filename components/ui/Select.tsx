@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, TouchableOpacity, Animated, Modal, Pressable, Dimensions, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, Animated, Modal, Pressable, Dimensions, Platform, ScrollView } from 'react-native';
 import { ChevronDown } from 'lucide-react-native';
 import { cn } from '@/lib/utils';
 import { inputStyles } from '@/styles/ui/Input.styles';
@@ -180,30 +180,36 @@ export function Select({
             {label && (
               <Text className="text-base font-medium mb-4" style={{ color: Colors.primary[500] }}>{label}</Text>
             )}
-            {options.map((option, index) => (
-              <TouchableOpacity
-                key={option.value}
-                style={{
-                  paddingVertical: 16,
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  borderBottomWidth: index !== options.length - 1 ? 1 : 0,
-                  borderColor: '#F3F4F6',
-                }}
-                onPress={() => handleSelect(option.value)}
-                activeOpacity={0.7}
-              >
-                {option.icon && <View style={{ marginRight: 12 }}>{option.icon}</View>}
-                <Text
-                  className={cn(
-                    'text-base',
-                    option.value === value ? 'text-primary-500 font-medium' : 'font-regular text-gray-700'
-                  )}
+            <ScrollView 
+              style={{ maxHeight: 180 }}
+              showsVerticalScrollIndicator={true}
+              nestedScrollEnabled={true}
+            >
+              {options.map((option, index) => (
+                <TouchableOpacity
+                  key={option.value}
+                  style={{
+                    paddingVertical: 12,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    borderBottomWidth: index !== options.length - 1 ? 1 : 0,
+                    borderColor: '#F3F4F6',
+                  }}
+                  onPress={() => handleSelect(option.value)}
+                  activeOpacity={0.7}
                 >
-                  {option.label}
-                </Text>
-              </TouchableOpacity>
-            ))}
+                  {option.icon && <View style={{ marginRight: 12 }}>{option.icon}</View>}
+                  <Text
+                    className={cn(
+                      'text-base',
+                      option.value === value ? 'text-primary-500 font-medium' : 'font-regular text-gray-700'
+                    )}
+                  >
+                    {option.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
           </Animated.View>
         </View>
       </Modal>
