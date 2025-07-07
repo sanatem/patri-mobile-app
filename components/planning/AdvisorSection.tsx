@@ -36,28 +36,6 @@ export default function AdvisorSection({ onSchedule, onChat }: AdvisorSectionPro
           />
         </View>
       </Card>
-      <Card variant="default">
-        <View className="flex-row justify-between items-center">
-          <View className="flex-row items-center flex-1">
-            <View 
-              className="w-10 h-10 rounded-full items-center justify-center"
-              style={{ backgroundColor: Colors.primary[50], width: 40, height: 40 }}
-            >
-              <MessageSquare size={18} color={Colors.primary[500]} />
-            </View>
-            <View className="ml-3">
-              <Text className="text-sm font-medium text-gray-800">Bandeja de entrada</Text>
-              <Text className="text-xs text-gray-500 mt-0.5 font-regular">No hay mensajes nuevos</Text>
-            </View>
-          </View>
-          <Button
-            title="Chat" 
-            onPress={onChat || (() => {})} 
-            size="small"
-            variant="ghost"
-          />
-        </View>
-      </Card>
     </View>
   );
 } 
