@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, ViewProps } from 'react-native';
 import { cn } from '@/lib/utils';
+import Colors from '@/constants/Colors';
 
 interface CardProps extends ViewProps {
   variant?: 'default' | 'elevated' | 'outlined';
@@ -17,18 +18,41 @@ export function Card({
   style,
   ...props
 }: CardProps) {
-  const baseStyles = 'bg-white rounded-xl font-regular';
+  const baseStyles = 'rounded-3xl font-regular';
   
   const variants = {
-    default: 'border border-gray-200',
-    elevated: 'border border-gray-200',
-    outlined: 'border-2 border-gray-200',
+    default: `border`,
+    elevated: `border`,
+    outlined: `border`,
   };
 
   const sizes = {
     sm: { padding: 12 },
     md: { padding: 16 },
     lg: { padding: 24 },
+  };
+
+  const getVariantStyle = (variant: string) => {
+    switch (variant) {
+      case 'elevated':
+        return {
+          backgroundColor: Colors.light.background,
+          borderColor: Colors.gray[100],
+          borderWidth: 1,
+        };
+      case 'outlined':
+        return {
+          backgroundColor: Colors.light.background,
+          borderColor: Colors.gray[200],
+          borderWidth: 1,
+        };
+      default:
+        return {
+          backgroundColor: Colors.light.background,
+          borderColor: Colors.gray[200],
+          borderWidth: 1,
+        };
+    }
   };
 
   return (
@@ -39,8 +63,9 @@ export function Card({
         className
       )}
       style={[
+        getVariantStyle(variant),
         {
-          shadowColor: variant === 'elevated' ? '#000' : undefined,
+          shadowColor: variant === 'elevated' ? Colors.primary[900] : undefined,
           shadowOffset: variant === 'elevated' ? { width: 0, height: 2 } : undefined,
           shadowOpacity: variant === 'elevated' ? 0.08 : undefined,
           shadowRadius: variant === 'elevated' ? 8 : undefined,

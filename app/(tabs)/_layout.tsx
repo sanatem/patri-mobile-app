@@ -46,20 +46,20 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="planning"
-        options={{
-          title: 'Planificación',
-          tabBarIcon: ({ color, size }) => (
-            <TabBarIcon name="users" color={color} size={size} />
-          ),
-        }}
-      />
-      <Tabs.Screen
         name="investment"
         options={{
           title: 'Inversión',
           tabBarIcon: ({ color, size }) => (
             <TabBarIcon name="dollar" color={color} size={size} />
+          ),
+        }}
+      />
+            <Tabs.Screen
+        name="planning"
+        options={{
+          title: 'Planificación',
+          tabBarIcon: ({ color, size }) => (
+            <TabBarIcon name="users" color={color} size={size} />
           ),
         }}
       />
