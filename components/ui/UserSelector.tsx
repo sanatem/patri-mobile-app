@@ -11,6 +11,7 @@ interface UserSelectorProps {
   onToggle: () => void;
   myLabel?: string;
   partnerLabel?: string;
+  enabled?: boolean;
 }
 
 export function UserSelector({
@@ -20,6 +21,7 @@ export function UserSelector({
   onToggle,
   myLabel = 'GD',
   partnerLabel = 'JM',
+  enabled = true,
 }: UserSelectorProps) {
   const options = [
     { id: 'mine', label: myLabel, isActive: selectedView === 'mine' },
@@ -48,6 +50,8 @@ export function UserSelector({
   };
 
   useEffect(() => {
+    if (!enabled) return;
+    
     if (showSelector && openWidth > 0 && closedWidth > 0) {
       Animated.parallel([
         Animated.timing(widthAnim, {
@@ -75,15 +79,17 @@ export function UserSelector({
         }),
       ]).start();
     }
-  }, [showSelector, openWidth, closedWidth]);
+  }, [showSelector, openWidth, closedWidth, enabled]);
 
   useEffect(() => {
+    if (!enabled) return;
+    
     Animated.timing(chevronAnim, {
       toValue: showSelector ? 1 : 0,
       duration: 220,
       useNativeDriver: true,
     }).start();
-  }, [showSelector]);
+  }, [showSelector, enabled]);
 
   const chevronRotate = chevronAnim.interpolate({
     inputRange: [0, 1],
@@ -91,6 +97,8 @@ export function UserSelector({
   });
 
   const handleSelectOption = async (id: 'mine' | 'partner' | 'both') => {
+    if (!enabled) return;
+    
     await new Promise((resolve) => {
       Animated.parallel([
         Animated.timing(contentAnim, {
@@ -109,7 +117,27 @@ export function UserSelector({
     onToggle();
   };
 
+  const handleToggle = () => {
+    if (!enabled) return;
+    onToggle();
+  };
+
   const optionsRight = options.filter(opt => !opt.isActive);
+
+  if (!enabled) {
+    return (
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        <View style={[
+          userSelectorStyles.closedCircle,
+          { borderColor: Colors.secondary[500] }
+        ]}>
+          <Text style={userSelectorStyles.closedCircleText}>
+            {myLabel}
+          </Text>
+        </View>
+      </View>
+    );
+  }
 
   return (
     <Animated.View
@@ -140,9 +168,10 @@ export function UserSelector({
         onLayout={onClosedLayout}
       >
         <TouchableOpacity
-          onPress={onToggle}
-          activeOpacity={0.85}
+          onPress={handleToggle}
+          activeOpacity={enabled ? 0.85 : 1}
           style={{ marginLeft: 0 }}
+          disabled={!enabled}
         >
           <View style={[
             userSelectorStyles.closedCircle,
@@ -157,106 +186,108 @@ export function UserSelector({
             )}
           </View>
         </TouchableOpacity>
-        <TouchableOpacity
-          onPress={onToggle}
-          activeOpacity={0.85}
-          style={{ marginLeft: 6 }}
-        >
-          <Animated.View style={{ transform: [{ rotate: chevronRotate }] }}>
-            <ChevronRight size={18} color={Colors.gray[800]} />
-          </Animated.View>
-        </TouchableOpacity>
+        {enabled && (
+          <TouchableOpacity
+            onPress={handleToggle}
+            activeOpacity={0.85}
+            style={{ marginLeft: 6 }}
+          >
+            <Animated.View style={{ transform: [{ rotate: chevronRotate }] }}>
+              <ChevronRight size={18} color={Colors.gray[800]} />
+            </Animated.View>
+          </TouchableOpacity>
+        )}
       </View>
 
-      <View
-        style={{
-          position: 'absolute',
-          opacity: 0,
-          zIndex: -1,
-          pointerEvents: 'none',
-          width: 190,
-          minWidth: 140,
-        }}
-        onLayout={onOpenedLayout}
-        pointerEvents="none"
-      >
-        <View style={{ flexDirection: 'row', alignItems: 'center', paddingRight: 20, minWidth: 140, width: 140 }}>
-          {optionsRight.map((item) => (
-            <View
-              key={item.id}
-              style={[
-                userSelectorStyles.optionCircle,
-                {
-                  borderColor: Colors.gray[300],
-                  backgroundColor: Colors.segmentedControl.inactiveBg,
-                },
-              ]}
-            >
-              {item.id === 'both' ? (
-                <Users size={16} color={Colors.gray[400]} />
-              ) : (
-                <Text
-                  style={userSelectorStyles.optionText}
-                >
-                  {item.label}
-                </Text>
-              )}
-            </View>
-          ))}
-        </View>
-      </View>
-
-      {(openWidth > 0 || showSelector) && showSelector && (
-        <Animated.View
-          style={[
-            userSelectorStyles.openedContainer,
-            {
-              flexDirection: 'row',
-              backgroundColor: 'transparent',
-              borderColor: 'transparent',
-              paddingHorizontal: 0,
-              paddingVertical: 0,
-              paddingRight: 20,
-              opacity: contentAnim,
-              transform: [
-                {
-                  scale: contentAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [0.95, 1],
-                  }),
-                },
-              ],
+      {enabled && (
+        <>
+          <View
+            style={{
+              position: 'absolute',
+              opacity: 0,
+              zIndex: -1,
+              pointerEvents: 'none',
+              width: 190,
               minWidth: 140,
-              width: openWidth > 0 ? undefined : 140,
-            },
-          ]}
-          pointerEvents={showSelector ? 'auto' : 'none'}
-        >
-          {optionsRight.map((item) => (
-            <TouchableOpacity
-              key={item.id}
-              onPress={() => handleSelectOption(item.id as 'mine' | 'partner' | 'both')}
-              activeOpacity={0.85}
+            }}
+            onLayout={onOpenedLayout}
+            pointerEvents="none"
+          >
+            <View style={{ flexDirection: 'row', alignItems: 'center', paddingRight: 20, minWidth: 140, width: 140 }}>
+              {optionsRight.map((item) => (
+                <View
+                  key={item.id}
+                  style={[
+                    userSelectorStyles.optionCircle,
+                    {
+                      borderColor: Colors.gray[300],
+                      backgroundColor: Colors.segmentedControl.inactiveBg,
+                    },
+                  ]}
+                >
+                  {item.id === 'both' ? (
+                    <Users size={16} color={Colors.gray[400]} />
+                  ) : (
+                    <Text style={userSelectorStyles.optionText}>
+                      {item.label}
+                    </Text>
+                  )}
+                </View>
+              ))}
+            </View>
+          </View>
+
+          {(openWidth > 0 || showSelector) && showSelector && (
+            <Animated.View
               style={[
-                userSelectorStyles.optionCircle,
+                userSelectorStyles.openedContainer,
                 {
-                  borderColor: Colors.gray[300],
-                  backgroundColor: Colors.segmentedControl.inactiveBg,
+                  flexDirection: 'row',
+                  backgroundColor: 'transparent',
+                  borderColor: 'transparent',
+                  paddingHorizontal: 0,
+                  paddingVertical: 0,
+                  paddingRight: 20,
+                  opacity: contentAnim,
+                  transform: [
+                    {
+                      scale: contentAnim.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0.95, 1],
+                      }),
+                    },
+                  ],
+                  minWidth: 140,
+                  width: openWidth > 0 ? undefined : 140,
                 },
               ]}
+              pointerEvents={showSelector ? 'auto' : 'none'}
             >
-              {item.id === 'both' ? (
-                <Users size={16} color={Colors.gray[400]} />
-              ) : (
-                <Text
-                  style={userSelectorStyles.optionText}
+              {optionsRight.map((item) => (
+                <TouchableOpacity
+                  key={item.id}
+                  onPress={() => handleSelectOption(item.id as 'mine' | 'partner' | 'both')}
+                  activeOpacity={0.85}
+                  style={[
+                    userSelectorStyles.optionCircle,
+                    {
+                      borderColor: Colors.gray[300],
+                      backgroundColor: Colors.segmentedControl.inactiveBg,
+                    },
+                  ]}
                 >
-                  {item.label}
-                </Text>
-              )}
-            </TouchableOpacity>
-          ))}
-        </Animated.View>
+                  {item.id === 'both' ? (
+                    <Users size={16} color={Colors.gray[400]} />
+                  ) : (
+                    <Text style={userSelectorStyles.optionText}>
+                      {item.label}
+                    </Text>
+                  )}
+                </TouchableOpacity>
+              ))}
+            </Animated.View>
+          )}
+        </>
       )}
     </Animated.View>
   );

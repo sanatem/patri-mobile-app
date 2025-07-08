@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
-import { ChevronLeft, ChevronRight, Settings } from 'lucide-react-native';
+import React, { useState, useRef, useEffect } from 'react';
+import { View, Text, TouchableOpacity, ScrollView, Animated, Dimensions } from 'react-native';
+import { ChevronLeft, ChevronRight, Settings, Plus, RefreshCw } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import {
   MONTHS,
@@ -17,12 +17,15 @@ import {
   InfiniteCarousel,
   KeyboardAwareContainer,
 } from '@/components/ui';
+
 import BudgetChart from '@/components/budget/BudgetChart';
 import ForYouCarousel from '@/components/common/ForYouCarousel';
 import TransactionsList from '@/components/budget/TransactionsList';
 import { budgetService } from '@/services/budget/get-budget';
 import Colors from '@/constants/Colors';
 import { listItemStyles } from '@/styles/ui/ListItem.styles';
+
+const SCREEN_HEIGHT = Dimensions.get('window').height;
 
 type MonthType = typeof MONTHS[number];
 
@@ -53,13 +56,68 @@ export default function BudgetScreen() {
   const [activeTab, setActiveTab] = useState<'income' | 'expenses'>('income');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const overlayAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(0)).current;
   const router = useRouter();
+
+  useEffect(() => {
+    if (showAddModal) {
+      setModalVisible(true);
+      Animated.parallel([
+        Animated.timing(overlayAnim, {
+          toValue: 1,
+          duration: 220,
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideAnim, {
+          toValue: 1,
+          duration: 260,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    } else if (modalVisible) {
+      Animated.parallel([
+        Animated.timing(overlayAnim, {
+          toValue: 0,
+          duration: 180,
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideAnim, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ]).start(() => {
+        setModalVisible(false);
+      });
+    }
+  }, [showAddModal]);
+
+  const closeModal = () => {
+    setShowAddModal(false);
+  };
 
   const { totalIncome, totalExpenses, incomeCount, expenseCount } = 
     calculateTotalsByMonth(selectedMonth);
 
   const handleMonthSelect = (month: string) => {
     setSelectedMonth(month as MonthType);
+  };
+
+  const handleIntegrarDatos = () => {
+    router.push('/budget/floid-screen' as any);
+  };
+
+  const handleAddIngreso = () => {
+    // TODO: Implementar navegación a agregar ingreso
+    console.log('Agregar ingreso');
+  };
+
+  const handleAddGasto = () => {
+    // TODO: Implementar navegación a agregar gasto
+    console.log('Agregar gasto');
   };
 
   const tabs = TAB_CONFIG.BUDGET.map(tab => ({
@@ -80,9 +138,17 @@ export default function BudgetScreen() {
       <Header
         title={LABELS.BUDGET.TITLE}
         rightAction={
-          <TouchableOpacity onPress={() => router.push('/settings')}>
-            <Settings size={24} color={Colors.primary[500]} />
-          </TouchableOpacity>
+          <View className="flex-row items-center">
+            <TouchableOpacity 
+              onPress={() => setShowAddModal(true)}
+              className="mr-3"
+            >
+              <Plus size={24} color={Colors.primary[500]} />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => router.push('/settings')}>
+              <Settings size={24} color={Colors.primary[500]} />
+            </TouchableOpacity>
+          </View>
         }
       />
       <KeyboardAwareContainer>
@@ -138,6 +204,93 @@ export default function BudgetScreen() {
           <View className="h-24" />
         </ScrollView>
       </KeyboardAwareContainer>
+      {modalVisible && (
+        <View 
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            justifyContent: 'flex-end',
+            zIndex: 1000
+          }}
+        >
+          <Animated.View
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: overlayAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: ['rgba(0,0,0,0)', 'rgba(0,0,0,0.45)'],
+              }),
+            }}
+          >
+            <TouchableOpacity 
+              style={{ flex: 1 }} 
+              onPress={closeModal}
+              activeOpacity={1}
+            />
+          </Animated.View>
+          <Animated.View 
+            style={{
+              backgroundColor: '#fff',
+              borderTopLeftRadius: 20,
+              borderTopRightRadius: 20,
+              paddingHorizontal: 20,
+              paddingTop: 8,
+              paddingBottom: 32,
+              transform: [
+                {
+                  translateY: slideAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [SCREEN_HEIGHT, 0],
+                  }),
+                },
+              ],
+            }}
+          >
+            <View style={{ alignItems: 'center', paddingVertical: 8 }}>
+              <View style={{ width: 40, height: 4, backgroundColor: '#D1D5DB', borderRadius: 2 }} />
+            </View>
+            {[
+              { label: 'Integrar datos bancarios', value: 'integrar', icon: <RefreshCw size={20} color={Colors.gray[700]} /> },
+              { label: 'Añadir ingreso', value: 'ingreso' },
+              { label: 'Añadir gasto', value: 'gasto' }
+            ].map((option, index) => (
+              <TouchableOpacity
+                key={option.value}
+                style={{
+                  paddingVertical: 16,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  borderBottomWidth: index !== 2 ? 1 : 0,
+                  borderColor: '#F3F4F6',
+                }}
+                onPress={() => {
+                  closeModal();
+                  switch(option.value) {
+                    case 'integrar': handleIntegrarDatos(); break;
+                    case 'ingreso': handleAddIngreso(); break;
+                    case 'gasto': handleAddGasto(); break;
+                  }
+                }}
+                activeOpacity={0.7}
+              >
+                {option.icon && (
+                  <View style={{ marginRight: 12 }}>{option.icon}</View>
+                )}
+                <Text className="text-base font-regular" style={{ color: Colors.gray[700] }}>
+                  {option.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </Animated.View>
+        </View>
+      )}
     </Container>
   );
 }

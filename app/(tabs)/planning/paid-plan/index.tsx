@@ -1,7 +1,4 @@
-import React from 'react';
-import { View, ScrollView, TouchableOpacity } from 'react-native';
-import { Settings } from 'lucide-react-native';
-import { useRouter } from 'expo-router';
+import { ScrollView } from 'react-native';
 import { LABELS } from '@/constants/AppConstants';
 import {
   Header,
@@ -9,10 +6,8 @@ import {
 } from '@/components/ui';
 import { PlanningCarousel } from '@/components/planning/paid-plan';
 import AdvisorSection from '@/components/planning/paid-plan/AdvisorSection';
-import Colors from '@/constants/Colors';
 
 export default function PaidPlan() {
-  const router = useRouter();
 
   const handleSchedulePress = () => {
     console.log('Programar reunión');
@@ -38,11 +33,6 @@ export default function PaidPlan() {
         variant="transparent"
         titleClassName="text-white font-bold"
         subtitleClassName="text-white"
-        rightAction={
-          <TouchableOpacity onPress={() => router.push('/settings')}>
-            <Settings size={24} color={Colors.primary[500]} />
-          </TouchableOpacity>
-        }
       />
       <ScrollView className="flex-1 mx-2" showsVerticalScrollIndicator={false} style={{ marginTop: 10 }}>
         <AdvisorSection onSchedule={handleSchedulePress} onChat={handleChatPress} />

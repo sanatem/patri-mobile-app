@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { Settings } from 'lucide-react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Animated, Dimensions } from 'react-native';
+import { Settings, Plus, RefreshCw } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
 import { 
@@ -24,11 +24,14 @@ import {
   SegmentedControl,
   KeyboardAwareContainer,
 } from '@/components/ui';
+import { Dropdown } from '@/components/ui';
 import { userService } from '@/services/user/get-user-profile';
 import type { UserProfile } from '@/services/types';
 import assetsHistory from '@/assets/data/assets-history.json';
 import { LinearGradient } from 'expo-linear-gradient';
 import { listItemStyles } from '@/styles/ui/ListItem.styles';
+
+const SCREEN_HEIGHT = Dimensions.get('window').height;
 
 export default function PatrimonyScreen() {
   const { user } = useAuth();
@@ -54,6 +57,10 @@ export default function PatrimonyScreen() {
   const router = useRouter();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const overlayAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(0)).current;
 
   const loadPatrimonyData = async () => {
     try {
@@ -88,6 +95,43 @@ export default function PatrimonyScreen() {
 
     loadUserData();
   }, []);
+
+  useEffect(() => {
+    if (showAddModal) {
+      setModalVisible(true);
+      Animated.parallel([
+        Animated.timing(overlayAnim, {
+          toValue: 1,
+          duration: 220,
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideAnim, {
+          toValue: 1,
+          duration: 260,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    } else if (modalVisible) {
+      Animated.parallel([
+        Animated.timing(overlayAnim, {
+          toValue: 0,
+          duration: 180,
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideAnim, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ]).start(() => {
+        setModalVisible(false);
+      });
+    }
+  }, [showAddModal]);
+
+  const closeModal = () => {
+    setShowAddModal(false);
+  };
 
   const myAssets = patrimonyData.MY_ASSETS;
   const partnerAssets = patrimonyData.PARTNER_ASSETS;
@@ -125,6 +169,20 @@ export default function PatrimonyScreen() {
 
   const handleTimeRangeChange = (range: keyof typeof TIME_RANGES.MAPPING) => {
     setRangeSize(TIME_RANGES.MAPPING[range]);
+  };
+
+  const handleIntegrarDatos = () => {
+    router.push('/patrimony/floid-screen' as any);
+  };
+
+  const handleAddActivo = () => {
+    // TODO: Implementar navegación a agregar activo
+    console.log('Agregar activo');
+  };
+
+  const handleAddPasivo = () => {
+    // TODO: Implementar navegación a agregar pasivo
+    console.log('Agregar pasivo');
   };
 
   function getLastTwoValues(history: { date: string, value: number }[]) {
@@ -230,19 +288,28 @@ export default function PatrimonyScreen() {
       <Header
         title={LABELS.PATRIMONY.TITLE}
         leftAction={
-          <UserSelector
-            selectedView={ownerView}
-            onViewChange={handleUserViewChange}
-            showSelector={showSelector}
-            onToggle={() => setShowSelector(!showSelector)}
-            myLabel={userProfile?.initials || ''}
-            partnerLabel={userProfile?.partner?.initials || ''}
-          />
+                  <UserSelector
+          selectedView={ownerView}
+          onViewChange={handleUserViewChange}
+          showSelector={showSelector}
+          onToggle={() => setShowSelector(!showSelector)}
+          myLabel={userProfile?.initials || ''}
+          partnerLabel={userProfile?.partner?.initials || ''}
+          enabled={false}
+        />
         }
         rightAction={
-          <TouchableOpacity onPress={() => router.push('/settings')}>
-            <Settings size={24} color={Colors.primary[500]} />
-          </TouchableOpacity>
+          <View className="flex-row items-center">
+            <TouchableOpacity 
+              onPress={() => setShowAddModal(true)}
+              className="mr-3"
+            >
+              <Plus size={24} color={Colors.primary[500]} />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => router.push('/settings')}>
+              <Settings size={24} color={Colors.primary[500]} />
+            </TouchableOpacity>
+          </View>
         }
       />
       <KeyboardAwareContainer>
@@ -293,6 +360,93 @@ export default function PatrimonyScreen() {
           </Container>
         </ScrollView>
       </KeyboardAwareContainer>
+      {modalVisible && (
+        <View 
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            justifyContent: 'flex-end',
+            zIndex: 1000
+          }}
+        >
+          <Animated.View
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: overlayAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: ['rgba(0,0,0,0)', 'rgba(0,0,0,0.45)'],
+              }),
+            }}
+          >
+            <TouchableOpacity 
+              style={{ flex: 1 }} 
+              onPress={closeModal}
+              activeOpacity={1}
+            />
+          </Animated.View>
+          <Animated.View 
+            style={{
+              backgroundColor: '#fff',
+              borderTopLeftRadius: 20,
+              borderTopRightRadius: 20,
+              paddingHorizontal: 20,
+              paddingTop: 8,
+              paddingBottom: 32,
+              transform: [
+                {
+                  translateY: slideAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [SCREEN_HEIGHT, 0],
+                  }),
+                },
+              ],
+            }}
+          >
+            <View style={{ alignItems: 'center', paddingVertical: 8 }}>
+              <View style={{ width: 40, height: 4, backgroundColor: '#D1D5DB', borderRadius: 2 }} />
+            </View>
+            {[
+              { label: 'Integrar datos bancarios', value: 'integrar', icon: <RefreshCw size={20} color={Colors.gray[700]} /> },
+              { label: 'Añadir activo', value: 'activo' },
+              { label: 'Añadir pasivo', value: 'pasivo' }
+            ].map((option, index) => (
+              <TouchableOpacity
+                key={option.value}
+                style={{
+                  paddingVertical: 16,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  borderBottomWidth: index !== 2 ? 1 : 0,
+                  borderColor: '#F3F4F6',
+                }}
+                onPress={() => {
+                  closeModal();
+                  switch(option.value) {
+                    case 'integrar': handleIntegrarDatos(); break;
+                    case 'activo': handleAddActivo(); break;
+                    case 'pasivo': handleAddPasivo(); break;
+                  }
+                }}
+                activeOpacity={0.7}
+              >
+                {option.icon && (
+                  <View style={{ marginRight: 12 }}>{option.icon}</View>
+                )}
+                <Text className="text-base font-regular" style={{ color: Colors.gray[700] }}>
+                  {option.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </Animated.View>
+        </View>
+      )}
     </Container>
   );
 }
