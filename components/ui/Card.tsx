@@ -18,7 +18,7 @@ export function Card({
   style,
   ...props
 }: CardProps) {
-  const baseStyles = 'rounded-3xl font-regular';
+  const baseStyles = 'rounded-2xl font-regular';
   
   const variants = {
     default: `border`,

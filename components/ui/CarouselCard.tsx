@@ -1,6 +1,7 @@
 import React from 'react';
 import { TouchableOpacity, Text, View } from 'react-native';
 import { cn } from '@/lib/utils';
+import Colors from '@/constants/Colors';
 
 interface CarouselCardProps {
   title: string;
@@ -59,7 +60,7 @@ export function CarouselCard({
         </View>
       )}
 
-      <Text className="text-xl font-semibold text-gray-800 mb-1.5" style={{ paddingLeft: 10, paddingRight: 10 }}>
+      <Text className="text-lg font-medium mb-1.5" style={{ paddingLeft: 10, paddingRight: 10, color: Colors.primary[500] }}>
         {title}
       </Text>
 
