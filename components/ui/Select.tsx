@@ -193,7 +193,7 @@ export function Select({
                     flexDirection: 'row',
                     alignItems: 'center',
                     borderBottomWidth: index !== options.length - 1 ? 1 : 0,
-                    borderColor: '#F3F4F6',
+                    borderColor: Colors.primary[100],
                   }}
                   onPress={() => handleSelect(option.value)}
                   activeOpacity={0.7}
