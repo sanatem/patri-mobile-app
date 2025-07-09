@@ -111,12 +111,10 @@ export default function BudgetScreen() {
   };
 
   const handleAddIngreso = () => {
-    // TODO: Implementar navegación a agregar ingreso
     console.log('Agregar ingreso');
   };
 
   const handleAddGasto = () => {
-    // TODO: Implementar navegación a agregar gasto
     console.log('Agregar gasto');
   };
 
@@ -152,14 +150,6 @@ export default function BudgetScreen() {
         }
       />
       <KeyboardAwareContainer>
-      <Container variant="content" className="mt-4 mb-4">
-            <InfiniteCarousel
-              options={categoryOptions}
-              value={selectedCategory}
-              onChange={setSelectedCategory}
-              style={{ width: '100%' }}
-            />
-          </Container>
         <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
           <Container variant="content" className="py-4">
             <View className="flex-row justify-between items-center mb-2">

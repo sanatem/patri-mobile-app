@@ -2,7 +2,19 @@ import React from 'react';
 import { View } from 'react-native';
 import SectionPlanCard from './SectionPlanCard';
 
-const planCardsData = [
+interface PlanCardData {
+  id: string;
+  title: string;
+  price?: string;
+  description: string;
+  buttonText: string;
+  duration?: string;
+  iconType: 'calendar' | 'coins';
+  minPrice?: string;
+  minDuration?: string;
+}
+
+const planCardsData: PlanCardData[] = [
   {
     id: '1',
     title: 'Sesión con un experto',
@@ -18,11 +30,13 @@ const planCardsData = [
     description: 'Descubre nuestros planes y empieza hoy a construir un mejor futuro financiero',
     buttonText: 'Ver planes',
     iconType: 'coins' as const,
+    minPrice: '$99.000 /mes',
+    minDuration: '3 meses',
   },
 ];
 
 interface SectionPlanProps {
-  onCardPress?: (card: any) => void;
+  onCardPress?: (card: PlanCardData) => void;
 }
 
 const SectionPlan: React.FC<SectionPlanProps> = ({ onCardPress }) => {
@@ -37,6 +51,8 @@ const SectionPlan: React.FC<SectionPlanProps> = ({ onCardPress }) => {
             buttonText={item.buttonText}
             duration={item.duration}
             iconType={item.iconType}
+            minPrice={item.minPrice}
+            minDuration={item.minDuration}
             onPress={() => onCardPress?.(item)}
           />
         </View>

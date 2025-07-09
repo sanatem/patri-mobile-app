@@ -83,7 +83,6 @@ export function GoalProgressChart({
       height={180}
       formatValue={formatValue}
       formatDate={customFormatDate}
-      lineColor="#22C55E"
       gradientId="goalProgressGradient"
       showDynamicColors={true}
       cardStyle={styles.card}
@@ -117,7 +116,7 @@ const styles = StyleSheet.create({
   currentAmountValue: {
     fontSize: 16,
     fontFamily: 'Poppins-SemiBold',
-    color: '#22C55E',
+    color: Colors.success[500],
   },
   currencyLabel: {
     fontSize: 12,
@@ -134,7 +133,7 @@ const styles = StyleSheet.create({
   progressBarFill: {
     height: '100%',
     borderRadius: 6,
-    backgroundColor: '#22C55E',
+    backgroundColor: Colors.success[500],
   },
   progressDetailsText: {
     fontSize: 12,

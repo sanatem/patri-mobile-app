@@ -84,7 +84,7 @@ export function Select({
 
   const animatedBorderColor = borderAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: [error ? '#DC2626' : '#ECECEC', '#FF6503'],
+    outputRange: [error ? '#DC2626' : Colors.gray[100], Colors.secondary[500]],
   });
 
   const handleSelect = (optionValue: string) => {

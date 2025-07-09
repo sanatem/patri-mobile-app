@@ -16,6 +16,8 @@ interface SectionPlanCardProps {
     bgColor?: string;
     textColor?: string;
   };
+  minPrice?: string;
+  minDuration?: string;
   onPress?: () => void;
 }
 
@@ -27,6 +29,8 @@ const SectionPlanCard: React.FC<SectionPlanCardProps> = ({
   duration,
   iconType,
   badge,
+  minPrice,
+  minDuration,
   onPress
 }) => {
   const renderIcon = () => {
@@ -101,6 +105,31 @@ const SectionPlanCard: React.FC<SectionPlanCardProps> = ({
           )}
         </View>
       )}
+      {(minPrice || minDuration) && (
+        <View className="flex-row items-start justify-between mb-4">
+          {minPrice && (
+            <View className="flex-1">
+              <Text className="text-lg font-medium" style={{ color: Colors.primary[700] }}>
+                {minPrice}
+              </Text>
+              <Text className="text-xs" style={{ color: Colors.gray[500] }}>
+                desde
+              </Text>
+            </View>
+          )}
+          {minDuration && (
+            <View className="flex-1 items-end">
+              <Text className="text-lg font-medium" style={{ color: Colors.gray[600] }}>
+                {minDuration}
+              </Text>
+              <Text className="text-xs" style={{ color: Colors.gray[500] }}>
+                desde
+              </Text>
+            </View>
+          )}
+        </View>
+      )}
+      
       <Text className="text-base mb-6 font-regular leading-6" style={{ color: Colors.gray[600] }}>
         {description}
       </Text>

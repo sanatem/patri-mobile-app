@@ -11,7 +11,7 @@ export interface PortfolioCalculations {
 export function calculatePortfolioTotals(goals: Goal[]): PortfolioCalculations {
   const totalValue = goals.reduce((sum, goal) => sum + goal.currentAmount, 0);
   const totalTarget = goals.reduce((sum, goal) => sum + goal.targetAmount, 0);
-  const totalInvested = goals.reduce((sum, goal) => sum + goal.currentAmount, 0); // Assuming current amount is invested
+  const totalInvested = goals.reduce((sum, goal) => sum + goal.currentAmount, 0);
   
   const averageProgress = totalTarget > 0 ? (totalValue / totalTarget) * 100 : 0;
   const totalReturnAmount = totalValue - totalInvested;
@@ -65,7 +65,7 @@ export function categorizeGoalsByTimeframe(goals: Goal[]): {
     
     if (daysRemaining <= 365) {
       shortTerm.push(goal);
-    } else if (daysRemaining <= 1095) { // 3 years
+    } else if (daysRemaining <= 1095) {
       mediumTerm.push(goal);
     } else {
       longTerm.push(goal);
@@ -76,10 +76,10 @@ export function categorizeGoalsByTimeframe(goals: Goal[]): {
 }
 
 export function getProgressColor(progress: number): string {
-  if (progress >= 80) return '#22c55e'; // green
-  if (progress >= 60) return '#f59e0b'; // yellow
-  if (progress >= 40) return '#f97316'; // orange
-  return '#ef4444'; // red
+  if (progress >= 80) return '#22c55e';
+  if (progress >= 60) return '#f59e0b';
+  if (progress >= 40) return '#f97316';
+  return '#ef4444';
 }
 
 export function calculateMonthlyContribution(current: number, target: number, targetDate: string): number {

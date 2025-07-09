@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
   footer: {
     padding: 20,
     borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
+    borderTopColor: Colors.gray[100],
     backgroundColor: '#F9FAFB',
   },
   primaryBtn: {
@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FF5603',
   },
   btnDisabled: {
-    backgroundColor: '#E5E7EB',
+    backgroundColor: Colors.gray[100],
   },
   textEnabled: {
     color: '#fff',

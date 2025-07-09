@@ -49,7 +49,7 @@ export function Card({
       default:
         return {
           backgroundColor: Colors.light.background,
-          borderColor: Colors.gray[200],
+          borderColor: Colors.gray[100],
           borderWidth: 1,
         };
     }

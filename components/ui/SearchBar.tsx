@@ -44,7 +44,7 @@ export function SearchBar({
 
   const animatedBorderColor = borderAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: ['#E5E7EB', '#FF6503'],
+    outputRange: [Colors.gray[100], Colors.secondary[500]],
   });
 
   const handleClear = () => {

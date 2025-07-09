@@ -26,7 +26,7 @@ export const listItemStyles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   separator: {
-    height: 1,
+    height: 0.9,
     backgroundColor: Colors.gray[100], 
     marginLeft: 0,
   },

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { goalsService } from '@/services/goal/get-goals';
+import { goalsService } from '@/services/investment/portfolio/goals/get-goals';
 import type { Goal } from '@/types/api';
 
 interface UseGoalsReturn {
