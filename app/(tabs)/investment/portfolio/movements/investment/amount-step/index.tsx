@@ -8,7 +8,7 @@ import {
 import { Container } from '@/components/ui/Container';
 import { Button } from '@/components/ui/Button';
 import Colors from '@/constants/Colors';
-import { useFormatValue } from '@/hooks/useFormatValue';
+import { useFormatValue } from '@/hooks/common/useFormatValue';
 
 interface AmountStepProps {
   amount: string;

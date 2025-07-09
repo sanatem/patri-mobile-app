@@ -3,7 +3,7 @@ import FreePlanIndex from './free-plan';
 import PaidPlanIndex from './paid-plan';
 
 export default function PlanningScreen() {
-  const [userHasPlan, setUserHasPlan] = useState(false);
+  const [userHasPlan, setUserHasPlan] = useState(true);
 
   const handlePurchase = () => {
     setUserHasPlan(true);

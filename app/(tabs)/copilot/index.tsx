@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, TouchableOpacity } from 'react-native';
 import { ChevronLeft, Settings } from 'lucide-react-native';
 import { useAuth } from '@/providers/AuthProvider';
-import { useCopilotChat } from '@/hooks/useCopilotHooks';
+import { useCopilotChat } from '@/hooks/copilot/useCopilotHooks';
 import { useRouter } from 'expo-router';
 import { Header } from '@/components/ui/Header';
 import { CopilotWelcome } from '@/components/copilot/CopilotWelcome';
