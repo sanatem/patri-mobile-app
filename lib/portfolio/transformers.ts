@@ -92,7 +92,6 @@ export function groupGoalsByCategory(goals: Goal[]): Record<string, TransformedG
 export function getTopPriorityGoals(goals: Goal[], limit: number = 3): TransformedGoal[] {
   const transformedGoals = transformGoalsList(goals);
   
-  // Sort by priority (high first) and then by progress (lowest first)
   return transformedGoals
     .sort((a, b) => {
       const priorityOrder = { high: 3, medium: 2, low: 1 };
@@ -102,7 +101,7 @@ export function getTopPriorityGoals(goals: Goal[], limit: number = 3): Transform
         return priorityDiff;
       }
       
-      return a.progress - b.progress; // Lower progress first
+      return a.progress - b.progress;
     })
     .slice(0, limit);
 } 
