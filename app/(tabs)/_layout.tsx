@@ -72,21 +72,6 @@ export default function TabsLayout() {
           ),
         }}
       />
-      <Tabs.Screen
-        name="more"
-        options={{
-          title: 'Más',
-          tabBarIcon: ({ color, size }) => (
-            <MoreTabButton color={color} size={size} />
-          ),
-        }}
-        listeners={{
-          tabPress: (e) => {
-            // Prevenir la navegación predeterminada
-            e.preventDefault();
-          },
-        }}
-      />
     </Tabs>
   );
 }
