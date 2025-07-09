@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Liability } from '@/types';
+import Colors from '@/constants/Colors';
 
 interface LiabilityCardProps {
   liability: Liability;
@@ -10,7 +11,7 @@ const LiabilityCard: React.FC<LiabilityCardProps> = ({ liability }) => {
   const isPositive = liability.change < 0;
 
   return (
-    <TouchableOpacity className="flex-row justify-between items-center py-4 px-4 border-b border-gray-200">
+    <TouchableOpacity className="flex-row justify-between items-center py-4 px-4 border-b" style={{ borderBottomColor: Colors.primary[100] }}>
       <View className="flex-row items-center">
         <View
           className="rounded-lg justify-center items-center"

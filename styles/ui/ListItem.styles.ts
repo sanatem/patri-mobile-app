@@ -6,7 +6,7 @@ export const listItemStyles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: Colors.gray[100],
     overflow: 'hidden',
     marginBottom: 24,
   },
@@ -14,7 +14,7 @@ export const listItemStyles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: Colors.gray[100],
     overflow: 'hidden',
     marginBottom: 24,
   },
@@ -28,7 +28,7 @@ export const listItemStyles = StyleSheet.create({
   separator: {
     height: 1,
     backgroundColor: Colors.gray[100], 
-    marginLeft: 84,
+    marginLeft: 0,
   },
   icon: {
     width: 48,
