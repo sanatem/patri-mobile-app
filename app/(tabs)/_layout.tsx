@@ -3,11 +3,14 @@ import { useColorScheme, Platform } from 'react-native';
 import TabBarIcon from '@/components/navigation/TabBarIcon';
 import MoreTabButton from '@/components/navigation/MoreTabButton';
 import Colors from '@/constants/Colors';
+import {useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context';
 
 export default function TabsLayout() {
   const colorScheme = useColorScheme();
+  const insets = useSafeAreaInsets();
 
   return (
+  <SafeAreaView style={{ flex: 1 }} edges={['left', 'right']}>
     <Tabs
       screenOptions={{
         headerShown: false,
@@ -16,10 +19,9 @@ export default function TabsLayout() {
         tabBarStyle: {
           borderTopWidth: 1,
           borderTopColor: Colors.gray[200],
-          height: 60,
+          height: 60 + insets.bottom,
           paddingTop: 6,
-          marginBottom: Platform.OS === 'ios' ? 0 : 5,
-          paddingBottom: Platform.OS === 'ios' ? 6 : 26,
+          paddingBottom: insets.bottom,
         },
         tabBarLabelStyle: {
           fontFamily: 'Poppins-Medium',
@@ -73,5 +75,6 @@ export default function TabsLayout() {
         }}
       />
     </Tabs>
+  </SafeAreaView>
   );
 }
