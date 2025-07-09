@@ -64,7 +64,7 @@ export function Header({
                 'text-xl font-semibold',
                 titleClassName
               )}>
-                <Text style={{ color: Colors.primary[500] }}>
+                <Text style={{ color: Colors.primary[600] }}>
                   {title}
                 </Text>
               </Text>

@@ -30,7 +30,7 @@ export function PatrimonySummary({
         Patrimonio Neto
       </Text>
       <View className="flex-row items-center justify-center mb-1">
-        <Text className="text-4xl font-semibold" style={{ color: Colors.gray[800] }}>
+        <Text className="text-4xl font-medium" style={{ color: Colors.primary[700] }}>
           ${netWorth.toLocaleString('es-CL')}
         </Text>
         <TouchableOpacity className="ml-2 pb-1" onPress={onToggleTooltip}>
@@ -63,8 +63,8 @@ export function PatrimonySummary({
           </View>
         </View>
       )}
-      <Text className="text-center text-base font-regular mt-2" style={{ color: Colors.gray[500] }}>
-        <Text className="font-semibold" style={{ color: Colors.gray[500] }}>{changeAmount} ({changePercentage})</Text> · vs último mes
+      <Text className="text-center text-base font-regular mt-2" style={{ color: Colors.primary[500] }}>
+        <Text className="font-medium" style={{ color: Colors.primary[500] }}>{changeAmount} ({changePercentage})</Text> · vs último mes
       </Text>
     </View>
   );

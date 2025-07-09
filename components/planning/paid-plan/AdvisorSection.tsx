@@ -24,8 +24,8 @@ export default function AdvisorSection({ onSchedule, onChat }: AdvisorSectionPro
               <Calendar size={18} color={Colors.primary[500]} />
             </View>
             <View className="ml-3">
-              <Text className="text-sm font-medium text-gray-800">Próxima reunión</Text>
-              <Text className="text-xs text-gray-500 mt-0.5 font-regular">Ninguna programada</Text>
+              <Text className="text-sm font-medium" style={{ color: Colors.primary[500] }}>Próxima reunión</Text>
+              <Text className="text-xs font-regular" style={{ color: Colors.gray[500] }}>Ninguna programada</Text>
             </View>
           </View>
           <Button 

@@ -1,5 +1,5 @@
 // services/budget/get-budget.ts
-import mockUserData from '@/assets/data/mock-data.json';
+import mockUserData from '@/data/mock/mock-data.json';
 
 interface BudgetCategory {
   label: string;

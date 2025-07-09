@@ -98,7 +98,6 @@ export default function LoginScreen() {
             }}
             render={({ field: { onChange, value, onBlur } }) => (
               <Input
-                style={{ backgroundColor: 'transparent', borderWidth: 0 }}
                 label="Correo electrónico"
                 placeholder="tucorreo@ejemplo.com"
                 icon={<Mail size={20} color="#9CA3AF" />}
@@ -123,7 +122,6 @@ export default function LoginScreen() {
             }}
             render={({ field: { onChange, value, onBlur } }) => (
               <Input
-                style={{ backgroundColor: 'transparent', borderWidth: 0 }}
                 label="Contraseña"
                 placeholder="Ingresa tu contraseña"
                 icon={<Lock size={20} color="#9CA3AF" />}

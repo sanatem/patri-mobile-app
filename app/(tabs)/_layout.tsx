@@ -46,20 +46,20 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="planning"
-        options={{
-          title: 'Planificación',
-          tabBarIcon: ({ color, size }) => (
-            <TabBarIcon name="users" color={color} size={size} />
-          ),
-        }}
-      />
-      <Tabs.Screen
         name="investment"
         options={{
           title: 'Inversión',
           tabBarIcon: ({ color, size }) => (
             <TabBarIcon name="dollar" color={color} size={size} />
+          ),
+        }}
+      />
+            <Tabs.Screen
+        name="planning"
+        options={{
+          title: 'Planificación',
+          tabBarIcon: ({ color, size }) => (
+            <TabBarIcon name="users" color={color} size={size} />
           ),
         }}
       />
@@ -70,21 +70,6 @@ export default function TabsLayout() {
           tabBarIcon: ({ color, size }) => (
             <TabBarIcon name="sparkles" color={color} size={size} />
           ),
-        }}
-      />
-      <Tabs.Screen
-        name="more"
-        options={{
-          title: 'Más',
-          tabBarIcon: ({ color, size }) => (
-            <MoreTabButton color={color} size={size} />
-          ),
-        }}
-        listeners={{
-          tabPress: (e) => {
-            // Prevenir la navegación predeterminada
-            e.preventDefault();
-          },
         }}
       />
     </Tabs>

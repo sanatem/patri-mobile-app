@@ -1,5 +1,5 @@
 import OpenAI from 'openai';
-import chatbotContext from '@/assets/data/chatbot-context.json';
+import chatbotContext from '@/data/mock/chatbot-context.json';
 
 // Configuración de OpenAI
 const openai = new OpenAI({

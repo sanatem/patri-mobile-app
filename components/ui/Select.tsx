@@ -84,7 +84,7 @@ export function Select({
 
   const animatedBorderColor = borderAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: [error ? '#DC2626' : '#ECECEC', '#FF6503'],
+    outputRange: [error ? '#DC2626' : Colors.gray[100], Colors.secondary[500]],
   });
 
   const handleSelect = (optionValue: string) => {
@@ -193,7 +193,7 @@ export function Select({
                     flexDirection: 'row',
                     alignItems: 'center',
                     borderBottomWidth: index !== options.length - 1 ? 1 : 0,
-                    borderColor: '#F3F4F6',
+                    borderColor: Colors.primary[100],
                   }}
                   onPress={() => handleSelect(option.value)}
                   activeOpacity={0.7}

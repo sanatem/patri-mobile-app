@@ -1,4 +1,4 @@
-import mockData from '@/assets/data/mock-data.json';
+import mockData from '@/data/mock/mock-data.json';
 
 export interface MetaDetails {
   id: string;

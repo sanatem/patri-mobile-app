@@ -35,7 +35,6 @@ export function Dropdown({
   return (
     <>
       <View className={cn('relative', className)}>
-        {/* Trigger */}
         <TouchableOpacity
           className="flex-row items-center justify-center bg-gray-100 px-4 py-2 rounded-full"
           onPress={() => setIsOpen(!isOpen)}

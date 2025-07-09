@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { View, TouchableOpacity } from 'react-native';
 import { Send } from 'lucide-react-native';
 import { Input } from '@/components/ui/Input';
+import Colors from '@/constants/Colors';
 
 interface ChatInputProps {
   onSendMessage: (message: string) => void;
@@ -25,7 +26,7 @@ export function ChatInput({ onSendMessage }: ChatInputProps) {
         paddingHorizontal: 16,
         paddingVertical: 16,
         borderTopWidth: 1,
-        borderTopColor: '#E5E7EB',
+        borderTopColor: Colors.gray[100],
         alignItems: 'flex-end',
       }}
     >
@@ -54,7 +55,7 @@ export function ChatInput({ onSendMessage }: ChatInputProps) {
             borderRadius: 20,
             justifyContent: 'center',
             alignItems: 'center',
-            backgroundColor: message.trim() ? '#FF6503' : '#ECECEC',
+            backgroundColor: message.trim() ? Colors.secondary[500] : Colors.gray[100],
           }}
         >
           <Send size={22} color={message.trim() ? 'white' : '#9CA3AF'} />

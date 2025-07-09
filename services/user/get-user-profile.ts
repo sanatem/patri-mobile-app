@@ -1,5 +1,5 @@
-import mockUserData from '../../assets/data/mock-data.json';
-import type { UserProfile, InvestmentProfile } from '../types';
+import mockUserData from '@/data/mock/mock-data.json';
+import type { UserProfile, InvestmentProfile } from '@/types/api';
 
 export const userService = {
   getUserProfile(): UserProfile {

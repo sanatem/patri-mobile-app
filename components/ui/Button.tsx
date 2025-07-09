@@ -140,7 +140,7 @@ export function Button({
             </View>
           )}
           <Text 
-            className={cn('text-base font-medium', getTextColor())}
+            className={cn('text-sm font-medium', getTextColor())}
             style={getDisabledTextStyle()}
           >
             {title}

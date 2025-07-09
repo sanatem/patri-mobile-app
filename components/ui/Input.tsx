@@ -55,7 +55,7 @@ export function Input({
 
   const animatedBorderColor = borderAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: ['#ECECEC', '#FF6503'],
+    outputRange: [Colors.gray[100], Colors.secondary[500]],
   });
 
   const handleSubmitEditing = () => {

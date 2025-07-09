@@ -1,17 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
-import { ChevronLeft, ArrowDown, ArrowUp, Plus } from 'lucide-react-native';
+import { ChevronLeft, ArrowDown, ArrowUp } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { Header } from '@/components/ui/Header';
 import { Container } from '@/components/ui/Container';
-import { Button } from '@/components/ui/Button';
-import PortfolioDetailsHeader from '@/components/investment/portfolio/portfolio-details/PortfolioDetailsHeader';
-import PortfolioSummary from '@/components/investment/portfolio/portfolio-details/PortfolioSummary';
-import PortfolioAssets from '@/components/investment/portfolio/portfolio-details/PortfolioAssets';
-import PortfolioMovements from '@/components/investment/portfolio/portfolio-details/PortfolioMovements';
-import { GoalProgressChart } from '@/components/investment/portfolio/portfolio-details/GoalProgressChart';
-import { getMovementsByGoal, Movement } from '@/services/investment/get-movements';
-import { getPortfolioDetails, MetaDetails } from '@/services/investment/get-portfolio-details';
+import { 
+  PortfolioDetailsHeader, 
+  PortfolioOverviewSection, 
+  GoalProgressChart 
+} from '@/components/investment/portfolio/portfolio-details';
+import { getMovementsByGoal, Movement } from '@/services/investment/portfolio/movements/get-movements';
+import { getPortfolioDetails, MetaDetails } from '@/services/investment/portfolio/portfolio-details/get-portfolio-details';
 import Colors from '@/constants/Colors';
 import { PortfolioActionsBar } from '@/components/investment/portfolio/PortfolioActionsBar';
 
@@ -105,6 +104,20 @@ export default function PortfolioDetailsScreen() {
 
   const projectedData = generateProjectedData(metaDetails);
 
+  const transformedSummary = [
+    { title: 'Estrategia', value: metaDetails.summary.estrategia },
+    { title: 'Nivel de riesgo', value: metaDetails.summary.riesgo },
+    { title: 'Aportes', value: `$${metaDetails.summary.aportes.toLocaleString('es-CO')}` },
+    { title: 'Rescates', value: `$${metaDetails.summary.rescates.toLocaleString('es-CO')}` },
+  ];
+
+  const transformedAssets = metaDetails.assets.map(asset => ({
+    name: asset.title,
+    percentage: Math.round((asset.value / metaDetails.current) * 100),
+    value: `$${asset.value.toLocaleString('es-CO')}`,
+    allocation: asset.subtitle,
+  }));
+
   return (
     <Container variant="secondaryPage" className="px-1">
       <View className="flex-1 bg-white">
@@ -127,9 +140,12 @@ export default function PortfolioDetailsScreen() {
             projectedData={projectedData}
             targetDate={metaDetails.goalDate}
           />
-          <PortfolioSummary summary={metaDetails.summary} />
-          <PortfolioAssets assets={metaDetails.assets} />
-          <PortfolioMovements movements={movements} />
+          <PortfolioOverviewSection 
+            summary={transformedSummary}
+            assets={transformedAssets}
+            movements={movements}
+            goalName={metaName}
+          />
         </ScrollView>
         <View className="px-3">
         <PortfolioActionsBar

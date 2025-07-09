@@ -10,6 +10,7 @@ import {
 import { useRouter } from 'expo-router';
 import { Picker } from '@react-native-picker/picker';
 import { ChevronLeft } from 'lucide-react-native';
+import Colors from '@/constants/Colors';
 
 export default function CreateGoalsScreen() {
   const router = useRouter();
@@ -17,22 +18,20 @@ export default function CreateGoalsScreen() {
   const [accountType, setAccountType] = useState('inversion');
 
   const handleCreate = () => {
-    // Podrías guardar info acá si es necesario
     router.push('/investment/portfolio/portfolio' as any);
   };
 
   return (
     <View style={styles.container}>
-      {/* Header */}
+
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
-          <ChevronLeft size={24} color="#FF5603" />
+          <ChevronLeft size={24} color={Colors.secondary[500]} />
         </TouchableOpacity>
         <Text style={styles.title}>Crear meta</Text>
-        <View style={{ width: 24 }} /> {/* Spacer */}
+        <View style={{ width: 24 }} />
       </View>
 
-      {/* Formulario */}
       <View style={styles.form}>
         <Text style={styles.label}>Nombre de la meta</Text>
         <TextInput
@@ -56,7 +55,6 @@ export default function CreateGoalsScreen() {
         </View>
       </View>
 
-      {/* Botón crear */}
       <View style={styles.bottom}>
         <TouchableOpacity
           style={[styles.createBtn, goalName ? styles.btnEnabled : styles.btnDisabled]}
@@ -105,7 +103,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: Colors.gray[100],
   },
   pickerBox: {
     backgroundColor: 'white',
@@ -116,7 +114,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: Colors.gray[100],
   },
   
   picker: {
@@ -135,10 +133,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   btnEnabled: {
-    backgroundColor: '#FF5603',
+    backgroundColor: Colors.secondary[500],
   },
   btnDisabled: {
-    backgroundColor: '#E5E7EB',
+    backgroundColor: Colors.gray[100],
   },
   createText: {
     fontSize: 16,
