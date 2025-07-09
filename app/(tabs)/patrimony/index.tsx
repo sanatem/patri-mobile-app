@@ -26,8 +26,8 @@ import {
 } from '@/components/ui';
 import { Dropdown } from '@/components/ui';
 import { userService } from '@/services/user/get-user-profile';
-import type { UserProfile } from '@/services/types';
-import assetsHistory from '@/assets/data/assets-history.json';
+import type { UserProfile } from '@/types/api';
+import assetsHistory from '@/data/static/assets-history.json';
 import { LinearGradient } from 'expo-linear-gradient';
 import { listItemStyles } from '@/styles/ui/ListItem.styles';
 

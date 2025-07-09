@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useChartRangeStore } from '@/store/chartRangeStore';
 import { InteractiveChart } from '@/components/ui/InteractiveChart';
-import data from '@/assets/data/patrimony-daily.json';
+import data from '@/data/mock/patrimony-daily.json';
 import { areaChartCardStyles } from '@/styles/patrimony/AreaChartCard.styles';
 
 export default function AreaChart() {

@@ -1,10 +1,10 @@
 import { View, Text } from 'react-native';
 import { InteractiveChartProps, TooltipData } from '@/types/chart';
 import { CHART_CONFIG, CHART_STYLES } from '@/constants/ChartConfig';
-import { useChartDimensions } from '@/hooks/useChartDimensions';
-import { useChartScales } from '@/hooks/useChartScales';
-import { useChartPaths } from '@/hooks/useChartPaths';
-import { useChartInteraction } from '@/hooks/useChartInteraction';
+import { useChartDimensions } from '@/hooks/chart/useChartDimensions';
+import { useChartScales } from '@/hooks/chart/useChartScales';
+import { useChartPaths } from '@/hooks/chart/useChartPaths';
+import { useChartInteraction } from '@/hooks/chart/useChartInteraction';
 import { ChartSvg } from '@/components/ui/chart/ChartSvg';
 import { ChartTooltip } from '@/components/ui/chart/ChartTooltip';
 import { ChartDateLabels } from '@/components/ui/chart/ChartDateLabels';

@@ -8,9 +8,9 @@ import { SplashScreen } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthProvider } from '@/providers/AuthProvider';
 import { CopilotProvider } from '@/providers/CopilotProvider';
-import { useFrameworkReady } from '@/hooks/useFrameworkReady';
+import { useFrameworkReady } from '@/hooks/common/useFrameworkReady';
 
-// Prevent splash screen from auto-hiding
+
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
