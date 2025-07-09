@@ -13,7 +13,7 @@ export default function MovementsScreen() {
   const [movements, setMovements] = useState<Movement[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const metaName = 'Emergencias'; // This should come from params in real implementation
+  const metaName = 'Emergencias';
 
   useEffect(() => {
     const loadMovements = async () => {
@@ -40,20 +40,16 @@ export default function MovementsScreen() {
     }).format(amount);
   };
 
-
-
-
-
   const renderMovementItem = ({ item }: { item: Movement }) => (
     <Card className="mb-2">
       <View className="flex-row items-center justify-between">
         <View className="flex-row items-center flex-1">
           <ArrowUp size={20} color={Colors.success[500]} />
-          <Text className="text-base font-medium text-gray-900 ml-3">
+          <Text className="text-base font-medium ml-2" style={{ color: Colors.primary[500] }}>
             {item.title}
           </Text>
         </View>
-        <Text className="text-lg font-medium text-gray-900 ml-3">
+        <Text className="text-lg font-medium ml-2" style={{ color: Colors.primary[500] }}>
           {formatCurrency(item.value)}
         </Text>
       </View>

@@ -63,7 +63,7 @@ export default function ModalCard({ title, children, maxHeight = 180 }: ModalCar
       <TouchableOpacity onPress={() => setIsOpen(true)} activeOpacity={0.7}>
         <Card className="mb-4">
           <View className="flex-row items-center justify-between">
-            <Text className="text-base font-medium text-gray-700">{title}</Text>
+            <Text className="text-base font-medium" style={{ color: Colors.primary[500] }}>{title}</Text>
             <ChevronRight size={20} color={Colors.gray[500]} />
           </View>
         </Card>
@@ -83,9 +83,6 @@ export default function ModalCard({ title, children, maxHeight = 180 }: ModalCar
             <View style={selectStyles.dragIndicatorContainer}>
               <View style={selectStyles.dragIndicator} />
             </View>
-            <Text className="text-base font-medium mb-4" style={{ color: Colors.primary[500] }}>
-              {title}
-            </Text>
             <ScrollView 
               style={{ maxHeight }}
               showsVerticalScrollIndicator={false}

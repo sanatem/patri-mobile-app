@@ -26,48 +26,19 @@ export default function AdvisorCard({ onSchedule, onChat }: AdvisorCardProps) {
               borderColor: Colors.primary[100],
             }}
           />
-          <View style={{
-            position: 'absolute',
-            bottom: 2,
-            right: 2,
-            width: 16,
-            height: 16,
-            borderRadius: 8,
-            backgroundColor: '#ffffff',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}>
-            <View style={{
-              width: 10,
-              height: 10,
-              borderRadius: 5,
-              backgroundColor: Colors.success[500],
-            }} />
-          </View>
-          <View 
-            className="absolute -top-0.5 -right-0.5 w-5 h-5 rounded-full items-center justify-center"
-            style={{ backgroundColor: Colors.primary[500] }}
-          >
-            <Award size={12} color="#ffffff" />
-          </View>
         </View>
-        
         <View className="ml-4 flex-1 justify-center">
           <View className="flex-row items-center mb-1">
-            <Text className="text-lg font-medium text-gray-800 mr-2">Fernando Slebe</Text>
-            <View className="flex-row items-center bg-yellow-100 px-1.5 py-0.5 rounded-lg">
-              <Star size={14} color="#F59E0B" fill="#F59E0B" />
-              <Text className="text-xs font-semibold text-yellow-600 ml-1">4.9</Text>
-            </View>
+            <Text className="text-lg font-medium" style={{ color: Colors.primary[500] }}>Fernando Slebe</Text>
           </View>
           <Text className="text-sm font-medium mb-0.5" style={{ color: Colors.primary[500] }}>
             Asesor de Inversiones Certificado
           </Text>
-          <Text className="text-xs text-gray-500 font-regular">+10 años de experiencia</Text>
+          <Text className="text-xs font-regular" style={{ color: Colors.gray[500] }}>+10 años de experiencia</Text>
         </View>
       </View>
       
-      <Text className="text-sm text-gray-700 leading-5 mb-5 font-regular">
+      <Text className="text-sm font-regular" style={{ color: Colors.gray[700] }}>
         Fernando Slebe es un Asesor de Inversiones acreditado especializado en planificación financiera integral y estrategias de inversión a largo plazo.
       </Text>
 

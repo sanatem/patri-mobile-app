@@ -39,7 +39,7 @@ export default function PortfolioMovementsCard({ title, movements, goalName }: P
       <Card className="mb-4">
         <View className="flex-row items-center justify-between">
           <View className="flex-row items-center">
-            <Text className="text-base font-medium text-gray-700 ml-2">Movimientos</Text>
+            <Text className="text-base font-medium" style={{ color: Colors.primary[500] }}>Movimientos</Text>
           </View>
           <ChevronRight size={20} color={Colors.gray[500]} />
         </View>

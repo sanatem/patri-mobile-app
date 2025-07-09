@@ -21,18 +21,18 @@ export default function PortfolioSummaryCard({ title, summary }: PortfolioSummar
         <View key={index} style={{ 
           paddingVertical: 12, 
           borderBottomWidth: index !== summary.length - 1 ? 1 : 0, 
-          borderColor: '#F3F4F6' 
+          borderColor: Colors.primary[100] 
         }}>
           <View className="flex-row justify-between items-start">
-            <Text className="text-base font-regular text-gray-700 flex-1">
+            <Text className="text-base font-regular flex-1" style={{ color: Colors.primary[500] }}>
               {item.title}
             </Text>
-            <Text className="text-base font-regular text-gray-700 ml-4">
+            <Text className="text-base font-regular ml-4" style={{ color: Colors.primary[500] }}>
               {item.value}
             </Text>
           </View>
           {item.description && (
-            <Text className="text-sm text-gray-600 mt-1">
+            <Text className="text-sm mt-1" style={{ color: Colors.gray[600] }}>
               {item.description}
             </Text>
           )}

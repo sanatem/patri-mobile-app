@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 import ModalCard from './base/ModalCard';
+import Colors from '@/constants/Colors';
 
 interface Asset {
   name: string;
@@ -21,18 +22,18 @@ export default function PortfolioAssetsCard({ title, assets }: PortfolioAssetsCa
         <View key={index} style={{ 
           paddingVertical: 12, 
           borderBottomWidth: index !== assets.length - 1 ? 1 : 0, 
-          borderColor: '#F3F4F6' 
+          borderColor: Colors.primary[100] 
         }}>
           <View className="flex-row justify-between items-center mb-2">
-            <Text className="text-base font-regular text-gray-700 flex-1">
+            <Text className="text-base font-regular flex-1" style={{ color: Colors.primary[500] }}>
               {asset.name}
             </Text>
-            <Text className="text-base font-regular text-gray-700 ml-4">
+            <Text className="text-base font-regular ml-4" style={{ color: Colors.primary[500] }}>
               {asset.value}
             </Text>
           </View>
           
-          <Text className="text-sm text-gray-600">
+          <Text className="text-sm" style={{ color: Colors.gray[600] }}>
             {asset.allocation}
           </Text>
         </View>
