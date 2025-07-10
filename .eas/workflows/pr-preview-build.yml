@@ -1,0 +1,12 @@
+name: PR Preview Build & Submit
+
+on:
+  pull_request:
+    branches: ['main']
+
+jobs:
+  publish_preview_update:
+    name: Publish Preview Update
+    type: update
+    params:
+      branch: ${{ github.ref || 'test' }}
