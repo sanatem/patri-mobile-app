@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, Modal, ActivityIndicator } from 'react-native';
 import { 
   Settings, 
   HelpCircle, 
@@ -9,13 +9,54 @@ import {
   CreditCard, 
   PieChart,
   ChevronRight,
-  ArrowLeft 
+  ArrowLeft,
+  LogOut
 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
+import { useAuth } from '@/providers/AuthProvider';
 
 export default function MoreScreen() {
   const router = useRouter();
+  const { logout, forceLogout, user, accessToken, isAuthenticated, loading } = useAuth();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const handleLogout = () => {
+    Alert.alert(
+      'Cerrar sesión',
+      '¿Estás seguro que deseas cerrar sesión?',
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+        {
+          text: 'Cerrar sesión',
+          style: 'destructive',
+          onPress: async () => {
+            setIsLoggingOut(true);
+            
+            try {
+              await logout();
+              router.dismissAll();
+              router.replace('/auth/login');
+            } catch (error) {
+              console.error('Error durante logout:', error);
+              try {
+                await forceLogout();
+              } catch (forceError) {
+                console.error('Error durante logout forzado:', forceError);
+              }
+              router.dismissAll();
+              router.replace('/auth/login');
+            } finally {
+              setIsLoggingOut(false);
+            }
+          },
+        },
+      ]
+    );
+  };
 
   const menuItems = [
     {
@@ -67,16 +108,32 @@ export default function MoreScreen() {
       icon: HelpCircle,
       onPress: () => console.log('Ayuda'),
     },
+    {
+      id: '8',
+      title: 'Cerrar sesión',
+      subtitle: user?.email || 'Salir de la aplicación',
+      icon: LogOut,
+      onPress: handleLogout,
+      isDestructive: true,
+    },
   ];
 
   const renderMenuItem = (item: any) => (
     <TouchableOpacity key={item.id} style={styles.menuItem} onPress={item.onPress}>
       <View style={styles.menuItemLeft}>
-        <View style={styles.iconContainer}>
-          <item.icon size={22} color={Colors.primary[500]} />
+        <View style={[
+          styles.iconContainer,
+          item.isDestructive && styles.destructiveIconContainer
+        ]}>
+          <item.icon size={22} color={item.isDestructive ? Colors.error[500] : Colors.primary[500]} />
         </View>
         <View style={styles.textContainer}>
-          <Text style={styles.menuTitle}>{item.title}</Text>
+          <Text style={[
+            styles.menuTitle,
+            item.isDestructive && styles.destructiveTitle
+          ]}>
+            {item.title}
+          </Text>
           <Text style={styles.menuSubtitle}>{item.subtitle}</Text>
         </View>
       </View>
@@ -85,30 +142,44 @@ export default function MoreScreen() {
   );
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.headerTop}>
-          <TouchableOpacity 
-            style={styles.backButton}
-            onPress={() => router.back()}
-          >
-            <ArrowLeft size={24} color="#1f2937" />
-          </TouchableOpacity>
-          <View style={styles.headerTextContainer}>
-            <Text style={styles.headerTitle}>Configuración</Text>
+    <>
+      <ScrollView style={styles.container}>
+        <View style={styles.header}>
+          <View style={styles.headerTop}>
+            <TouchableOpacity 
+              style={styles.backButton}
+              onPress={() => router.back()}
+            >
+              <ArrowLeft size={24} color="#1f2937" />
+            </TouchableOpacity>
+            <View style={styles.headerTextContainer}>
+              <Text style={styles.headerTitle}>Configuración</Text>
+            </View>
+          </View>
+          <Text style={styles.headerSubtitle}>Configuración y herramientas adicionales</Text>
+        </View>
+
+        <View style={styles.menuContainer}>
+          {menuItems.map(renderMenuItem)}
+        </View>
+
+        <View style={styles.footer}>
+          <Text style={styles.versionText}>Versión 1.0.0</Text>
+        </View>
+      </ScrollView>
+      <Modal
+        visible={isLoggingOut}
+        transparent={true}
+        animationType="fade"
+      >
+        <View style={styles.loadingOverlay}>
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={Colors.primary[500]} />
+            <Text style={styles.loadingText}>Cerrando sesión...</Text>
           </View>
         </View>
-        <Text style={styles.headerSubtitle}>Configuración y herramientas adicionales</Text>
-      </View>
-
-      <View style={styles.menuContainer}>
-        {menuItems.map(renderMenuItem)}
-      </View>
-
-      <View style={styles.footer}>
-        <Text style={styles.versionText}>Versión 1.0.0</Text>
-      </View>
-    </ScrollView>
+      </Modal>
+    </>
   );
 }
 
@@ -184,6 +255,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: 16,
   },
+  destructiveIconContainer: {
+    backgroundColor: '#fef2f2',
+  },
   textContainer: {
     flex: 1,
   },
@@ -192,6 +266,9 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#1f2937',
     marginBottom: 4,
+  },
+  destructiveTitle: {
+    color: Colors.error[600],
   },
   menuSubtitle: {
     fontSize: 14,
@@ -204,5 +281,22 @@ const styles = StyleSheet.create({
   versionText: {
     fontSize: 14,
     color: '#9ca3af',
+  },
+  loadingOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  loadingContainer: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: '#333',
   },
 }); 

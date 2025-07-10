@@ -11,6 +11,7 @@ import {
   ChevronLeft,
   ArrowDown,
   ArrowUp,
+  TrendingUp,
 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { Header } from '@/components/ui/Header';
@@ -25,9 +26,14 @@ import Colors from '@/constants/Colors';
 import { listItemStyles } from '@/styles/ui/ListItem.styles';
 import { PortfolioActionsBar } from '@/components/investment/portfolio/PortfolioActionsBar';
 import { Button } from '@/components/ui/Button';
+import { useGoals } from '@/hooks/investment/useGoals';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { useFormatValue } from '@/hooks/common/useFormatValue';
 
 export default function InvestmentPortfolioScreen() {
   const router = useRouter();
+  const { goals, loading: goalsLoading, error: goalsError, refetch } = useGoals();
+  const { formatValue } = useFormatValue();
 
   const iconMap = {
     PiggyBank: <PiggyBank size={24} color={Colors.gray[500]} />,
@@ -59,10 +65,64 @@ export default function InvestmentPortfolioScreen() {
     }) : undefined,
   }));
 
-
+  const allGoals = [...goals.shortTerm, ...goals.mediumTerm, ...goals.longTerm];
+  const goalsData = allGoals.map(goal => ({
+    id: goal.id,
+    title: goal.name,
+    subtitle: `Meta: ${formatValue(goal.targetAmount.toString())}`,
+    value: formatValue(goal.currentAmount.toString()),
+    icon: {
+      component: <TrendingUp size={24} color={Colors.secondary[500]} />,
+      backgroundColor: Colors.secondary[50],
+      color: Colors.secondary[500],
+      text: goal.name.charAt(0)
+    },
+    onPress: undefined,
+  }));
 
   const handleInvestPress = () => router.push('/investment/portfolio/movements/investment');
   const handleWithdrawPress = () => router.push('/investment/portfolio/movements/sales');
+
+  const renderGoalsSection = () => {
+    if (goalsLoading) {
+      return (
+        <View className="flex-1 justify-center items-center py-8">
+          <LoadingSpinner />
+          <Text className="text-gray-500 mt-2">Cargando metas...</Text>
+        </View>
+      );
+    }
+
+    if (goalsError) {
+      return (
+        <View className="flex-1 justify-center items-center py-8">
+          <Text className="text-red-500 mb-4">Error al cargar metas</Text>
+          <Button title="Reintentar" onPress={refetch} />
+        </View>
+      );
+    }
+
+    if (allGoals.length === 0) {
+      return (
+        <View className="flex-1 justify-center items-center py-8">
+          <View className="w-16 h-16 rounded-full bg-gray-100 justify-center items-center mb-4">
+            <TrendingUp size={32} color={Colors.gray[400]} />
+          </View>
+          <Text className="text-center font-medium" style={{ color: Colors.gray[400] }}>
+            Aún no tienes metas definidas.
+          </Text>
+        </View>
+      );
+    }
+
+    return (
+      <ListItem
+        data={goalsData}
+        showLoadMore={false}
+        showContainer={false}
+      />
+    );
+  };
 
   return (
     <Container variant="secondaryPage">
@@ -105,15 +165,13 @@ export default function InvestmentPortfolioScreen() {
             }
           ]}
         />
+        
         <View className="px-6 py-2">
           <Text className="text-lg font-medium text-gray-800">Metas</Text>
         </View>
+        
         <View style={listItemStyles.cardContainer}>
-          <ListItem
-            data={investmentData}
-            showLoadMore={false}
-            showContainer={false}
-          />
+          {renderGoalsSection()}
         </View>
       </ScrollView>
     </Container>

@@ -1,5 +1,3 @@
-import mockUserData from '../assets/data/mock-data.json';
-
 export interface InvestmentPortfolioItem {
   id: string;
   title: string;
@@ -64,16 +62,6 @@ export interface InvestmentMovement {
   to: string;
   status: 'completed' | 'pending' | 'failed';
   description: string;
-}
-
-export interface Goal {
-  id: string;
-  title: string;
-  targetAmount: number;
-  currentAmount: number;
-  deadline: string;
-  priority: 'high' | 'medium' | 'low';
-  category: string;
 }
 
 export interface UserProfile {
@@ -184,4 +172,36 @@ export interface BudgetItem {
   category: string;
   frequency: string;
   date: string;
+}
+
+export interface ApiGoal {
+  id: number;
+  name: string;
+  kind: string;
+  kind_name: string;
+  target_amount: number;
+  target_date: string;
+  unit: string;
+  created_at: string;
+  wallet_value: number;
+  investment_account_id: number;
+}
+
+export interface GoalsApiResponse {
+  goals: ApiGoal[];
+  total_count: number;
+}
+
+export interface Goal {
+  id: string;
+  name: string;
+  kind: string;
+  kindName: string;
+  targetAmount: number;
+  targetDate: string;
+  unit: string;
+  createdAt: string;
+  currentAmount: number;
+  investmentAccountId: number;
+  progress: number;
 }

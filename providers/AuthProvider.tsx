@@ -28,6 +28,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   login: () => Promise<boolean>;
   logout: () => Promise<void>;
+  forceLogout: () => Promise<void>;
   loginWithGoogle: () => Promise<boolean>;
   loginWithApple: () => Promise<boolean>;
 }
@@ -98,6 +99,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [authPromiseResolve, setAuthPromiseResolve] = useState<((value: boolean) => void) | null>(null);
 
   const [request, response, promptAsync] = AuthSession.useAuthRequest(
     {
@@ -105,6 +107,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       redirectUri,
       responseType: AuthSession.ResponseType.Token,
       scopes: ['openid', 'profile', 'email'],
+      // additionalParameters: {
+      //   audience: auth0Config.audience, // Temporalmente comentado para testing
+      // },
       usePKCE: false,
       extraParams: {
         nonce: 'nonce',
@@ -126,18 +131,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const checkSession = async () => {
       try {
         const token = await AsyncStorage.getItem('auth_token');
+        
         if (token) {
           setAccessToken(token);
+          
           const userInfo = await fetchUserInfo(token);
+          
           try {
             const backendUser = await validateWithBackend(token);
-            setUser({
+            
+            const completeUser = {
               ...userInfo,
               backendUserId: backendUser.user_id,
-            });
+            };
+            setUser(completeUser);
           } catch (error) {
             await logout();
           }
+        } else {
         }
       } catch (error) {
         await logout();
@@ -152,18 +163,40 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     if (response?.type === 'success') {
       const { access_token } = response.params;
-      handleAuthResponse(access_token);
+      handleAuthResponse(access_token).then((success) => {
+        if (authPromiseResolve) {
+          authPromiseResolve(success);
+          setAuthPromiseResolve(null);
+        }
+      });
     } else if (response?.type === 'error') {
       console.error('Auth response error:', response.error);
       setLoading(false);
+      if (authPromiseResolve) {
+        authPromiseResolve(false);
+        setAuthPromiseResolve(null);
+      }
     }
-  }, [response]);
+  }, [response, authPromiseResolve]);
 
   const handleAuthResponse = async (access_token: string): Promise<boolean> => {
     setError(null);
     try {
+      
+      const jwtParts = access_token.split('.');
+      
+      if (jwtParts.length === 3) {
+        try {
+          const header = JSON.parse(atob(jwtParts[0]));
+          const payload = JSON.parse(atob(jwtParts[1]));
+        } catch (e) {
+        }
+      } else {
+      }
+      
       await AsyncStorage.setItem('auth_token', access_token);
       setAccessToken(access_token);
+      
       const userInfo = await fetchUserInfo(access_token);
 
       try {
@@ -223,64 +256,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setLoading(true);
     setError(null);
     try {
-      const authUrl = new URL(`${auth0Domain}/authorize`);
-      const params = new URLSearchParams({
-        client_id: auth0ClientId,
-        redirect_uri: redirectUri,
-        response_type: 'token',
-        scope: 'openid profile email',
-        nonce: 'nonce',
-        display: 'touch',
-        prompt: 'login',
-        ui_locales: 'es',
-        screen_hint: 'login',
-        mobile: '1',
-        is_mobile: 'true',
-        device: 'mobile',
-        platform: 'mobile',
-        desktop: 'false',
-        responsive: 'true',
-        touch: 'true',
-        viewport: 'mobile'
+      const authPromise = new Promise<boolean>((resolve) => {
+        setAuthPromiseResolve(() => resolve);
       });
-      authUrl.search = params.toString();
-
-      const result = await WebBrowser.openAuthSessionAsync(
-        authUrl.toString(),
-        redirectUri,
-        {
-          preferEphemeralSession: true,
-          presentationStyle: WebBrowser.WebBrowserPresentationStyle.FULL_SCREEN,
-          createTask: false,
-          showTitle: false,
-          showInRecents: false,
-          enableBarCollapsing: true,
-          windowFeatures: {
-            'viewport': 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no',
-            'mobile-web-app-capable': 'yes',
-            'apple-mobile-web-app-capable': 'yes',
-            'apple-mobile-web-app-status-bar-style': 'default',
-            'format-detection': 'telephone=no',
-            'msapplication-tap-highlight': 'no',
-            'user-scalable': 'no',
-            'shrink-to-fit': 'no'
-          }
-        }
-      );
-
-      if (result.type === 'success' && 'url' in result) {
-        const url = new URL(result.url);
-        const params = new URLSearchParams(url.hash.substring(1));
-        const access_token = params.get('access_token');
-        if (access_token) {
-          return await handleAuthResponse(access_token);
-        }
+      
+      const result = await promptAsync();
+      
+      if (result.type === 'success') {
+        return await authPromise;
+      } else if (result.type === 'cancel') {
+        setAuthPromiseResolve(null);
+        return false;
+      } else {
+        setError('Error durante el proceso de autenticación');
+        setAuthPromiseResolve(null);
+        return false;
       }
-      setError('Error al iniciar sesión. Por favor, intenta de nuevo.');
-      return false;
-    } catch (error) {
-      console.error('Login error:', error);
-      setError('Error al iniciar sesión. Por favor, intenta de nuevo.');
+    } catch (error: any) {
+      setError('Error al abrir el navegador de autenticación');
+      setAuthPromiseResolve(null);
       return false;
     } finally {
       setLoading(false);
@@ -443,6 +437,44 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const forceLogout = async () => {
+    setLoading(true);
+    
+    try {
+      setUser(null);
+      setAccessToken(null);
+      setError(null);
+      setAuthPromiseResolve(null);
+      
+      await AsyncStorage.removeItem('auth_token');
+      await AsyncStorage.removeItem('backend_user_data');
+      
+      await AsyncStorage.removeItem('auth_token');
+      await AsyncStorage.removeItem('backend_user_data');
+      
+      const tokenCheck = await AsyncStorage.getItem('auth_token');
+      const userDataCheck = await AsyncStorage.getItem('backend_user_data');
+      
+      if (tokenCheck || userDataCheck) {
+        const allKeys = await AsyncStorage.getAllKeys();
+        const authKeys = allKeys.filter(key => 
+          key.includes('auth') || 
+          key.includes('token') || 
+          key.includes('user') ||
+          key.includes('backend')
+        );
+        await AsyncStorage.multiRemove(authKeys);
+      }
+      
+    } catch (error) {
+      setUser(null);
+      setAccessToken(null);
+      setError(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -453,6 +485,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isAuthenticated: !!user,
         login,
         logout,
+        forceLogout,
         loginWithGoogle,
         loginWithApple,
       }}

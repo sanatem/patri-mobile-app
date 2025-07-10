@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { goalsService } from '@/services/investment/portfolio/goals/get-goals';
+import { useAuth } from '@/providers/AuthProvider';
 import type { Goal } from '@/types/api';
 
 interface UseGoalsReturn {
@@ -14,6 +15,7 @@ interface UseGoalsReturn {
 }
 
 export function useGoals(): UseGoalsReturn {
+  const { accessToken, isAuthenticated } = useAuth();
   const [goals, setGoals] = useState<{
     shortTerm: Goal[];
     mediumTerm: Goal[];
@@ -31,7 +33,11 @@ export function useGoals(): UseGoalsReturn {
       setLoading(true);
       setError(null);
       
-      const goalsData = goalsService.getGoals();
+      if (!accessToken) {
+        throw new Error('No hay token de autenticación disponible');
+      }
+      
+      const goalsData = await goalsService.getGoals(accessToken);
       setGoals(goalsData);
     } catch (err) {
       console.error('Error loading goals:', err);
@@ -42,8 +48,12 @@ export function useGoals(): UseGoalsReturn {
   };
 
   useEffect(() => {
-    fetchGoals();
-  }, []);
+    if (isAuthenticated && accessToken) {
+      fetchGoals();
+    } else {
+      setLoading(false);
+    }
+  }, [isAuthenticated, accessToken]);
 
   return {
     goals,
