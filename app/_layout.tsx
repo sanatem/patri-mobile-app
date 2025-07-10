@@ -10,7 +10,6 @@ import { AuthProvider } from '@/providers/AuthProvider';
 import { CopilotProvider } from '@/providers/CopilotProvider';
 import { useFrameworkReady } from '@/hooks/common/useFrameworkReady';
 
-
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
