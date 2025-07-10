@@ -11,10 +11,8 @@ const FLOID_URL = 'https://admin.floid.app/patrimore/widget/705aefc6776c78c49dec
 export default function FloidScreen() {
   const router = useRouter();
 
-  // Componente que detecta la plataforma
   const renderContent = () => {
     if (Platform.OS === 'web') {
-      // En web usamos iframe
       return (
         <iframe
           src={FLOID_URL}
@@ -28,7 +26,6 @@ export default function FloidScreen() {
         />
       );
     } else {
-      // En móvil nativo usamos WebView
       const { WebView } = require('react-native-webview');
       return (
         <WebView
