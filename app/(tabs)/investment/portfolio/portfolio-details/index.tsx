@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { ChevronLeft, ArrowDown, ArrowUp } from 'lucide-react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Header } from '@/components/ui/Header';
 import { Container } from '@/components/ui/Container';
 import { 
@@ -13,76 +13,50 @@ import { getMovementsByGoal, Movement } from '@/services/investment/portfolio/mo
 import { getPortfolioDetails, MetaDetails } from '@/services/investment/portfolio/portfolio-details/get-portfolio-details';
 import Colors from '@/constants/Colors';
 import { PortfolioActionsBar } from '@/components/investment/portfolio/PortfolioActionsBar';
+import { useAuth } from '@/providers/AuthProvider';
 
 export default function PortfolioDetailsScreen() {
   const router = useRouter();
+  const { goalId, goalName } = useLocalSearchParams<{ goalId: string; goalName: string }>();
   const [movements, setMovements] = useState<Movement[]>([]);
   const [metaDetails, setMetaDetails] = useState<MetaDetails | null>(null);
   const [loading, setLoading] = useState(true);
-
-  const metaName = 'Emergencias';
-
-  const generateProjectedData = (metaDetails: MetaDetails) => {
-    if (!metaDetails) return [];
-
-    const startDate = new Date();
-    const endDate = new Date(metaDetails.goalDate.split('/').reverse().join('-'));
-    const monthsDiff = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24 * 30));
-    
-    const monthlyIncrement = (metaDetails.goal - metaDetails.current) / Math.max(monthsDiff, 1);
-    const projectedData = [];
-
-    for (let i = 3; i >= 1; i--) {
-      const date = new Date();
-      date.setMonth(date.getMonth() - i);
-      const amount = Math.max(metaDetails.current - (monthlyIncrement * i), 0);
-      projectedData.push({
-        date: date.toISOString().slice(0, 7),
-        amount: amount,
-        projected: false
-      });
-    }
-
-    projectedData.push({
-      date: new Date().toISOString().slice(0, 7),
-      amount: metaDetails.current,
-      projected: false
-    });
-
-    for (let i = 1; i <= Math.min(monthsDiff, 8); i++) {
-      const date = new Date();
-      date.setMonth(date.getMonth() + i);
-      const amount = Math.min(metaDetails.current + (monthlyIncrement * i), metaDetails.goal);
-      projectedData.push({
-        date: date.toISOString().slice(0, 7),
-        amount: amount,
-        projected: true
-      });
-    }
-
-    return projectedData;
-  };
+  const [error, setError] = useState<string | null>(null);
+  const { accessToken } = useAuth();
 
   useEffect(() => {
     const loadData = async () => {
       try {
         setLoading(true);
+        setError(null);
+        
+        if (!goalId) {
+          throw new Error('ID de meta no proporcionado');
+        }
+        
+        if (!accessToken) {
+          throw new Error('No hay token de autenticación disponible');
+        }
+        
         const [movementsData, metaData] = await Promise.all([
-          getMovementsByGoal(metaName),
-          getPortfolioDetails(metaName)
+          getMovementsByGoal(goalId, accessToken),
+          getPortfolioDetails(goalId, accessToken)
         ]);
         
         setMovements(movementsData);
         setMetaDetails(metaData);
       } catch (error) {
         console.error('Error loading portfolio details:', error);
+        setError(error instanceof Error ? error.message : 'Error desconocido');
       } finally {
         setLoading(false);
       }
     };
 
-    loadData();
-  }, [metaName]);
+    if (goalId && accessToken) {
+      loadData();
+    }
+  }, [goalId, accessToken]);
 
   if (loading || !metaDetails) {
     return (
@@ -98,17 +72,27 @@ export default function PortfolioDetailsScreen() {
               </TouchableOpacity>
             }
           />
+          {error && (
+            <View className="flex-1 justify-center items-center px-6">
+              <Text className="text-red-500 text-center mb-4">{error}</Text>
+              <TouchableOpacity
+                onPress={() => router.push('/investment/portfolio')}
+                className="bg-primary-500 px-4 py-2 rounded-lg"
+              >
+                <Text className="text-white">Volver al portfolio</Text>
+              </TouchableOpacity>
+            </View>
+          )}
       </Container>
     );
   }
-
-  const projectedData = generateProjectedData(metaDetails);
 
   const transformedSummary = [
     { title: 'Estrategia', value: metaDetails.summary.estrategia },
     { title: 'Nivel de riesgo', value: metaDetails.summary.riesgo },
     { title: 'Aportes', value: `$${metaDetails.summary.aportes.toLocaleString('es-CO')}` },
     { title: 'Rescates', value: `$${metaDetails.summary.rescates.toLocaleString('es-CO')}` },
+    { title: 'Variación', value: metaDetails.summary.variacion },
   ];
 
   const transformedAssets = metaDetails.assets.map(asset => ({
@@ -135,37 +119,40 @@ export default function PortfolioDetailsScreen() {
         <ScrollView className="flex-1 px-3" contentContainerStyle={{ paddingBottom: 120 }} showsVerticalScrollIndicator={false}>
           <PortfolioDetailsHeader meta={metaDetails} />
           <GoalProgressChart
+            goalId={goalId}
             currentAmount={metaDetails.current}
             targetAmount={metaDetails.goal}
-            projectedData={projectedData}
             targetDate={metaDetails.goalDate}
           />
           <PortfolioOverviewSection 
             summary={transformedSummary}
             assets={transformedAssets}
             movements={movements}
-            goalName={metaName}
+            goalName={goalName || metaDetails.name}
+            goalId={goalId}
           />
         </ScrollView>
         <View className="px-3">
-        <PortfolioActionsBar
-          actions={[
-            {
-              title: 'Invertir',
-              onPress: () => router.push('/investment/portfolio/movements/investment' as any),
-              icon: <ArrowDown size={20} color="#fff" />,
-              variant: 'primary'
-            },
-            {
-              title: 'Retirar',
-              onPress: () => {
-                router.push('/investment/portfolio/movements/sales' as any);
+        {false && (
+          <PortfolioActionsBar
+            actions={[
+              {
+                title: 'Invertir',
+                onPress: () => router.push('/investment/portfolio/movements/investment' as any),
+                icon: <ArrowDown size={20} color="#fff" />,
+                variant: 'primary'
               },
-              icon: <ArrowUp size={20} color="#FF5603" />,
-              variant: 'outline'
-            }
+              {
+                title: 'Retirar',
+                onPress: () => {
+                  router.push('/investment/portfolio/movements/sales' as any);
+                },
+                icon: <ArrowUp size={20} color="#FF5603" />,
+                variant: 'outline'
+              }
             ]}  
           />
+        )}
         </View>
       </View>
     </Container>

@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { getPortfolioDetails, MetaDetails } from '@/services/investment/portfolio/portfolio-details/get-portfolio-details';
 import { getMovementsByGoal, Movement } from '@/services/investment/portfolio/movements/get-movements';
+import { investmentService } from '@/services/investment/get-portfolio';
+import { useAuth } from '@/providers/AuthProvider';
 
 interface UsePortfolioDetailsProps {
-  metaName: string;
+  goalId: string;
 }
 
 interface UsePortfolioDetailsReturn {
@@ -14,20 +16,32 @@ interface UsePortfolioDetailsReturn {
   refetch: () => Promise<void>;
 }
 
-export function usePortfolioDetails({ metaName }: UsePortfolioDetailsProps): UsePortfolioDetailsReturn {
+interface UseHasInvestmentAccountReturn {
+  hasInvestmentAccount: boolean;
+  loading: boolean;
+  error: string | null;
+  refetch: () => Promise<void>;
+}
+
+export function usePortfolioDetails({ goalId }: UsePortfolioDetailsProps): UsePortfolioDetailsReturn {
   const [metaDetails, setMetaDetails] = useState<MetaDetails | null>(null);
   const [movements, setMovements] = useState<Movement[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { accessToken } = useAuth();
 
   const fetchData = async () => {
     try {
       setLoading(true);
       setError(null);
       
+      if (!accessToken) {
+        throw new Error('No hay token de autenticación disponible');
+      }
+      
       const [metaData, movementsData] = await Promise.all([
-        getPortfolioDetails(metaName),
-        getMovementsByGoal(metaName)
+        getPortfolioDetails(goalId, accessToken),
+        getMovementsByGoal(goalId, accessToken || undefined)
       ]);
       
       setMetaDetails(metaData);
@@ -41,10 +55,10 @@ export function usePortfolioDetails({ metaName }: UsePortfolioDetailsProps): Use
   };
 
   useEffect(() => {
-    if (metaName) {
+    if (goalId && accessToken) {
       fetchData();
     }
-  }, [metaName]);
+  }, [goalId, accessToken]);
 
   return {
     metaDetails,
@@ -52,5 +66,39 @@ export function usePortfolioDetails({ metaName }: UsePortfolioDetailsProps): Use
     loading,
     error,
     refetch: fetchData,
+  };
+}
+
+export function useHasInvestmentAccount(): UseHasInvestmentAccountReturn {
+  const { accessToken } = useAuth();
+  const [hasInvestmentAccount, setHasInvestmentAccount] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const checkInvestmentAccount = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const hasAccount = await investmentService.hasInvestmentAccount(accessToken || undefined);
+      setHasInvestmentAccount(hasAccount);
+    } catch (err) {
+      console.error('Error checking investment account:', err);
+      setError(err instanceof Error ? err.message : 'Error desconocido');
+      setHasInvestmentAccount(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    checkInvestmentAccount();
+  }, [accessToken]);
+
+  return {
+    hasInvestmentAccount,
+    loading,
+    error,
+    refetch: checkInvestmentAccount,
   };
 } 

@@ -1,3 +1,4 @@
+import config from '@/config/constants';
 import mockData from '@/data/mock/mock-data.json';
 
 export interface MetaDetails {
@@ -15,6 +16,7 @@ export interface MetaDetails {
     riesgo: string;
     aportes: number;
     rescates: number;
+    variacion: string;
   };
   assets: Array<{
     id: string;
@@ -28,67 +30,275 @@ export interface MetaDetails {
   }>;
 }
 
-export async function getPortfolioDetails(metaName: string): Promise<MetaDetails | null> {
-  await new Promise(resolve => setTimeout(resolve, 300));
+interface ApiGoalDetails {
+  goal: {
+    id: number;
+    name: string;
+    kind: string;
+    kind_name: string;
+    target_amount: number;
+    target_date: string;
+    unit: string;
+    created_at: string;
+    wallet_value: number;
+    investment_account_id: number;
+  };
+  presenter_data?: {
+    deposit_sum: number;
+    retirement_sum: number;
+    variation?: number;
+    goal_last_portfolio_kind: string;
+    goal_last_portfolio_risk_profile: string;
+    wallet_containers: Array<{
+      wallet_container_id: number;
+      broker_product_id: number;
+      broker_product_code: string;
+      broker_product_name: string;
+      quotas: number;
+      available_quotas_for_retirement: number;
+      current_value: number;
+      percentage: number;
+    }>;
+    broker_portfolio: {
+      id: number;
+      kind: string;
+      risk_profile: string;
+      name: string;
+      composition: Array<{
+        product_code: string;
+        percentage: number;
+      }>;
+    };
+  };
+}
+
+const formatSafeDate = (dateString: string): string => {
+  if (!dateString) return 'Fecha no disponible';
   
-  const investment = mockData.investmentPortfolio.investments.find(
-    inv => inv.title === metaName
-  );
-  
-  if (!investment) {
-    return null;
+  try {
+    if (dateString.includes('/')) {
+      const parts = dateString.split('/');
+      if (parts.length === 3) {
+        const day = parseInt(parts[0]);
+        const month = parseInt(parts[1]);
+        const year = parseInt(parts[2]);
+        
+        if (isNaN(day) || isNaN(month) || isNaN(year) || 
+            day < 1 || day > 31 || month < 1 || month > 12 || year < 1900) {
+          return 'Fecha no disponible';
+        }
+        
+        return dateString;
+      }
+    }
+    
+    const date = new Date(dateString);
+    
+    if (isNaN(date.getTime())) {
+      return 'Fecha no disponible';
+    }
+    
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    
+    return `${day}/${month}/${year}`;
+    
+  } catch (error) {
+    return 'Fecha no disponible';
   }
-  
-  const progress = investment.currentAmount / investment.targetAmount;
-  
-  const createdAt = '13/08/2024';
-  
-  const goalDate = '18/06/2025';
-  
-  let yearsRange = 'entre 5 y 9 meses';
-  if (investment.riskLevel === 'moderado') {
-    yearsRange = 'entre 2 y 5 años';
-  } else if (investment.riskLevel === 'conservador') {
-    yearsRange = 'entre 5 y 10 años';
+};
+
+const getSafeNumber = (value: any, defaultValue: number = 0): number => {
+  if (typeof value === 'number' && !isNaN(value)) {
+    return value;
   }
+  if (typeof value === 'string' && !isNaN(Number(value))) {
+    return Number(value);
+  }
+  return defaultValue;
+};
+
+const formatPercentage = (value: any): string => {
+  const safeValue = getSafeNumber(value, 0);
+  return `${safeValue.toFixed(2)}%`;
+};
+
+const transformApiGoalToMetaDetails = (apiData: ApiGoalDetails): MetaDetails => {
+  const { goal, presenter_data } = apiData;
   
+  const targetAmount = getSafeNumber(goal.target_amount, 0);
+  const currentAmount = getSafeNumber(goal.wallet_value, 0);
+  
+  const progress = targetAmount > 0 
+    ? currentAmount / targetAmount 
+    : 0;
+
+  const createdAt = formatSafeDate(goal.created_at);
+  const goalDate = formatSafeDate(goal.target_date);
+  
+  const yearsRange = goal.target_date || 'No especificado';
+
+  const getRiskLabel = (riskProfile?: string): string => {
+    switch (riskProfile) {
+      case 'very_low': return 'Muy Conservador';
+      case 'low': return 'Conservador';
+      case 'medium': return 'Moderado';
+      case 'high': return 'Arriesgado';
+      default: return 'Moderado';
+    }
+  };
+
+  const calculateVariation = () => {
+    return formatPercentage(presenter_data?.variation || 0);
+  };
+
   const summary = {
     estrategia: 'Recomendación de Algoritmo',
-    riesgo: investment.riskLevel === 'muy-conservador' ? 'Muy Conservador' : 
-            investment.riskLevel === 'conservador' ? 'Conservador' : 
-            investment.riskLevel === 'moderado' ? 'Moderado' : 'Arriesgado',
-    aportes: investment.investmentDetails?.depositedAmount || 0,
-    rescates: 0,
+    riesgo: getRiskLabel(presenter_data?.goal_last_portfolio_risk_profile),
+    aportes: getSafeNumber(presenter_data?.deposit_sum, 0),
+    rescates: getSafeNumber(presenter_data?.retirement_sum, 0),
+    variacion: calculateVariation(),
   };
-  
-  const assets = [
-    {
-      id: '1',
-      title: 'Singular S&P 500',
-      subtitle: 'CFISP500',
-      value: Math.floor(investment.currentAmount * 0.3),
-      badge: { text: '+0,35%', variant: 'positive' as const }
-    },
-    {
-      id: '2',
-      title: 'Singular Nasdaq 100',
-      subtitle: 'CFINASDAQ',
-      value: Math.floor(investment.currentAmount * 0.7),
-      badge: { text: '+0,12%', variant: 'positive' as const }
+
+  const assets = (presenter_data?.wallet_containers || []).map((container, index) => ({
+    id: getSafeNumber(container.wallet_container_id, index + 1).toString(),
+    title: container.broker_product_name || 'Producto',
+    subtitle: container.broker_product_code || 'Código',
+    value: getSafeNumber(container.current_value, 0),
+    badge: {
+      text: formatPercentage(presenter_data?.variation),
+      variant: getSafeNumber(presenter_data?.variation, 0) >= 0 ? 'positive' as const : 'negative' as const
     }
-  ];
-  
+  }));
+
+  if (assets.length === 0) {
+    assets.push({
+      id: goal.id.toString(),
+      title: goal.name || 'Meta',
+      subtitle: goal.kind_name || 'Meta',
+      value: currentAmount,
+      badge: {
+        text: formatPercentage(0),
+        variant: 'positive' as const
+      }
+    });
+  }
+
   return {
-    id: investment.id,
-    name: investment.title,
+    id: goal.id.toString(),
+    name: goal.name,
     createdAt,
-    goal: investment.targetAmount,
+    goal: targetAmount,
     goalDate,
     yearsRange,
     progress,
-    current: investment.currentAmount,
-    currency: 'CLP',
+    current: currentAmount,
+    currency: goal.unit,
     summary,
     assets
   };
+};
+
+export async function getPortfolioDetails(goalId: string, token: string): Promise<MetaDetails | null> {
+  try {
+    if (!token) {
+      throw new Error('No hay token de autenticación disponible');
+    }
+
+    const response = await fetch(`${config.apiBaseUrl}/api/v2/goals/${goalId}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      
+      if (response.status === 404) {
+        return null;
+      }
+      
+      if (response.status === 401) {
+        throw new Error('Token de autenticación inválido o expirado');
+      }
+      
+      throw new Error(`API Error ${response.status}: ${errorText}`);
+    }
+
+    const data: ApiGoalDetails = await response.json();
+    
+    try {
+      return transformApiGoalToMetaDetails(data);
+    } catch (transformError) {
+      console.error('❌ Error transforming API data:', transformError);
+      throw transformError;
+    }
+
+  } catch (error) {
+    console.error('❌ Portfolio Details Service: Error fetching goal details from API:', error);
+    
+    if (__DEV__) {
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      const investment = mockData.investmentPortfolio.investments.find(
+        inv => inv.id === goalId
+      );
+      
+      if (!investment) {
+        return null;
+      }
+      
+      const progress = investment.currentAmount / investment.targetAmount;
+      
+      const createdAt = '13/08/2024';
+      const goalDate = '18/06/2025';
+      const yearsRange = 'Entre 3 y 5 años';
+      
+      const summary = {
+        estrategia: 'Recomendación de Algoritmo',
+        riesgo: investment.riskLevel === 'muy-conservador' ? 'Muy Conservador' : 
+                investment.riskLevel === 'conservador' ? 'Conservador' : 
+                investment.riskLevel === 'moderado' ? 'Moderado' : 'Arriesgado',
+        aportes: investment.investmentDetails?.depositedAmount || 0,
+        rescates: 0,
+        variacion: '2.45%',
+      };
+      
+              const assets = [
+          {
+            id: '1',
+            title: 'Singular S&P 500',
+            subtitle: 'CFISP500',
+            value: Math.floor(investment.currentAmount * 0.3),
+            badge: { text: '0.35%', variant: 'positive' as const }
+          },
+          {
+            id: '2',
+            title: 'Singular Nasdaq 100',
+            subtitle: 'CFINASDAQ',
+            value: Math.floor(investment.currentAmount * 0.7),
+            badge: { text: '0.12%', variant: 'positive' as const }
+          }
+        ];
+      
+      return {
+        id: investment.id,
+        name: investment.title,
+        createdAt,
+        goal: investment.targetAmount,
+        goalDate,
+        yearsRange,
+        progress,
+        current: investment.currentAmount,
+        currency: 'CLP',
+        summary,
+        assets
+      };
+    }
+    
+    throw error;
+  }
 }

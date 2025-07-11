@@ -31,6 +31,8 @@ interface Movement {
   value: number;
   type: 'deposit' | 'withdrawal';
   details?: MovementDetails;
+  createdAt: string;
+  state: string;
 }
 
 interface PortfolioOverviewSectionProps {
@@ -38,9 +40,10 @@ interface PortfolioOverviewSectionProps {
   assets: Asset[];
   movements: Movement[];
   goalName?: string;
+  goalId?: string;
 }
 
-export default function PortfolioOverviewSection({ summary, assets, movements, goalName }: PortfolioOverviewSectionProps) {
+export default function PortfolioOverviewSection({ summary, assets, movements, goalName, goalId }: PortfolioOverviewSectionProps) {
   return (
     <View>
       <PortfolioSummaryCard 
@@ -55,6 +58,7 @@ export default function PortfolioOverviewSection({ summary, assets, movements, g
         title="Movimientos" 
         movements={movements}
         goalName={goalName}
+        goalId={goalId}
       />
     </View>
   );

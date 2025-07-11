@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Animated, Dimensions } from 'react-native';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, Animated, Dimensions } from 'react-native';
 import { ChevronLeft, ChevronRight, Settings, Plus, RefreshCw } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import {
@@ -22,6 +22,9 @@ import BudgetChart from '@/components/budget/BudgetChart';
 import ForYouCarousel from '@/components/common/ForYouCarousel';
 import TransactionsList from '@/components/budget/TransactionsList';
 import { budgetService } from '@/services/budget/get-budget';
+import { useFloidAccounts } from '@/hooks/budget/useFloidAccounts';
+import { useFloidTransactions } from '@/hooks/budget/useFloidTransactions';
+import { calculateTransactionTotals } from '@/services/budget/get-floid-transactions';
 import Colors from '@/constants/Colors';
 import { listItemStyles } from '@/styles/ui/ListItem.styles';
 
@@ -34,25 +37,74 @@ const monthOptions = MONTHS.map(month => ({
   value: month
 }));
 
+// ✅ FUNCIÓN PARA OBTENER EL MES ACTUAL
+const getCurrentMonth = (): MonthType => {
+  const currentDate = new Date();
+  const currentMonthIndex = currentDate.getMonth(); // 0-11
+  return MONTHS[currentMonthIndex] as MonthType;
+};
 
-const calculateTotalsByMonth = (selectedMonth: MonthType) => {
-  const budget = budgetService.getBudget();
-  const monthlyIncome = budgetService.getMonthlyIncome();
-  const monthlyExpenses = budgetService.getMonthlyExpenses();
+const filterTransactionsByMonth = (transactions: any[], selectedMonth: MonthType) => {
+  if (!transactions || transactions.length === 0) return [];
   
-  const incomeCount = budget.monthlyIncome.length;
-  const expenseCount = budget.monthlyExpenses.length;
+  const monthIndex = MONTHS.indexOf(selectedMonth);
+  if (monthIndex === -1) return transactions;
+  
+  return transactions.filter(transaction => {
+    try {
+      const transactionDate = new Date(transaction.date);
+      const transactionMonth = transactionDate.getMonth();
+      return transactionMonth === monthIndex;
+    } catch (error) {
+      console.warn('Error parsing transaction date:', transaction.date);
+      return false;
+    }
+  });
+};
+  
+const calculateTotalsFromFloid = (transactions: any[] | undefined, selectedMonth: MonthType) => {
+  if (!transactions || transactions.length === 0) {
+    return {
+      totalIncome: 0,
+      totalExpenses: 0,
+      balance: 0,
+      incomeCount: 0,
+      expenseCount: 0,
+      filteredTransactions: [],
+      hasRealData: false
+    };
+  }
 
-  return { 
-    totalIncome: monthlyIncome, 
-    totalExpenses: monthlyExpenses, 
-    incomeCount, 
-    expenseCount 
+  const filteredTransactions = filterTransactionsByMonth(transactions, selectedMonth as MonthType);
+  
+  if (filteredTransactions.length === 0) {
+    return {
+      totalIncome: 0,
+      totalExpenses: 0,
+      balance: 0,
+      incomeCount: 0,
+      expenseCount: 0,
+      filteredTransactions: [],
+      hasRealData: true
+    };
+  }
+
+  const totals = calculateTransactionTotals(filteredTransactions);
+  
+  return {
+    totalIncome: totals.totalIncome,
+    totalExpenses: totals.totalOutcome,
+    balance: totals.totalIncome - totals.totalOutcome,
+    incomeCount: filteredTransactions.filter(t => t.transaction_type === 'income').length,
+    expenseCount: filteredTransactions.filter(t => t.transaction_type === 'outcome').length,
+    filteredTransactions,
+    hasRealData: true
   };
 };
 
 export default function BudgetScreen() {
-  const [selectedMonth, setSelectedMonth] = useState<MonthType>('Enero');
+  // ✅ USAR MES ACTUAL COMO DEFAULT
+  const [selectedMonth, setSelectedMonth] = useState<MonthType>(getCurrentMonth());
   const [activeTab, setActiveTab] = useState<'income' | 'expenses'>('income');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -61,6 +113,21 @@ export default function BudgetScreen() {
   const overlayAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(0)).current;
   const router = useRouter();
+
+  const { accounts, loading: accountsLoading, error: accountsError } = useFloidAccounts();
+  
+  const firstAccountId = useMemo(() => {
+    if (accounts && accounts.floid_accounts.length > 0) {
+      return accounts.floid_accounts[0].id.toString();
+    }
+    return '';
+  }, [accounts]);
+
+  const { transactions, loading: transactionsLoading, error: transactionsError } = useFloidTransactions({
+    floidId: firstAccountId,
+    per_page: 200,
+    enabled: !!firstAccountId
+  });
 
   useEffect(() => {
     if (showAddModal) {
@@ -99,8 +166,23 @@ export default function BudgetScreen() {
     setShowAddModal(false);
   };
 
-  const { totalIncome, totalExpenses, incomeCount, expenseCount } = 
-    calculateTotalsByMonth(selectedMonth);
+  const totalsData = useMemo(() => {
+    return calculateTotalsFromFloid(transactions?.transactions, selectedMonth);
+  }, [transactions, selectedMonth]);
+
+  const { 
+    totalIncome, 
+    totalExpenses, 
+    balance, 
+    incomeCount, 
+    expenseCount, 
+    filteredTransactions,
+    hasRealData
+  } = totalsData;
+
+  // ✅ DEBUG - Ver mes seleccionado por defecto
+  console.log('🗓️ Current month default:', getCurrentMonth());
+  console.log('🗓️ Selected month:', selectedMonth);
 
   const handleMonthSelect = (month: string) => {
     setSelectedMonth(month as MonthType);
@@ -118,10 +200,10 @@ export default function BudgetScreen() {
     console.log('Agregar gasto');
   };
 
-  const tabs = TAB_CONFIG.BUDGET.map(tab => ({
-    ...tab,
-    badge: (tab.key === 'income' ? incomeCount : expenseCount).toString()
-  }));
+  const tabs = [
+    { key: 'income', label: 'Ingresos', badge: incomeCount.toString() },
+    { key: 'expenses', label: 'Gastos', badge: expenseCount.toString() }
+  ];
 
   const categoryOptions = [
     { label: 'Todas', value: 'all' },
@@ -130,6 +212,18 @@ export default function BudgetScreen() {
       value: category.label.toLowerCase()
     }))
   ];
+
+  const hasDataForChart = hasRealData && (totalIncome > 0 || totalExpenses > 0);
+  
+  const budgetChartProps = {
+    selectedMonth,
+    totalIncome,
+    totalExpenses,
+    balance,
+    remainingBudget: totalIncome,
+    isLoading: accountsLoading || transactionsLoading,
+    hasRealData: hasDataForChart
+  };
 
   return (
     <Container variant="secondaryPage">
@@ -161,7 +255,7 @@ export default function BudgetScreen() {
                 />
               </View>
             </View>
-            <BudgetChart selectedMonth={selectedMonth} />
+            <BudgetChart {...budgetChartProps} />
           </Container>
           <Container variant="content" className="mt-4 mb-4">
             <SearchBar
@@ -185,7 +279,16 @@ export default function BudgetScreen() {
                   {activeTab === 'income' ? '+' : '-'}${(activeTab === 'income' ? totalIncome : totalExpenses).toLocaleString('es-CL')}
                 </Text>
               </View>
-              <TransactionsList type={activeTab} selectedMonth={selectedMonth} showContainer={false} />
+              
+              <TransactionsList 
+                type={activeTab} 
+                selectedMonth={selectedMonth} 
+                showContainer={false}
+                floidTransactions={filteredTransactions.length > 0 ? filteredTransactions : undefined}
+                searchQuery={searchQuery}
+                loading={transactionsLoading}
+                hasRealData={hasRealData && filteredTransactions.length > 0}
+              />
             </View>
           </Container>
           <Container variant="content">
@@ -248,8 +351,6 @@ export default function BudgetScreen() {
             </View>
             {[
               { label: 'Integrar datos bancarios', value: 'integrar', icon: <RefreshCw size={20} color={Colors.gray[700]} /> },
-              { label: 'Añadir ingreso', value: 'ingreso' },
-              { label: 'Añadir gasto', value: 'gasto' }
             ].map((option, index) => (
               <TouchableOpacity
                 key={option.value}
@@ -264,8 +365,6 @@ export default function BudgetScreen() {
                   closeModal();
                   switch(option.value) {
                     case 'integrar': handleIntegrarDatos(); break;
-                    case 'ingreso': handleAddIngreso(); break;
-                    case 'gasto': handleAddGasto(); break;
                   }
                 }}
                 activeOpacity={0.7}

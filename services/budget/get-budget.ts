@@ -1,4 +1,4 @@
-// services/budget/get-budget.ts
+
 import mockUserData from '@/data/mock/mock-data.json';
 
 interface BudgetCategory {

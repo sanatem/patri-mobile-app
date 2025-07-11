@@ -166,7 +166,7 @@ export function InteractiveChart({
       />
 
       {bottomContent && (
-        <View style={{ marginTop: 20, padding: 16 }}>
+        <View style={{ marginTop: 4, padding: 8 }}>
           {bottomContent}
         </View>
       )}

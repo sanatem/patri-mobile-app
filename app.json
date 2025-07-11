@@ -29,7 +29,7 @@
         "backgroundColor": "#ff6501"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.patrimore.app"
+      "package": "com.patrimore.patrimore"
     },
     "assetBundlePatterns": [
       "**/*"

@@ -1,5 +1,30 @@
 import Colors from '@/constants/Colors';
 
+const formatDateHelper = (dateString: string): Date | null => {
+  if (!dateString) return null;
+  
+  try {
+    // First try direct parsing
+    let date = new Date(dateString);
+    if (!isNaN(date.getTime())) return date;
+
+    // If that fails, try parsing with replacing - with /
+    date = new Date(dateString.replace(/-/g, '/'));
+    if (!isNaN(date.getTime())) return date;
+
+    // If both fail, try manual parsing
+    const [year, month, day] = dateString.split('-').map(Number);
+    if (year && month && day) {
+      date = new Date(year, month - 1, day);
+      if (!isNaN(date.getTime())) return date;
+    }
+
+    return null;
+  } catch {
+    return null;
+  }
+};
+
 export const CHART_CONFIG = {
   height: 180,
   margin: 16,
@@ -7,22 +32,38 @@ export const CHART_CONFIG = {
   gradientId: 'chartGradient',
   formatValue: (value: number) => `$${value.toLocaleString('es-CL')}`,
   formatDate: (date: string) => {
-    const dateObj = new Date(date);
-    if (isNaN(dateObj.getTime())) return 'Fecha no disponible';
-    return dateObj.toLocaleDateString('es-CL', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
+    const dateObj = formatDateHelper(date);
+    if (!dateObj) return 'Fecha no disponible';
+    
+    try {
+      return dateObj.toLocaleDateString('es-CL', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+      });
+    } catch {
+      // Fallback format if toLocaleDateString fails
+      const day = dateObj.getDate().toString().padStart(2, '0');
+      const month = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'][dateObj.getMonth()];
+      const year = dateObj.getFullYear();
+      return `${day} ${month} ${year}`;
+    }
   },
   formatDateLabel: (date: string) => {
-    const dateObj = new Date(date);
-    if (isNaN(dateObj.getTime())) return '';
-    return dateObj.toLocaleDateString('es-CL', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric'
-    });
+    const dateObj = formatDateHelper(date);
+    if (!dateObj) return '';
+    
+    try {
+      return dateObj.toLocaleDateString('es-CL', {
+        day: '2-digit',
+        month: 'short'
+      });
+    } catch {
+      // Fallback format if toLocaleDateString fails
+      const day = dateObj.getDate().toString().padStart(2, '0');
+      const month = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'][dateObj.getMonth()];
+      return `${day} ${month}`;
+    }
   },
 };
 

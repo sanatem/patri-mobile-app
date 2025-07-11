@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text } from 'react-native';
 import AdvisorCard from './AdvisorCard';
 import { Card, Button } from '@/components/ui';
-import { Calendar, MessageSquare } from 'lucide-react-native';
+import { Calendar } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 
 export interface AdvisorSectionProps {
@@ -13,8 +13,8 @@ export interface AdvisorSectionProps {
 export default function AdvisorSection({ onSchedule, onChat }: AdvisorSectionProps) {
   return (
     <View style={{ padding: 10 }}>
-      <AdvisorCard />
-      <Card variant="default" className="mb-2 mt-4">
+      <AdvisorCard onSchedule={onSchedule} onChat={onChat} />
+      {false && <Card variant="default" className="mb-2 mt-4">
         <View className="flex-row justify-between items-center">
           <View className="flex-row items-center flex-1">
             <View 
@@ -35,7 +35,7 @@ export default function AdvisorSection({ onSchedule, onChat }: AdvisorSectionPro
             variant="primary"
           />
         </View>
-      </Card>
+      </Card>}
     </View>
   );
-} 
+}

@@ -1,96 +1,170 @@
-import { useState, useEffect } from 'react';
-
-interface GoalHistoryItem {
-  date: string;
-  amount: number;
-  projected: boolean;
-}
+import { useState, useEffect, useMemo } from 'react';
+import { goalHistoryService, GoalHistoryParams, GoalHistoryData } from '@/services/investment/portfolio/goals/get-goal-history';
+import { useAuth } from '@/providers/AuthProvider';
 
 interface UseGoalHistoryProps {
-  goalName?: string;
-  currentAmount?: number;
-  targetAmount?: number;
-  targetDate?: string;
+  goalId: string;
+  period?: '1M' | '3M' | '6M' | '1Y' | 'ALL';
+  startDate?: string;
+  endDate?: string;
+  page?: number;
+  perPage?: number;
 }
 
 interface UseGoalHistoryReturn {
-  historyData: GoalHistoryItem[];
+  historyData: GoalHistoryData | null;
+  filteredData: GoalHistoryData | null;
   loading: boolean;
   error: string | null;
-  generateProjectedData: (current: number, target: number, targetDate: string) => GoalHistoryItem[];
+  refetch: () => Promise<void>;
+  loadMore: () => Promise<void>;
+  hasMore: boolean;
 }
 
-export function useGoalHistory({ 
-  goalName, 
-  currentAmount, 
-  targetAmount, 
-  targetDate 
-}: UseGoalHistoryProps = {}): UseGoalHistoryReturn {
-  const [historyData, setHistoryData] = useState<GoalHistoryItem[]>([]);
-  const [loading, setLoading] = useState(false);
+const getDateRange = (period: '1M' | '3M' | '6M' | '1Y' | 'ALL' = '1M') => {
+  const endDate = new Date();
+  let startDate = new Date();
+
+  switch (period) {
+    case '1M':
+      startDate.setMonth(endDate.getMonth() - 1);
+      break;
+    case '3M':
+      startDate.setMonth(endDate.getMonth() - 3);
+      break;
+    case '6M':
+      startDate.setMonth(endDate.getMonth() - 6);
+      break;
+    case '1Y':
+      startDate.setFullYear(endDate.getFullYear() - 1);
+      break;
+    case 'ALL':
+      // Para 'ALL', usamos una fecha muy antigua para asegurar que obtenemos todo el histórico
+      startDate = new Date('2020-01-01');
+      break;
+  }
+
+  return {
+    startDate: startDate.toISOString().split('T')[0],
+    endDate: endDate.toISOString().split('T')[0]
+  };
+};
+
+export function useGoalHistory(props: UseGoalHistoryProps): UseGoalHistoryReturn {
+  const { goalId, period = '1M', startDate, endDate, page = 1, perPage = 30 } = props;
+  
+  console.log('🔄 useGoalHistory - Iniciando con props:', {
+    goalId,
+    period,
+    startDate,
+    endDate,
+    page,
+    perPage
+  });
+  
+  const [historyData, setHistoryData] = useState<GoalHistoryData | null>(null);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(page);
+  const { accessToken } = useAuth();
 
-  const generateProjectedData = (current: number, target: number, targetDateString: string): GoalHistoryItem[] => {
-    const startDate = new Date();
-    const endDate = new Date(targetDateString.split('/').reverse().join('-'));
-    const monthsDiff = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24 * 30));
-    
-    const monthlyIncrement = (target - current) / Math.max(monthsDiff, 1);
-    const projectedData: GoalHistoryItem[] = [];
+  const fetchData = async (pageNum: number = 1, append: boolean = false) => {
+    try {
+      if (!append) {
+        setLoading(true);
+      }
+      setError(null);
+      
+      if (!accessToken) {
+        console.warn('❌ useGoalHistory - No hay token disponible');
+        throw new Error('No hay token de autenticación disponible');
+      }
 
-    // Historical data (last 3 months)
-    for (let i = 3; i >= 1; i--) {
-      const date = new Date();
-      date.setMonth(date.getMonth() - i);
-      const amount = Math.max(current - (monthlyIncrement * i), 0);
-      projectedData.push({
-        date: date.toISOString().slice(0, 7),
-        amount: amount,
-        projected: false
+      console.log('📡 useGoalHistory - Iniciando fetch con token:', accessToken.substring(0, 10) + '...');
+
+      // Si se proporcionan fechas específicas, las usamos; si no, usamos el período
+      const dateRange = startDate && endDate ? { startDate, endDate } : getDateRange(period);
+      
+      console.log('📅 useGoalHistory - Usando rango de fechas:', dateRange);
+
+      const params: GoalHistoryParams = {
+        goalId,
+        startDate: dateRange.startDate,
+        endDate: dateRange.endDate,
+        page: pageNum,
+        perPage
+      };
+
+      const data = await goalHistoryService.getGoalHistory(params, accessToken);
+      console.log('✅ useGoalHistory - Datos recibidos:', {
+        goalId: data.goalId,
+        totalPoints: data.historicValues.length,
+        firstPoint: data.historicValues[0],
+        lastPoint: data.historicValues[data.historicValues.length - 1]
       });
-    }
-
-    // Current month
-    projectedData.push({
-      date: new Date().toISOString().slice(0, 7),
-      amount: current,
-      projected: false
-    });
-
-    // Future projections
-    for (let i = 1; i <= Math.min(monthsDiff, 8); i++) {
-      const date = new Date();
-      date.setMonth(date.getMonth() + i);
-      const amount = Math.min(current + (monthlyIncrement * i), target);
-      projectedData.push({
-        date: date.toISOString().slice(0, 7),
-        amount: amount,
-        projected: true
+      
+      if (append && historyData) {
+        setHistoryData({
+          ...data,
+          historicValues: [...historyData.historicValues, ...data.historicValues]
+        });
+      } else {
+        setHistoryData(data);
+      }
+      
+      setCurrentPage(pageNum);
+    } catch (err) {
+      console.error('❌ useGoalHistory - Error detallado:', {
+        message: err instanceof Error ? err.message : 'Error desconocido',
+        goalId,
+        dateRange: startDate && endDate ? { startDate, endDate } : getDateRange(period)
       });
+      setError(err instanceof Error ? err.message : 'Error desconocido');
+    } finally {
+      setLoading(false);
     }
-
-    return projectedData;
   };
 
-  useEffect(() => {
-    if (currentAmount !== undefined && targetAmount !== undefined && targetDate) {
-      try {
-        setLoading(true);
-        const projectedData = generateProjectedData(currentAmount, targetAmount, targetDate);
-        setHistoryData(projectedData);
-        setError(null);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Error generando datos');
-      } finally {
-        setLoading(false);
-      }
+  const refetch = async () => {
+    setCurrentPage(1);
+    await fetchData(1, false);
+  };
+
+  const loadMore = async () => {
+    if (historyData?.pagination.hasNextPage) {
+      await fetchData(currentPage + 1, true);
     }
-  }, [currentAmount, targetAmount, targetDate]);
+  };
+
+  // Filtrar datos según el período seleccionado solo si no se proporcionaron fechas específicas
+  const filteredData = useMemo(() => {
+    if (!historyData) return null;
+    if (startDate && endDate) return historyData; // Si hay fechas específicas, no filtramos
+
+    const { startDate: periodStartDate } = getDateRange(period);
+    const filteredValues = historyData.historicValues.filter(point => {
+      return point.date >= periodStartDate;
+    });
+
+    return {
+      ...historyData,
+      historicValues: filteredValues
+    };
+  }, [historyData, period, startDate, endDate]);
+
+  useEffect(() => {
+    if (goalId && accessToken) {
+      fetchData(1, false);
+    }
+  }, [goalId, accessToken, startDate, endDate, period]);
 
   return {
     historyData,
+    filteredData,
     loading,
     error,
-    generateProjectedData,
+    refetch,
+    loadMore,
+    hasMore: historyData?.pagination.hasNextPage || false,
   };
 } 
