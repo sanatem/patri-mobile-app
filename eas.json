@@ -30,6 +30,15 @@
     }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "android": {
+        "track": "internal"
+      },
+      "ios": {
+        "appleId": "salinasgiovanni25@gmail.com",
+        "ascAppId": "6748083829",
+        "appleTeamId": "JJ55Y59DRG"
+      }
+    }
   }
 }
