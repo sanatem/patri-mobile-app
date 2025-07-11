@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, FlatList } from 'react-native';
+import { ChevronRight } from 'lucide-react-native';
 import { cn } from '@/lib/utils';
 import { listItemStyles } from '@/styles/ui/ListItem.styles';
+import Colors from '@/constants/Colors';
 
 interface ListItem {
   id: string;
@@ -47,7 +49,7 @@ export function ListItem({
   showContainer = true,
 }: ListProps) {
   const [visibleCount, setVisibleCount] = useState(initialItemCount);
-  const showPercentageBadges = false; // Temporary flag to hide percentage badges
+  const showPercentageBadges = false;
   
   const visibleData = data.slice(0, visibleCount);
   const hasMore = visibleCount < data.length;
@@ -103,12 +105,21 @@ export function ListItem({
                 )}
               </View>
               
-              <Text style={listItemStyles.value}>
-                {typeof item.value === 'number' 
-                  ? `$${Math.abs(item.value).toLocaleString('es-CL')}`
-                  : item.value
-                }
-              </Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Text style={listItemStyles.value}>
+                  {typeof item.value === 'number' 
+                    ? `$${Math.abs(item.value).toLocaleString('es-CL')}`
+                    : item.value
+                  }
+                </Text>
+                {(item.onPress || onItemPress) && (
+                  <ChevronRight 
+                    size={20} 
+                    color={Colors.gray[400]} 
+                    style={{ marginLeft: 8 }}
+                  />
+                )}
+              </View>
             </View>
           </View>
         ) : (
@@ -121,47 +132,56 @@ export function ListItem({
         )}
         
         {!item.customLayout && (
-          <View style={listItemStyles.valueContainer}>
-            <Text style={listItemStyles.value}>
-              {typeof item.value === 'number' 
-                ? `$${Math.abs(item.value).toLocaleString('es-CL')}`
-                : item.value
-              }
-            </Text>
-            {showPercentageBadges && item.badge && (
-              <View
-                style={[
-                  listItemStyles.badge,
-                  item.badge.variant === 'positive'
-                    ? listItemStyles.badgeBgPositive
-                    : item.badge.variant === 'negative'
-                    ? listItemStyles.badgeBgNegative
-                    : listItemStyles.badgeBgNeutral
-                ]}
-              >
-                <Text
-                  style={
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <View style={listItemStyles.valueContainer}>
+              <Text style={listItemStyles.value}>
+                {typeof item.value === 'number' 
+                  ? `$${Math.abs(item.value).toLocaleString('es-CL')}`
+                  : item.value
+                }
+              </Text>
+              {showPercentageBadges && item.badge && (
+                <View
+                  style={[
+                    listItemStyles.badge,
                     item.badge.variant === 'positive'
-                      ? listItemStyles.badgeArrowPositive
+                      ? listItemStyles.badgeBgPositive
                       : item.badge.variant === 'negative'
-                      ? listItemStyles.badgeArrowNegative
-                      : listItemStyles.badgeArrowNeutral
-                  }
+                      ? listItemStyles.badgeBgNegative
+                      : listItemStyles.badgeBgNeutral
+                  ]}
                 >
-                  {item.badge.variant === 'positive' ? '↑' : item.badge.variant === 'negative' ? '↓' : ''}
-                </Text>
-                <Text
-                  style={
-                    item.badge.variant === 'positive'
-                      ? listItemStyles.badgeTextPositive
-                      : item.badge.variant === 'negative'
-                      ? listItemStyles.badgeTextNegative
-                      : listItemStyles.badgeTextNeutral
-                  }
-                >
-                  {item.badge.text}
-                </Text>
-              </View>
+                  <Text
+                    style={
+                      item.badge.variant === 'positive'
+                        ? listItemStyles.badgeArrowPositive
+                        : item.badge.variant === 'negative'
+                        ? listItemStyles.badgeArrowNegative
+                        : listItemStyles.badgeArrowNeutral
+                    }
+                  >
+                    {item.badge.variant === 'positive' ? '↑' : item.badge.variant === 'negative' ? '↓' : ''}
+                  </Text>
+                  <Text
+                    style={
+                      item.badge.variant === 'positive'
+                        ? listItemStyles.badgeTextPositive
+                        : item.badge.variant === 'negative'
+                        ? listItemStyles.badgeTextNegative
+                        : listItemStyles.badgeTextNeutral
+                    }
+                  >
+                    {item.badge.text}
+                  </Text>
+                </View>
+              )}
+            </View>
+            {(item.onPress || onItemPress) && (
+              <ChevronRight 
+                size={20} 
+                color={Colors.gray[400]} 
+                style={{ marginLeft: 8 }}
+              />
             )}
           </View>
         )}

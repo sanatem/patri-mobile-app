@@ -1,96 +1,94 @@
 import { useState, useEffect } from 'react';
-
-interface GoalHistoryItem {
-  date: string;
-  amount: number;
-  projected: boolean;
-}
+import { goalHistoryService, GoalHistoryParams, GoalHistoryData } from '@/services/investment/portfolio/goals/get-goal-history';
+import { useAuth } from '@/providers/AuthProvider';
 
 interface UseGoalHistoryProps {
-  goalName?: string;
-  currentAmount?: number;
-  targetAmount?: number;
-  targetDate?: string;
+  goalId: string;
+  startDate?: string;
+  endDate?: string;
+  page?: number;
+  perPage?: number;
 }
 
 interface UseGoalHistoryReturn {
-  historyData: GoalHistoryItem[];
+  historyData: GoalHistoryData | null;
   loading: boolean;
   error: string | null;
-  generateProjectedData: (current: number, target: number, targetDate: string) => GoalHistoryItem[];
+  refetch: () => Promise<void>;
+  loadMore: () => Promise<void>;
+  hasMore: boolean;
 }
 
-export function useGoalHistory({ 
-  goalName, 
-  currentAmount, 
-  targetAmount, 
-  targetDate 
-}: UseGoalHistoryProps = {}): UseGoalHistoryReturn {
-  const [historyData, setHistoryData] = useState<GoalHistoryItem[]>([]);
-  const [loading, setLoading] = useState(false);
+export function useGoalHistory(props: UseGoalHistoryProps): UseGoalHistoryReturn {
+  const { goalId, startDate, endDate, page = 1, perPage = 30 } = props;
+  const [historyData, setHistoryData] = useState<GoalHistoryData | null>(null);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(page);
+  const { accessToken } = useAuth();
 
-  const generateProjectedData = (current: number, target: number, targetDateString: string): GoalHistoryItem[] => {
-    const startDate = new Date();
-    const endDate = new Date(targetDateString.split('/').reverse().join('-'));
-    const monthsDiff = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24 * 30));
-    
-    const monthlyIncrement = (target - current) / Math.max(monthsDiff, 1);
-    const projectedData: GoalHistoryItem[] = [];
+  const fetchData = async (pageNum: number = 1, append: boolean = false) => {
+    try {
+      if (!append) {
+        setLoading(true);
+      }
+      setError(null);
+      
+      if (!accessToken) {
+        throw new Error('No hay token de autenticación disponible');
+      }
 
-    // Historical data (last 3 months)
-    for (let i = 3; i >= 1; i--) {
-      const date = new Date();
-      date.setMonth(date.getMonth() - i);
-      const amount = Math.max(current - (monthlyIncrement * i), 0);
-      projectedData.push({
-        date: date.toISOString().slice(0, 7),
-        amount: amount,
-        projected: false
-      });
+      const params: GoalHistoryParams = {
+        goalId,
+        startDate,
+        endDate,
+        page: pageNum,
+        perPage
+      };
+
+      const data = await goalHistoryService.getGoalHistory(params, accessToken);
+      
+      if (append && historyData) {
+        setHistoryData({
+          ...data,
+          historicValues: [...historyData.historicValues, ...data.historicValues]
+        });
+      } else {
+        setHistoryData(data);
+      }
+      
+      setCurrentPage(pageNum);
+    } catch (err) {
+      console.error('❌ useGoalHistory - Error loading goal history:', err);
+      setError(err instanceof Error ? err.message : 'Error desconocido');
+    } finally {
+      setLoading(false);
     }
+  };
 
-    // Current month
-    projectedData.push({
-      date: new Date().toISOString().slice(0, 7),
-      amount: current,
-      projected: false
-    });
+  const refetch = async () => {
+    setCurrentPage(1);
+    await fetchData(1, false);
+  };
 
-    // Future projections
-    for (let i = 1; i <= Math.min(monthsDiff, 8); i++) {
-      const date = new Date();
-      date.setMonth(date.getMonth() + i);
-      const amount = Math.min(current + (monthlyIncrement * i), target);
-      projectedData.push({
-        date: date.toISOString().slice(0, 7),
-        amount: amount,
-        projected: true
-      });
+  const loadMore = async () => {
+    if (historyData?.pagination.hasNextPage) {
+      await fetchData(currentPage + 1, true);
     }
-
-    return projectedData;
   };
 
   useEffect(() => {
-    if (currentAmount !== undefined && targetAmount !== undefined && targetDate) {
-      try {
-        setLoading(true);
-        const projectedData = generateProjectedData(currentAmount, targetAmount, targetDate);
-        setHistoryData(projectedData);
-        setError(null);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Error generando datos');
-      } finally {
-        setLoading(false);
-      }
+    if (goalId && accessToken) {
+      fetchData(1, false);
     }
-  }, [currentAmount, targetAmount, targetDate]);
+  }, [goalId, accessToken, startDate, endDate, perPage]);
 
   return {
     historyData,
     loading,
     error,
-    generateProjectedData,
+    refetch,
+    loadMore,
+    hasMore: historyData?.pagination.hasNextPage || false,
   };
 } 

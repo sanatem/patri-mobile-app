@@ -205,3 +205,26 @@ export interface Goal {
   investmentAccountId: number;
   progress: number;
 }
+
+export interface ApiMovement {
+  id: number;
+  type: string;
+  original_amount: number;
+  current_amount: number;
+  investment_amount: number;
+  aasm_state: 'created' | 'confirmed' | 'settled' | 'finished';
+  created_at: string;
+  updated_at: string;
+  source_destination: string;
+  payment_method: string;
+  broker_portfolio_name: string;
+  user_id: number;
+  goal_id: number;
+  goal_wallet_id: number;
+  orphan: boolean;
+}
+
+export interface MovementsApiResponse {
+  movements: ApiMovement[];
+  total_count: number;
+}

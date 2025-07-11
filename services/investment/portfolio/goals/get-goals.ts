@@ -1,7 +1,6 @@
 import config from '@/config/constants';
 import type { Goal } from '@/types/api';
 
-// Tipos para la respuesta del API según documentación
 interface ApiGoal {
   id: number;
   name: string;

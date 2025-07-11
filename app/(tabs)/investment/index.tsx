@@ -1,32 +1,19 @@
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import WithoutAccountScreen from './without-account';
 import { LoadingSpinner } from '@/components/ui';
+import { useHasInvestmentAccount } from '@/hooks/investment/usePortfolioDetails';
 
 export default function InvestmentIndex() {
   const router = useRouter();
-  const [hasInvestmentAccount, setHasInvestmentAccount] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const { hasInvestmentAccount, loading: isLoading } = useHasInvestmentAccount();
 
   useEffect(() => {
-    const checkInvestmentAccount = async () => {
-      try {
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        const hasAccount = true;
-        
-        setHasInvestmentAccount(hasAccount);
-      } catch (error) {
-        console.error('Error checking investment account:', error);
-        setHasInvestmentAccount(false);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    checkInvestmentAccount();
-  }, []);
+    if (!isLoading && hasInvestmentAccount) {
+      router.replace('/investment/portfolio' as any);
+    }
+  }, [isLoading, hasInvestmentAccount, router]);
 
   if (isLoading) {
     return (
@@ -37,8 +24,8 @@ export default function InvestmentIndex() {
   }
 
   if (hasInvestmentAccount) {
-    router.replace('/investment/portfolio' as any);
     return null;
   }
+  
   return <WithoutAccountScreen />;
 }

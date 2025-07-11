@@ -19,19 +19,31 @@ interface Movement {
   value: number;
   type: 'deposit' | 'withdrawal';
   details?: MovementDetails;
+  goalId?: string;
+  goalName?: string;
+  createdAt: string;
+  state: string;
 }
 
 interface PortfolioMovementsCardProps {
   title: string;
   movements: Movement[];
   goalName?: string;
+  goalId?: string;
 }
 
-export default function PortfolioMovementsCard({ title, movements, goalName }: PortfolioMovementsCardProps) {
+export default function PortfolioMovementsCard({ title, movements, goalName, goalId }: PortfolioMovementsCardProps) {
   const router = useRouter();
 
   const handlePress = () => {
-    router.push('/investment/portfolio/portfolio-details/movements' as any);
+    
+    router.push({
+      pathname: '/investment/portfolio/portfolio-details/movements',
+      params: {
+        goalId: goalId || '',
+        goalName: goalName || '',
+      },
+    } as any);
   };
 
   return (

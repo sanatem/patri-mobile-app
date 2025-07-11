@@ -8,7 +8,6 @@ import {
   DollarSign,
   BarChart,
   Settings,
-  ChevronLeft,
   ArrowDown,
   ArrowUp,
   TrendingUp,
@@ -69,15 +68,21 @@ export default function InvestmentPortfolioScreen() {
   const goalsData = allGoals.map(goal => ({
     id: goal.id,
     title: goal.name,
-    subtitle: `Meta: ${formatValue(goal.targetAmount.toString())}`,
+    subtitle: `Meta ${formatValue(goal.targetAmount.toString())}`,
     value: formatValue(goal.currentAmount.toString()),
     icon: {
-      component: <TrendingUp size={24} color={Colors.secondary[500]} />,
+      component: <PiggyBank size={24} color={Colors.secondary[500]} />,
       backgroundColor: Colors.secondary[50],
       color: Colors.secondary[500],
       text: goal.name.charAt(0)
     },
-    onPress: undefined,
+    onPress: () => router.push({
+      pathname: '/investment/portfolio/portfolio-details',
+      params: {
+        goalId: goal.id,
+        goalName: goal.name,
+      },
+    }),
   }));
 
   const handleInvestPress = () => router.push('/investment/portfolio/movements/investment');
@@ -134,14 +139,6 @@ export default function InvestmentPortfolioScreen() {
             onPress={() => router.push('/settings')}
           >
             <Settings size={24} color={Colors.gray[700]} />
-          </TouchableOpacity>
-        }
-        leftAction={
-          <TouchableOpacity
-            className="w-10 h-10 rounded-full justify-center items-center"
-            onPress={() => router.push('/investment')}
-          >
-            <ChevronLeft size={24} color={Colors.gray[700]} />
           </TouchableOpacity>
         }
       />
