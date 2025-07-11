@@ -63,6 +63,14 @@ const transformApiGoalHistoryResponse = (apiData: ApiGoalHistoryResponse): GoalH
 export const goalHistoryService = {
   async getGoalHistory(params: GoalHistoryParams, token: string): Promise<GoalHistoryData> {
     try {
+      console.log('🚀 goalHistoryService - Iniciando llamada con params:', {
+        goalId: params.goalId,
+        startDate: params.startDate,
+        endDate: params.endDate,
+        page: params.page,
+        perPage: params.perPage
+      });
+
       if (!token) {
         throw new Error('No hay token de autenticación disponible');
       }
@@ -87,6 +95,8 @@ export const goalHistoryService = {
 
       const queryString = queryParams.toString();
       const url = `${config.apiBaseUrl}/api/v2/goals/${params.goalId}/historic_value${queryString ? `?${queryString}` : ''}`;
+      
+      console.log('🔗 goalHistoryService - URL:', url);
 
       const response = await fetch(url, {
         method: 'GET',
@@ -96,8 +106,14 @@ export const goalHistoryService = {
         },
       });
 
+      console.log('📥 goalHistoryService - Status:', response.status);
+
       if (!response.ok) {
         const errorText = await response.text();
+        console.error('❌ goalHistoryService - Error response:', {
+          status: response.status,
+          errorText
+        });
         
         if (response.status === 404) {
           throw new Error('Meta no encontrada');
@@ -111,15 +127,25 @@ export const goalHistoryService = {
       }
 
       const data: ApiGoalHistoryResponse = await response.json();
+      console.log('✅ goalHistoryService - Datos recibidos:', {
+        goalId: data.goal_id,
+        pointsCount: data.historic_goal_value.length,
+        pagination: data.pagination
+      });
       
       const transformedData = transformApiGoalHistoryResponse(data);
       
       return transformedData;
 
     } catch (error) {
-      console.error('❌ Goal History Service: Error fetching goal history from API:', error);
+      console.error('❌ goalHistoryService - Error completo:', {
+        error: error instanceof Error ? error.message : 'Error desconocido',
+        params,
+        isDev: __DEV__
+      });
       
       if (__DEV__) {
+        console.log('🔄 goalHistoryService - Retornando datos mock en desarrollo');
         const mockHistoryData: GoalHistoryData = {
           goalId: parseInt(params.goalId),
           historicValues: [

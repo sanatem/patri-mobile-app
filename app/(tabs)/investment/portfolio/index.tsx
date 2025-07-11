@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import React from 'react';
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import {
-  LineChart,
+  Settings,
   PiggyBank,
+  LineChart,
   Home,
   ShieldCheck,
   DollarSign,
   BarChart,
-  Settings,
   ArrowDown,
   ArrowUp,
   TrendingUp,
@@ -28,11 +28,13 @@ import { Button } from '@/components/ui/Button';
 import { useGoals } from '@/hooks/investment/useGoals';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { useFormatValue } from '@/hooks/common/useFormatValue';
+import { useTotalWalletValue } from '@/hooks/investment/useTotalWalletValue';
 
 export default function InvestmentPortfolioScreen() {
   const router = useRouter();
   const { goals, loading: goalsLoading, error: goalsError, refetch } = useGoals();
   const { formatValue } = useFormatValue();
+  const { totalWalletValue, loading: walletLoading, error: walletError } = useTotalWalletValue();
 
   const iconMap = {
     PiggyBank: <PiggyBank size={24} color={Colors.gray[500]} />,
@@ -87,6 +89,33 @@ export default function InvestmentPortfolioScreen() {
 
   const handleInvestPress = () => router.push('/investment/portfolio/movements/investment');
   const handleWithdrawPress = () => router.push('/investment/portfolio/movements/sales');
+
+  // ✅ FALLBACK SIMPLIFICADO PARA EL HEADER (SIN DECIMALES)
+  const getFallbackPatrimonyValue = () => {
+    if (walletLoading) {
+      return '';
+    }
+    
+    if (walletError) {
+      return '$0';
+    }
+  
+    if (totalWalletValue && totalWalletValue > 0) {
+      return `${Math.floor(totalWalletValue).toLocaleString('es-CL')}`;
+    }
+    
+    if (allGoals.length > 0) {
+      const manualTotal = allGoals.reduce((sum, goal) => {
+        return sum + (goal.currentAmount || 0);
+      }, 0);
+      
+      if (manualTotal > 0) {
+        return `${Math.floor(manualTotal).toLocaleString('es-CL')}`;
+      }
+    }
+    
+    return '$0';
+  };
 
   const renderGoalsSection = () => {
     if (goalsLoading) {
@@ -143,9 +172,12 @@ export default function InvestmentPortfolioScreen() {
         }
       />
       <ScrollView className="flex-1 px-5 pb-[120px] mt-16" showsVerticalScrollIndicator={false}>
+        {/* ✅ MANTENER PATRIMONIO NETO + AGREGAR SALDO EN CAJA */}
         <PortfolioHeader
-          patrimony={INVESTMENT_SAMPLE_DATA.PATRIMONY_AMOUNT}
+          patrimony={getFallbackPatrimonyValue()}
+          isLoading={walletLoading}
         />
+        {false && (
         <PortfolioActionsBar
           actions={[
             {
@@ -162,7 +194,7 @@ export default function InvestmentPortfolioScreen() {
             }
           ]}
         />
-        
+        )}
         <View className="px-6 py-2">
           <Text className="text-lg font-medium text-gray-800">Metas</Text>
         </View>

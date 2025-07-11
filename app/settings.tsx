@@ -1,5 +1,15 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, Modal, ActivityIndicator } from 'react-native';
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  TouchableOpacity, 
+  ScrollView, 
+  Alert, 
+  Modal, 
+  ActivityIndicator,
+  Linking
+} from 'react-native';
 import { 
   Settings, 
   HelpCircle, 
@@ -58,55 +68,50 @@ export default function MoreScreen() {
     );
   };
 
+  const handleOpenLink = async (url: string, title: string) => {
+    try {
+      const supported = await Linking.canOpenURL(url);
+      
+      if (supported) {
+        await Linking.openURL(url);
+      } else {
+        Alert.alert(
+          'Error',
+          `No se puede abrir el enlace: ${title}`,
+          [{ text: 'OK' }]
+        );
+      }
+    } catch (error) {
+      console.error('Error opening link:', error);
+      Alert.alert(
+        'Error',
+        `Hubo un problema al abrir el enlace: ${title}`,
+        [{ text: 'OK' }]
+      );
+    }
+  };
+
   const menuItems = [
-    {
-      id: '1',
-      title: 'Configuración',
-      subtitle: 'Ajustes de la aplicación',
-      icon: Settings,
-      onPress: () => console.log('Configuración'),
-    },
-    {
-      id: '2',
-      title: 'Notificaciones',
-      subtitle: 'Gestionar alertas y recordatorios',
-      icon: Bell,
-      onPress: () => console.log('Notificaciones'),
-    },
-    {
-      id: '3',
-      title: 'Mis Tarjetas',
-      subtitle: 'Administrar tarjetas vinculadas',
-      icon: CreditCard,
-      onPress: () => console.log('Tarjetas'),
-    },
-    {
-      id: '4',
-      title: 'Reportes',
-      subtitle: 'Generar informes financieros',
-      icon: PieChart,
-      onPress: () => console.log('Reportes'),
-    },
     {
       id: '5',
       title: 'Términos y Condiciones',
       subtitle: 'Políticas de uso',
       icon: FileText,
-      onPress: () => console.log('Términos'),
+      onPress: () => handleOpenLink('https://patrimore.com/normas-de-conducta', 'Términos y Condiciones'),
     },
     {
       id: '6',
       title: 'Privacidad y Seguridad',
       subtitle: 'Configuración de privacidad',
       icon: Shield,
-      onPress: () => console.log('Privacidad'),
+      onPress: () => handleOpenLink('https://patrimore.com/politica-de-privacidad', 'Política de Privacidad'),
     },
     {
       id: '7',
       title: 'Ayuda y Soporte',
       subtitle: 'Centro de ayuda y contacto',
       icon: HelpCircle,
-      onPress: () => console.log('Ayuda'),
+      onPress: () => handleOpenLink('https://patrimore.com/contacto', 'Ayuda y Soporte'),
     },
     {
       id: '8',
@@ -167,6 +172,7 @@ export default function MoreScreen() {
           <Text style={styles.versionText}>Versión 1.0.0</Text>
         </View>
       </ScrollView>
+      
       <Modal
         visible={isLoggingOut}
         transparent={true}
@@ -299,4 +305,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333',
   },
-}); 
+});

@@ -228,3 +228,104 @@ export interface MovementsApiResponse {
   movements: ApiMovement[];
   total_count: number;
 }
+
+export interface ApiFixedAsset {
+  id: number;
+  name: string;
+  category: string;
+  commercial_value: number;
+  unit: string;
+  kind: string;
+  comments: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ApiSavingInstrument {
+  id: number;
+  name: string;
+  type: string;
+  total_amount: number;
+  unit: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ApiInvestmentProperty {
+  id: number;
+  location: string;
+  commercial_value: number;
+  apartment_number: number;
+  square_mts: number;
+  number_of_bedrooms: number;
+  number_of_bathrooms: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ApiMainHome {
+  id: number;
+  location: string;
+  commercial_value: number;
+  apartment_number: number;
+  square_mts: number;
+  number_of_bedrooms: number;
+  number_of_bathrooms: number;
+  created_at: string;
+  updated_at: string;
+  kind: string;
+}
+
+export interface ApiAssetsResponse {
+  assets: {
+    fixed_assets: ApiFixedAsset[];
+    saving_instruments: ApiSavingInstrument[];
+    investment_properties: ApiInvestmentProperty[];
+    main_homes: ApiMainHome[];
+  };
+  totals: {
+    total_assets: number;
+    fixed_assets_total: number;
+    saving_instruments_total: number;
+    investment_properties_total: number;
+    main_homes_total: number;
+  };
+  pagination: {
+    current_page: number;
+    per_page: number;
+    total_count: number;
+    total_pages: number;
+    has_next_page: boolean;
+    has_prev_page: boolean;
+  };
+}
+
+export interface ApiDebt {
+  id: number;
+  name: string;
+  debt_category: string;
+  amount: number;
+  installment_amount: number;
+  installments_quantity: number;
+  unit: string;
+  cae_percentage: number;
+  comments: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ApiDebtsResponse {
+  debts: ApiDebt[];
+  totals: {
+    total_debts: number;
+    total_installments: number;
+  };
+  pagination: {
+    current_page: number;
+    per_page: number;
+    total_count: number;
+    total_pages: number;
+    has_next_page: boolean;
+    has_prev_page: boolean;
+  };
+}

@@ -36,7 +36,7 @@ export default function PaidPlan() {
       />
       <ScrollView className="flex-1 mx-2" showsVerticalScrollIndicator={false} style={{ marginTop: 10 }}>
         <AdvisorSection onSchedule={handleSchedulePress} onChat={handleChatPress} />
-        <PlanningCarousel onCardPress={handleCarouselCardPress} onAIPress={handleAIPress} />
+        {false && <PlanningCarousel onCardPress={handleCarouselCardPress} onAIPress={handleAIPress} />}
       </ScrollView>
     </Container>
   );

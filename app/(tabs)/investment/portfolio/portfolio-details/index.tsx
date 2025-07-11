@@ -133,24 +133,26 @@ export default function PortfolioDetailsScreen() {
           />
         </ScrollView>
         <View className="px-3">
-        <PortfolioActionsBar
-          actions={[
-            {
-              title: 'Invertir',
-              onPress: () => router.push('/investment/portfolio/movements/investment' as any),
-              icon: <ArrowDown size={20} color="#fff" />,
-              variant: 'primary'
-            },
-            {
-              title: 'Retirar',
-              onPress: () => {
-                router.push('/investment/portfolio/movements/sales' as any);
+        {false && (
+          <PortfolioActionsBar
+            actions={[
+              {
+                title: 'Invertir',
+                onPress: () => router.push('/investment/portfolio/movements/investment' as any),
+                icon: <ArrowDown size={20} color="#fff" />,
+                variant: 'primary'
               },
-              icon: <ArrowUp size={20} color="#FF5603" />,
-              variant: 'outline'
-            }
+              {
+                title: 'Retirar',
+                onPress: () => {
+                  router.push('/investment/portfolio/movements/sales' as any);
+                },
+                icon: <ArrowUp size={20} color="#FF5603" />,
+                variant: 'outline'
+              }
             ]}  
           />
+        )}
         </View>
       </View>
     </Container>

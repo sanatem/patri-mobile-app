@@ -24,8 +24,7 @@ export function GoalProgressChart({
   
   const { historyData, loading, error } = useGoalHistory({
     goalId,
-    startDate,
-    endDate,
+    period: 'ALL', // Forzar a mostrar todo el histórico
     perPage: 100
   });
   
@@ -55,7 +54,7 @@ export function GoalProgressChart({
         date.setMonth(date.getMonth() + i);
         const amount = Math.min(currentAmount + (monthlyIncrement * i), targetAmount);
         projectedData.push({
-          x: date.toISOString().slice(0, 7),
+          x: date.toISOString().slice(0, 10), // Format: YYYY-MM-DD
           y: amount,
           projected: true
         });
@@ -66,6 +65,7 @@ export function GoalProgressChart({
   };
 
   const chartData = generateChartData();
+  
   if (!currentAmount || !targetAmount) {
     return (
       <View style={[styles.card, styles.loadingContainer]}>
@@ -75,13 +75,26 @@ export function GoalProgressChart({
     );
   }
 
-
+  // Fixed date formatting function
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString + '-01'); 
-    return date.toLocaleDateString('es-CL', {
-      year: 'numeric',
-      month: 'long'
-    });
+    try {
+      // Handle the API format: "2024-09-11"
+      const date = new Date(dateString);
+      
+      // Check if date is valid
+      if (isNaN(date.getTime())) {
+        return 'Fecha no disponible';
+      }
+      
+      return date.toLocaleDateString('es-CL', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric'
+      });
+    } catch (error) {
+      console.warn('Error formatting date:', dateString, error);
+      return 'Fecha no disponible';
+    }
   };
 
   const formatValue = (value: number) => {
@@ -239,4 +252,4 @@ const styles = StyleSheet.create({
     color: Colors.gray[600],
     textAlign: 'center',
   },
-}); 
+});

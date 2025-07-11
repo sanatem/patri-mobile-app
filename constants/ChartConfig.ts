@@ -7,12 +7,14 @@ export const CHART_CONFIG = {
   gradientId: 'chartGradient',
   formatValue: (value: number) => `$${value.toLocaleString('es-CL')}`,
   formatDate: (date: string) => {
-    const dateObj = new Date(date);
+    if (!date) return '';
+    const safeDate = date.replace(/-/g, '/');
+    const dateObj = new Date(safeDate);
     if (isNaN(dateObj.getTime())) return 'Fecha no disponible';
     return dateObj.toLocaleDateString('es-CL', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
     });
   },
   formatDateLabel: (date: string) => {

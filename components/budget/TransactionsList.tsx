@@ -1,87 +1,136 @@
-import React from 'react';
-import { ListItem } from '@/components/ui';
+import React, { useMemo } from 'react';
+import { View, Text, ActivityIndicator } from 'react-native';
+import { ListItem } from '@/components/ui/ListItem';
 import { budgetService } from '@/services/budget/get-budget';
+import { FloidTransaction } from '@/services/budget/get-floid-transactions';
+import Colors from '@/constants/Colors';
 
 interface TransactionsListProps {
   type: 'income' | 'expenses';
   selectedMonth: string;
   showContainer?: boolean;
+  floidTransactions?: FloidTransaction[];
+  searchQuery?: string;
+  loading?: boolean;
+  hasRealData?: boolean; // ✅ Nueva prop para indicar si hay datos reales
 }
 
-const months = [
-  'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
-];
+export default function TransactionsList({ 
+  type, 
+  selectedMonth, 
+  showContainer = true,
+  floidTransactions,
+  searchQuery = '',
+  loading = false,
+  hasRealData = false // ✅ Por defecto false
+}: TransactionsListProps) {
 
-const getMonthNumber = (monthName: string): number => {
-  return months.indexOf(monthName) + 1;
-};
-
-const CATEGORY_TRANSLATIONS: Record<string, string> = {
-  housing: 'Vivienda',
-  transport: 'Transporte',
-  credit: 'Crédito',
-  utilities: 'Servicios',
-  groceries: 'Supermercado',
-  personal: 'Personal',
-  salary: 'Salario',
-  bonus: 'Bonos',
-  investment: 'Inversión',
-};
-
-const processTransactionsByMonth = (selectedMonth: string, type: 'income' | 'expenses') => {
-  const budget = budgetService.getBudget();
-  const monthlyIncome = budgetService.getMonthlyIncome();
-  const monthlyExpenses = budgetService.getMonthlyExpenses();
-  
-  const income: any[] = [];
-  const expenses: any[] = [];
-  
-  if (type === 'income') {
-    budget.monthlyIncome.forEach(transaction => {
-      const percentage = ((transaction.amount / monthlyIncome) * 100).toFixed(1);
-      income.push({
-        id: transaction.title,
-        title: transaction.title,
-        subtitle: CATEGORY_TRANSLATIONS[transaction.category] || transaction.category,
-        value: transaction.amount,
-        badge: {
-          text: `${percentage}%`,
-          variant: 'positive' as const
-        }
+  const transactionsData = useMemo(() => {
+    // ✅ SOLO USAR DATOS FLOID SI HAY DATOS REALES
+    const hasFloidData = hasRealData && 
+                        floidTransactions && 
+                        Array.isArray(floidTransactions) && 
+                        floidTransactions.length > 0;
+    
+    if (hasFloidData) {
+      const targetTransactionType = type === 'income' ? 'income' : 'outcome';
+      
+      const filteredByType = floidTransactions!.filter(transaction => {
+        return transaction.transaction_type === targetTransactionType;
       });
-    });
-  } else {
-    budget.monthlyExpenses.forEach(transaction => {
-      const percentage = ((transaction.amount / monthlyExpenses) * 100).toFixed(1);
-      expenses.push({
-        id: transaction.title,
-        title: transaction.title,
-        subtitle: CATEGORY_TRANSLATIONS[transaction.category] || transaction.category,
-        value: transaction.amount,
-        badge: {
-          text: `${percentage}%`,
-          variant: 'negative' as const
-        }
+
+      const filteredBySearch = searchQuery 
+        ? filteredByType.filter(transaction =>
+            transaction.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            transaction.bank.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            transaction.account_number.includes(searchQuery)
+          )
+        : filteredByType;
+
+      return filteredBySearch.map(transaction => {
+        const isIncome = transaction.transaction_type === 'income';
+        return {
+          id: transaction.id.toString(),
+          title: transaction.description,
+          subtitle: `${transaction.bank} - ${transaction.account_number}`,
+          value: `${isIncome ? '+' : '-'}$${transaction.amount.toLocaleString('es-CL')}`,
+          icon: {
+            backgroundColor: isIncome ? Colors.success[100] : Colors.error[100],
+            text: isIncome ? '+' : '-',
+            color: isIncome ? Colors.success[600] : Colors.error[600],
+          },
+          badge: {
+            text: new Date(transaction.date).toLocaleDateString('es-CL'),
+            variant: 'neutral' as const
+          }
+        };
       });
-    });
+      
+    } else {
+      // ✅ NO USAR DATOS MOCK - Devolver array vacío
+      return [];
+    }
+  }, [floidTransactions, type, searchQuery, hasRealData]);
+
+  // ✅ ESTADO DE CARGA
+  if (loading) {
+    return (
+      <View style={{ padding: 20, alignItems: 'center' }}>
+        <ActivityIndicator size="large" color={Colors.primary[500]} />
+        <Text style={{ 
+          marginTop: 10,
+          fontSize: 14,
+          fontFamily: 'Poppins-Regular',
+          color: Colors.gray[600]
+        }}>
+          Cargando transacciones...
+        </Text>
+      </View>
+    );
   }
-  
-  return { income, expenses };
-};
 
-const TransactionsList: React.FC<TransactionsListProps> = ({ type, selectedMonth, showContainer }) => {
-  const { income, expenses } = processTransactionsByMonth(selectedMonth, type);
-  const data = type === 'income' ? income : expenses;
+  // ✅ ESTADO VACÍO - Mejorado para distinguir entre sin datos del mes y búsqueda sin resultados
+  if (transactionsData.length === 0) {
+    return (
+      <View style={{ padding: 40, alignItems: 'center' }}>
+        <Text style={{ 
+          fontSize: 16,
+          fontFamily: 'Poppins-SemiBold',
+          color: Colors.gray[600],
+          textAlign: 'center',
+          marginBottom: 8,
+        }}>
+          {!hasRealData && !searchQuery
+            ? `Sin ${type === 'income' ? 'ingresos' : 'gastos'} en ${selectedMonth}`
+            : searchQuery 
+              ? 'Sin resultados'
+              : `Sin ${type === 'income' ? 'ingresos' : 'gastos'}`
+          }
+        </Text>
+        <Text style={{ 
+          fontSize: 14,
+          fontFamily: 'Poppins-Regular',
+          color: Colors.gray[500],
+          textAlign: 'center',
+          lineHeight: 20,
+        }}>
+          {!hasRealData && !searchQuery
+            ? `No hay transacciones de ${type === 'income' ? 'ingresos' : 'gastos'} registradas para este mes`
+            : searchQuery 
+              ? `No se encontraron ${type === 'income' ? 'ingresos' : 'gastos'} que coincidan con "${searchQuery}"`
+              : `No hay ${type === 'income' ? 'ingresos' : 'gastos'} disponibles`
+          }
+        </Text>
+      </View>
+    );
+  }
 
+  // ✅ LISTA DE TRANSACCIONES REALES
   return (
-    <ListItem 
-      data={data}
+    <ListItem
+      data={transactionsData}
+      showLoadMore={false}
       showContainer={showContainer}
-      initialItemCount={10}
-      loadMoreStep={10}
     />
   );
-};
-
-export default TransactionsList;
+}

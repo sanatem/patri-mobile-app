@@ -1,7 +1,6 @@
 import { Tabs } from 'expo-router';
 import { useColorScheme, Platform } from 'react-native';
 import TabBarIcon from '@/components/navigation/TabBarIcon';
-import MoreTabButton from '@/components/navigation/MoreTabButton';
 import Colors from '@/constants/Colors';
 import {useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context';
 
