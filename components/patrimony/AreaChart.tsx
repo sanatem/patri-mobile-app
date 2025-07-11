@@ -46,11 +46,9 @@ export default function AreaChart() {
         startDate.setMonth(today.getMonth() - 6);
         break;
       case '1y':
+      default: // 'all' will behave the same as '1y'
         startDate.setFullYear(today.getFullYear() - 1);
         break;
-      default:
-        // For 'all', use earliest date in data
-        startDate = new Date('2020-01-01');
     }
 
     console.log('📊 AreaChart - Filtering data:', {
@@ -124,10 +122,9 @@ export default function AreaChart() {
         startDate.setMonth(today.getMonth() - 6);
         break;
       case '1y':
+      default: // 'all' will behave the same as '1y'
         startDate.setFullYear(today.getFullYear() - 1);
         break;
-      default:
-        startDate = new Date('2020-01-01');
     }
 
     const filteredMockData = data

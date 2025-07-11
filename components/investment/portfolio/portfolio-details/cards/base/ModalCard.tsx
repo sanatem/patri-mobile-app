@@ -1,6 +1,6 @@
 import React, { useState, useRef, ReactNode } from 'react';
 import { View, Text, TouchableOpacity, Modal, Animated, ScrollView, Pressable } from 'react-native';
-import { ChevronRight } from 'lucide-react-native';
+import { ChevronRight, ChevronDown } from 'lucide-react-native';
 import { Card } from '@/components/ui/Card';
 import Colors from '@/constants/Colors';
 import { selectStyles } from '@/styles/ui/Select.styles';
@@ -13,8 +13,10 @@ interface ModalCardProps {
 
 export default function ModalCard({ title, children, maxHeight = 180 }: ModalCardProps) {
   const [modalVisible, setModalVisible] = useState(false);
+  const [canScroll, setCanScroll] = useState(false);
   const overlayOpacity = useRef(new Animated.Value(0)).current;
   const sheetTranslateY = useRef(new Animated.Value(300)).current;
+  const chevronOpacity = useRef(new Animated.Value(1)).current;
 
   const setIsOpen = (open: boolean) => {
     if (open) {
@@ -45,6 +47,11 @@ export default function ModalCard({ title, children, maxHeight = 180 }: ModalCar
         }),
       ]).start(() => setModalVisible(false));
     }
+  };
+
+  const handleScroll = (event: any) => {
+    const { layoutMeasurement, contentSize } = event.nativeEvent;
+    setCanScroll(contentSize.height > layoutMeasurement.height);
   };
 
   const overlayStyle = {
@@ -87,9 +94,37 @@ export default function ModalCard({ title, children, maxHeight = 180 }: ModalCar
               style={{ maxHeight }}
               showsVerticalScrollIndicator={false}
               nestedScrollEnabled={true}
+              onContentSizeChange={(w, h) => {
+                setCanScroll(h > maxHeight);
+              }}
+              onScroll={handleScroll}
+              scrollEventThrottle={16}
             >
               {children}
             </ScrollView>
+            {canScroll && (
+              <Animated.View 
+                style={{
+                  position: 'absolute',
+                  bottom: 2,
+                  left: 0,
+                  right: 0,
+                  alignItems: 'center',
+                  opacity: chevronOpacity,
+                }}
+              >
+                <View 
+                  style={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                    padding: 2,
+                    borderRadius: 12,
+                    elevation: 3,
+                  }}
+                >
+                  <ChevronDown size={20} color={Colors.gray[400]} />
+                </View>
+              </Animated.View>
+            )}
           </Animated.View>
         </View>
       </Modal>
