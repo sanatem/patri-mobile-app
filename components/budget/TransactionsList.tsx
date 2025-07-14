@@ -53,7 +53,7 @@ export default function TransactionsList({
           id: transaction.id.toString(),
           title: transaction.description,
           subtitle: `${transaction.bank} - ${transaction.account_number}`,
-          value: `${isIncome ? '+' : '-'}$${transaction.amount.toLocaleString('es-CL')}`,
+          value: `${isIncome ? '+' : '-'}$${Math.round(transaction.amount).toLocaleString('es-CL')}`,
           icon: {
             backgroundColor: isIncome ? Colors.success[100] : Colors.error[100],
             text: isIncome ? '+' : '-',

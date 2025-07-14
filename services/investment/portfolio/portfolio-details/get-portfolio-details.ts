@@ -17,6 +17,7 @@ export interface MetaDetails {
     aportes: number;
     rescates: number;
     variacion: string;
+    variacionPesos: number;
   };
   assets: Array<{
     id: string;
@@ -159,6 +160,7 @@ const transformApiGoalToMetaDetails = (apiData: ApiGoalDetails): MetaDetails => 
     aportes: getSafeNumber(presenter_data?.deposit_sum, 0),
     rescates: getSafeNumber(presenter_data?.retirement_sum, 0),
     variacion: calculateVariation(),
+    variacionPesos: currentAmount - getSafeNumber(presenter_data?.deposit_sum, 0) + getSafeNumber(presenter_data?.retirement_sum, 0),
   };
 
   const assets = (presenter_data?.wallet_containers || []).map((container, index) => ({
@@ -265,6 +267,7 @@ export async function getPortfolioDetails(goalId: string, token: string): Promis
         aportes: investment.investmentDetails?.depositedAmount || 0,
         rescates: 0,
         variacion: '2.45%',
+        variacionPesos: investment.investmentDetails?.depositedAmount || 0,
       };
       
               const assets = [

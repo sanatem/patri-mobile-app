@@ -5,21 +5,29 @@ import { Carousel, CarouselCard } from '@/components/ui';
 
 interface ForYouCarouselProps {
   style?: any;
+  totalExpenses?: number;
 }
 
-const ForYouCarousel: React.FC<ForYouCarouselProps> = ({ style }) => {
+const ForYouCarousel: React.FC<ForYouCarouselProps> = ({ style, totalExpenses }) => {
   const iconMap = {
     'Gastos': CreditCard,
     'Análisis de gastos': DollarSign,
     'Ahorro': PiggyBank,
   };
 
+  const formatCurrency = (amount: number) => {
+    return `$${Math.round(amount).toLocaleString('es-CL')}`;
+  };
+
   const renderCard = ({ item }: { item: any }) => {
     const Icon = iconMap[item.category as keyof typeof iconMap];
-    
+    let title = item.title;
+    if (item.category === 'Gastos' && typeof totalExpenses === 'number') {
+      title = `${formatCurrency(totalExpenses)}/mes`;
+    }
     return (
       <CarouselCard
-        title={item.title}
+        title={title}
         description={item.description}
         badge={{
           text: item.category,
