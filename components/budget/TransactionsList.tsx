@@ -51,7 +51,7 @@ export default function TransactionsList({
         const isIncome = transaction.transaction_type === 'income';
         return {
           id: transaction.id.toString(),
-          title: transaction.description,
+          title: transaction.description.charAt(0).toUpperCase() + transaction.description.slice(1).toLowerCase(),
           subtitle: `${transaction.bank} - ${transaction.account_number}`,
           value: `${isIncome ? '+' : '-'}$${Math.round(transaction.amount).toLocaleString('es-CL')}`,
           icon: {
