@@ -242,7 +242,7 @@ export default function PatrimonyScreen() {
         id: asset.id.toString(),
         title: asset.name,
         subtitle: asset.category,
-        value: asset.commercial_value,
+        value: Math.round(asset.commercial_value),
         icon: {
           backgroundColor: '#4285F4',
           text: asset.name.charAt(0)
@@ -261,7 +261,7 @@ export default function PatrimonyScreen() {
           id: asset.id.toString(),
           title: asset.name,
           subtitle: mapSavingInstrumentType(asset.type), // Mapeo aplicado
-          value: asset.total_amount,
+          value: Math.round(asset.total_amount),
           icon,
           badge: {
             text: '0.00%',
@@ -277,7 +277,7 @@ export default function PatrimonyScreen() {
         subtitle: asset.square_mts 
           ? `${asset.square_mts}m² - ${asset.number_of_bedrooms || 0} hab`
           : 'Propiedad de inversión',
-        value: asset.commercial_value,
+        value: Math.round(asset.commercial_value),
         icon: {
           backgroundColor: '#FBBC05',
           text: 'P'
@@ -295,7 +295,7 @@ export default function PatrimonyScreen() {
         subtitle: asset.square_mts 
           ? `${asset.square_mts}m² - ${asset.number_of_bedrooms || 0} hab`
           : asset.kind === 'leased' ? 'Casa arrendada' : 'Casa propia',
-        value: asset.commercial_value,
+        value: Math.round(asset.commercial_value),
         icon: {
           backgroundColor: '#6366F1',
           text: 'C'
@@ -320,7 +320,7 @@ export default function PatrimonyScreen() {
       id: debt.id.toString(),
       title: debt.name,
       subtitle: debt.debt_category,
-      value: -debt.amount,
+      value: -Math.round(debt.amount),
       icon: {
         backgroundColor: '#DC2626',
         text: debt.name.charAt(0)
@@ -377,8 +377,8 @@ export default function PatrimonyScreen() {
   }));
 
   // Totales SIEMPRE calculados
-  const totalAssets = apiAssets ? apiAssets.totals.total_assets : 0;
-  const totalLiabilities = apiDebts ? apiDebts.totals.total_debts : 0;
+  const totalAssets = apiAssets ? Math.round(apiAssets.totals.total_assets) : 0;
+  const totalLiabilities = apiDebts ? Math.round(apiDebts.totals.total_debts) : 0;
   const netWorth = totalAssets - totalLiabilities;
 
   const currentTimeRangeLabel = Object.keys(TIME_RANGES.MAPPING).find((key) => 

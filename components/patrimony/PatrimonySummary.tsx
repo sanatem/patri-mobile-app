@@ -30,12 +30,12 @@ export function PatrimonySummary({
   const { historicData, loading: historicLoading } = useNetworthHistoric(); // Sin filtros para obtener variación del último mes
 
   const formatCurrency = (amount: number) => {
-    return `${Math.abs(amount).toLocaleString('es-CL')}`;
+    return `$${Math.abs(amount).toLocaleString('es-CL')}`;
   };
 
   const formatVariation = (amount: number) => {
     const sign = amount >= 0 ? '+' : '-';
-    return `${sign}${Math.abs(amount).toLocaleString('es-CL')}`;
+    return `${sign}$${Math.abs(Math.round(amount)).toLocaleString('es-CL')}`;
   };
 
   const toggleExpanded = () => {
@@ -61,7 +61,6 @@ export function PatrimonySummary({
     ],
   };
 
-  // ✅ DETERMINAR QUÉ DATOS USAR (manteniendo toda la lógica original)
   let displayData;
   if (networthData && !error && !loading) {
     displayData = {
@@ -77,7 +76,6 @@ export function PatrimonySummary({
     };
   }
 
-  // ✅ USAR DATOS DE VARIACIÓN DEL HISTÓRICO SI ESTÁN DISPONIBLES
   let variationData;
   if (historicData && !historicLoading && 'last_month_variation' in historicData.historic.variation) {
     variationData = {

@@ -90,9 +90,9 @@ export default function PortfolioDetailsScreen() {
   const transformedSummary = [
     { title: 'Estrategia', value: metaDetails.summary.estrategia },
     { title: 'Nivel de riesgo', value: metaDetails.summary.riesgo },
-    { title: 'Aportes', value: `$${metaDetails.summary.aportes.toLocaleString('es-CO')}` },
-    { title: 'Rescates', value: `$${metaDetails.summary.rescates.toLocaleString('es-CO')}` },
-    { title: 'Variación', value: metaDetails.summary.variacion },
+    { title: 'Aportes', value: `$${Math.round(metaDetails.summary.aportes).toLocaleString('es-CL')}` },
+    { title: 'Rescates', value: `$${Math.round(metaDetails.summary.rescates).toLocaleString('es-CL')}` },
+    { title: 'Variación', value: `$${Math.round(metaDetails.summary.variacionPesos).toLocaleString('es-CL')}` },
   ];
 
   const transformedAssets = metaDetails.assets.map(asset => ({

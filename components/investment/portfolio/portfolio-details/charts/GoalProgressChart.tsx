@@ -119,7 +119,7 @@ export function GoalProgressChart({
     <View style={styles.progressContainer}>
       <View style={styles.currentAmountContainer}>
         <Text style={styles.currentAmountValue}>
-          ${currentAmount.toLocaleString('es-CL')} <Text style={styles.currencyLabel}>CLP</Text>
+          ${Math.round(currentAmount).toLocaleString('es-CL')} <Text style={styles.currencyLabel}>CLP</Text>
         </Text>
       </View>
       
@@ -135,7 +135,7 @@ export function GoalProgressChart({
       </View>
       
       <Text style={styles.progressDetailsText}>
-        {progressPercentage.toFixed(2)}% de ${targetAmount.toLocaleString('es-CL')} al {getCurrentDate()}
+        {progressPercentage.toFixed(2)}% de ${Math.round(targetAmount).toLocaleString('es-CL')} al {getCurrentDate()}
       </Text>
     </View>
   );

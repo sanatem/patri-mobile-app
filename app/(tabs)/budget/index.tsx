@@ -276,7 +276,7 @@ export default function BudgetScreen() {
                   {activeTab === 'income' ? LABELS.BUDGET.TOTAL_INCOME : LABELS.BUDGET.TOTAL_EXPENSES}
                 </Text>
                 <Text style={{ color: Colors.gray[700], fontSize: 18, fontFamily: 'Poppins-medium' }}>
-                  {activeTab === 'income' ? '+' : '-'}${(activeTab === 'income' ? totalIncome : totalExpenses).toLocaleString('es-CL')}
+                  {activeTab === 'income' ? '+' : '-'}${Math.round(activeTab === 'income' ? totalIncome : totalExpenses).toLocaleString('es-CL')}
                 </Text>
               </View>
               
@@ -292,7 +292,7 @@ export default function BudgetScreen() {
             </View>
           </Container>
           <Container variant="content">
-          <ForYouCarousel />
+          <ForYouCarousel totalExpenses={totalExpenses} />
           </Container>
           <View className="h-24" />
         </ScrollView>
