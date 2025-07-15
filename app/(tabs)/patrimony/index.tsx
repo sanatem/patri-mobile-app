@@ -31,7 +31,6 @@ import { useUserData } from '@/hooks/user/useUserData';
 import type { UserProfile } from '@/types/api';
 import assetsHistory from '@/data/static/assets-history.json';
 import { listItemStyles } from '@/styles/ui/ListItem.styles';
-import { requestTrackingPermission } from '../../requestTrackingPermission';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
@@ -160,10 +159,6 @@ export default function PatrimonyScreen() {
   
   useEffect(() => {
     loadPatrimonyData();
-    (async () => {
-      const status = await requestTrackingPermission();
-      console.log(`Tracking permission status: ${status}`);
-    })();
   }, []);
 
   useEffect(() => {
