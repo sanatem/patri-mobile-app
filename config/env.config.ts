@@ -13,6 +13,7 @@ export const envConfig = {
   auth0Domain: environmentConfig.auth0Domain || process.env.EXPO_PUBLIC_AUTH0_DOMAIN || '',
   auth0ClientId: environmentConfig.auth0ClientId || process.env.EXPO_PUBLIC_AUTH0_CLIENT_ID || '',
   auth0Audience: environmentConfig.auth0Audience || process.env.EXPO_PUBLIC_STAGING_AUDIENCE_API || '',
+  stagingAudience: environmentConfig.stagingAudience || process.env.EXPO_PUBLIC_STAGING_AUDIENCE || '',
   
   openaiApiKey: environmentConfig.openaiApiKey || process.env.EXPO_PUBLIC_OPENAI_API_KEY || '',
   
