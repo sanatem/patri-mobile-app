@@ -25,6 +25,8 @@ import {
 import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
 import { useAuth } from '@/providers/AuthProvider';
+import Constants from 'expo-constants';
+
 
 export default function MoreScreen() {
   const router = useRouter();
@@ -169,7 +171,7 @@ export default function MoreScreen() {
         </View>
 
         <View style={styles.footer}>
-          <Text style={styles.versionText}>Versión 1.0.1</Text>
+          <Text style={styles.versionText}>Versión {Constants.expoConfig?.version ?? 'desconocida'}</Text>
         </View>
       </ScrollView>
       
