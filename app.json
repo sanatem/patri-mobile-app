@@ -2,7 +2,7 @@
   "expo": {
     "name": "Patrimore",
     "slug": "patrimore",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "com.patrimore.patrimore",
@@ -16,7 +16,8 @@
           "remote-notification"
         ],
         "ITSAppUsesNonExemptEncryption": false,
-        "NSCameraUsageDescription": "Esta app necesita acceso a la cámara para que los usuarios puedan escanear documentos o tomar fotografías."
+        "NSCameraUsageDescription": "Esta app necesita acceso a la cámara para que los usuarios puedan escanear documentos o tomar fotografías.",
+        "NSUserTrackingUsageDescription": "Usamos esta información para ofrecerte anuncios personalizados y mejorar tu experiencia en la app."
       },
       "entitlements": {
         "aps-environment": "production",
@@ -50,6 +51,12 @@
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ff6501"
+        }
+      ],
+      [
+        "expo-tracking-transparency",
+        {
+          "userTrackingPermission": "Usamos esta información para ofrecerte anuncios personalizados y mejorar tu experiencia en la app."
         }
       ],
       "expo-font",

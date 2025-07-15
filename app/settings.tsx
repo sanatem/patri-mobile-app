@@ -25,6 +25,9 @@ import Colors from '@/constants/Colors';
 import { useAuth } from '@/providers/AuthProvider';
 import { deleteUserAccount } from '@/services/user/delete-user';
 
+import Constants from 'expo-constants';
+
+
 export default function MoreScreen() {
   const router = useRouter();
   const { logout, forceLogout, user, accessToken, isAuthenticated, loading } = useAuth();
@@ -241,7 +244,7 @@ export default function MoreScreen() {
           </View>
         </View>
         <View style={styles.footer}>
-          <Text style={styles.versionText}>Versión 1.0.0</Text>
+          <Text style={styles.versionText}>Versión {Constants.expoConfig?.version ?? 'desconocida'}</Text>
         </View>
       </ScrollView>
       <Modal
