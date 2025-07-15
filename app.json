@@ -66,8 +66,7 @@
         {
           "domain": "auth.patrimore.com"
         }
-      ],
-      "expo-tracking-transparency"
+      ]
     ],
     "experiments": {
       "typedRoutes": true
