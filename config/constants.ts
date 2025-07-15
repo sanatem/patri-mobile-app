@@ -1,5 +1,7 @@
+import { envConfig } from './env.config';
+
 export default {
-  apiBaseUrl: process.env.EXPO_PUBLIC_STAGING_AUDIENCE,
-  auth0Domain: process.env.EXPO_PUBLIC_AUTH0_DOMAIN,
-  auth0ClientId: process.env.EXPO_PUBLIC_AUTH0_CLIENT_ID
+  apiBaseUrl: envConfig.apiBaseUrl,
+  auth0Domain: envConfig.auth0Domain,
+  auth0ClientId: envConfig.auth0ClientId
 };

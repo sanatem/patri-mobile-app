@@ -84,10 +84,6 @@ export async function getUserData(token: string): Promise<UserResponse | null> {
 
     const data: UserResponse = await response.json();
     
-    console.log('✅ User data loaded successfully');
-    console.log('👤 User:', data.user.personal_information.full_name);
-    console.log('👨‍💼 Advisor:', data.user.advisor.advisor_name);
-    
     return data;
 
   } catch (error) {

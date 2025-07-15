@@ -11,6 +11,7 @@ import {
 import { useAuth } from '@/providers/AuthProvider';
 import AreaChart from '@/components/patrimony/AreaChart';
 import { PatrimonySummary } from '@/components/patrimony/PatrimonySummary';
+import LiabilityCard from '@/components/patrimony/LiabilityCard';
 import { useChartRangeStore } from '@/store/chartRangeStore';
 import { Asset, Liability } from '@/types';
 import { patrimonyService } from '@/services/patrimony/get-patrimony';
@@ -25,10 +26,9 @@ import {
   SegmentedControl,
   KeyboardAwareContainer,
 } from '@/components/ui';
-import { Dropdown } from '@/components/ui';
-// ✅ IMPORTAR HOOK ACTUALIZADO EN LUGAR DEL SERVICIO
+import { SkeletonBase } from '@/components/ui/SkeletonBase';
 import { useUserData } from '@/hooks/user/useUserData';
-import type { UserProfile } from '@/types/api';
+
 import assetsHistory from '@/data/static/assets-history.json';
 import { listItemStyles } from '@/styles/ui/ListItem.styles';
 
@@ -59,9 +59,12 @@ export default function PatrimonyScreen() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const overlayAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(0)).current;  
+  const [showDateSkeleton, setShowDateSkeleton] = useState(true);
+  const [showSearchSkeleton, setShowSearchSkeleton] = useState(true);
 
-  // ✅ USAR HOOK ACTUALIZADO
+  const [showLiabilitiesSkeleton, setShowLiabilitiesSkeleton] = useState(true);
+
   const { userData, loading: userLoading } = useUserData();
 
   const { assets: apiAssets, loading: assetsLoading, error: assetsError } = useAssets({
@@ -74,7 +77,6 @@ export default function PatrimonyScreen() {
     per_page: 50
   }, true);
 
-  // Función para mapear tipos de saving instruments
   const mapSavingInstrumentType = (type: string): string => {
     const typeMapping: Record<string, string> = {
       'SavingInstruments::CashAccount': 'Caja',
@@ -92,7 +94,6 @@ export default function PatrimonyScreen() {
     return typeMapping[type] || type.replace('SavingInstruments::', '');
   };
 
-  // Función para obtener iconos específicos por tipo
   const getSavingInstrumentIcon = (type: string, name: string) => {
     const iconMapping: Record<string, { backgroundColor: string; text: string }> = {
       'SavingInstruments::CashAccount': { backgroundColor: '#10B981', text: '$' },
@@ -123,7 +124,6 @@ export default function PatrimonyScreen() {
     }
   };
 
-  // Función para extraer iniciales del usuario Auth0
   const extractInitialsFromAuth0User = (user: any): string => {
     try {
       const userMetadata = user['https://app.patrimore.com/user_metadata'];
@@ -159,6 +159,21 @@ export default function PatrimonyScreen() {
   
   useEffect(() => {
     loadPatrimonyData();
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowDateSkeleton(false), 3000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowSearchSkeleton(false), 3000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowLiabilitiesSkeleton(false), 3000);
+    return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
@@ -237,7 +252,6 @@ export default function PatrimonyScreen() {
     if (!apiAssets) return [];
 
     const allAssets = [
-      // Fixed assets
       ...apiAssets.assets.fixed_assets.map(asset => ({
         id: asset.id.toString(),
         title: asset.name,
@@ -253,14 +267,13 @@ export default function PatrimonyScreen() {
         }
       })),
       
-      // Saving instruments - CON MAPEO MEJORADO
       ...apiAssets.assets.saving_instruments.map(asset => {
         const icon = getSavingInstrumentIcon(asset.type, asset.name);
         
         return {
           id: asset.id.toString(),
           title: asset.name,
-          subtitle: mapSavingInstrumentType(asset.type), // Mapeo aplicado
+          subtitle: mapSavingInstrumentType(asset.type),
           value: Math.round(asset.total_amount),
           icon,
           badge: {
@@ -376,7 +389,6 @@ export default function PatrimonyScreen() {
     }
   }));
 
-  // Totales SIEMPRE calculados
   const totalAssets = apiAssets ? Math.round(apiAssets.totals.total_assets) : 0;
   const totalLiabilities = apiDebts ? Math.round(apiDebts.totals.total_debts) : 0;
   const netWorth = totalAssets - totalLiabilities;
@@ -460,6 +472,13 @@ export default function PatrimonyScreen() {
     );
   }
 
+  // Crear datos de skeleton para pasivos
+  const skeletonLiabilities = [
+    { id: 'skeleton-1', name: 'Skeleton 1', type: 'Skeleton Type', value: 0, change: 0, color: '#DC2626' },
+    { id: 'skeleton-2', name: 'Skeleton 2', type: 'Skeleton Type', value: 0, change: 0, color: '#DC2626' },
+    { id: 'skeleton-3', name: 'Skeleton 3', type: 'Skeleton Type', value: 0, change: 0, color: '#DC2626' },
+  ];
+
   return (
     <Container variant="secondaryPage">
       <Header
@@ -470,8 +489,8 @@ export default function PatrimonyScreen() {
             onViewChange={handleUserViewChange}
             showSelector={showSelector}
             onToggle={() => setShowSelector(!showSelector)}
-            myLabel={user ? extractInitialsFromAuth0User(user) : 'U'} // Iniciales reales
-            partnerLabel="P" // Placeholder para partner
+            myLabel={user ? extractInitialsFromAuth0User(user) : 'U'}
+            partnerLabel="P"
             enabled={false}
           />
         }
@@ -493,27 +512,53 @@ export default function PatrimonyScreen() {
         <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
           <PatrimonySummary
             totalNetWorth={netWorth}
-            totalAssets={totalAssets}     // Siempre con valor real
-            totalLiabilities={totalLiabilities} // Siempre con valor real
+            totalAssets={totalAssets} 
+            totalLiabilities={totalLiabilities}
             variation={netWorth}
             variationPercentage={0}
             currentView={ownerView}
           />
           <Container variant="content" className="mb-4 mt-4">
-            <SegmentedControl
-              options={TIME_RANGES.LABELS.map(label => ({ label, value: label }))}
-              value={currentTimeRangeLabel}
-              onChange={val => handleTimeRangeChange(val as keyof typeof TIME_RANGES.MAPPING)}
-            />
+            {showDateSkeleton ? (
+              <SkeletonBase
+                rows={1}
+                rowHeight={56}
+                rowWidth={320}
+                height={56}
+                width={320}
+                x={0}
+                y={0}
+                borderRadius={16}
+              />
+            ) : (
+              <SegmentedControl
+                options={TIME_RANGES.LABELS.map(label => ({ label, value: label }))}
+                value={currentTimeRangeLabel}
+                onChange={val => handleTimeRangeChange(val as keyof typeof TIME_RANGES.MAPPING)}
+              />
+            )}
           </Container>
           <AreaChart />
             <Container variant="content" className="mb-4">
-              <SearchBar
-                placeholder={LABELS.PATRIMONY.SEARCH_PLACEHOLDER}
-                value={searchQuery}
-                onChangeText={setSearchQuery}
-              />
-              </Container>
+              {showSearchSkeleton ? (
+                <SkeletonBase
+                  rows={1}
+                  rowHeight={56}
+                  rowWidth={320}
+                  height={56}
+                  width={320}
+                  x={0}
+                  y={0}
+                  borderRadius={16}
+                />
+              ) : (
+                <SearchBar
+                  placeholder={LABELS.PATRIMONY.SEARCH_PLACEHOLDER}
+                  value={searchQuery}
+                  onChangeText={setSearchQuery}
+                />
+              )}
+            </Container>
           <Container variant="content">
             <View style={listItemStyles.cardContainer}>
               <Tabs
@@ -531,16 +576,17 @@ export default function PatrimonyScreen() {
               </View>
               
               {isLoadingData ? (
-                <View style={{ padding: 40, alignItems: 'center' }}>
-                  <ActivityIndicator size="large" color="#007AFF" />
-                  <Text style={{ 
-                    color: Colors.gray[600], 
-                    fontSize: 16, 
-                    fontFamily: 'Poppins-regular',
-                    marginTop: 12
-                  }}>
-                    Cargando {activeTab === 'assets' ? 'activos' : 'pasivos'}...
-                  </Text>
+                <View style={{ padding: 24, alignItems: 'center' }}>
+                  <SkeletonBase
+                    rows={6}
+                    rowHeight={48}
+                    rowWidth={320}
+                    height={320}
+                    width={340}
+                    x={10}
+                    y={10}
+                    borderRadius={16}
+                  />
                 </View>
               ) : currentError ? (
                 <View style={{ padding: 40, alignItems: 'center' }}>
@@ -586,6 +632,17 @@ export default function PatrimonyScreen() {
                       : 'Agrega tus pasivos para tener una visión completa de tu patrimonio'
                     }
                   </Text>
+                </View>
+              ) : activeTab === 'liabilities' && showLiabilitiesSkeleton ? (
+                // Skeleton específico para pasivos
+                <View>
+                  {skeletonLiabilities.map((liability, index) => (
+                    <LiabilityCard
+                      key={liability.id}
+                      liability={liability}
+                      showSkeleton={true}
+                    />
+                  ))}
                 </View>
               ) : (
                 <ListItem

@@ -1,4 +1,4 @@
-// hooks/patrimony/useNetworth.ts
+
 import { useState, useEffect } from 'react';
 import { getNetworth, NetworthResponse } from '@/services/patrimony/get-networth';
 import { useAuth } from '@/providers/AuthProvider';

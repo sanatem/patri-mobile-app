@@ -2,13 +2,85 @@ import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Liability } from '@/types';
 import Colors from '@/constants/Colors';
+import { SkeletonBase } from '@/components/ui/SkeletonBase';
 
 interface LiabilityCardProps {
   liability: Liability;
+  showSkeleton?: boolean;
 }
 
-const LiabilityCard: React.FC<LiabilityCardProps> = ({ liability }) => {
+const LiabilityCard: React.FC<LiabilityCardProps> = ({ liability, showSkeleton = false }) => {
   const isPositive = liability.change < 0;
+
+  if (showSkeleton) {
+    return (
+      <View className="flex-row justify-between items-center py-4 px-4 border-b" style={{ borderBottomColor: Colors.primary[100] }}>
+        <View className="flex-row items-center">
+          {/* Skeleton para el icono */}
+          <SkeletonBase
+            rows={1}
+            rowHeight={40}
+            rowWidth={40}
+            height={40}
+            width={40}
+            x={0}
+            y={0}
+            borderRadius={8}
+          />
+
+          <View className="ml-3">
+            {/* Skeleton para el título */}
+            <SkeletonBase
+              rows={1}
+              rowHeight={16}
+              rowWidth={120}
+              height={16}
+              width={120}
+              x={0}
+              y={0}
+              borderRadius={4}
+            />
+            {/* Skeleton para el subtítulo */}
+            <SkeletonBase
+              rows={1}
+              rowHeight={14}
+              rowWidth={80}
+              height={14}
+              width={80}
+              x={0}
+              y={20}
+              borderRadius={4}
+            />
+          </View>
+        </View>
+
+        <View className="items-end">
+          {/* Skeleton para el valor */}
+          <SkeletonBase
+            rows={1}
+            rowHeight={16}
+            rowWidth={80}
+            height={16}
+            width={80}
+            x={0}
+            y={0}
+            borderRadius={4}
+          />
+          {/* Skeleton para el badge */}
+          <SkeletonBase
+            rows={1}
+            rowHeight={20}
+            rowWidth={50}
+            height={20}
+            width={50}
+            x={0}
+            y={20}
+            borderRadius={10}
+          />
+        </View>
+      </View>
+    );
+  }
 
   return (
     <TouchableOpacity className="flex-row justify-between items-center py-4 px-4 border-b" style={{ borderBottomColor: Colors.primary[100] }}>

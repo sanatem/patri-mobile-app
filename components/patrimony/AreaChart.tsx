@@ -1,4 +1,5 @@
-import { useMemo, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { SkeletonBase } from '@/components/ui/SkeletonBase';
 import { View, ActivityIndicator, Text } from 'react-native';
 import { useChartRangeStore } from '@/store/chartRangeStore';
 import { InteractiveChart } from '@/components/ui/InteractiveChart';
@@ -6,11 +7,13 @@ import { useNetworthHistoric } from '@/hooks/patrimony/useNetworthHistoric';
 import { areaChartCardStyles } from '@/styles/patrimony/AreaChartCard.styles';
 import Colors from '@/constants/Colors';
 import data from '@/data/mock/patrimony-daily.json';
+import { CHART_CONFIG, CHART_STYLES } from '@/constants/ChartConfig';
+import { useChartDimensions } from '@/hooks/chart/useChartDimensions';
 
 export default function AreaChart() {
   const { rangeSize } = useChartRangeStore();
+  const { chartWidth } = useChartDimensions(CHART_CONFIG.margin);
 
-  // Fetch all data without date filters
   const { 
     historicData, 
     loading, 
@@ -18,19 +21,26 @@ export default function AreaChart() {
     loadMore,
     hasMore 
   } = useNetworthHistoric();
-
-  // Load more data if available
+    
   useEffect(() => {
     if (hasMore) {
-      console.log('📊 AreaChart - Loading more data');
       loadMore();
     }
   }, [hasMore, loadMore]);
 
-  // Filter data based on selected range
-  const filteredChartData = useMemo(() => {
+  const filteredChartData = (() => {
     if (!historicData?.historic.timeline || historicData.historic.timeline.length === 0) {
       return [];
+    }
+
+    if (rangeSize === 'all') {
+      const allData = historicData.historic.timeline
+        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+      return allData.map(entry => ({
+        x: entry.date,
+        y: entry.value
+      }));
     }
 
     const today = new Date();
@@ -46,69 +56,72 @@ export default function AreaChart() {
         startDate.setMonth(today.getMonth() - 6);
         break;
       case '1y':
-      default: // 'all' will behave the same as '1y'
+      default:
         startDate.setFullYear(today.getFullYear() - 1);
         break;
     }
-
-    console.log('📊 AreaChart - Filtering data:', {
-      range: rangeSize,
-      startDate: startDate.toISOString(),
-      totalDataPoints: historicData.historic.timeline.length
-    });
 
     const filteredData = historicData.historic.timeline
       .filter(entry => {
         const entryDate = new Date(entry.date);
         return entryDate >= startDate && entryDate <= today;
       })
-      // Ordenar por fecha ascendente (más antiguo a más reciente)
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-
-    console.log('📊 AreaChart - Filtered results:', {
-      totalFiltered: filteredData.length,
-      firstDate: filteredData[0]?.date,
-      lastDate: filteredData[filteredData.length - 1]?.date,
-      order: 'oldest to newest (left to right)'
-    });
 
     return filteredData.map(entry => ({
       x: entry.date,
       y: entry.value
     }));
-  }, [historicData, rangeSize]);
+  })();
 
   const formatPatrimonyValue = (value: number): string => {
     return `${value.toLocaleString('es-CL')}`;
   };
 
-  // Loading state
-  if (loading && (!historicData || historicData.historic.timeline.length === 0)) {
+  const [showChart, setShowChart] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowChart(true), 3000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (!showChart) {
     return (
-      <View style={[areaChartCardStyles.card, { 
-        justifyContent: 'center', 
-        alignItems: 'center',
-        minHeight: 200
-      }]}>
-        <ActivityIndicator size="large" color={Colors.primary[500]} />
-        <Text style={{
-          marginTop: 10,
-          fontSize: 14,
-          color: Colors.gray[600]
-        }}>
-          Cargando gráfico...
-        </Text>
+      <View style={[CHART_STYLES.defaultCardStyle, areaChartCardStyles.card]}>
+        <SkeletonBase
+          rows={1}
+          rowHeight={CHART_CONFIG.height}
+          rowWidth={chartWidth}
+          height={CHART_CONFIG.height + 20}
+          width={chartWidth + (2 * CHART_CONFIG.margin)}
+          x={CHART_CONFIG.margin}
+          y={20}
+          borderRadius={16}
+        />
       </View>
     );
   }
 
-  // Error state or no data - use mock data as fallback
   if (error || !historicData || historicData.historic.timeline.length === 0) {
-    console.log('📊 AreaChart - Using mock data:', { 
-      error, 
-      hasData: !!historicData,
-      dataLength: historicData?.historic.timeline.length || 0 
-    });
+    if (rangeSize === 'all') {
+      const allMockData = data
+        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+      return (
+        <InteractiveChart
+          data={allMockData.map(entry => ({
+            x: entry.date,
+            y: entry.value
+          }))}
+          title=""
+          formatValue={formatPatrimonyValue}
+          gradientId="patrimonyGradient"
+          showDynamicColors={true}
+          showDateLabels={true}
+          cardStyle={areaChartCardStyles.card}
+        />
+      );
+    }
     
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -122,7 +135,7 @@ export default function AreaChart() {
         startDate.setMonth(today.getMonth() - 6);
         break;
       case '1y':
-      default: // 'all' will behave the same as '1y'
+      default:
         startDate.setFullYear(today.getFullYear() - 1);
         break;
     }
@@ -132,15 +145,7 @@ export default function AreaChart() {
         const entryDate = new Date(entry.date);
         return entryDate >= startDate && entryDate <= today;
       })
-      // Ordenar por fecha ascendente (más antiguo a más reciente)
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-
-    console.log('📊 AreaChart - Mock data filtered:', {
-      total: filteredMockData.length,
-      firstDate: filteredMockData[0]?.date,
-      lastDate: filteredMockData[filteredMockData.length - 1]?.date,
-      order: 'oldest to newest (left to right)'
-    });
 
     return (
       <InteractiveChart
@@ -158,7 +163,6 @@ export default function AreaChart() {
     );
   }
 
-  // Render chart with filtered data
   return (
     <InteractiveChart
       data={filteredChartData}
