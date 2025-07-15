@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Animated, StyleSheet } from 'react-native';
 import { ChevronDown, TrendingUp, TrendingDown } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import { useNetworth } from '@/hooks/patrimony/useNetworth';
 import { useNetworthHistoric } from '@/hooks/patrimony/useNetworthHistoric';
+import { SkeletonBase } from '@/components/ui/SkeletonBase';
 
 interface PatrimonySummaryProps {
   totalNetWorth: number;
@@ -24,10 +25,42 @@ export function PatrimonySummary({
 }: PatrimonySummaryProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [rotateAnim] = useState(new Animated.Value(0));
+  const [showContent, setShowContent] = useState(false);
 
-  // ✅ USAR HOOKS PARA OBTENER DATOS REALES
   const { networthData, loading, error } = useNetworth();
-  const { historicData, loading: historicLoading } = useNetworthHistoric(); // Sin filtros para obtener variación del último mes
+  const { historicData, loading: historicLoading } = useNetworthHistoric();
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowContent(true), 3000);
+    return () => clearTimeout(timer);
+  }, []); 
+  if (loading || historicLoading || !showContent) {
+    return (
+      <View style={[styles.gradient, { alignItems: 'center', justifyContent: 'center' }]}> 
+        <View style={{
+          backgroundColor: 'white',
+          borderRadius: 24,
+          padding: 24,
+          width: 340,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.10,
+          shadowRadius: 24,
+          elevation: 10,
+        }}>
+          <SkeletonBase
+            rows={3}
+            rowHeight={24}
+            rowWidth={i => (i === 0 ? 200 : i === 1 ? 140 : 100)}
+            height={120}
+            width={300}
+            x={20}
+            y={20}
+          />
+        </View>
+      </View>
+    );
+  }
 
   const formatCurrency = (amount: number) => {
     return `$${Math.abs(amount).toLocaleString('es-CL')}`;
@@ -126,8 +159,7 @@ export function PatrimonySummary({
               <Text style={[styles.itemValue, { color: Colors.success[500] }]}>
                 +{formatCurrency(displayData.totalAssets)}
               </Text>
-            </View>
-            
+            </View> 
             <View style={styles.itemRow}>
               <View style={styles.itemLeft}>
                 <TrendingDown size={16} color={Colors.error[400]} />

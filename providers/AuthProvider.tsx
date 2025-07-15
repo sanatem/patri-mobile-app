@@ -107,9 +107,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       redirectUri,
       responseType: AuthSession.ResponseType.Token,
       scopes: ['openid', 'profile', 'email'],
-      // additionalParameters: {
-      //   audience: auth0Config.audience, // Temporalmente comentado para testing
-      // },
       usePKCE: false,
       extraParams: {
         nonce: 'nonce',

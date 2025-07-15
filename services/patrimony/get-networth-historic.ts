@@ -70,7 +70,6 @@ export async function getNetworthHistoric(
 
     const queryParams = new URLSearchParams();
     
-    // Siempre ordenar por fecha descendente (más reciente primero)
     queryParams.append('order', params.order || 'desc');
     
     if (params.start_date) {
@@ -90,17 +89,6 @@ export async function getNetworthHistoric(
     }
 
     const url = `${config.apiBaseUrl}/api/v2/networth/historic${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
-    
-    console.log('📡 getNetworthHistoric - Request:', {
-      url,
-      params: {
-        start_date: params.start_date,
-        end_date: params.end_date,
-        page: params.page,
-        per_page: params.per_page,
-        order: params.order
-      }
-    });
 
     const response = await fetch(url, {
       method: 'GET',
@@ -109,8 +97,6 @@ export async function getNetworthHistoric(
         'Content-Type': 'application/json',
       },
     });
-
-    console.log('📥 getNetworthHistoric - Response status:', response.status);
 
     if (!response.ok) {
       if (response.status === 401) {
@@ -158,19 +144,7 @@ export async function getNetworthHistoric(
 
     const data: NetworthHistoricResponse = await response.json();
     
-    console.log('✅ getNetworthHistoric - Success:', {
-      timelineEntries: data.historic.timeline.length,
-      currentPatrimony: data.historic.current_patrimony,
-      pagination: {
-        currentPage: data.historic.pagination.current_page,
-        totalPages: data.historic.pagination.total_pages,
-        hasNextPage: data.historic.pagination.has_next_page
-      },
-      dateRange: {
-        first: data.historic.timeline[0]?.date,
-        last: data.historic.timeline[data.historic.timeline.length - 1]?.date
-      }
-    });
+
     
     if ('last_month_variation' in data.historic.variation) {
       console.log('📊 getNetworthHistoric - Last month variation:', 

@@ -11,25 +11,27 @@ import {
   Linking
 } from 'react-native';
 import { 
-  Settings, 
   HelpCircle, 
   FileText, 
   Shield, 
-  Bell, 
-  CreditCard, 
-  PieChart,
   ChevronRight,
   ArrowLeft,
-  LogOut
+  LogOut,
+  Trash2,
+  X
 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
 import { useAuth } from '@/providers/AuthProvider';
+import { deleteUserAccount } from '@/services/user/delete-user';
 
 export default function MoreScreen() {
   const router = useRouter();
   const { logout, forceLogout, user, accessToken, isAuthenticated, loading } = useAuth();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
 
   const handleLogout = () => {
     Alert.alert(
@@ -66,6 +68,58 @@ export default function MoreScreen() {
         },
       ]
     );
+  };
+
+  const handleDeleteAccount = () => {
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    setShowDeleteModal(false);
+    setIsDeletingAccount(true);
+    
+    try {
+      if (!accessToken) {
+        throw new Error('No hay token de acceso disponible');
+      }
+
+      const result = await deleteUserAccount(accessToken);
+      
+      console.log('✅ Solicitud de eliminación enviada exitosamente:', result);
+      
+      setShowConfirmationModal(true);
+      
+    } catch (error) {
+      console.error('Error durante solicitud de eliminación de cuenta:', error);
+      
+      let errorMessage = 'Hubo un problema al solicitar la eliminación de tu cuenta.';
+      
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      
+      Alert.alert(
+        'Error al solicitar eliminación',
+        errorMessage,
+        [{ text: 'OK' }]
+      );
+    } finally {
+      setIsDeletingAccount(false);
+    }
+  };
+
+  const handleCloseConfirmationModal = async () => {
+    setShowConfirmationModal(false);
+    
+    try {
+      await logout();
+    } catch (logoutError) {
+      console.error('Error durante logout después de solicitar eliminación:', logoutError);
+      await forceLogout();
+    }
+    
+    router.dismissAll();
+    router.replace('/auth/login');
   };
 
   const handleOpenLink = async (url: string, title: string) => {
@@ -130,7 +184,7 @@ export default function MoreScreen() {
           styles.iconContainer,
           item.isDestructive && styles.destructiveIconContainer
         ]}>
-          <item.icon size={22} color={item.isDestructive ? Colors.error[500] : Colors.primary[500]} />
+          <item.icon size={22} color={item.isDestructive ? Colors.secondary[500] : Colors.primary[500]} />
         </View>
         <View style={styles.textContainer}>
           <Text style={[
@@ -163,25 +217,105 @@ export default function MoreScreen() {
           </View>
           <Text style={styles.headerSubtitle}>Configuración y herramientas adicionales</Text>
         </View>
-
         <View style={styles.menuContainer}>
           {menuItems.map(renderMenuItem)}
         </View>
-
+        <View style={styles.dangerZoneContainer}>
+          <View style={styles.dangerZoneCard}>
+            <TouchableOpacity style={styles.menuItem} onPress={handleDeleteAccount}>
+              <View style={styles.menuItemLeft}>
+                <View style={[styles.iconContainer, styles.destructiveIconContainer]}>
+                  <Trash2 size={22} color={Colors.secondary[500]} />
+                </View>
+                <View style={styles.textContainer}>
+                  <Text style={[styles.menuTitle, styles.destructiveTitle]}>
+                    Eliminar cuenta
+                  </Text>
+                  <Text style={styles.menuSubtitle}>
+                    Eliminar permanentemente tu cuenta y todos tus datos
+                  </Text>
+                </View>
+              </View>
+              <ChevronRight size={20} color={Colors.gray[400]} />
+            </TouchableOpacity>
+          </View>
+        </View>
         <View style={styles.footer}>
           <Text style={styles.versionText}>Versión 1.0.0</Text>
         </View>
       </ScrollView>
-      
       <Modal
-        visible={isLoggingOut}
+        visible={showDeleteModal}
+        transparent={true}
+        animationType="fade"
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalHeader}>
+              <View style={[styles.modalIconContainer, styles.destructiveIconContainer]}>
+                <Trash2 size={32} color={Colors.secondary[500]} />
+              </View>
+              <Text style={styles.modalTitle}>Eliminar cuenta</Text>
+              <Text style={styles.modalSubtitle}>
+                ¿Estás seguro que deseas eliminar tu cuenta? Esta acción no se puede deshacer y perderás todos tus datos.
+              </Text>
+            </View>
+            
+            <View style={styles.modalButtons}>
+              <TouchableOpacity 
+                style={styles.cancelButton}
+                onPress={() => setShowDeleteModal(false)}
+              >
+                <Text style={styles.cancelButtonText}>Cancelar</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={styles.deleteButton}
+                onPress={handleConfirmDelete}
+              >
+                <Text style={styles.deleteButtonText}>Eliminar cuenta</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+      <Modal
+        visible={showConfirmationModal}
+        transparent={true}
+        animationType="fade"
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.confirmationModalContainer}>
+            <TouchableOpacity 
+              style={styles.closeButton}
+              onPress={handleCloseConfirmationModal}
+            >
+              <X size={24} color={Colors.gray[500]} />
+            </TouchableOpacity>
+            
+            <View style={styles.confirmationContent}>
+              <View style={[styles.modalIconContainer, { backgroundColor: Colors.success[100] }]}>
+                <Text style={[styles.checkmarkIcon, { color: Colors.success[500] }]}>✓</Text>
+              </View>
+              <Text style={styles.confirmationTitle}>Solicitud procesada</Text>
+              <Text style={styles.confirmationSubtitle}>
+                Tu solicitud de eliminación de cuenta será procesada dentro de los siguientes días hábiles.
+              </Text>
+            </View>
+          </View>
+        </View>
+      </Modal>
+      <Modal
+        visible={isLoggingOut || isDeletingAccount}
         transparent={true}
         animationType="fade"
       >
         <View style={styles.loadingOverlay}>
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color={Colors.primary[500]} />
-            <Text style={styles.loadingText}>Cerrando sesión...</Text>
+            <Text style={styles.loadingText}>
+              {isDeletingAccount ? 'Enviando solicitud...' : 'Cerrando sesión...'}
+            </Text>
           </View>
         </View>
       </Modal>
@@ -238,6 +372,32 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
+  dangerZoneContainer: {
+    marginTop: 20,
+    marginHorizontal: 16,
+  },
+  dangerZoneTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.secondary[500],
+    marginBottom: 8,
+    marginLeft: 4,
+  },
+  dangerZoneCard: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    paddingVertical: 8,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: Colors.secondary[50],
+  },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -262,7 +422,7 @@ const styles = StyleSheet.create({
     marginRight: 16,
   },
   destructiveIconContainer: {
-    backgroundColor: '#fef2f2',
+    backgroundColor: Colors.secondary[50],
   },
   textContainer: {
     flex: 1,
@@ -274,7 +434,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   destructiveTitle: {
-    color: Colors.error[600],
+    color: Colors.secondary[500],
   },
   menuSubtitle: {
     fontSize: 14,
@@ -287,6 +447,132 @@ const styles = StyleSheet.create({
   versionText: {
     fontSize: 14,
     color: '#9ca3af',
+  },
+  // Estilos para modales
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalContainer: {
+    backgroundColor: 'white',
+    borderRadius: 16,
+    padding: 24,
+    marginHorizontal: 20,
+    width: '90%',
+    maxWidth: 400,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  confirmationModalContainer: {
+    backgroundColor: 'white',
+    borderRadius: 16,
+    padding: 24,
+    marginHorizontal: 20,
+    width: '90%',
+    maxWidth: 400,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 8,
+    position: 'relative',
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    zIndex: 1,
+    padding: 4,
+  },
+  modalHeader: {
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  confirmationContent: {
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  modalIconContainer: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: Colors.secondary[50],
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  checkmarkIcon: {
+    fontSize: 32,
+    fontWeight: 'bold',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#1f2937',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  confirmationTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#1f2937',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  modalSubtitle: {
+    fontSize: 16,
+    color: '#6b7280',
+    textAlign: 'center',
+    lineHeight: 22,
+  },
+  confirmationSubtitle: {
+    fontSize: 16,
+    color: '#6b7280',
+    textAlign: 'center',
+    lineHeight: 22,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  cancelButton: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: Colors.gray[300],
+    backgroundColor: 'white',
+    alignItems: 'center',
+  },
+  cancelButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: Colors.gray[700],
+  },
+  deleteButton: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    backgroundColor: Colors.secondary[500],
+    alignItems: 'center',
+  },
+  deleteButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: 'white',
   },
   loadingOverlay: {
     flex: 1,
