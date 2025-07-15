@@ -16,7 +16,8 @@
           "remote-notification"
         ],
         "ITSAppUsesNonExemptEncryption": false,
-        "NSCameraUsageDescription": "Esta app necesita acceso a la cámara para que los usuarios puedan escanear documentos o tomar fotografías."
+        "NSCameraUsageDescription": "Esta app necesita acceso a la cámara para que los usuarios puedan escanear documentos o tomar fotografías.",
+        "NSUserTrackingUsageDescription": "Usamos esta información para ofrecerte anuncios personalizados y mejorar tu experiencia en la app."
       },
       "entitlements": {
         "aps-environment": "production",
@@ -52,6 +53,12 @@
           "backgroundColor": "#ff6501"
         }
       ],
+      [
+        "expo-tracking-transparency",
+        {
+          "userTrackingPermission": "Usamos esta información para ofrecerte anuncios personalizados y mejorar tu experiencia en la app."
+        }
+      ],
       "expo-font",
       "expo-web-browser",
       [
@@ -59,7 +66,8 @@
         {
           "domain": "auth.patrimore.com"
         }
-      ]
+      ],
+      "expo-tracking-transparency"
     ],
     "experiments": {
       "typedRoutes": true
