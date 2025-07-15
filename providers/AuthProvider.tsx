@@ -55,7 +55,7 @@ const getRedirectUri = () => {
     });
   } else {
     return makeRedirectUri({
-      scheme: 'com.patrimore.app',
+      scheme: 'com.patrimore.patrimore',
       path: 'auth0-callback'
     });
   }
@@ -303,7 +303,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setError(null);
     try {
       const authUrl = new URL(`${auth0Domain}/authorize`);
-      const params = new URLSearchParams({
+      const params: Record<string, string | undefined> = {
         client_id: auth0ClientId,
         redirect_uri: redirectUri,
         response_type: 'token',
@@ -318,16 +318,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         is_mobile: 'true',
         device: 'mobile',
         platform: 'mobile',
-   
         desktop: 'false',
         responsive: 'true',
         touch: 'true',
         viewport: 'mobile'
-      });
-      authUrl.search = params.toString();
+      };
+
+      const filteredParams = Object.fromEntries(
+        Object.entries(params).filter(([, value]) => value !== undefined)
+      ) as Record<string, string>;
 
       const result = await WebBrowser.openAuthSessionAsync(
-        authUrl.toString(),
+        `${authUrl}?${new URLSearchParams(filteredParams).toString()}`,
         redirectUri,
         {
           preferEphemeralSession: true,
@@ -373,7 +375,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setError(null);
     try {
       const authUrl = new URL(`${auth0Domain}/authorize`);
-      const params = new URLSearchParams({
+      const params: Record<string, string | undefined> = {
         client_id: auth0ClientId,
         redirect_uri: redirectUri,
         response_type: 'token',
@@ -392,8 +394,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         responsive: 'true',
         touch: 'true',
         viewport: 'mobile'
-      });
-      authUrl.search = params.toString();
+      };
+
+      const filteredParams = Object.fromEntries(
+        Object.entries(params).filter(([, value]) => value !== undefined)
+      ) as Record<string, string>;
+
+      authUrl.search = new URLSearchParams(filteredParams).toString();
 
       const result = await WebBrowser.openAuthSessionAsync(
         authUrl.toString(),
