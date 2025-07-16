@@ -1,7 +1,5 @@
-import { envConfig } from './env.config';
-
 export const auth0Config = {
-  domain: envConfig.auth0Domain,
-  clientId: envConfig.auth0ClientId,
-  audience: envConfig.auth0Audience,
+  domain: process.env.EXPO_PUBLIC_AUTH0_DOMAIN,
+  clientId: process.env.EXPO_PUBLIC_AUTH0_CLIENT_ID,
+  audience: process.env.EXPO_PUBLIC_STAGING_AUDIENCE_API,
 }; 
