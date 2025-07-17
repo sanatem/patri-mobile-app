@@ -36,3 +36,5 @@ config/environment.ts
 
 # typescript
 *.tsbuildinfo
+
+android/
