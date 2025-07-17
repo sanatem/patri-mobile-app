@@ -49,7 +49,7 @@ const auth0Domain = `https://${auth0Config.domain}`;
 const getRedirectUri = () => {
   if (__DEV__) {
     return makeRedirectUri({
-      scheme: 'exp',
+      scheme: 'com.patrimore.patrimore',
       path: 'auth0-callback',
       preferLocalhost: false
     });
