@@ -70,7 +70,7 @@ export default function ATTPermissionScreen() {
                 className="text-base font-regular text-center leading-6"
                 style={{ color: Colors.primary[500] }}
               >
-                Para brindarte la mejor experiencia posible, Patrimore solicita permiso para personalizar el contenido y los anuncios que ves mediante recopilación de datos.
+                Para brindarte una mejor experiencia, Patrimore solicita permisos para recopilar tus datos para personalizar el contenido y los anuncios que ves.
               </Text>
             </View>
             <View className="mb-6 mt-5">
