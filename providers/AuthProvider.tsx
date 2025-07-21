@@ -290,8 +290,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const logoutUrl = `${auth0Domain}/v2/logout?client_id=${auth0ClientId}&returnTo=${encodeURIComponent(redirectUri)}`;
       await WebBrowser.openAuthSessionAsync(logoutUrl, redirectUri);
 
-      // Logout de RevenueCat
-      await Purchases.logOut();
+      try {
+        await Purchases.logOut();
+      } catch (error) {
+        console.warn('RevenueCat logout failed:', error);
+      }
     } catch (error) {
       throw error;
     } finally {
@@ -474,7 +477,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         await AsyncStorage.multiRemove(authKeys);
       }
       // Logout de RevenueCat
-      await Purchases.logOut();
+      try {
+        await Purchases.logOut();
+      } catch (error) {
+        console.warn('RevenueCat logout failed:', error);
+      }
     } catch (error) {
       setUser(null);
       setAccessToken(null);
