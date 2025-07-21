@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, Text, StyleSheet, Dimensions, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, Animated } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import Colors from '@/constants/Colors';
 import { budgetService } from '@/services/budget/get-budget';
+import { SkeletonBase } from '@/components/ui/SkeletonBase';
 
 interface BudgetChartProps {
   selectedMonth: string;
@@ -28,6 +29,19 @@ const BudgetChart: React.FC<BudgetChartProps> = ({
   const chartSize = Math.min(screenWidth - 80, 280);
   const center = chartSize / 2;
   const radius = (chartSize / 2) - 30;
+  const fadeAnim = React.useRef(new Animated.Value(0)).current;
+
+  React.useEffect(() => {
+    if (!isLoading) {
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 400,
+        useNativeDriver: true,
+      }).start();
+    } else {
+      fadeAnim.setValue(0);
+    }
+  }, [isLoading]);
 
   const formatCurrency = (amount: number) => {
     return amount.toLocaleString('es-CL');
@@ -54,9 +68,31 @@ const BudgetChart: React.FC<BudgetChartProps> = ({
   if (isLoading) {
     return (
       <View style={[styles.container, { minHeight: chartSize }]}>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={Colors.primary[500]} />
-          <Text style={styles.loadingText}>Cargando datos...</Text>
+        <View style={[styles.chartContainer, { width: chartSize, height: chartSize }]}>
+          <SkeletonBase
+            width={chartSize}
+            height={chartSize}
+            x={0}
+            y={0}
+            rows={1}
+            rowHeight={chartSize}
+            rowWidth={chartSize}
+            borderRadius={chartSize / 2}
+            style={{ borderRadius: chartSize / 2 }}
+          />
+          <View style={styles.centerContent}>
+            <SkeletonBase
+              width={140}
+              height={60}
+              x={0}
+              y={0}
+              rows={2}
+              rowHeight={26}
+              rowWidth={140}
+              rowSpacing={4}
+              borderRadius={4}
+            />
+          </View>
         </View>
       </View>
     );
@@ -65,7 +101,7 @@ const BudgetChart: React.FC<BudgetChartProps> = ({
   // ✅ ESTADO SIN DATOS
   if (!hasRealData || (totalIncome === 0 && totalExpenses === 0)) {
     return (
-      <View style={[styles.container, { minHeight: chartSize }]}>
+      <Animated.View style={[styles.container, { minHeight: chartSize, opacity: fadeAnim }]}>
         <View style={styles.emptyContainer}>
           <View style={styles.emptyChart}>
             <Svg width={chartSize} height={chartSize}>
@@ -86,7 +122,7 @@ const BudgetChart: React.FC<BudgetChartProps> = ({
             </View>
           </View>
         </View>
-      </View>
+      </Animated.View>
     );
   }
 
@@ -134,7 +170,7 @@ const BudgetChart: React.FC<BudgetChartProps> = ({
   const arcs = createArcs();
 
   return (
-    <View style={styles.container}>
+    <Animated.View style={[styles.container, { opacity: fadeAnim }]}>
       <View style={[styles.chartContainer, { width: chartSize, height: chartSize }]}>
         <Svg width={chartSize} height={chartSize}>
           {/* Círculo base */}
@@ -164,8 +200,7 @@ const BudgetChart: React.FC<BudgetChartProps> = ({
             />
           ))}
         </Svg>
-        
-        {/* ✅ Número central mantiene color primary */}
+      
         <View style={styles.centerContent}>
           <Text style={[styles.centerAmount, { color: Colors.primary[500] }]}>
             {getBalanceText()}
@@ -178,7 +213,7 @@ const BudgetChart: React.FC<BudgetChartProps> = ({
           </Text>
         </View>
       </View>
-    </View>
+    </Animated.View>
   );
 };
 
@@ -212,17 +247,6 @@ const styles = StyleSheet.create({
     color: Colors.gray[500],
     textAlign: 'center',
     lineHeight: 16,
-  },
-  loadingContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 40,
-  },
-  loadingText: {
-    marginTop: 10,
-    fontSize: 14,
-    fontFamily: 'Poppins-Regular',
-    color: Colors.gray[600],
   },
   emptyContainer: {
     alignItems: 'center',

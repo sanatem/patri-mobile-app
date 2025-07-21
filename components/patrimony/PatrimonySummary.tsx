@@ -41,7 +41,7 @@ export function PatrimonySummary({
           backgroundColor: 'white',
           borderRadius: 24,
           padding: 24,
-          width: 340,
+          width: 375,
           shadowColor: '#000',
           shadowOffset: { width: 0, height: 4 },
           shadowOpacity: 0.10,
@@ -51,7 +51,7 @@ export function PatrimonySummary({
           <SkeletonBase
             rows={3}
             rowHeight={24}
-            rowWidth={i => (i === 0 ? 200 : i === 1 ? 140 : 100)}
+            rowWidth={i => (i === 0 ? 250 : i === 1 ? 160 : 130)}
             height={120}
             width={300}
             x={20}
@@ -63,10 +63,16 @@ export function PatrimonySummary({
   }
 
   const formatCurrency = (amount: number) => {
+    if (amount === null || amount === undefined || isNaN(amount)) {
+      return '$0';
+    }
     return `$${Math.abs(amount).toLocaleString('es-CL')}`;
   };
 
   const formatVariation = (amount: number) => {
+    if (amount === null || amount === undefined || isNaN(amount)) {
+      return '$0';
+    }
     const sign = amount >= 0 ? '+' : '-';
     return `${sign}$${Math.abs(Math.round(amount)).toLocaleString('es-CL')}`;
   };
@@ -96,16 +102,29 @@ export function PatrimonySummary({
 
   let displayData;
   if (networthData && !error && !loading) {
+    console.log('🔍 Using API data:', {
+      patrimony_value: networthData.networth.patrimony_value,
+      total_assets: networthData.networth.total_assets,
+      total_debts: networthData.networth.total_debts,
+    });
     displayData = {
-      totalNetWorth: networthData.networth.networth_value,
-      totalAssets: networthData.networth.total_assets,
-      totalLiabilities: networthData.networth.total_debts,
+      totalNetWorth: Number(networthData.networth.patrimony_value) || 0,
+      totalAssets: Number(networthData.networth.total_assets) || 0,
+      totalLiabilities: Number(networthData.networth.total_debts) || 0,
     };
   } else {
-    displayData = {
+    console.log('🔍 Using fallback data:', {
       totalNetWorth,
       totalAssets,
       totalLiabilities,
+      error,
+      loading,
+      hasNetworthData: !!networthData
+    });
+    displayData = {
+      totalNetWorth: Number(totalNetWorth) || 0,
+      totalAssets: Number(totalAssets) || 0,
+      totalLiabilities: Number(totalLiabilities) || 0,
     };
   }
 

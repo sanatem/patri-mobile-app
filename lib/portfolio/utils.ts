@@ -61,7 +61,7 @@ export function categorizeGoalsByTimeframe(goals: Goal[]): {
   const longTerm: Goal[] = [];
 
   goals.forEach(goal => {
-    const daysRemaining = getGoalTimeRemaining(goal.deadline);
+    const daysRemaining = getGoalTimeRemaining(goal.targetDate);
     
     if (daysRemaining <= 365) {
       shortTerm.push(goal);

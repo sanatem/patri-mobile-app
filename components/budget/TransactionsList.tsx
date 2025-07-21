@@ -1,9 +1,10 @@
 import React, { useMemo } from 'react';
-import { View, Text, ActivityIndicator } from 'react-native';
+import { View, Text } from 'react-native';
 import { ListItem } from '@/components/ui/ListItem';
 import { budgetService } from '@/services/budget/get-budget';
 import { FloidTransaction } from '@/services/budget/get-floid-transactions';
 import Colors from '@/constants/Colors';
+import { SkeletonBase } from '@/components/ui/SkeletonBase';
 
 interface TransactionsListProps {
   type: 'income' | 'expenses';
@@ -75,16 +76,54 @@ export default function TransactionsList({
   // ✅ ESTADO DE CARGA
   if (loading) {
     return (
-      <View style={{ padding: 20, alignItems: 'center' }}>
-        <ActivityIndicator size="large" color={Colors.primary[500]} />
-        <Text style={{ 
-          marginTop: 10,
-          fontSize: 14,
-          fontFamily: 'Poppins-Regular',
-          color: Colors.gray[600]
-        }}>
-          Cargando transacciones...
-        </Text>
+      <View style={{ padding: 20 }}>
+        {Array.from({ length: 5 }).map((_, index) => (
+          <View key={index} style={{ 
+            flexDirection: 'row', 
+            alignItems: 'center', 
+            justifyContent: 'space-between',
+            paddingVertical: 12,
+            borderBottomWidth: 1,
+            borderBottomColor: '#f3f4f6'
+          }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+              <SkeletonBase
+                width={40}
+                height={40}
+                x={0}
+                y={0}
+                rows={1}
+                rowHeight={40}
+                rowWidth={40}
+                borderRadius={20}
+                style={{ marginRight: 12 }}
+              />
+              <View style={{ flex: 1 }}>
+                <SkeletonBase
+                  width={200}
+                  height={40}
+                  x={0}
+                  y={0}
+                  rows={2}
+                  rowHeight={16}
+                  rowWidth={180}
+                  rowSpacing={4}
+                  borderRadius={4}
+                />
+              </View>
+            </View>
+            <SkeletonBase
+              width={80}
+              height={20}
+              x={0}
+              y={0}
+              rows={1}
+              rowHeight={20}
+              rowWidth={80}
+              borderRadius={4}
+            />
+          </View>
+        ))}
       </View>
     );
   }

@@ -90,22 +90,6 @@ export const FOR_YOU_CARDS = [
     title: '$89,500/mes',
     description: 'gastado en servicios básicos, encuentra formas de ahorrar ahora',
   },
-  {
-    id: '2',
-    category: 'Análisis de gastos',
-    iconColor: '#f59e0b',
-    bgColor: '#fef3c7',
-    title: '$1.250.000 típicamente',
-    description: 'profundiza en tus gastos de los últimos seis meses',
-  },
-  {
-    id: '3',
-    category: 'Ahorro',
-    iconColor: '#10b981',
-    bgColor: '#d1fae5',
-    title: 'Meta mensual',
-    description: 'establece metas de ahorro y alcanza tus objetivos financieros',
-  },
 ] as const;
 
 export const APP_CONFIG = {

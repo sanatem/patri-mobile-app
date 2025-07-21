@@ -9,6 +9,7 @@ import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { getMovementsByGoal, Movement } from '@/services/investment/portfolio/movements/get-movements';
 import { useAuth } from '@/providers/AuthProvider';
 import Colors from '@/constants/Colors';
+import { SkeletonBase } from '@/components/ui/SkeletonBase';
 
 export default function MovementsScreen() {
   const router = useRouter();
@@ -115,9 +116,55 @@ export default function MovementsScreen() {
             </TouchableOpacity>
           }
         />
-        <View className="flex-1 justify-center items-center">
-          <LoadingSpinner />
-          <Text className="text-gray-600 mt-2">Cargando movimientos...</Text>
+        <View style={{ padding: 20 }}>
+          {Array.from({ length: 5 }).map((_, index) => (
+            <View key={index} style={{ 
+              flexDirection: 'row', 
+              alignItems: 'center', 
+              paddingVertical: 18,
+              paddingHorizontal: 20,
+              backgroundColor: '#fff',
+              borderBottomWidth: 1,
+              borderBottomColor: '#f3f4f6',
+              marginBottom: 8,
+              borderRadius: 8
+            }}>
+              <SkeletonBase
+                width={20}
+                height={20}
+                x={0}
+                y={0}
+                rows={1}
+                rowHeight={20}
+                rowWidth={20}
+                borderRadius={10}
+                style={{ marginRight: 12 }}
+              />
+              <View style={{ flex: 1, marginRight: 12 }}>
+                <SkeletonBase
+                  width={200}
+                  height={40}
+                  x={0}
+                  y={0}
+                  rows={2}
+                  rowHeight={20}
+                  rowWidth={200}
+                  rowSpacing={4}
+                  borderRadius={4}
+                />
+              </View>
+              <SkeletonBase
+                width={80}
+                height={20}
+                x={0}
+                y={0}
+                rows={1}
+                rowHeight={20}
+                rowWidth={80}
+                borderRadius={4}
+              />
+            </View>
+          ))}
         </View>
       </Container>
     );

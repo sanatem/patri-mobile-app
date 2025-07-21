@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { View, ActivityIndicator, Text } from 'react-native';
+import { View, Text } from 'react-native';
 import FreePlanIndex from './free-plan';
 import PaidPlanIndex from './paid-plan';
 import { useUserData } from '@/hooks/user/useUserData';
-import Colors from '@/constants/Colors';
+import { LoadingSpinner } from '@/components/ui';
 
 export default function PlanningScreen() {
   const { userData, loading, error } = useUserData();
@@ -13,23 +13,11 @@ export default function PlanningScreen() {
     setUserHasPlan(true);
   };
 
-  if (loading) {
+  // Mostrar spinner mientras carga o mientras no tengamos datos del usuario
+  if (loading || !userData) {
     return (
-      <View style={{ 
-        flex: 1, 
-        justifyContent: 'center', 
-        alignItems: 'center',
-        backgroundColor: '#f8f9fa'
-      }}>
-        <ActivityIndicator size="large" color={Colors.primary[500]} />
-        <Text style={{ 
-          marginTop: 16, 
-          fontSize: 16, 
-          color: Colors.gray[600],
-          fontFamily: 'Poppins-regular'
-        }}>
-          Cargando planificación...
-        </Text>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' }}>
+        <LoadingSpinner />
       </View>
     );
   }
@@ -45,7 +33,7 @@ export default function PlanningScreen() {
       }}>
         <Text style={{ 
           fontSize: 16, 
-          color: Colors.error[500],
+          color: '#ef4444',
           textAlign: 'center',
           marginBottom: 12,
           fontFamily: 'Poppins-medium'
@@ -54,7 +42,7 @@ export default function PlanningScreen() {
         </Text>
         <Text style={{ 
           fontSize: 14, 
-          color: Colors.gray[600],
+          color: '#6b7280',
           textAlign: 'center',
           fontFamily: 'Poppins-regular'
         }}>

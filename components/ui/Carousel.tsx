@@ -33,6 +33,7 @@ export function Carousel({
           {
             paddingLeft: horizontal ? 16 : 0,
             paddingRight: horizontal ? 16 : 0,
+            justifyContent: data.length === 1 ? 'center' : 'flex-start',
           },
           contentContainerStyle,
         ]}

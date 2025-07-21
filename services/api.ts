@@ -1,4 +1,4 @@
-// services/api.ts
+
 import config from '@/config/constants';
 
 export class ApiService {
@@ -6,7 +6,7 @@ export class ApiService {
   private accessToken: string | null = null;
 
   constructor() {
-    this.baseUrl = config.apiBaseUrl;
+    this.baseUrl = config.apiBaseUrl || '' ;
   }
 
   setAccessToken(token: string | null) {

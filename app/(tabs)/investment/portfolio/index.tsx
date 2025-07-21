@@ -15,8 +15,9 @@ import {
 import { useRouter } from 'expo-router';
 import { Header } from '@/components/ui/Header';
 import { Container } from '@/components/ui/Container';
-import { PortfolioHeader } from '@/components/investment/portfolio/PortfolioHeader';
+import { PortfolioHeader } from '@/components/investment/portfolio';
 import { ListItem } from '@/components/ui/ListItem';
+import { SkeletonBase } from '@/components/ui/SkeletonBase';
 import { 
   INVESTMENT_PORTFOLIO_DATA, 
   INVESTMENT_SAMPLE_DATA 
@@ -66,33 +67,8 @@ export default function InvestmentPortfolioScreen() {
     }) : undefined,
   }));
 
-  const allGoals = [...goals.shortTerm, ...goals.mediumTerm, ...goals.longTerm];
-  const goalsData = allGoals.map(goal => ({
-    id: goal.id,
-    title: goal.name,
-    subtitle: `Meta ${formatValue(goal.targetAmount.toString())}`,
-    value: formatValue(goal.currentAmount.toString()),
-    icon: {
-      component: <PiggyBank size={24} color={Colors.secondary[500]} />,
-      backgroundColor: Colors.secondary[50],
-      color: Colors.secondary[500],
-      text: goal.name.charAt(0)
-    },
-    onPress: () => router.push({
-      pathname: '/investment/portfolio/portfolio-details',
-      params: {
-        goalId: goal.id,
-        goalName: goal.name,
-      },
-    }),
-  }));
-
-  const handleInvestPress = () => router.push('/investment/portfolio/movements/investment');
-  const handleWithdrawPress = () => router.push('/investment/portfolio/movements/sales');
-
-  // ✅ FALLBACK SIMPLIFICADO PARA EL HEADER (SIN DECIMALES)
   const getFallbackPatrimonyValue = () => {
-    if (walletLoading) {
+    if (walletLoading || goalsLoading) {
       return '';
     }
     
@@ -104,6 +80,7 @@ export default function InvestmentPortfolioScreen() {
       return `${Math.floor(totalWalletValue).toLocaleString('es-CL')}`;
     }
     
+    const allGoals = [...goals.shortTerm, ...goals.mediumTerm, ...goals.longTerm];
     if (allGoals.length > 0) {
       const manualTotal = allGoals.reduce((sum, goal) => {
         return sum + (goal.currentAmount || 0);
@@ -117,12 +94,59 @@ export default function InvestmentPortfolioScreen() {
     return '$0';
   };
 
+  const handleInvestPress = () => router.push('/investment/portfolio/movements/investment');
+  const handleWithdrawPress = () => router.push('/investment/portfolio/movements/sales');
+
   const renderGoalsSection = () => {
     if (goalsLoading) {
       return (
-        <View className="flex-1 justify-center items-center py-8">
-          <LoadingSpinner />
-          <Text className="text-gray-500 mt-2">Cargando metas...</Text>
+        <View style={{ padding: 20 }}>
+          {Array.from({ length: 3 }).map((_, index) => (
+            <View key={index} style={{ 
+              flexDirection: 'row', 
+              alignItems: 'center', 
+              paddingVertical: 18,
+              paddingHorizontal: 20,
+              backgroundColor: '#fff',
+              borderBottomWidth: 1,
+              borderBottomColor: '#f3f4f6'
+            }}>
+              <SkeletonBase
+                width={48}
+                height={48}
+                x={0}
+                y={0}
+                rows={1}
+                rowHeight={48}
+                rowWidth={48}
+                borderRadius={12}
+                style={{ marginRight: 18 }}
+              />
+              <View style={{ flex: 1, marginRight: 12 }}>
+                <SkeletonBase
+                  width={180}
+                  height={40}
+                  x={0}
+                  y={0}
+                  rows={2}
+                  rowHeight={20}
+                  rowWidth={180}
+                  rowSpacing={4}
+                  borderRadius={4}
+                />
+              </View>
+              <SkeletonBase
+                width={80}
+                height={20}
+                x={0}
+                y={0}
+                rows={1}
+                rowHeight={20}
+                rowWidth={80}
+                borderRadius={4}
+              />
+            </View>
+          ))}
         </View>
       );
     }
@@ -136,6 +160,9 @@ export default function InvestmentPortfolioScreen() {
       );
     }
 
+    // Solo calcular allGoals y goalsData cuando no está cargando
+    const allGoals = [...goals.shortTerm, ...goals.mediumTerm, ...goals.longTerm];
+    
     if (allGoals.length === 0) {
       return (
         <View className="flex-1 justify-center items-center py-8">
@@ -148,6 +175,26 @@ export default function InvestmentPortfolioScreen() {
         </View>
       );
     }
+
+    const goalsData = allGoals.map(goal => ({
+      id: goal.id,
+      title: goal.name,
+      subtitle: `Meta ${formatValue(goal.targetAmount.toString())}`,
+      value: formatValue(goal.currentAmount.toString()),
+      icon: {
+        component: <PiggyBank size={24} color={Colors.secondary[500]} />,
+        backgroundColor: Colors.secondary[50],
+        color: Colors.secondary[500],
+        text: goal.name.charAt(0)
+      },
+      onPress: () => router.push({
+        pathname: '/investment/portfolio/portfolio-details',
+        params: {
+          goalId: goal.id,
+          goalName: goal.name,
+        },
+      }),
+    }));
 
     return (
       <ListItem

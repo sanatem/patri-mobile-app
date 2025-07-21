@@ -1,8 +1,8 @@
-
-import { View, Text, ActivityIndicator } from 'react-native';
+import { View, Text } from 'react-native';
 import Colors from '@/constants/Colors';
 import { Card } from '@/components/ui';
 import { useUserData } from '@/hooks/user/useUserData';
+import { SkeletonBase } from '@/components/ui/SkeletonBase';
 
 interface AdvisorCardProps {
   onSchedule?: () => void;
@@ -11,25 +11,75 @@ interface AdvisorCardProps {
 
 export default function AdvisorCard({ onSchedule, onChat }: AdvisorCardProps) {
   const { userData, loading, error } = useUserData();
-  const advisor = userData?.user?.advisor;
+    const advisor = userData?.user?.advisor;
   
   if (loading) {
     return (
       <Card variant="elevated" className="m-4 mb-2">
-        <View style={{ padding: 20, alignItems: 'center' }}>
-          <ActivityIndicator size="large" color={Colors.primary[500]} />
-          <Text style={{
-            marginTop: 10,
-            fontSize: 14,
-            color: Colors.gray[600]
-          }}>
-            Cargando asesor...
-          </Text>
+        <View style={{ padding: 20 }}>
+          <View className="flex-row mb-4">
+            <SkeletonBase
+              width={64}
+              height={64}
+              x={0}
+              y={0}
+              rows={1}
+              rowHeight={64}
+              rowWidth={64}
+              borderRadius={32}
+              style={{ marginRight: 16 }}
+            />
+            <View className="flex-1 justify-center">
+              <SkeletonBase
+                width={120}
+                height={20}
+                x={0}
+                y={0}
+                rows={1}
+                rowHeight={20}
+                rowWidth={120}
+                borderRadius={4}
+                style={{ marginBottom: 8 }}
+              />
+              <SkeletonBase
+                width={180}
+                height={16}
+                x={0}
+                y={0}
+                rows={1}
+                rowHeight={16}
+                rowWidth={180}
+                borderRadius={4}
+                style={{ marginBottom: 4 }}
+              />
+              <SkeletonBase
+                width={140}
+                height={14}
+                x={0}
+                y={0}
+                rows={1}
+                rowHeight={14}
+                rowWidth={140}
+                borderRadius={4}
+              />
+            </View>
+          </View>
+          
+          <SkeletonBase
+            width={280}
+            height={16}
+            x={0}
+            y={0}
+            rows={3}
+            rowHeight={16}
+            rowWidth={i => (i === 0 ? 280 : i === 1 ? 250 : 200)}
+            borderRadius={4}
+          />
         </View>
       </Card>
     );
   }
-
+  
   if (error || !advisor) {
     return (
       <Card variant="elevated" className="m-4 mb-2">
