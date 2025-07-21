@@ -4,6 +4,7 @@ import * as AuthSession from 'expo-auth-session';
 import { makeRedirectUri } from 'expo-auth-session';
 import { auth0Config } from '@/config/auth0.config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Purchases from 'react-native-purchases';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -288,6 +289,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       const logoutUrl = `${auth0Domain}/v2/logout?client_id=${auth0ClientId}&returnTo=${encodeURIComponent(redirectUri)}`;
       await WebBrowser.openAuthSessionAsync(logoutUrl, redirectUri);
+
+      try {
+        await Purchases.logOut();
+      } catch (error) {
+        console.warn('RevenueCat logout failed:', error);
+      }
     } catch (error) {
       throw error;
     } finally {
@@ -469,7 +476,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         );
         await AsyncStorage.multiRemove(authKeys);
       }
-      
+      // Logout de RevenueCat
+      try {
+        await Purchases.logOut();
+      } catch (error) {
+        console.warn('RevenueCat logout failed:', error);
+      }
     } catch (error) {
       setUser(null);
       setAccessToken(null);

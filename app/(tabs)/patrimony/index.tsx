@@ -28,6 +28,8 @@ import {
 } from '@/components/ui';
 import { SkeletonBase } from '@/components/ui/SkeletonBase';
 import { useUserData } from '@/hooks/user/useUserData';
+import Purchases from 'react-native-purchases';
+import { Platform } from 'react-native';
 
 import assetsHistory from '@/data/static/assets-history.json';
 import { listItemStyles } from '@/styles/ui/ListItem.styles';
@@ -36,6 +38,57 @@ const SCREEN_HEIGHT = Dimensions.get('window').height;
 
 export default function PatrimonyScreen() {
   const { user } = useAuth();
+  
+  // RevenueCat initialization
+  useEffect(() => {
+    const setupRevenueCat = async () => {
+      try {
+        // Validate user data
+        if (!user?.backendUserId) {
+          console.warn('RevenueCat: No backend user ID available');
+          return;
+        }
+        
+        // Check if already configured to prevent multiple configurations
+        const isConfigured = await Purchases.isConfigured();
+        if (isConfigured) {
+          // Just update user ID if already configured
+          await Purchases.logIn(user.backendUserId.toString());
+          if (user.email) {
+            await Purchases.setEmail(user.email);
+          }
+          return;
+        }
+        // Get platform-specific API key
+        const apiKey = Platform.OS === 'android' 
+          ? process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_KEY
+          : Platform.OS === 'ios' 
+          ? process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY
+          : null;
+        if (!apiKey) {
+          throw new Error(`RevenueCat API key not found for platform: ${Platform.OS}`);
+        }
+        // Configure RevenueCat
+        await Purchases.configure({
+          apiKey,
+          appUserID: user.backendUserId.toString(),
+        });
+        // Set email if available
+        if (user.email) {
+          await Purchases.setEmail(user.email);
+        }
+
+        console.log('RevenueCat configured successfully');
+      } catch (error) {
+        console.error('Error inicializando RevenueCat:', error);
+      }
+    };
+
+    if (user) {
+      setupRevenueCat();
+    }
+  }, [user?.backendUserId, user?.email]);
+
   const { rangeSize, setRangeSize } = useChartRangeStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'assets' | 'liabilities'>('assets');
