@@ -17,10 +17,10 @@ import {
   InfiniteCarousel,
   KeyboardAwareContainer,
 } from '@/components/ui';
+import { SkeletonBase } from '@/components/ui/SkeletonBase';
 
-import BudgetChart from '@/components/budget/BudgetChart';
+import { BudgetChart, TransactionsList } from '@/components/budget';
 import ForYouCarousel from '@/components/common/ForYouCarousel';
-import TransactionsList from '@/components/budget/TransactionsList';
 import { budgetService } from '@/services/budget/get-budget';
 import { useFloidAccounts } from '@/hooks/budget/useFloidAccounts';
 import { useFloidTransactions } from '@/hooks/budget/useFloidTransactions';
@@ -103,7 +103,7 @@ const calculateTotalsFromFloid = (transactions: any[] | undefined, selectedMonth
 };
 
 export default function BudgetScreen() {
-  // ✅ USAR MES ACTUAL COMO DEFAULT
+
   const [selectedMonth, setSelectedMonth] = useState<MonthType>(getCurrentMonth());
   const [activeTab, setActiveTab] = useState<'income' | 'expenses'>('income');
   const [searchQuery, setSearchQuery] = useState('');
@@ -179,11 +179,7 @@ export default function BudgetScreen() {
     filteredTransactions,
     hasRealData
   } = totalsData;
-
-  // ✅ DEBUG - Ver mes seleccionado por defecto
-  console.log('🗓️ Current month default:', getCurrentMonth());
-  console.log('🗓️ Selected month:', selectedMonth);
-
+  
   const handleMonthSelect = (month: string) => {
     setSelectedMonth(month as MonthType);
   };
@@ -192,13 +188,13 @@ export default function BudgetScreen() {
     router.push('/budget/floid-screen' as any);
   };
 
-  const handleAddIngreso = () => {
-    console.log('Agregar ingreso');
-  };
+  // const handleAddIngreso = () => {
+  //   console.log('Agregar ingreso');
+  // };
 
-  const handleAddGasto = () => {
-    console.log('Agregar gasto');
-  };
+  // const handleAddGasto = () => {
+  //   console.log('Agregar gasto');
+  // };
 
   const tabs = [
     { key: 'income', label: 'Ingresos', badge: incomeCount.toString() },
@@ -248,48 +244,124 @@ export default function BudgetScreen() {
           <Container variant="content" className="py-4">
             <View className="flex-row justify-between items-center mb-2">
               <View className="flex-1 items-center text-center">
-                <Select
-                  options={monthOptions}
-                  value={selectedMonth}
-                  onSelect={handleMonthSelect}
-                />
+                {accountsLoading ? (
+                  <SkeletonBase
+                    width={280}
+                    height={56}
+                    x={0}
+                    y={0}
+                    rows={1}
+                    rowHeight={56}
+                    rowWidth={280}
+                    borderRadius={16}
+                  />
+                ) : (
+                  <Select
+                    options={monthOptions}
+                    value={selectedMonth}
+                    onSelect={handleMonthSelect}
+                  />
+                )}
               </View>
             </View>
             <BudgetChart {...budgetChartProps} />
           </Container>
           <Container variant="content" className="mt-4 mb-4">
-            <SearchBar
+            {transactionsLoading ? (
+              <SkeletonBase
+                width={280}
+                height={56}
+                x={0}
+                y={0}
+                rows={1}
+                rowHeight={56}
+                rowWidth={280}
+                borderRadius={16}
+              />
+            ) : (
+              <SearchBar
                 placeholder={activeTab === 'income' ? LABELS.BUDGET.SEARCH_INCOME_PLACEHOLDER : LABELS.BUDGET.SEARCH_EXPENSES_PLACEHOLDER}
                 value={searchQuery}
                 onChangeText={setSearchQuery}
               />
+            )}
           </Container>
           <Container variant="content" className="mb-4">
-            <View style={listItemStyles.cardContainer}>
-              <Tabs
-                tabs={tabs}
-                activeTab={activeTab}
-                onTabChange={(key) => setActiveTab(key as 'income' | 'expenses')}
-              />
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingBottom: 20, paddingTop: 12, borderBottomWidth: 1, borderBottomColor: Colors.gray[200] }}>
-                <Text style={{ color: Colors.gray[700], fontSize: 18, fontFamily: 'Poppins-medium' }}>
-                  {activeTab === 'income' ? LABELS.BUDGET.TOTAL_INCOME : LABELS.BUDGET.TOTAL_EXPENSES}
-                </Text>
-                <Text style={{ color: Colors.gray[700], fontSize: 18, fontFamily: 'Poppins-medium' }}>
-                  {activeTab === 'income' ? '+' : '-'}${Math.round(activeTab === 'income' ? totalIncome : totalExpenses).toLocaleString('es-CL')}
-                </Text>
+            {transactionsLoading ? (
+              <View style={listItemStyles.cardContainer}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 20, paddingHorizontal: 20 }}>
+                  <SkeletonBase
+                    width={80}
+                    height={20}
+                    x={0}
+                    y={0}
+                    rows={1}
+                    rowHeight={20}
+                    rowWidth={80}
+                    borderRadius={4}
+                    style={{ marginRight: 20 }}
+                  />
+                  <SkeletonBase
+                    width={80}
+                    height={20}
+                    x={0}
+                    y={0}
+                    rows={1}
+                    rowHeight={20}
+                    rowWidth={80}
+                    borderRadius={4}
+                  />
+                </View>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingBottom: 20, paddingTop: 12, borderBottomWidth: 1, borderBottomColor: Colors.gray[200] }}>
+                  <SkeletonBase
+                    width={120}
+                    height={20}
+                    x={0}
+                    y={0}
+                    rows={1}
+                    rowHeight={20}
+                    rowWidth={120}
+                    borderRadius={4}
+                  />
+                  <SkeletonBase
+                    width={100}
+                    height={20}
+                    x={0}
+                    y={0}
+                    rows={1}
+                    rowHeight={20}
+                    rowWidth={100}
+                    borderRadius={4}
+                  />
+                </View>
               </View>
-              
-              <TransactionsList 
-                type={activeTab} 
-                selectedMonth={selectedMonth} 
-                showContainer={false}
-                floidTransactions={filteredTransactions.length > 0 ? filteredTransactions : undefined}
-                searchQuery={searchQuery}
-                loading={transactionsLoading}
-                hasRealData={hasRealData && filteredTransactions.length > 0}
-              />
-            </View>
+            ) : (
+              <View style={listItemStyles.cardContainer}>
+                <Tabs
+                  tabs={tabs}
+                  activeTab={activeTab}
+                  onTabChange={(key) => setActiveTab(key as 'income' | 'expenses')}
+                />
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingBottom: 20, paddingTop: 12, borderBottomWidth: 1, borderBottomColor: Colors.gray[200] }}>
+                  <Text style={{ color: Colors.gray[700], fontSize: 18, fontFamily: 'Poppins-medium' }}>
+                    {activeTab === 'income' ? LABELS.BUDGET.TOTAL_INCOME : LABELS.BUDGET.TOTAL_EXPENSES}
+                  </Text>
+                  <Text style={{ color: Colors.gray[700], fontSize: 18, fontFamily: 'Poppins-medium' }}>
+                    {activeTab === 'income' ? '+' : '-'}${Math.round(activeTab === 'income' ? totalIncome : totalExpenses).toLocaleString('es-CL')}
+                  </Text>
+                </View>
+                
+                <TransactionsList 
+                  type={activeTab} 
+                  selectedMonth={selectedMonth} 
+                  showContainer={false}
+                  floidTransactions={filteredTransactions.length > 0 ? filteredTransactions : undefined}
+                  searchQuery={searchQuery}
+                  loading={transactionsLoading}
+                  hasRealData={hasRealData && filteredTransactions.length > 0}
+                />
+              </View>
+            )}
           </Container>
           <Container variant="content">
           <ForYouCarousel totalExpenses={totalExpenses} />

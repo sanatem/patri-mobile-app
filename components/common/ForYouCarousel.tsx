@@ -36,7 +36,6 @@ const ForYouCarousel: React.FC<ForYouCarouselProps> = ({ style, totalExpenses })
           textColor: item.iconColor,
         }}
         onPress={() => {
-          console.log('Card pressed:', item.category);
         }}
       />
     );

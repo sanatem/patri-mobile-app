@@ -1,4 +1,3 @@
-// services/patrimony/get-networth.ts
 import config from '@/config/constants';
 
 export interface AssetsBreakdown {
@@ -13,7 +12,7 @@ export interface DebtsBreakdown {
 }
 
 export interface Networth {
-  networth_value: number;
+  patrimony_value: number;
   total_assets: number;
   total_debts: number;
   assets_breakdown: AssetsBreakdown;
@@ -32,8 +31,6 @@ export async function getNetworth(token: string): Promise<NetworthResponse | nul
     }
 
     const url = `${config.apiBaseUrl}/api/v2/networth`;
-
-    console.log('📡 Fetching networth data from:', url);
 
     const response = await fetch(url, {
       method: 'GET',
@@ -61,17 +58,9 @@ export async function getNetworth(token: string): Promise<NetworthResponse | nul
     }
 
     const data: NetworthResponse = await response.json();
-    
-    console.log('✅ Networth data loaded successfully');
-    console.log('💰 Net Worth:', data.networth.networth_value.toLocaleString('es-CL'));
-    console.log('📊 Total Assets:', data.networth.total_assets.toLocaleString('es-CL'));
-    console.log('📊 Total Debts:', data.networth.total_debts.toLocaleString('es-CL'));
-    console.log('📊 Has Complete Data:', data.networth.has_complete_data);
-    
     return data;
 
-  } catch (error) {
-    console.error('❌ Networth Service: Error fetching networth data from API:', error);
+  } catch (error) { 
     throw error;
   }
 }

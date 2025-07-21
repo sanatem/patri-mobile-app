@@ -1,0 +1,2 @@
+export { GoalProgressChart } from './GoalProgressChart';
+ 

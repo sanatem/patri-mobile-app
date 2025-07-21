@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { InteractiveChart } from '@/components/ui/InteractiveChart';
 import { useGoalHistory } from '@/hooks/investment/useGoalHistory';
 import Colors from '@/constants/Colors';
+import { SkeletonBase } from '@/components/ui/SkeletonBase';
 
 interface GoalProgressChartProps {
   goalId: string;
@@ -68,9 +69,56 @@ export function GoalProgressChart({
   
   if (!currentAmount || !targetAmount) {
     return (
-      <View style={[styles.card, styles.loadingContainer]}>
-        <ActivityIndicator size="large" color={Colors.primary[500]} />
-        <Text style={styles.loadingText}>Preparando gráfico...</Text>
+      <View style={styles.card}>
+        <View style={{ marginBottom: 20 }}>
+          <SkeletonBase
+            width={300}
+            height={180}
+            x={0}
+            y={0}
+            rows={1}
+            rowHeight={180}
+            rowWidth={300}
+            borderRadius={16}
+          />
+        </View>
+        <View style={styles.progressContainer}>
+          <View style={styles.currentAmountContainer}>
+            <SkeletonBase
+              width={150}
+              height={20}
+              x={0}
+              y={0}
+              rows={1}
+              rowHeight={20}
+              rowWidth={150}
+              borderRadius={4}
+            />
+          </View>
+          <View style={styles.progressBarBackground}>
+            <SkeletonBase
+              width={280}
+              height={8}
+              x={0}
+              y={0}
+              rows={1}
+              rowHeight={8}
+              rowWidth={280}
+              borderRadius={4}
+            />
+          </View>
+          <SkeletonBase
+            width={250}
+            height={16}
+            x={0}
+            y={0}
+            rows={1}
+            rowHeight={16}
+            rowWidth={250}
+            borderRadius={4}
+            style={{ marginTop: 4 }}
+          />
+        </View>
       </View>
     );
   }
@@ -142,9 +190,56 @@ export function GoalProgressChart({
 
   if (loading) {
     return (
-      <View style={[styles.card, styles.loadingContainer]}>
-        <ActivityIndicator size="large" color={Colors.primary[500]} />
-        <Text style={styles.loadingText}>Cargando historial...</Text>
+      <View style={styles.card}>
+        <View style={{ marginBottom: 20 }}>
+          <SkeletonBase
+            width={300}
+            height={180}
+            x={0}
+            y={0}
+            rows={1}
+            rowHeight={180}
+            rowWidth={300}
+            borderRadius={16}
+          />
+        </View>
+        <View style={styles.progressContainer}>
+          <View style={styles.currentAmountContainer}>
+            <SkeletonBase
+              width={150}
+              height={20}
+              x={0}
+              y={0}
+              rows={1}
+              rowHeight={20}
+              rowWidth={150}
+              borderRadius={4}
+            />
+          </View>
+          <View style={styles.progressBarBackground}>
+            <SkeletonBase
+              width={280}
+              height={8}
+              x={0}
+              y={0}
+              rows={1}
+              rowHeight={8}
+              rowWidth={280}
+              borderRadius={4}
+            />
+          </View>
+          <SkeletonBase
+            width={250}
+            height={16}
+            x={0}
+            y={0}
+            rows={1}
+            rowHeight={16}
+            rowWidth={250}
+            borderRadius={4}
+            style={{ marginTop: 4 }}
+          />
+        </View>
       </View>
     );
   }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, ScrollView, TouchableOpacity, Linking } from 'react-native';
+import { View, ScrollView, Linking } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Header, Container } from '@/components/ui';
 import { SectionPlan, TopTitle } from '@/components/planning/free-plan';
@@ -25,6 +25,8 @@ export default function FreePlan({ onPurchase }: FreePlanProps) {
       );
     }
   };
+
+
 
   return (
     <View className="flex-1 bg-white">

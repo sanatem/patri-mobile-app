@@ -27,6 +27,7 @@ export function useNetworth(): UseNetworthReturn {
       setError(null);
       
       const data = await getNetworth(accessToken);
+      console.log('🔍 Hook received data:', data);
       setNetworthData(data);
     } catch (err) {
       console.error('Error loading networth data:', err);

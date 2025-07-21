@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Animated, Dimensions, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Animated, Dimensions, ActivityIndicator, RefreshControl } from 'react-native';
 import { Settings, Plus, RefreshCw } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
@@ -60,10 +60,9 @@ export default function PatrimonyScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const overlayAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(0)).current;  
-  const [showDateSkeleton, setShowDateSkeleton] = useState(true);
-  const [showSearchSkeleton, setShowSearchSkeleton] = useState(true);
-
-  const [showLiabilitiesSkeleton, setShowLiabilitiesSkeleton] = useState(true);
+  const [showSkeletons, setShowSkeletons] = useState(true);
+  const skeletonFadeAnim = useRef(new Animated.Value(1)).current;
+  const [refreshing, setRefreshing] = useState(false);
 
   const { userData, loading: userLoading } = useUserData();
 
@@ -124,6 +123,17 @@ export default function PatrimonyScreen() {
     }
   };
 
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await loadPatrimonyData(); 
+    } catch (error) {
+      console.error('Error during refresh:', error);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
   const extractInitialsFromAuth0User = (user: any): string => {
     try {
       const userMetadata = user['https://app.patrimore.com/user_metadata'];
@@ -162,17 +172,16 @@ export default function PatrimonyScreen() {
   }, []);
 
   useEffect(() => {
-    const timer = setTimeout(() => setShowDateSkeleton(false), 3000);
-    return () => clearTimeout(timer);
-  }, []);
+    const timer = setTimeout(() => {
+      Animated.timing(skeletonFadeAnim, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start(() => {
+        setShowSkeletons(false);
+      });
+    }, 3000);
 
-  useEffect(() => {
-    const timer = setTimeout(() => setShowSearchSkeleton(false), 3000);
-    return () => clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setShowLiabilitiesSkeleton(false), 3000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -283,7 +292,6 @@ export default function PatrimonyScreen() {
         };
       }),
       
-      // Investment properties
       ...apiAssets.assets.investment_properties.map(asset => ({
         id: asset.id.toString(),
         title: `Propiedad ${asset.location}`,
@@ -301,7 +309,6 @@ export default function PatrimonyScreen() {
         }
       })),
       
-      // Main homes
       ...apiAssets.assets.main_homes.map(asset => ({
         id: asset.id.toString(),
         title: `Casa ${asset.location}`,
@@ -410,13 +417,13 @@ export default function PatrimonyScreen() {
     router.push('/patrimony/floid-screen' as any);
   };
 
-  const handleAddActivo = () => {
-    console.log('Agregar activo');
-  };
+  // const handleAddActivo = () => {
+  //   console.log('Agregar activo');
+  // };
 
-  const handleAddPasivo = () => {
-    console.log('Agregar pasivo');
-  };
+  // const handleAddPasivo = () => {
+  //   console.log('Agregar pasivo');
+  // };
 
   const tabs = TAB_CONFIG.PATRIMONY.map(tab => ({
     ...tab,
@@ -472,12 +479,7 @@ export default function PatrimonyScreen() {
     );
   }
 
-  // Crear datos de skeleton para pasivos
-  const skeletonLiabilities = [
-    { id: 'skeleton-1', name: 'Skeleton 1', type: 'Skeleton Type', value: 0, change: 0, color: '#DC2626' },
-    { id: 'skeleton-2', name: 'Skeleton 2', type: 'Skeleton Type', value: 0, change: 0, color: '#DC2626' },
-    { id: 'skeleton-3', name: 'Skeleton 3', type: 'Skeleton Type', value: 0, change: 0, color: '#DC2626' },
-  ];
+
 
   return (
     <Container variant="secondaryPage">
@@ -509,7 +511,18 @@ export default function PatrimonyScreen() {
         }
       />
       <KeyboardAwareContainer>
-        <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+        <ScrollView 
+          className="flex-1" 
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={[Colors.primary[500]]}
+              tintColor={Colors.primary[500]}
+            />
+          }
+        >
           <PatrimonySummary
             totalNetWorth={netWorth}
             totalAssets={totalAssets} 
@@ -519,17 +532,19 @@ export default function PatrimonyScreen() {
             currentView={ownerView}
           />
           <Container variant="content" className="mb-4 mt-4">
-            {showDateSkeleton ? (
-              <SkeletonBase
-                rows={1}
-                rowHeight={56}
-                rowWidth={320}
-                height={56}
-                width={320}
-                x={0}
-                y={0}
-                borderRadius={16}
-              />
+            {showSkeletons ? (
+              <Animated.View style={{ opacity: skeletonFadeAnim }}>
+                <SkeletonBase
+                  width={380}
+                  height={56}
+                  x={0}
+                  y={0}
+                  rows={1}
+                  rowHeight={56}
+                  rowWidth={380}
+                  borderRadius={16}
+                />
+              </Animated.View>
             ) : (
               <SegmentedControl
                 options={TIME_RANGES.LABELS.map(label => ({ label, value: label }))}
@@ -540,17 +555,19 @@ export default function PatrimonyScreen() {
           </Container>
           <AreaChart />
             <Container variant="content" className="mb-4">
-              {showSearchSkeleton ? (
-                <SkeletonBase
-                  rows={1}
-                  rowHeight={56}
-                  rowWidth={320}
-                  height={56}
-                  width={320}
-                  x={0}
-                  y={0}
-                  borderRadius={16}
-                />
+              {showSkeletons ? (
+                <Animated.View style={{ opacity: skeletonFadeAnim }}>
+                  <SkeletonBase
+                    width={380}
+                    height={56}
+                    x={0}
+                    y={0}
+                    rows={1}
+                    rowHeight={56}
+                    rowWidth={380}
+                    borderRadius={16}
+                  />
+                </Animated.View>
               ) : (
                 <SearchBar
                   placeholder={LABELS.PATRIMONY.SEARCH_PLACEHOLDER}
@@ -576,18 +593,52 @@ export default function PatrimonyScreen() {
               </View>
               
               {isLoadingData ? (
-                <View style={{ padding: 24, alignItems: 'center' }}>
-                  <SkeletonBase
-                    rows={6}
-                    rowHeight={48}
-                    rowWidth={320}
-                    height={320}
-                    width={340}
-                    x={10}
-                    y={10}
-                    borderRadius={16}
-                  />
-                </View>
+                <Animated.View style={{ padding: 20, opacity: skeletonFadeAnim }}>
+                  {Array.from({ length: 6 }).map((_, index) => (
+                    <View key={index} style={{ 
+                      flexDirection: 'row', 
+                      alignItems: 'center', 
+                      paddingVertical: 16, 
+                      borderBottomWidth: 1, 
+                      borderBottomColor: '#f3f4f6' 
+                    }}>
+                      <SkeletonBase
+                        width={48}
+                        height={48}
+                        x={0}
+                        y={0}
+                        rows={1}
+                        rowHeight={48}
+                        rowWidth={48}
+                        borderRadius={12}
+                        style={{ marginRight: 16 }}
+                      />
+                      <View style={{ flex: 1, marginRight: 16 }}>
+                        <SkeletonBase
+                          width={200}
+                          height={40}
+                          x={0}
+                          y={0}
+                          rows={2}
+                          rowHeight={20}
+                          rowWidth={200}
+                          rowSpacing={4}
+                          borderRadius={4}
+                        />
+                      </View>
+                      <SkeletonBase
+                        width={100}
+                        height={20}
+                        x={0}
+                        y={0}
+                        rows={1}
+                        rowHeight={20}
+                        rowWidth={100}
+                        borderRadius={4}
+                      />
+                    </View>
+                  ))}
+                </Animated.View>
               ) : currentError ? (
                 <View style={{ padding: 40, alignItems: 'center' }}>
                   <Text style={{ 
@@ -633,17 +684,53 @@ export default function PatrimonyScreen() {
                     }
                   </Text>
                 </View>
-              ) : activeTab === 'liabilities' && showLiabilitiesSkeleton ? (
-                // Skeleton específico para pasivos
-                <View>
-                  {skeletonLiabilities.map((liability, index) => (
-                    <LiabilityCard
-                      key={liability.id}
-                      liability={liability}
-                      showSkeleton={true}
-                    />
+              ) : showSkeletons ? (
+                <Animated.View style={{ padding: 20, opacity: skeletonFadeAnim }}>
+                  {Array.from({ length: 6 }).map((_, index) => (
+                    <View key={index} style={{ 
+                      flexDirection: 'row', 
+                      alignItems: 'center', 
+                      paddingVertical: 16, 
+                      borderBottomWidth: 1, 
+                      borderBottomColor: '#f3f4f6' 
+                    }}>
+                      <SkeletonBase
+                        width={48}
+                        height={48}
+                        x={0}
+                        y={0}
+                        rows={1}
+                        rowHeight={48}
+                        rowWidth={48}
+                        borderRadius={12}
+                        style={{ marginRight: 16 }}
+                      />
+                      <View style={{ flex: 1, marginRight: 16 }}>
+                        <SkeletonBase
+                          width={200}
+                          height={40}
+                          x={0}
+                          y={0}
+                          rows={2}
+                          rowHeight={20}
+                          rowWidth={200}
+                          rowSpacing={4}
+                          borderRadius={4}
+                        />
+                      </View>
+                      <SkeletonBase
+                        width={100}
+                        height={20}
+                        x={0}
+                        y={0}
+                        rows={1}
+                        rowHeight={20}
+                        rowWidth={100}
+                        borderRadius={4}
+                      />
+                    </View>
                   ))}
-                </View>
+                </Animated.View>
               ) : (
                 <ListItem
                   data={currentData}
@@ -709,8 +796,8 @@ export default function PatrimonyScreen() {
             </View>
             {[
               { label: 'Integrar datos bancarios', value: 'integrar', icon: <RefreshCw size={20} color={Colors.gray[700]} /> },
-              { label: 'Añadir activo', value: 'activo' },
-              { label: 'Añadir pasivo', value: 'pasivo' }
+              // { label: 'Añadir activo', value: 'activo' },
+              // { label: 'Añadir pasivo', value: 'pasivo' }
             ].map((option, index) => (
               <TouchableOpacity
                 key={option.value}
@@ -718,15 +805,15 @@ export default function PatrimonyScreen() {
                   paddingVertical: 16,
                   flexDirection: 'row',
                   alignItems: 'center',
-                  borderBottomWidth: index !== 2 ? 1 : 0,
+                  borderBottomWidth: 0, 
                   borderColor: '#F3F4F6',
                 }}
                 onPress={() => {
                   closeModal();
                   switch(option.value) {
                     case 'integrar': handleIntegrarDatos(); break;
-                    case 'activo': handleAddActivo(); break;
-                    case 'pasivo': handleAddPasivo(); break;
+                    // case 'activo': handleAddActivo(); break;
+                    // case 'pasivo': handleAddPasivo(); break;
                   }
                 }}
                 activeOpacity={0.7}

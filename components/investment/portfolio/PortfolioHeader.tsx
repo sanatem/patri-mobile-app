@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, Animated, StyleSheet } from 'react-native
 import Colors from '@/constants/Colors';
 import { useCash } from '@/hooks/patrimony/useCash';
 import { ChevronDown } from 'lucide-react-native';
+import { SkeletonBase } from '@/components/ui/SkeletonBase';
 
 interface PortfolioHeaderProps {
   patrimony: string;
@@ -13,6 +14,48 @@ export function PortfolioHeader({ patrimony, isLoading }: PortfolioHeaderProps) 
   const { cashData, loading: cashLoading, error } = useCash();
   const [isExpanded, setIsExpanded] = useState(false);
   const [rotateAnim] = useState(new Animated.Value(0));
+
+  // Show skeleton when loading
+  if (isLoading) {
+    return (
+      <View style={styles.card}>
+        <SkeletonBase
+          width={120}
+          height={16}
+          x={0}
+          y={0}
+          rows={1}
+          rowHeight={16}
+          rowWidth={120}
+          borderRadius={4}
+          style={{ marginBottom: 8 }}
+        />
+        <View style={styles.headerContainer}>
+          <SkeletonBase
+            width={200}
+            height={32}
+            x={0}
+            y={0}
+            rows={1}
+            rowHeight={32}
+            rowWidth={200}
+            borderRadius={4}
+            style={{ marginRight: 8 }}
+          />
+          <SkeletonBase
+            width={24}
+            height={24}
+            x={0}
+            y={0}
+            rows={1}
+            rowHeight={24}
+            rowWidth={24}
+            borderRadius={12}
+          />
+        </View>
+      </View>
+    );
+  }
 
   const getCashDisplayValue = () => {
     if (cashLoading) {

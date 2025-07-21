@@ -154,7 +154,7 @@ export default function MoreScreen() {
       title: 'Términos y Condiciones',
       subtitle: 'Políticas de uso',
       icon: FileText,
-      onPress: () => handleOpenLink('https://patrimore.com/normas-de-conducta', 'Términos y Condiciones'),
+      onPress: () => handleOpenLink('https://patrimore.com/terminos-y-condiciones', 'Términos y Condiciones'),
     },
     {
       id: '6',

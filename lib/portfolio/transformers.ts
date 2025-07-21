@@ -28,15 +28,15 @@ export function transformGoal(goal: Goal): TransformedGoal {
   
   return {
     id: goal.id,
-    title: goal.title,
+    title: goal.name,
     currentAmount: goal.currentAmount,
     targetAmount: goal.targetAmount,
     progress,
-    deadline: goal.deadline,
+    deadline: goal.targetDate,
     formattedCurrent: formatCurrency(goal.currentAmount),
     formattedTarget: formatCurrency(goal.targetAmount),
-    priority: goal.priority,
-    category: goal.category,
+    priority: 'medium',
+    category: goal.kind,
   };
 }
 
