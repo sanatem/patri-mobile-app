@@ -20,7 +20,6 @@ export default function FreePlan({ onPurchase }: FreePlanProps) {
     console.log('Card pressed:', card.title);
     
     if (card.title === 'Planes') {
-      // Abrir la página de planes en el navegador
       Linking.openURL('https://patrimore.com/planes').catch(err =>
         console.error('Error al abrir la URL:', err)
       );

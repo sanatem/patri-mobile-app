@@ -18,7 +18,7 @@ const planCardsData: PlanCardData[] = [
   {
     id: '1',
     title: 'Sesión con un experto',
-    price: '$45.000',
+    price: '$69.000',
     description: 'Una sesión enfocada para responder preguntas, evaluar decisiones y avanzar hacia tus objetivos.',
     buttonText: 'Agendar sesión',
     duration: '60 min.',
