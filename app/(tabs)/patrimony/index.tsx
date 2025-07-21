@@ -43,38 +43,52 @@ export default function PatrimonyScreen() {
   useEffect(() => {
     const setupRevenueCat = async () => {
       try {
-        // Obtener datos del usuario desde AuthProvider
-        const backendUserId = user?.backendUserId;
-        if (!backendUserId) return;
-        const androidKey = process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_KEY;
-        const iosKey = process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY;
-        if (Platform.OS === 'android') {
-          if (!androidKey) throw new Error('RevenueCat Android API key is not set');
-          await Purchases.configure({
-            apiKey: androidKey,
-            appUserID: backendUserId.toString(),
-          });
-          if (user?.email) {
-            await Purchases.setEmail(user.email);
-          }
-        } else if (Platform.OS === 'ios') {
-          if (!iosKey) throw new Error('RevenueCat iOS API key is not set');
-          await Purchases.configure({
-            apiKey: iosKey,
-            appUserID: backendUserId.toString(),
-          });
-          if (user?.email) {
-            await Purchases.setEmail(user.email);
-          }
+        // Validate user data
+        if (!user?.backendUserId) {
+          console.warn('RevenueCat: No backend user ID available');
+          return;
         }
+        
+        // Check if already configured to prevent multiple configurations
+        const isConfigured = await Purchases.isConfigured();
+        if (isConfigured) {
+          // Just update user ID if already configured
+          await Purchases.logIn(user.backendUserId.toString());
+          if (user.email) {
+            await Purchases.setEmail(user.email);
+          }
+          return;
+        }
+        // Get platform-specific API key
+        const apiKey = Platform.OS === 'android' 
+          ? process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_KEY
+          : Platform.OS === 'ios' 
+          ? process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY
+          : null;
+        if (!apiKey) {
+          throw new Error(`RevenueCat API key not found for platform: ${Platform.OS}`);
+        }
+        // Configure RevenueCat
+        await Purchases.configure({
+          apiKey,
+          appUserID: user.backendUserId.toString(),
+        });
+        // Set email if available
+        if (user.email) {
+          await Purchases.setEmail(user.email);
+        }
+
+        console.log('RevenueCat configured successfully');
       } catch (error) {
-        // Puedes manejar el error aquí si lo deseas
         console.error('Error inicializando RevenueCat:', error);
       }
     };
-    setupRevenueCat();
-  }, [user]);
-  
+
+    if (user) {
+      setupRevenueCat();
+    }
+  }, [user?.backendUserId, user?.email]);
+
   const { rangeSize, setRangeSize } = useChartRangeStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'assets' | 'liabilities'>('assets');
