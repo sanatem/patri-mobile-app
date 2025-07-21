@@ -28,6 +28,8 @@ import {
 } from '@/components/ui';
 import { SkeletonBase } from '@/components/ui/SkeletonBase';
 import { useUserData } from '@/hooks/user/useUserData';
+import Purchases from 'react-native-purchases';
+import { Platform } from 'react-native';
 
 import assetsHistory from '@/data/static/assets-history.json';
 import { listItemStyles } from '@/styles/ui/ListItem.styles';
@@ -36,6 +38,43 @@ const SCREEN_HEIGHT = Dimensions.get('window').height;
 
 export default function PatrimonyScreen() {
   const { user } = useAuth();
+  
+  // RevenueCat initialization
+  useEffect(() => {
+    const setupRevenueCat = async () => {
+      try {
+        // Obtener datos del usuario desde AuthProvider
+        const backendUserId = user?.backendUserId;
+        if (!backendUserId) return;
+        const androidKey = process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_KEY;
+        const iosKey = process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY;
+        if (Platform.OS === 'android') {
+          if (!androidKey) throw new Error('RevenueCat Android API key is not set');
+          await Purchases.configure({
+            apiKey: androidKey,
+            appUserID: backendUserId.toString(),
+          });
+          if (user?.email) {
+            await Purchases.setEmail(user.email);
+          }
+        } else if (Platform.OS === 'ios') {
+          if (!iosKey) throw new Error('RevenueCat iOS API key is not set');
+          await Purchases.configure({
+            apiKey: iosKey,
+            appUserID: backendUserId.toString(),
+          });
+          if (user?.email) {
+            await Purchases.setEmail(user.email);
+          }
+        }
+      } catch (error) {
+        // Puedes manejar el error aquí si lo deseas
+        console.error('Error inicializando RevenueCat:', error);
+      }
+    };
+    setupRevenueCat();
+  }, [user]);
+  
   const { rangeSize, setRangeSize } = useChartRangeStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'assets' | 'liabilities'>('assets');
