@@ -73,7 +73,7 @@ export default function LoginScreen() {
                 loading={loading || localLoading}
                 variant="primary"
                 fullWidth={true}
-                icon={!(loading || localLoading) ? <ActivityIndicator size="small" color={Colors.secondary[500]} /> : undefined}
+                icon={!(loading || localLoading) ? <LogIn size={20} color={Colors.light.text} /> : undefined}
               />
             </View>
             
