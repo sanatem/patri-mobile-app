@@ -62,15 +62,6 @@ export default function TabsLayout() {
           ),
         }}
       />
-      <Tabs.Screen
-        name="copilot"
-        options={{
-          title: 'Copiloto',
-          tabBarIcon: ({ color, size }) => (
-            <TabBarIcon name="sparkles" color={color} size={size} />
-          ),
-        }}
-      />
     </Tabs>
   </SafeAreaView>
   );

@@ -88,7 +88,7 @@ export const FOR_YOU_CARDS = [
     iconColor: '#06b6d4',
     bgColor: '#e0f2fe',
     title: '$89,500/mes',
-    description: 'gastado en servicios básicos, encuentra formas de ahorrar ahora',
+    description: 'Gastado en servicios básicos, encuentra formas de ahorrar ahora',
   },
 ] as const;
 
