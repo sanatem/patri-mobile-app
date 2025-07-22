@@ -1,11 +1,9 @@
 import { Tabs } from 'expo-router';
-import { useColorScheme, Platform } from 'react-native';
 import TabBarIcon from '@/components/navigation/TabBarIcon';
 import Colors from '@/constants/Colors';
 import {useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context';
 
 export default function TabsLayout() {
-  const colorScheme = useColorScheme();
   const insets = useSafeAreaInsets();
 
   return (
@@ -61,15 +59,6 @@ export default function TabsLayout() {
           title: 'Planificación',
           tabBarIcon: ({ color, size }) => (
             <TabBarIcon name="users" color={color} size={size} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="copilot"
-        options={{
-          title: 'Copiloto',
-          tabBarIcon: ({ color, size }) => (
-            <TabBarIcon name="sparkles" color={color} size={size} />
           ),
         }}
       />

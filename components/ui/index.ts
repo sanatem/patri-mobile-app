@@ -18,3 +18,4 @@ export { InfiniteCarousel } from './InfiniteCarousel';
 export { KeyboardAwareContainer } from './KeyboardAwareContainer';
 export { InteractiveChart } from './InteractiveChart';
 export { TipBox } from './TipBox';
+export { default as LockedTabOverlay } from './LockedTabOverlay';

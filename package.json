@@ -9,7 +9,13 @@
     "lint": "expo lint",
     "dev:css": "tailwindcss -i ./tailwind.css -o ./app.css --watch",
     "android": "expo run:android",
-    "ios": "expo run:ios"
+    "ios": "expo run:ios",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:e2e": "detox test -c ios.sim.debug",
+    "test:e2e:android": "detox test -c android.emu.debug",
+    "test:browserstack": "node e2e/browserstack/run-tests.js"
   },
   "dependencies": {
     "@ant-design/icons-react-native": "^2.3.2",
@@ -75,7 +81,12 @@
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
+    "@testing-library/jest-native": "^5.4.3",
+    "@testing-library/react-native": "^13.2.0",
+    "@types/jest": "^30.0.0",
     "@types/react": "~19.0.10",
+    "jest": "^30.0.4",
+    "jest-expo": "^53.0.9",
     "typescript": "~5.8.3"
   }
 }

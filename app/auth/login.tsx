@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, Dimensions, Alert } from 'react-native';
+import { View, Text, ScrollView, Dimensions, Alert, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
 import { LogIn } from 'lucide-react-native';
 import { 

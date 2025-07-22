@@ -17,12 +17,12 @@ interface PlanCardData {
 const planCardsData: PlanCardData[] = [
   {
     id: '1',
-    title: 'Sesión con un experto',
-    price: '$69.000',
-    description: 'Una sesión enfocada para responder preguntas, evaluar decisiones y avanzar hacia tus objetivos.',
-    buttonText: 'Agendar sesión',
-    duration: '60 min.',
-    iconType: 'calendar' as const
+    title: 'Plan Premium (móvil)',
+    price: '$9.990',
+    description: 'Accede a todas las funcionalidades premium y herramientas avanzadas de planificación financiera.',
+    buttonText: 'Suscribirme',
+    duration: '/mes',
+    iconType: 'coins' as const
   },
   {
     id: '2',

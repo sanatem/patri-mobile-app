@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Animated, Dimensions } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Animated, Dimensions, ActivityIndicator } from 'react-native';
 import { ChevronLeft, ChevronRight, Settings, Plus, RefreshCw } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import {
@@ -16,6 +16,7 @@ import {
   Select,
   InfiniteCarousel,
   KeyboardAwareContainer,
+  LockedTabOverlay,
 } from '@/components/ui';
 import { SkeletonBase } from '@/components/ui/SkeletonBase';
 
@@ -27,6 +28,7 @@ import { useFloidTransactions } from '@/hooks/budget/useFloidTransactions';
 import { calculateTransactionTotals } from '@/services/budget/get-floid-transactions';
 import Colors from '@/constants/Colors';
 import { listItemStyles } from '@/styles/ui/ListItem.styles';
+import { useSubscriptionStatus } from '@/hooks/common/useSubscriptionStatus';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
@@ -37,7 +39,6 @@ const monthOptions = MONTHS.map(month => ({
   value: month
 }));
 
-// ✅ FUNCIÓN PARA OBTENER EL MES ACTUAL
 const getCurrentMonth = (): MonthType => {
   const currentDate = new Date();
   const currentMonthIndex = currentDate.getMonth(); // 0-11
@@ -103,6 +104,8 @@ const calculateTotalsFromFloid = (transactions: any[] | undefined, selectedMonth
 };
 
 export default function BudgetScreen() {
+  const { shouldBlockTabs, loading: subscriptionLoading } = useSubscriptionStatus();
+  const router = useRouter();
 
   const [selectedMonth, setSelectedMonth] = useState<MonthType>(getCurrentMonth());
   const [activeTab, setActiveTab] = useState<'income' | 'expenses'>('income');
@@ -112,7 +115,6 @@ export default function BudgetScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const overlayAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(0)).current;
-  const router = useRouter();
 
   const { accounts, loading: accountsLoading, error: accountsError } = useFloidAccounts();
   
@@ -128,6 +130,20 @@ export default function BudgetScreen() {
     per_page: 200,
     enabled: !!firstAccountId
   });
+
+  const totalsData = useMemo(() => {
+    return calculateTotalsFromFloid(transactions?.transactions, selectedMonth);
+  }, [transactions, selectedMonth]);
+
+  const { 
+    totalIncome, 
+    totalExpenses, 
+    balance, 
+    incomeCount, 
+    expenseCount, 
+    filteredTransactions,
+    hasRealData
+  } = totalsData;
 
   useEffect(() => {
     if (showAddModal) {
@@ -162,23 +178,21 @@ export default function BudgetScreen() {
     }
   }, [showAddModal]);
 
+  if (subscriptionLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
+        <ActivityIndicator size="large" color={Colors.secondary[500]} />
+      </View>
+    );
+  }
+
+  if (shouldBlockTabs) {
+    return <LockedTabOverlay tabName="Presupuesto" />;
+  }
+
   const closeModal = () => {
     setShowAddModal(false);
   };
-
-  const totalsData = useMemo(() => {
-    return calculateTotalsFromFloid(transactions?.transactions, selectedMonth);
-  }, [transactions, selectedMonth]);
-
-  const { 
-    totalIncome, 
-    totalExpenses, 
-    balance, 
-    incomeCount, 
-    expenseCount, 
-    filteredTransactions,
-    hasRealData
-  } = totalsData;
   
   const handleMonthSelect = (month: string) => {
     setSelectedMonth(month as MonthType);

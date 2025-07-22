@@ -3,7 +3,7 @@ import { Stack } from 'expo-router';
 
 export default function InvestmentStackLayout() {
   return (
-    <Stack
+    <Stack 
       screenOptions={{
         headerShown: false,
         animation: 'slide_from_right',

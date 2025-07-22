@@ -25,9 +25,11 @@ import {
   UserSelector,
   SegmentedControl,
   KeyboardAwareContainer,
+  LockedTabOverlay,
 } from '@/components/ui';
 import { SkeletonBase } from '@/components/ui/SkeletonBase';
 import { useUserData } from '@/hooks/user/useUserData';
+import { useSubscriptionStatus } from '@/hooks/common/useSubscriptionStatus';
 import Purchases from 'react-native-purchases';
 import { Platform } from 'react-native';
 
@@ -38,58 +40,11 @@ const SCREEN_HEIGHT = Dimensions.get('window').height;
 
 export default function PatrimonyScreen() {
   const { user } = useAuth();
-  
-  // RevenueCat initialization
-  useEffect(() => {
-    const setupRevenueCat = async () => {
-      try {
-        // Validate user data
-        if (!user?.backendUserId) {
-          console.warn('RevenueCat: No backend user ID available');
-          return;
-        }
-        
-        // Check if already configured to prevent multiple configurations
-        const isConfigured = await Purchases.isConfigured();
-        if (isConfigured) {
-          // Just update user ID if already configured
-          await Purchases.logIn(user.backendUserId.toString());
-          if (user.email) {
-            await Purchases.setEmail(user.email);
-          }
-          return;
-        }
-        // Get platform-specific API key
-        const apiKey = Platform.OS === 'android' 
-          ? process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_KEY
-          : Platform.OS === 'ios' 
-          ? process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY
-          : null;
-        if (!apiKey) {
-          throw new Error(`RevenueCat API key not found for platform: ${Platform.OS}`);
-        }
-        // Configure RevenueCat
-        await Purchases.configure({
-          apiKey,
-          appUserID: user.backendUserId.toString(),
-        });
-        // Set email if available
-        if (user.email) {
-          await Purchases.setEmail(user.email);
-        }
-
-        console.log('RevenueCat configured successfully');
-      } catch (error) {
-        console.error('Error inicializando RevenueCat:', error);
-      }
-    };
-
-    if (user) {
-      setupRevenueCat();
-    }
-  }, [user?.backendUserId, user?.email]);
-
+  const { shouldBlockTabs, loading: subscriptionLoading } = useSubscriptionStatus();
+  const { userData, loading: userLoading } = useUserData();
   const { rangeSize, setRangeSize } = useChartRangeStore();
+  const router = useRouter();
+  
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'assets' | 'liabilities'>('assets');
   const [ownerView, setOwnerView] = useState<'mine' | 'partner' | 'both'>('mine');
@@ -108,16 +63,14 @@ export default function PatrimonyScreen() {
     MY_LIABILITIES: [],
     PARTNER_LIABILITIES: []
   });
-  const router = useRouter();
   const [showAddModal, setShowAddModal] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
-  const overlayAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(0)).current;  
   const [showSkeletons, setShowSkeletons] = useState(true);
-  const skeletonFadeAnim = useRef(new Animated.Value(1)).current;
   const [refreshing, setRefreshing] = useState(false);
 
-  const { userData, loading: userLoading } = useUserData();
+  const overlayAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(0)).current;  
+  const skeletonFadeAnim = useRef(new Animated.Value(1)).current;
 
   const { assets: apiAssets, loading: assetsLoading, error: assetsError } = useAssets({
     page: 1,
@@ -128,6 +81,119 @@ export default function PatrimonyScreen() {
     page: 1,
     per_page: 50
   }, true);
+
+  useEffect(() => {
+    console.log('🔍 Patrimony Debug Info:', {
+      apiAssets: apiAssets ? 'Loaded' : 'Not loaded',
+      apiDebts: apiDebts ? 'Loaded' : 'Not loaded',
+      assetsLoading,
+      debtsLoading,
+      assetsError,
+      debtsError,
+      totalAssets: apiAssets?.totals?.total_assets || 0,
+      totalDebts: apiDebts?.totals?.total_debts || 0,
+      assetsCount: apiAssets?.assets ? 
+        (apiAssets.assets.fixed_assets.length + 
+         apiAssets.assets.saving_instruments.length + 
+         apiAssets.assets.investment_properties.length + 
+         apiAssets.assets.main_homes.length) : 0,
+      debtsCount: apiDebts?.debts?.length || 0
+    });
+  }, [apiAssets, apiDebts, assetsLoading, debtsLoading, assetsError, debtsError]);
+
+  useEffect(() => {
+    const setupRevenueCat = async () => {
+      try {
+        if (!user?.backendUserId) {
+          console.warn('RevenueCat: No backend user ID available');
+          return;
+        }
+        
+        const isConfigured = await Purchases.isConfigured();
+        if (isConfigured) {
+          await Purchases.logIn(user.backendUserId.toString());
+          if (user.email) {
+            await Purchases.setEmail(user.email);
+          }
+          return;
+        }
+        const apiKey = Platform.OS === 'android' 
+          ? process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_KEY
+          : Platform.OS === 'ios' 
+          ? process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY
+          : null;
+        if (!apiKey) {
+          throw new Error(`RevenueCat API key not found for platform: ${Platform.OS}`);
+        }
+        await Purchases.configure({
+          apiKey,
+          appUserID: user.backendUserId.toString(),
+        });
+        if (user.email) {
+          await Purchases.setEmail(user.email);
+        }
+
+        console.log('RevenueCat configured successfully');
+      } catch (error) {
+        console.error('Error inicializando RevenueCat:', error);
+      }
+    };
+
+    if (user) {
+      setupRevenueCat();
+    }
+  }, [user?.backendUserId, user?.email]);
+
+  useEffect(() => {
+    loadPatrimonyData();
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      Animated.timing(skeletonFadeAnim, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start(() => {
+        setShowSkeletons(false);
+      });
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (showAddModal) {
+      setModalVisible(true);
+      Animated.parallel([
+        Animated.timing(overlayAnim, {
+          toValue: 1,
+          duration: 220,
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideAnim, {
+          toValue: 1,
+          duration: 260,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    } else if (modalVisible) {
+      Animated.parallel([
+        Animated.timing(overlayAnim, {
+          toValue: 0,
+          duration: 180,
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideAnim, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ]).start(() => {
+        setModalVisible(false);
+      });
+    }
+  }, [showAddModal]);
 
   const mapSavingInstrumentType = (type: string): string => {
     const typeMapping: Record<string, string> = {
@@ -219,57 +285,6 @@ export default function PatrimonyScreen() {
       return 'U';
     }
   };
-  
-  useEffect(() => {
-    loadPatrimonyData();
-  }, []);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      Animated.timing(skeletonFadeAnim, {
-        toValue: 0,
-        duration: 300,
-        useNativeDriver: true,
-      }).start(() => {
-        setShowSkeletons(false);
-      });
-    }, 3000);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
-    if (showAddModal) {
-      setModalVisible(true);
-      Animated.parallel([
-        Animated.timing(overlayAnim, {
-          toValue: 1,
-          duration: 220,
-          useNativeDriver: true,
-        }),
-        Animated.timing(slideAnim, {
-          toValue: 1,
-          duration: 260,
-          useNativeDriver: true,
-        }),
-      ]).start();
-    } else if (modalVisible) {
-      Animated.parallel([
-        Animated.timing(overlayAnim, {
-          toValue: 0,
-          duration: 180,
-          useNativeDriver: true,
-        }),
-        Animated.timing(slideAnim, {
-          toValue: 0,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-      ]).start(() => {
-        setModalVisible(false);
-      });
-    }
-  }, [showAddModal]);
 
   const closeModal = () => {
     setShowAddModal(false);
@@ -411,7 +426,10 @@ export default function PatrimonyScreen() {
   const apiAssetsData = transformApiAssets();
   const apiDebtsData = transformApiDebts();
 
-  const assetsData = apiAssets ? apiAssetsData : filteredAssets.map(asset => {
+  const hasApiAssets = apiAssets !== null && apiAssets !== undefined;
+  const hasApiDebts = apiDebts !== null && apiDebts !== undefined;
+
+  const assetsData = hasApiAssets ? apiAssetsData : filteredAssets.map(asset => {
     const history = assetsHistory[asset.id as keyof typeof assetsHistory] || [];
     const { current, previous } = getLastTwoValues(history);
     const change = (current !== null && previous !== null)
@@ -434,7 +452,7 @@ export default function PatrimonyScreen() {
     };
   });
 
-  const liabilitiesData = apiDebts ? apiDebtsData : filteredLiabilities.map(liability => ({
+  const liabilitiesData = hasApiDebts ? apiDebtsData : filteredLiabilities.map(liability => ({
     id: liability.id,
     title: liability.name,
     subtitle: liability.type,
@@ -466,18 +484,6 @@ export default function PatrimonyScreen() {
     setRangeSize(TIME_RANGES.MAPPING[range]);
   };
 
-  const handleIntegrarDatos = () => {
-    router.push('/patrimony/floid-screen' as any);
-  };
-
-  // const handleAddActivo = () => {
-  //   console.log('Agregar activo');
-  // };
-
-  // const handleAddPasivo = () => {
-  //   console.log('Agregar pasivo');
-  // };
-
   const tabs = TAB_CONFIG.PATRIMONY.map(tab => ({
     ...tab,
     badge: (tab.key === 'assets' ? (apiAssets ? apiAssetsData.length : 0) : (apiDebts ? apiDebtsData.length : 0)).toString()
@@ -486,12 +492,28 @@ export default function PatrimonyScreen() {
   const currentData = activeTab === 'assets' ? assetsData : liabilitiesData;
   const isLoadingData = (activeTab === 'assets' && assetsLoading) || (activeTab === 'liabilities' && debtsLoading);
   const currentError = activeTab === 'assets' ? assetsError : debtsError;
-
-  const hasNoAssets = apiAssets === null || (apiAssets && apiAssetsData.length === 0);
-  const hasNoDebts = apiDebts === null || (apiDebts && apiDebtsData.length === 0);
+  
+  const hasNoAssets = !hasApiAssets || (hasApiAssets && apiAssetsData.length === 0);
+  const hasNoDebts = !hasApiDebts || (hasApiDebts && apiDebtsData.length === 0);
   const hasNoCurrentData = activeTab === 'assets' ? hasNoAssets : hasNoDebts;
 
   const currentTabTotal = activeTab === 'assets' ? totalAssets : totalLiabilities;
+
+  const handleIntegrarDatos = () => {
+    router.push('/patrimony/floid-screen' as any);
+  };
+
+  if (subscriptionLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
+        <ActivityIndicator size="large" color={Colors.secondary[500]} />
+      </View>
+    );
+  }
+
+  if (shouldBlockTabs) {
+    return <LockedTabOverlay tabName="Patrimonio" />;
+  }
 
   if (isLoading) {
     return (
@@ -531,8 +553,6 @@ export default function PatrimonyScreen() {
       </Container>
     );
   }
-
-
 
   return (
     <Container variant="secondaryPage">
@@ -588,13 +608,13 @@ export default function PatrimonyScreen() {
             {showSkeletons ? (
               <Animated.View style={{ opacity: skeletonFadeAnim }}>
                 <SkeletonBase
-                  width={380}
+                  width={375}
                   height={56}
                   x={0}
                   y={0}
                   rows={1}
                   rowHeight={56}
-                  rowWidth={380}
+                  rowWidth={375}
                   borderRadius={16}
                 />
               </Animated.View>
