@@ -97,7 +97,9 @@ const SectionPlanCard: React.FC<SectionPlanCardProps> = ({
           </Text>
           {duration && (
             <View className="flex-row items-center">
-              <Clock size={16} color={Colors.gray[500]} style={{ marginRight: 4 }} />
+              {duration !== '/mes' && (
+                <Clock size={16} color={Colors.gray[500]} style={{ marginRight: 4 }} />
+              )}
               <Text className="text-lg font-medium" style={{ color: Colors.gray[500] }}>
                 {duration}
               </Text>

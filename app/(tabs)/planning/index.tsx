@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, ActivityIndicator } from 'react-native';
 import FreePlanIndex from './free-plan';
 import PaidPlanIndex from './paid-plan';
 import { useUserData } from '@/hooks/user/useUserData';
-import { LoadingSpinner } from '@/components/ui';
+import Colors from '@/constants/Colors';
 
 export default function PlanningScreen() {
   const { userData, loading, error } = useUserData();
@@ -13,11 +13,10 @@ export default function PlanningScreen() {
     setUserHasPlan(true);
   };
 
-  // Mostrar spinner mientras carga o mientras no tengamos datos del usuario
   if (loading || !userData) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' }}>
-        <LoadingSpinner />
+        <ActivityIndicator size="large" color={Colors.secondary[500]} />
       </View>
     );
   }

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, Dimensions, Alert } from 'react-native';
+import { View, Text, ScrollView, Dimensions, Alert, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
 import { LogIn } from 'lucide-react-native';
 import { 
@@ -73,7 +73,7 @@ export default function LoginScreen() {
                 loading={loading || localLoading}
                 variant="primary"
                 fullWidth={true}
-                icon={!(loading || localLoading) ? <LogIn size={20} color={Colors.light.text} /> : undefined}
+                icon={!(loading || localLoading) ? <ActivityIndicator size="small" color={Colors.secondary[500]} /> : undefined}
               />
             </View>
             

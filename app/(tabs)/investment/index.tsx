@@ -1,30 +1,37 @@
-import { View } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useEffect } from 'react';
+import { View, ActivityIndicator } from 'react-native';
+import { Redirect } from 'expo-router';
 import WithoutAccountScreen from './without-account';
-import { LoadingSpinner } from '@/components/ui';
+import { LockedTabOverlay } from '@/components/ui';
 import { useHasInvestmentAccount } from '@/hooks/investment/usePortfolioDetails';
+import { useSubscriptionStatus } from '@/hooks/common/useSubscriptionStatus';
+import Colors from '@/constants/Colors';
 
 export default function InvestmentIndex() {
-  const router = useRouter();
+  const { shouldBlockTabs, loading: subscriptionLoading } = useSubscriptionStatus();
   const { hasInvestmentAccount, loading: isLoading } = useHasInvestmentAccount();
 
-  useEffect(() => {
-    if (!isLoading && hasInvestmentAccount) {
-      router.replace('/investment/portfolio' as any);
-    }
-  }, [isLoading, hasInvestmentAccount, router]);
+  if (subscriptionLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
+        <ActivityIndicator size="large" color={Colors.secondary[500]} />
+      </View>
+    );
+  }
+
+  if (shouldBlockTabs) {
+    return <LockedTabOverlay tabName="Inversión" />;
+  }
 
   if (isLoading) {
     return (
       <View className="flex-1 bg-white justify-center items-center">
-        <LoadingSpinner />
+        <ActivityIndicator size="large" color={Colors.secondary[500]} />
       </View>
     );
   }
 
   if (hasInvestmentAccount) {
-    return null;
+    return <Redirect href="/investment/portfolio" />;
   }
   
   return <WithoutAccountScreen />;

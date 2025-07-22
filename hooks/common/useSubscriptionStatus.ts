@@ -59,14 +59,7 @@ export function useSubscriptionStatus(): SubscriptionStatus {
         setIsSubscribed(hasPremiumEntitlement || hasActiveEntitlements);
         setIsPremium(hasPremiumEntitlement);
 
-        console.log('RevenueCat subscription status:', {
-          hasActiveEntitlements,
-          hasPremiumEntitlement,
-          entitlements: customerInfo.entitlements.active,
-          originalAppUserId: customerInfo.originalAppUserId,
-          firstSeen: customerInfo.firstSeen,
-          latestExpirationDate: customerInfo.latestExpirationDate
-        });
+        
 
       } catch (err) {
         console.error('Error checking subscription status:', err);
@@ -92,6 +85,8 @@ export function useSubscriptionStatus(): SubscriptionStatus {
   const isStagingEnvironment = Boolean(apiUrl.includes('staging') || apiUrl.includes('dev'));
 
   const shouldBlockTabs = isFreePlan && !isSubscribed && !isPremium && !isPaidPlan;
+
+
 
   return {
     isSubscribed,
