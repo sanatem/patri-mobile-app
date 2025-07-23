@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Purchases from 'react-native-purchases';
 import { useUserData } from '@/hooks/user/useUserData';
 import { useAuth } from '@/providers/AuthProvider';
@@ -27,6 +27,8 @@ export interface SubscriptionStatus {
   shouldBlockTabs: boolean;
   loading: boolean;
   error: string | null;
+  refreshSubscriptionStatus: () => Promise<void>;
+  forceRefresh: () => Promise<void>;
 }
 
 export function useSubscriptionStatus(): SubscriptionStatus {
@@ -37,45 +39,93 @@ export function useSubscriptionStatus(): SubscriptionStatus {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const checkSubscriptionStatus = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+  const checkSubscriptionStatus = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-        const isConfigured = await Purchases.isConfigured();
-        if (!isConfigured) {
-          console.warn('RevenueCat not configured yet');
-          setIsSubscribed(false);
-          return;
-        }
-
-        const customerInfo = await Purchases.getCustomerInfo();
-        
-        const hasActiveEntitlements = Object.values(customerInfo.entitlements.active).length > 0;
-        
-        const hasPremiumEntitlement = customerInfo.entitlements.active['premium'] !== undefined;
-        
-        setIsSubscribed(hasPremiumEntitlement || hasActiveEntitlements);
-        setIsPremium(hasPremiumEntitlement);
-
-        
-
-      } catch (err) {
-        console.error('Error checking subscription status:', err);
-        setError(err instanceof Error ? err.message : 'Error checking subscription');
+      const isConfigured = await Purchases.isConfigured();
+      if (!isConfigured) {
+        console.warn('RevenueCat not configured yet');
         setIsSubscribed(false);
-      } finally {
-        setLoading(false);
+        setIsPremium(false);
+        return;
       }
-    };
 
+      const customerInfo = await Purchases.getCustomerInfo();
+
+      const hasActiveEntitlements = Object.values(customerInfo.entitlements.active).length > 0;
+
+      const hasPremiumEntitlement = customerInfo.entitlements.active['premium'] !== undefined;
+
+      const hasAnyPremiumAccess = hasPremiumEntitlement;
+
+      console.log('🔍 RevenueCat Debug Info:', {
+        hasActiveEntitlements,
+        hasPremiumEntitlement,
+        hasAnyPremiumAccess,
+        activeEntitlements: Object.keys(customerInfo.entitlements.active),
+        allEntitlements: Object.keys(customerInfo.entitlements.all),
+        customerInfoRaw: customerInfo
+      });
+
+      setIsSubscribed(hasAnyPremiumAccess || hasActiveEntitlements);
+      setIsPremium(hasAnyPremiumAccess);
+
+    } catch (err) {
+      console.error('Error checking subscription status:', err);
+      setError(err instanceof Error ? err.message : 'Error checking subscription');
+      setIsSubscribed(false);
+      setIsPremium(false);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const refreshSubscriptionStatus = async () => {
+    console.log('🔄 Refreshing subscription status...');
+    await checkSubscriptionStatus();
+  };
+
+  const forceRefresh = async () => {
+    console.log('🚀 Force refreshing subscription status...');
+    // Reset states first
+    setIsSubscribed(false);
+    setIsPremium(false);
+    setError(null);
+    // Then check again
+    await checkSubscriptionStatus();
+  };
+
+  useEffect(() => {
     if (user?.backendUserId) {
       checkSubscriptionStatus();
     } else {
       setLoading(false);
     }
-  }, [user?.backendUserId]);
+  }, [user?.backendUserId, checkSubscriptionStatus]);
+
+  // Listen for RevenueCat purchase events
+  useEffect(() => {
+    const purchaseListener = (customerInfo: any) => {
+      console.log('📦 RevenueCat purchase event received:', customerInfo);
+      // Force refresh when a purchase is completed
+      checkSubscriptionStatus();
+    };
+
+    try {
+      // Add listener
+      Purchases.addCustomerInfoUpdateListener(purchaseListener);
+      console.log('🎧 RevenueCat listener added successfully');
+    } catch (error) {
+      console.error('Error adding RevenueCat listener:', error);
+    }
+
+    // Note: RevenueCat listeners are automatically cleaned up when the component unmounts
+    return () => {
+      console.log('🧹 Cleaning up RevenueCat listeners');
+    };
+  }, [checkSubscriptionStatus]);
 
   const userPlan = userData?.user?.plan;
   const isFreePlan = Boolean(userPlan === 'Gratis' || userPlan === 'gratis' || userPlan === 'FREE' || userPlan === 'free');
@@ -86,7 +136,15 @@ export function useSubscriptionStatus(): SubscriptionStatus {
 
   const shouldBlockTabs = isFreePlan && !isSubscribed && !isPremium && !isPaidPlan;
 
-
+  console.log('📊 Subscription Status Debug:', {
+    userPlan,
+    isFreePlan,
+    isPaidPlan,
+    isSubscribed,
+    isPremium,
+    shouldBlockTabs,
+    loading: loading || userLoading
+  });
 
   return {
     isSubscribed,
@@ -96,6 +154,8 @@ export function useSubscriptionStatus(): SubscriptionStatus {
     isStagingEnvironment,
     shouldBlockTabs,
     loading: loading || userLoading,
-    error
+    error,
+    refreshSubscriptionStatus,
+    forceRefresh
   };
 } 
