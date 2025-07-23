@@ -12,6 +12,11 @@ interface PlanCardData {
   iconType: 'calendar' | 'coins';
   minPrice?: string;
   minDuration?: string;
+  badge?: {
+    text: string;
+    bgColor?: string;
+    textColor?: string;
+  };
 }
 
 const planCardsData: PlanCardData[] = [
@@ -37,26 +42,50 @@ const planCardsData: PlanCardData[] = [
 
 interface SectionPlanProps {
   onCardPress?: (card: PlanCardData) => void;
+  isSubscribed?: boolean;
 }
 
-const SectionPlan: React.FC<SectionPlanProps> = ({ onCardPress }) => {
+const SectionPlan: React.FC<SectionPlanProps> = ({ onCardPress, isSubscribed }) => {
   return (
     <View className="mb-6 px-4">
-      {planCardsData.map((item) => (
-        <View key={item.id} className="mb-4">
-          <SectionPlanCard
-            title={item.title}
-            price={item.price}
-            description={item.description}
-            buttonText={item.buttonText}
-            duration={item.duration}
-            iconType={item.iconType}
-            minPrice={item.minPrice}
-            minDuration={item.minDuration}
-            onPress={() => onCardPress?.(item)}
-          />
-        </View>
-      ))}
+      {planCardsData.map((item) => {
+        // Modificar la primera tarjeta (Plan Premium móvil) si el usuario ya está suscrito
+        const isSubscriptionCard = item.id === '1';
+        const modifiedItem = isSubscriptionCard && isSubscribed 
+          ? {
+              ...item,
+              buttonText: 'Ya suscrito',
+              badge: {
+                text: 'Activo',
+                bgColor: '#ff6501',
+                textColor: '#FFFFFF'
+              }
+            }
+          : item;
+
+        return (
+          <View key={item.id} className="mb-4">
+            <SectionPlanCard
+              title={modifiedItem.title}
+              price={modifiedItem.price}
+              description={modifiedItem.description}
+              buttonText={modifiedItem.buttonText}
+              duration={modifiedItem.duration}
+              iconType={modifiedItem.iconType}
+              minPrice={modifiedItem.minPrice}
+              minDuration={modifiedItem.minDuration}
+              badge={modifiedItem.badge}
+              onPress={() => {
+                // Solo permitir click si no está suscrito o es la segunda tarjeta (Planes)
+                if (!isSubscriptionCard || !isSubscribed) {
+                  onCardPress?.(item);
+                }
+              }}
+              disabled={isSubscriptionCard && isSubscribed}
+            />
+          </View>
+        );
+      })}
     </View>
   );
 };
