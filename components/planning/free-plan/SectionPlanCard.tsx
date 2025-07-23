@@ -19,6 +19,7 @@ interface SectionPlanCardProps {
   minPrice?: string;
   minDuration?: string;
   onPress?: () => void;
+  disabled?: boolean;
 }
 
 const SectionPlanCard: React.FC<SectionPlanCardProps> = ({
@@ -31,7 +32,8 @@ const SectionPlanCard: React.FC<SectionPlanCardProps> = ({
   badge,
   minPrice,
   minDuration,
-  onPress
+  onPress,
+  disabled = false
 }) => {
   const renderIcon = () => {
     const iconProps = {
@@ -137,10 +139,11 @@ const SectionPlanCard: React.FC<SectionPlanCardProps> = ({
       </Text>
       <Button
         title={buttonText}
-        variant="outline"
+        variant={disabled ? "disabled" : "outline"}
         size="large"
-        onPress={onPress || (() => {})}
+        onPress={disabled ? (() => {}) : (onPress || (() => {}))}
         fullWidth={true}
+        disabled={disabled}
       />
     </View>
   </Card>
