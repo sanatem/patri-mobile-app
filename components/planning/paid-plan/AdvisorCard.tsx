@@ -86,18 +86,18 @@ export default function AdvisorCard({ onSchedule, onChat }: AdvisorCardProps) {
         <View style={{ padding: 20, alignItems: 'center' }}>
           <Text style={{
             fontSize: 16,
-            color: Colors.error[500],
+            color: Colors.primary[500],
             marginBottom: 8,
             textAlign: 'center'
           }}>
-            Error al cargar asesor
+            No se encontró información del asesor.
           </Text>
           <Text style={{
             fontSize: 14,
             color: Colors.gray[500],
             textAlign: 'center'
           }}>
-            {error || 'No se pudo obtener la información del asesor'}
+            {error || 'No tienes un asesor asignado actualmente.'}
           </Text>
         </View>
       </Card>
