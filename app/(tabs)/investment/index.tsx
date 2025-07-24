@@ -11,7 +11,7 @@ export default function InvestmentIndex() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   
-  const { shouldBlockTabs, loading: subscriptionLoading } = useSubscriptionStatus();
+  const { shouldBlockTab, loading: subscriptionLoading } = useSubscriptionStatus();
   
   const { hasInvestmentAccount, loading: investmentLoading } = useHasInvestmentAccount();
 
@@ -43,7 +43,7 @@ export default function InvestmentIndex() {
     );
   }
 
-  if (shouldBlockTabs) {
+  if (shouldBlockTab("Inversión")) {
     return <LockedTabOverlay tabName="Inversión" />;
   }
 

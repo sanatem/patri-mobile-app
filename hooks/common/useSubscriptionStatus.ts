@@ -25,6 +25,7 @@ export interface SubscriptionStatus {
   isPaidPlan: boolean;
   isStagingEnvironment: boolean;
   shouldBlockTabs: boolean;
+  shouldBlockTab: (tabName: string) => boolean;
   loading: boolean;
   error: string | null;
 }
@@ -86,7 +87,13 @@ export function useSubscriptionStatus(): SubscriptionStatus {
 
   const shouldBlockTabs = isFreePlan && !isSubscribed && !isPremium && !isPaidPlan;
 
-
+  const shouldBlockTab = (tabName: string): boolean => {
+    if (tabName.toLowerCase() === 'patrimonio' || tabName.toLowerCase() === 'patrimony') {
+      return false;
+    }
+    
+    return shouldBlockTabs;
+  };
 
   return {
     isSubscribed,
@@ -95,6 +102,7 @@ export function useSubscriptionStatus(): SubscriptionStatus {
     isPaidPlan,
     isStagingEnvironment,
     shouldBlockTabs,
+    shouldBlockTab,
     loading: loading || userLoading,
     error
   };

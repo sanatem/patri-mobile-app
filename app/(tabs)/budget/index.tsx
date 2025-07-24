@@ -104,7 +104,7 @@ const calculateTotalsFromFloid = (transactions: any[] | undefined, selectedMonth
 };
 
 export default function BudgetScreen() {
-  const { shouldBlockTabs, loading: subscriptionLoading } = useSubscriptionStatus();
+  const { shouldBlockTab, loading: subscriptionLoading } = useSubscriptionStatus();
   const router = useRouter();
 
   const [selectedMonth, setSelectedMonth] = useState<MonthType>(getCurrentMonth());
@@ -186,7 +186,7 @@ export default function BudgetScreen() {
     );
   }
 
-  if (shouldBlockTabs) {
+  if (shouldBlockTab("Presupuesto")) {
     return <LockedTabOverlay tabName="Presupuesto" />;
   }
 

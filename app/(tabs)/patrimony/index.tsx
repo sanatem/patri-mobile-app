@@ -40,7 +40,7 @@ const SCREEN_HEIGHT = Dimensions.get('window').height;
 
 export default function PatrimonyScreen() {
   const { user } = useAuth();
-  const { shouldBlockTabs, loading: subscriptionLoading } = useSubscriptionStatus();
+  const { shouldBlockTab, loading: subscriptionLoading } = useSubscriptionStatus();
   const { userData, loading: userLoading } = useUserData();
   const { rangeSize, setRangeSize } = useChartRangeStore();
   const router = useRouter();
@@ -511,7 +511,7 @@ export default function PatrimonyScreen() {
     );
   }
 
-  if (shouldBlockTabs) {
+  if (shouldBlockTab("Patrimonio")) {
     return <LockedTabOverlay tabName="Patrimonio" />;
   }
 
