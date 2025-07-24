@@ -42,6 +42,7 @@ export default function RootLayout() {
               contentStyle: { backgroundColor: 'white' },
             }}
           >
+            <Stack.Screen name="splash-screens" />
             <Stack.Screen name="index" />
             <Stack.Screen name="att-permission" />
             <Stack.Screen name="auth" />
