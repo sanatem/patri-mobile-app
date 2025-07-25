@@ -55,13 +55,12 @@ export default function SplashScreens() {
       });
     } else {
       await markAsSeen();
-      router.replace('/');
+      router.replace('/auth/login');
     }
   };
 
   const handleSkip = async () => {
-    await markAsSeen();
-    router.replace('/');
+    router.replace('/auth/login');
   };
 
   const handleScroll = (event: any) => {

@@ -15,7 +15,7 @@ export default function SplashScreen1({ title, subtitle }: SplashScreen1Props) {
         <PatrimoreIcon width={120} height={60} color={Colors.secondary[500]} />
       </View>
       <View style={styles.iconContainer} className="rounded-full">
-        <ShieldIcon width={40} height={40} />
+        <ShieldIcon width={30} height={30} />
       </View>
       <Text style={styles.title} className="font-medium">
         {title}
@@ -37,7 +37,9 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     position: 'absolute',
-    top: 100,
+    top: 80,
+    left: 0,
+    right: 20,
     alignItems: 'center',
   },
   iconContainer: {
@@ -46,8 +48,9 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.gray[50],
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 40,
-    borderRadius: 4,
+    marginBottom: 20,
+    borderRadius: 100,
+
   },
   title: {
     fontSize: 28,
@@ -58,7 +61,7 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 16,
     color: Colors.primary[500],
-    textAlign: 'left',
+    textAlign: 'center',
     lineHeight: 24,
   },
 }); 

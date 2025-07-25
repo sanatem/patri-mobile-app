@@ -44,7 +44,6 @@ export default function RootLayout() {
           >
             <Stack.Screen name="splash-screens" />
             <Stack.Screen name="index" />
-            <Stack.Screen name="att-permission" />
             <Stack.Screen name="auth" />
             <Stack.Screen name="(tabs)" />
           </Stack>

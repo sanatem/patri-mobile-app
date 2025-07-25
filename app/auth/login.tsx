@@ -8,7 +8,7 @@ import {
   KeyboardAwareContainer 
 } from '@/components/ui';
 import Colors from '@/constants/Colors';
-import PatrimoreIcon from '@/components/icons/PatrimoreIcon';
+import { PatrimoreWithIcon } from '@/components/icons';
 import { useAuth } from '@/providers/AuthProvider';
 
 const { height } = Dimensions.get('window');
@@ -53,7 +53,7 @@ export default function LoginScreen() {
 
         <View className="flex-1 pb-8 px-6" style={{ marginTop: height * 0.2 }}>
           <View className="items-center justify-center mb-2">
-            <PatrimoreIcon width={160} height={80} color={Colors.secondary[500]} />
+            <PatrimoreWithIcon width={160} height={80} color={Colors.secondary[500]} />
           </View>
           <Card style={{ padding: 20 }}>
             <View className="items-center">
