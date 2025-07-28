@@ -12,9 +12,11 @@ export const useOnboarding = () => {
   const checkOnboardingStatus = async () => {
     try {
       const seen = await AsyncStorage.getItem('has_seen_onboarding');
-      setHasSeenOnboarding(seen === 'true');
+      const onboardingCompleted = await AsyncStorage.getItem('onboarding_completed');
+      
+      const hasSeen = onboardingCompleted === 'true';
+      setHasSeenOnboarding(hasSeen);
     } catch (error) {
-      console.log('Error checking onboarding status:', error);
       setHasSeenOnboarding(false);
     } finally {
       setIsLoading(false);
@@ -26,7 +28,7 @@ export const useOnboarding = () => {
       await AsyncStorage.setItem('has_seen_onboarding', 'true');
       setHasSeenOnboarding(true);
     } catch (error) {
-      console.log('Error marking onboarding as seen:', error);
+      // Manejar error si es necesario
     }
   };
 
@@ -35,7 +37,7 @@ export const useOnboarding = () => {
       await AsyncStorage.removeItem('has_seen_onboarding');
       setHasSeenOnboarding(false);
     } catch (error) {
-      console.log('Error resetting onboarding:', error);
+      // Manejar error si es necesario
     }
   };
 

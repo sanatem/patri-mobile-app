@@ -148,10 +148,16 @@ export function Select({
           <Text
             className={cn(
               'text-base font-regular',
-              selectedOption ? 'text-gray-700 font-regular' : 'text-gray-500',
               disabled && 'text-gray-400'
             )}
-            style={{ flex: 1 }}
+            style={{ 
+              flex: 1,
+              color: disabled 
+                ? Colors.gray[400] 
+                : selectedOption 
+                  ? Colors.primary[500] 
+                  : Colors.primary[400]
+            }}
           >
             {selectedOption ? selectedOption.label : placeholder}
           </Text>
@@ -202,8 +208,11 @@ export function Select({
                   <Text
                     className={cn(
                       'text-base',
-                      option.value === value ? 'text-primary-500 font-medium' : 'font-regular text-gray-700'
+                      option.value === value ? 'font-medium' : 'font-regular'
                     )}
+                    style={{
+                      color: option.value === value ? Colors.primary[500] : Colors.primary[700]
+                    }}
                   >
                     {option.label}
                   </Text>

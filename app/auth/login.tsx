@@ -10,6 +10,7 @@ import {
 import Colors from '@/constants/Colors';
 import { PatrimoreWithIcon } from '@/components/icons';
 import { useAuth } from '@/providers/AuthProvider';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { height } = Dimensions.get('window');
 
@@ -23,7 +24,13 @@ export default function LoginScreen() {
       const success = await login();
       
       if (success) {
-        router.replace('/(tabs)/patrimony');
+        const onboardingCompleted = await AsyncStorage.getItem('onboarding_completed');
+        
+        if (onboardingCompleted === 'true') {
+          router.replace('/(tabs)/patrimony');
+        } else {
+          router.replace('/onboarding');
+        }
       } else {
         Alert.alert(
           'Autenticación cancelada',
@@ -32,7 +39,6 @@ export default function LoginScreen() {
         );
       }
     } catch (error: any) {
-      console.error('Login error:', error);
       Alert.alert(
         'Error de autenticación',
         'Ocurrió un error durante el proceso de autenticación. Por favor intenta de nuevo.',

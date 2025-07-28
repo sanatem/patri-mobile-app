@@ -1,10 +1,10 @@
 import React, { useState, useRef } from 'react';
-import { View, Text, Dimensions, ScrollView, StatusBar, StyleSheet } from 'react-native';
+import { View, Dimensions, ScrollView, StyleSheet, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useOnboarding } from '@/hooks/common';
-import { PatrimoreIcon } from '@/components/icons';
 import { Button, Container } from '@/components/ui';
 import Colors from '@/constants/Colors';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width } = Dimensions.get('window');
 
@@ -41,9 +41,38 @@ const splashScreens = [
 
 export default function SplashScreens() {
   const router = useRouter();
-  const { markAsSeen } = useOnboarding();
+  const { markAsSeen, hasSeenOnboarding } = useOnboarding();
   const [currentIndex, setCurrentIndex] = useState(0);
   const scrollViewRef = useRef<ScrollView>(null);
+  const [isRequestingATT, setIsRequestingATT] = useState(false);
+  
+
+
+  const checkATTStatus = async () => {
+    try {
+      const attSeen = await AsyncStorage.getItem('att_permission_shown');
+      return attSeen === 'true';
+    } catch (error) {
+      return false;
+    }
+  };
+
+  const requestATT = async () => {
+    setIsRequestingATT(true);
+    try {
+      const { requestTrackingPermissionsAsync } = await import('expo-tracking-transparency');
+      const { status } = await requestTrackingPermissionsAsync();
+      
+
+      
+      await AsyncStorage.setItem('att_permission_shown', 'true');
+    } catch (error) {
+      await AsyncStorage.setItem('att_permission_shown', 'true');
+    } finally {
+      setIsRequestingATT(false);
+      router.replace('/auth/login');
+    }
+  };
 
   const handleNext = async () => {
     if (currentIndex < splashScreens.length - 1) {
@@ -54,13 +83,24 @@ export default function SplashScreens() {
         animated: true,
       });
     } else {
-      await markAsSeen();
-      router.replace('/auth/login');
+      const attSeen = await checkATTStatus();
+      
+      if (!attSeen && Platform.OS === 'ios') {
+        await requestATT();
+      } else {
+        router.replace('/auth/login');
+      }
     }
   };
 
   const handleSkip = async () => {
-    router.replace('/auth/login');
+    const attSeen = await checkATTStatus();
+    
+    if (!attSeen && Platform.OS === 'ios') {
+      await requestATT();
+    } else {
+      router.replace('/auth/login');
+    }
   };
 
   const handleScroll = (event: any) => {
@@ -107,24 +147,24 @@ export default function SplashScreens() {
         ))}
       </View>
 
-      <View style={styles.footer}>
-        <Button
-          title={splashScreens[currentIndex].primaryButton}
-          onPress={handleNext}
-          variant="primary"
-          fullWidth
-        />
-        
-        <Button
-          title={splashScreens[currentIndex].secondaryButton}
-          onPress={handleSkip}
-          variant="outline"
-          fullWidth
-        />
-      </View>
-    </Container>
-  );
-}
+             <View style={styles.footer}>
+         <Button
+           title={splashScreens[currentIndex].primaryButton}
+           onPress={handleNext}
+           variant="primary"
+           fullWidth
+         />
+         
+         <Button
+           title={splashScreens[currentIndex].secondaryButton}
+           onPress={handleSkip}
+           variant="outline"
+           fullWidth
+         />
+       </View>
+     </Container>
+   );
+ }
 
 const styles = StyleSheet.create({
   container: {
