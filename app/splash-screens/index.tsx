@@ -41,7 +41,7 @@ const splashScreens = [
 
 export default function SplashScreens() {
   const router = useRouter();
-  const { markAsSeen, hasSeenOnboarding } = useOnboarding();
+  const { hasSeenOnboarding } = useOnboarding();
   const [currentIndex, setCurrentIndex] = useState(0);
   const scrollViewRef = useRef<ScrollView>(null);
   const [isRequestingATT, setIsRequestingATT] = useState(false);

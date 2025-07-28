@@ -29,10 +29,6 @@ export async function submitOnboarding(
 
     const url = `${config.apiBaseUrl}/api/v2/user/personal_information`;
 
-    console.log('📡 Submitting onboarding data to:', url);
-    console.log('📦 Onboarding data:', onboardingData);
-    console.log('🔑 Token available:', !!token);
-
     const response = await fetch(url, {
       method: 'POST',
       headers: {
@@ -42,20 +38,15 @@ export async function submitOnboarding(
       body: JSON.stringify(onboardingData),
     });
 
-    console.log('📊 Response status:', response.status);
-    console.log('📊 Response headers:', Object.fromEntries(response.headers.entries()));
-
     if (!response.ok) {
       let errorMessage = '';
       
       try {
         const errorData = await response.json();
         errorMessage = errorData.message || errorData.error || 'Error desconocido del servidor';
-        console.log('❌ Server error details:', errorData);
       } catch (parseError) {
         const errorText = await response.text();
         errorMessage = `Error ${response.status}: ${errorText}`;
-        console.log('❌ Raw error response:', errorText);
       }
 
       if (response.status === 401) {
@@ -74,12 +65,10 @@ export async function submitOnboarding(
     }
 
     const data: OnboardingResponse = await response.json();
-    
-    console.log('✅ Onboarding submitted successfully:', data);
     return data;
 
   } catch (error) {
-    console.error('❌ Onboarding Service: Error submitting onboarding data:', error);
+    console.error('Onboarding Service: Error submitting onboarding data:', error);
     throw error;
   }
 } 

@@ -1,12 +1,28 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, Dimensions } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useOnboarding } from '@/hooks/common';
-import { useOnboarding as useOnboardingService } from '@/hooks/user';
-import { useKeyboardHandler } from '@/hooks/common';
-import { PatrimoreIcon } from '@/components/icons';
-import { Button, Container, Input, Card, Select, CalendarSelect, KeyboardAwareContainer } from '@/components/ui';
+import { 
+  View, 
+  Text, 
+  ScrollView, 
+  Dimensions, 
+  Alert, 
+  ActivityIndicator 
+} from 'react-native';
+import { router } from 'expo-router';
+import { useKeyboardHandler } from '@/hooks/common/useKeyboardHandler';
+import { useOnboarding } from '@/hooks/common/useOnboarding';
+import { useAuth } from '@/providers/AuthProvider';
+import { 
+  Button, 
+  Input, 
+  Select, 
+  CalendarSelect, 
+  Container, 
+  Card, 
+  KeyboardAwareContainer 
+} from '@/components/ui';
 import Colors from '@/constants/Colors';
+import { PatrimoreIcon } from '@/components/icons';
+import { submitOnboarding } from '@/services/user/onboarding';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { height } = Dimensions.get('window');
@@ -32,15 +48,10 @@ const COUNTRY_OPTIONS = [
   { label: 'Otro', value: 'Otro' }
 ];
 
-
-
 export default function OnboardingScreen() {
-  const router = useRouter();
   const { markAsSeen } = useOnboarding();
-  const { submitOnboardingData, loading: serviceLoading, error: serviceError } = useOnboardingService();
   const { keyboardHeight, isKeyboardVisible } = useKeyboardHandler();
-  
-
+  const { accessToken } = useAuth();
   
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
@@ -49,9 +60,11 @@ export default function OnboardingScreen() {
     rut: '',
     residence_country: '',
     birth_date: '',
-    monthly_income: '',
+    monthly_incomes: '',
   });
   const [loading, setLoading] = useState(false);
+  const [serviceLoading, setServiceLoading] = useState(false);
+  const [serviceError, setServiceError] = useState<string | null>(null);
   const isLoading = loading || serviceLoading;
   const [errors, setErrors] = useState<string[]>([]);
   const allErrors = [...errors, ...(serviceError ? [serviceError] : [])];
@@ -60,52 +73,88 @@ export default function OnboardingScreen() {
     validateStep(currentStep);
   }, [currentStep]);
 
-  // Limpiar errores del servicio cuando cambie el paso
-  useEffect(() => {
-    if (serviceError) {
-      // Los errores del servicio se manejan en el hook
-    }
-  }, [serviceError]);
-
   const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value,
-    }));
-    
-    // Validar después de un pequeño delay para evitar validaciones excesivas
-    setTimeout(() => {
-      validateStep(currentStep);
-    }, 100);
+    setFormData(prev => {
+      const newFormData = {
+        ...prev,
+        [field]: value,
+      };
+      
+      setTimeout(() => {
+        validateStepWithData(currentStep, newFormData);
+      }, 100);
+      
+      return newFormData;
+    });
   };
 
-  const formatRUT = (value: string) => {
-    // Remover todos los caracteres no válidos excepto números y k/K
-    let rut = value.replace(/[^0-9kK]/g, '');
-    
-    // Limitar a 9 caracteres máximo
-    if (rut.length > 9) {
-      rut = rut.slice(0, 9);
+  const handleSelectChange = (field: string, value: string) => {
+    setFormData(prev => {
+      const newFormData = {
+        ...prev,
+        [field]: value,
+      };
+      
+      setTimeout(() => {
+        validateStepWithData(currentStep, newFormData);
+      }, 100);
+      
+      return newFormData;
+    });
+  };
+
+  const handleRUTChange = (value: string) => {
+    if (value.trim() === '') {
+      setFormData(prev => ({
+        ...prev,
+        rut: '',
+      }));
+      return;
     }
     
-    // Si hay al menos 2 caracteres, agregar puntos y guión
-    if (rut.length >= 2) {
-      const body = rut.slice(0, -1);
-      const digit = rut.slice(-1);
+    const cleanValue = value.replace(/[^0-9kK-]/g, '');
+    
+    if (cleanValue.length === 0) {
+      return;
+    }
+    
+    if (cleanValue.length > 10) {
+      return;
+    }
+    
+    setFormData(prev => {
+      const newFormData = {
+        ...prev,
+        rut: cleanValue.toUpperCase(),
+      };
       
-      // Agregar puntos cada 3 dígitos desde la derecha
-      let formattedBody = '';
-      for (let i = body.length - 1, j = 0; i >= 0; i--, j++) {
-        if (j > 0 && j % 3 === 0) {
-          formattedBody = '.' + formattedBody;
-        }
-        formattedBody = body[i] + formattedBody;
+      setTimeout(() => {
+        validateStepWithData(currentStep, newFormData);
+      }, 100);
+      
+      return newFormData;
+    });
+  };
+
+  const formatRUTForBackend = (rut: string): string => {
+    const cleanRut = rut.replace(/[^0-9kK]/g, '');
+    
+    if (cleanRut.length < 2) {
+      return cleanRut.toUpperCase();
+    }
+    
+    const body = cleanRut.slice(0, -1);
+    const digit = cleanRut.slice(-1);
+    
+    let formattedBody = '';
+    for (let i = body.length - 1, j = 0; i >= 0; i--, j++) {
+      if (j > 0 && j % 3 === 0) {
+        formattedBody = '.' + formattedBody;
       }
-      
-      rut = formattedBody + '-' + digit;
+      formattedBody = body[i] + formattedBody;
     }
     
-    return rut.toUpperCase();
+    return formattedBody + '-' + digit.toUpperCase();
   };
 
   const convertDateFormat = (dateString: string): string => {
@@ -124,41 +173,43 @@ export default function OnboardingScreen() {
     return dateString;
   };
 
-
-
-  const validateStep = (step: number) => {
+  const validateStepWithData = (step: number, data: typeof formData) => {
     const newErrors = [];
     
     if (step === 1) {
-      if (!formData.first_name.trim()) {
+      if (!data.first_name.trim()) {
         newErrors.push('El nombre es requerido');
       }
       
-      if (!formData.last_name.trim()) {
+      if (!data.last_name.trim()) {
         newErrors.push('El apellido es requerido');
       }
       
-      if (!formData.rut.trim()) {
+      if (!data.rut.trim()) {
         newErrors.push('El RUT es requerido');
-      } else if (formData.rut.length < 3) {
+      } else if (data.rut.length < 3) {
         newErrors.push('El RUT debe tener al menos 3 caracteres');
       }
     } else if (step === 2) {
-      if (!formData.residence_country.trim()) {
+      if (!data.residence_country.trim()) {
         newErrors.push('El país de residencia es requerido');
       }
       
-      if (!formData.birth_date.trim()) {
+      if (!data.birth_date.trim()) {
         newErrors.push('La fecha de nacimiento es requerida');
       }
       
-      if (!formData.monthly_income.trim()) {
+      if (!data.monthly_incomes.trim()) {
         newErrors.push('Los ingresos mensuales son requeridos');
       }
     }
     
     setErrors(newErrors);
     return newErrors;
+  };
+
+  const validateStep = (step: number) => {
+    return validateStepWithData(step, formData);
   };
 
   const validateForm = () => {
@@ -186,7 +237,7 @@ export default function OnboardingScreen() {
       newErrors.push('La fecha de nacimiento es requerida');
     }
     
-    if (!formData.monthly_income.trim()) {
+    if (!formData.monthly_incomes.trim()) {
       newErrors.push('Los ingresos mensuales son requeridos');
     }
     
@@ -197,68 +248,53 @@ export default function OnboardingScreen() {
   const handleNextStep = () => {
     const stepErrors = validateStep(currentStep);
     
-    if (stepErrors.length > 0) {
-      return;
-    }
-    
-    if (currentStep === 1) {
-      setCurrentStep(2);
-    } else {
-      handleComplete();
+    if (stepErrors.length === 0) {
+      if (currentStep === 1) {
+        setCurrentStep(2);
+      } else {
+        handleComplete();
+      }
     }
   };
 
   const handlePreviousStep = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
-    }
+    setCurrentStep(1);
   };
 
   const handleComplete = async () => {
-    const formErrors = validateForm();
-    if (formErrors.length > 0) {
-      return;
-    }
-
     setLoading(true);
     
     try {
+      const formErrors = validateForm();
+      
+      if (formErrors.length > 0) {
+        throw new Error(formErrors.join(', '));
+      }
+
       const onboardingData = {
         personal_information: {
           first_name: formData.first_name,
           last_name: formData.last_name,
-          rut: formData.rut,
+          rut: formatRUTForBackend(formData.rut),
           birth_date: convertDateFormat(formData.birth_date),
-          monthly_incomes: formData.monthly_income,
+          monthly_incomes: formData.monthly_incomes,
           residence_country: formData.residence_country,
         }
       };
 
-      // Validar que todos los campos requeridos estén presentes
-      const requiredFields = ['first_name', 'last_name', 'rut', 'birth_date', 'monthly_income', 'residence_country'];
-      const missingFields = requiredFields.filter(field => !formData[field as keyof typeof formData]);
-      
-      if (missingFields.length > 0) {
-        console.error('❌ Missing required fields:', missingFields);
-        throw new Error(`Campos faltantes: ${missingFields.join(', ')}`);
+      if (!accessToken) {
+        throw new Error('No hay token de autenticación disponible');
       }
 
-      console.log('🚀 Submitting onboarding data:', onboardingData);
-
-      const response = await submitOnboardingData(onboardingData);
+      const response = await submitOnboarding(accessToken, onboardingData);
       
       if (response) {
-        console.log('✅ Onboarding completed successfully');
         await markAsSeen();
         await AsyncStorage.setItem('onboarding_completed', 'true');
         router.replace('/(tabs)/patrimony');
-      } else {
-        console.log('❌ Onboarding failed - no response received');
-        // El error ya está manejado por el hook useOnboardingService
       }
     } catch (error) {
-      console.error('❌ Error in handleComplete:', error);
-      // El error ya está manejado por el hook useOnboardingService
+      console.error('Error in handleComplete:', error);
     } finally {
       setLoading(false);
     }
@@ -305,7 +341,6 @@ export default function OnboardingScreen() {
                   }
                 </Text>
                 
-                {/* Indicador de progreso */}
                 <View style={{ 
                   flexDirection: 'row', 
                   justifyContent: 'center', 
@@ -374,11 +409,14 @@ export default function OnboardingScreen() {
                          RUT
                        </Text>
                        <Input
-                         placeholder="12.345.678-9"
+                         placeholder="12345678-9"
                          value={formData.rut}
-                         onChangeText={(value) => handleInputChange('rut', value)}
+                         onChangeText={handleRUTChange}
                          autoCapitalize="characters"
-                         maxLength={12}
+                         maxLength={10}
+                         keyboardType="default"
+                         returnKeyType="next"
+                         clearButtonMode="while-editing"
                        />
                      </View>
                    </>
@@ -389,7 +427,7 @@ export default function OnboardingScreen() {
                          label="País de residencia"
                          options={COUNTRY_OPTIONS}
                          value={formData.residence_country}
-                         onSelect={(value) => handleInputChange('residence_country', value)}
+                         onSelect={(value) => handleSelectChange('residence_country', value)}
                          placeholder="Selecciona tu país"
                        />
                      </View>
@@ -407,8 +445,8 @@ export default function OnboardingScreen() {
                        <Select
                          label="Ingresos mensuales"
                          options={MONTHLY_INCOME_OPTIONS}
-                         value={formData.monthly_income}
-                         onSelect={(value) => handleInputChange('monthly_income', value)}
+                         value={formData.monthly_incomes}
+                         onSelect={(value) => handleSelectChange('monthly_incomes', value)}
                          placeholder="Selecciona tu rango de ingresos"
                        />
                        <Text className='text-sm font-regular' 
@@ -423,7 +461,6 @@ export default function OnboardingScreen() {
                  )}
                </View>
 
-             {/* Mostrar errores del servicio */}
              {serviceError && (
                <View style={{ 
                  backgroundColor: Colors.error[50], 

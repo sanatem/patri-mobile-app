@@ -10,7 +10,7 @@ import {
 import Colors from '@/constants/Colors';
 import { PatrimoreWithIcon } from '@/components/icons';
 import { useAuth } from '@/providers/AuthProvider';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getOnboardingStatus } from '@/utils/onboarding';
 
 const { height } = Dimensions.get('window');
 
@@ -24,9 +24,9 @@ export default function LoginScreen() {
       const success = await login();
       
       if (success) {
-        const onboardingCompleted = await AsyncStorage.getItem('onboarding_completed');
+        const onboardingStatus = await getOnboardingStatus();
         
-        if (onboardingCompleted === 'true') {
+        if (onboardingStatus.isCompleted) {
           router.replace('/(tabs)/patrimony');
         } else {
           router.replace('/onboarding');

@@ -14,7 +14,7 @@ export default function SplashScreen2({ title, subtitle }: SplashScreen2Props) {
       <View style={styles.logoContainer}>
         <PatrimoreIcon width={120} height={60} color={Colors.secondary[500]} />
       </View>
-      <View style={styles.iconContainer} className="rounded-full">
+      <View style={styles.iconContainer}>
         <LineChartIcon width={40} height={40} />
       </View>
       <Text style={styles.title} className="font-medium">

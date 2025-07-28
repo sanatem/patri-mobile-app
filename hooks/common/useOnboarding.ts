@@ -11,9 +11,9 @@ export const useOnboarding = () => {
 
   const checkOnboardingStatus = async () => {
     try {
-      const seen = await AsyncStorage.getItem('has_seen_onboarding');
       const onboardingCompleted = await AsyncStorage.getItem('onboarding_completed');
       
+      // Para usuarios nuevos, onboardingCompleted será null, por lo que hasSeenOnboarding será false
       const hasSeen = onboardingCompleted === 'true';
       setHasSeenOnboarding(hasSeen);
     } catch (error) {
@@ -25,19 +25,18 @@ export const useOnboarding = () => {
 
   const markAsSeen = async () => {
     try {
-      await AsyncStorage.setItem('has_seen_onboarding', 'true');
+      await AsyncStorage.setItem('onboarding_completed', 'true');
       setHasSeenOnboarding(true);
     } catch (error) {
-      // Manejar error si es necesario
     }
   };
 
   const resetOnboarding = async () => {
     try {
-      await AsyncStorage.removeItem('has_seen_onboarding');
+      await AsyncStorage.removeItem('onboarding_completed');
       setHasSeenOnboarding(false);
     } catch (error) {
-      // Manejar error si es necesario
+      console.error('Error al resetear el onboarding:', error);
     }
   };
 

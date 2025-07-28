@@ -1,17 +1,17 @@
 import React from 'react';
 import Svg, { Path } from 'react-native-svg';
 
-interface PatrimoreIconProps {
+interface PatrimoreWhithIconProps {
   width?: number;
   height?: number;
   color?: string;
 }
 
-const PatrimoreIcon = ({ 
+const PatrimoreWhithIcon = ({ 
   width = 160, 
   height = 80, 
   color = '#FF6501' 
-}: PatrimoreIconProps) => {
+}: PatrimoreWhithIconProps) => {
   return (
     <Svg viewBox="0 0 545 100" width={width} height={height}>
       <Path
@@ -58,4 +58,4 @@ const PatrimoreIcon = ({
   );
 };
 
-export default PatrimoreIcon;
+export default PatrimoreWhithIcon;

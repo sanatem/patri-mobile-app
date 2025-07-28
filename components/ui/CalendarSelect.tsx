@@ -205,7 +205,7 @@ export function CalendarSelect({
 
   const currentYear = new Date().getFullYear();
   const years: number[] = [];
-  for (let year = 1900; year <= currentYear + 100; year++) {
+  for (let year = 1925; year <= currentYear + 100; year++) {
     years.push(year);
   }
 
