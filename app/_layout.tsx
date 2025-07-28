@@ -42,10 +42,11 @@ export default function RootLayout() {
               contentStyle: { backgroundColor: 'white' },
             }}
           >
-            <Stack.Screen name="index" />
-            <Stack.Screen name="att-permission" />
-            <Stack.Screen name="auth" />
-            <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="splash-screens" options={{ headerShown: false }} />
+            <Stack.Screen name="onboarding" options={{ headerShown: false }} />
+            <Stack.Screen name="index" options={{ headerShown: false }} />
+            <Stack.Screen name="auth" options={{ headerShown: false }} />
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           </Stack>
         </CopilotProvider>
       </AuthProvider>

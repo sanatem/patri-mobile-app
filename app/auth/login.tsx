@@ -8,8 +8,9 @@ import {
   KeyboardAwareContainer 
 } from '@/components/ui';
 import Colors from '@/constants/Colors';
-import PatrimoreIcon from '@/components/icons/PatrimoreIcon';
+import { PatrimoreWithIcon } from '@/components/icons';
 import { useAuth } from '@/providers/AuthProvider';
+import { getOnboardingStatus } from '@/utils/onboarding';
 
 const { height } = Dimensions.get('window');
 
@@ -23,7 +24,13 @@ export default function LoginScreen() {
       const success = await login();
       
       if (success) {
-        router.replace('/(tabs)/patrimony');
+        const onboardingStatus = await getOnboardingStatus();
+        
+        if (onboardingStatus.isCompleted) {
+          router.replace('/(tabs)/patrimony');
+        } else {
+          router.replace('/onboarding');
+        }
       } else {
         Alert.alert(
           'Autenticación cancelada',
@@ -32,7 +39,6 @@ export default function LoginScreen() {
         );
       }
     } catch (error: any) {
-      console.error('Login error:', error);
       Alert.alert(
         'Error de autenticación',
         'Ocurrió un error durante el proceso de autenticación. Por favor intenta de nuevo.',
@@ -53,7 +59,7 @@ export default function LoginScreen() {
 
         <View className="flex-1 pb-8 px-6" style={{ marginTop: height * 0.2 }}>
           <View className="items-center justify-center mb-2">
-            <PatrimoreIcon width={160} height={80} color={Colors.secondary[500]} />
+            <PatrimoreWithIcon width={160} height={80} color={Colors.secondary[500]} />
           </View>
           <Card style={{ padding: 20 }}>
             <View className="items-center">

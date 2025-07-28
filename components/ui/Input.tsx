@@ -69,7 +69,7 @@ export function Input({
   return (
     <View className="mb-5 w-full">
       {label && (
-        <Text className="text-base font-medium mb-2" style={{ color: Colors.gray[700] }}>{label}</Text>
+        <Text className="text-base font-medium mb-2" style={{ color: Colors.primary[500] }}>{label}</Text>
       )}
 
       <Animated.View
@@ -86,7 +86,7 @@ export function Input({
         <TextInput
         className="flex-1 text-base text-gray-800 font-regular "
           style={inputStyles.textInput}
-          placeholderTextColor="#9CA3AF"
+          placeholderTextColor={Colors.primary[400]}
           underlineColorAndroid="transparent"
           editable={editable}
           onFocus={() => setIsFocused(true)}

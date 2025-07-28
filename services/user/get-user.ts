@@ -1,4 +1,3 @@
-// services/user/get-user.ts
 import config from '@/config/constants';
 
 export interface PersonalInformation {
