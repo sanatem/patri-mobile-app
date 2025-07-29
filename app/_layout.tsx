@@ -1,5 +1,5 @@
 import '../app.css';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Stack } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import * as SplashScreen from 'expo-splash-screen';
@@ -8,11 +8,14 @@ import { StatusBar } from 'expo-status-bar';
 import { AuthProvider } from '@/providers/AuthProvider';
 import { CopilotProvider } from '@/providers/CopilotProvider';
 import { useFrameworkReady } from '@/hooks/common/useFrameworkReady';
+import { i18nInitPromise } from '../lib/i18n'; // nuevo import
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   useFrameworkReady();
+
+  const [i18nReady, setI18nReady] = useState(false);
 
   const [fontsLoaded, fontError] = useFonts({
     'Poppins-Regular': Poppins_400Regular,
@@ -21,15 +24,21 @@ export default function RootLayout() {
     'Poppins-Bold': Poppins_700Bold,
   });
 
+  // Esperar inicialización de i18n
   useEffect(() => {
-    if (fontsLoaded || fontError) {
+    i18nInitPromise.then(() => {
+      setI18nReady(true);
+    });
+  }, []);
+
+  useEffect(() => {
+    if ((fontsLoaded || fontError) && i18nReady) {
       SplashScreen.hideAsync();
     }
-  }, [fontsLoaded, fontError]);
-  
-  if (!fontsLoaded && !fontError) {
-    return null;
-  }
+  }, [fontsLoaded, fontError, i18nReady]);
+
+  if (!fontsLoaded && !fontError) return null;
+  if (!i18nReady) return null;
 
   return (
     <SafeAreaProvider>
