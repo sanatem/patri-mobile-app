@@ -1,0 +1,43 @@
+{
+  "settings": {
+    "title": "Configuración",
+    "subtitle": "Configuración y herramientas adicionales",
+    "menu": {
+      "preferences": "Preferencias de Usuario",
+      "preferencesSubtitle": "Idioma y otras preferencias",
+      "terms": "Términos y Condiciones",
+      "termsSubtitle": "Políticas de uso",
+      "privacy": "Privacidad y Seguridad",
+      "privacySubtitle": "Configuración de privacidad",
+      "help": "Ayuda y Soporte",
+      "helpSubtitle": "Centro de ayuda y contacto",
+      "logout": "Cerrar sesión",
+      "logoutSubtitle": "Salir de la aplicación"
+    },
+    "logout": {
+      "title": "Cerrar sesión",
+      "message": "¿Estás seguro que deseas cerrar sesión?",
+      "action": "Cerrar sesión"
+    },
+    "delete": {
+      "title": "Eliminar cuenta",
+      "subtitle": "Eliminar permanentemente tu cuenta y todos tus datos.",
+      "confirm": "Eliminar cuenta"
+    },
+    "confirmation": {
+      "title": "Solicitud procesada",
+      "subtitle": "Tu solicitud de eliminación de cuenta será procesada dentro de los siguientes días hábiles."
+    },
+    "loading": {
+      "loggingOut": "Cerrando sesión...",
+      "deleting": "Enviando solicitud..."
+    },
+    "links": {
+      "cannotOpen": "No se puede abrir el enlace: {{title}}"
+    }
+  },
+  "common": {
+    "cancel": "Cancelar",
+    "error": "Error"
+  }
+}

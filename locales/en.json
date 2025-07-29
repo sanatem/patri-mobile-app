@@ -1,0 +1,43 @@
+{
+    "settings": {
+      "title": "Settings",
+      "subtitle": "Additional configuration and tools",
+      "menu": {
+        "preferences": "User Preferences",
+        "preferencesSubtitle": "Language and other preferences",
+        "terms": "Terms and Conditions",
+        "termsSubtitle": "Usage policies",
+        "privacy": "Privacy and Security",
+        "privacySubtitle": "Privacy settings",
+        "help": "Help and Support",
+        "helpSubtitle": "Help center and contact",
+        "logout": "Log out",
+        "logoutSubtitle": "Sign out of the app"
+      },
+      "logout": {
+        "title": "Log out",
+        "message": "Are you sure you want to log out?",
+        "action": "Log out"
+      },
+      "delete": {
+        "title": "Delete Account",
+        "subtitle": "Delete your account and all your data permanently.",
+        "confirm": "Delete account"
+      },
+      "confirmation": {
+        "title": "Request submitted",
+        "subtitle": "Your account deletion request will be processed within the next few business days."
+      },
+      "loading": {
+        "loggingOut": "Logging out...",
+        "deleting": "Sending request..."
+      },
+      "links": {
+        "cannotOpen": "Cannot open link: {{title}}"
+      }
+    },
+    "common": {
+      "cancel": "Cancel",
+      "error": "Error"
+    }
+  }
