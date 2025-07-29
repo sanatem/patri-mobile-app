@@ -13,8 +13,8 @@ export const useOnboarding = () => {
     try {
       const onboardingCompleted = await AsyncStorage.getItem('onboarding_completed');
       
-      // Para usuarios nuevos, onboardingCompleted será null, por lo que hasSeenOnboarding será false
       const hasSeen = onboardingCompleted === 'true';
+      
       setHasSeenOnboarding(hasSeen);
     } catch (error) {
       setHasSeenOnboarding(false);
