@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, Dimensions, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, Dimensions, Alert, ActivityIndicator, Linking } from 'react-native';
 import { router } from 'expo-router';
 import { LogIn } from 'lucide-react-native';
 import { 
@@ -49,6 +49,12 @@ export default function LoginScreen() {
     }
   };
 
+  const handleOpenLink = (url: string, title: string) => {
+    Linking.openURL(url).catch(err => {
+      Alert.alert('Error', 'No se pudo abrir el enlace');
+    });
+  };
+
   return (
     <KeyboardAwareContainer>
       <ScrollView 
@@ -88,7 +94,22 @@ export default function LoginScreen() {
                 className="text-xs font-regular text-center leading-4"
                 style={{ color: Colors.primary[500] }}
               >
-                Al continuar, aceptas nuestros términos de uso y política de privacidad
+                Al continuar, aceptas nuestros{' '}
+                <Text 
+                  className="font-medium underline"
+                  style={{ color: Colors.secondary[500] }}
+                  onPress={() => handleOpenLink('https://patrimore.com/terminos-y-condiciones', 'Términos y Condiciones')}
+                >
+                  términos y condiciones
+                </Text>
+                {' '}y{' '}
+                <Text 
+                  className="font-medium underline"
+                  style={{ color: Colors.secondary[500] }}
+                  onPress={() => handleOpenLink('https://patrimore.com/politica-de-privacidad', 'Política de Privacidad')}
+                >
+                  política de privacidad
+                </Text>
               </Text>
             </View>
           </Card>
