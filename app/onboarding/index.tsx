@@ -59,7 +59,7 @@ export default function OnboardingScreen() {
     first_name: '',
     last_name: '',
     rut: '',
-    residence_country: '',
+    residence_country_name: '',
     birth_date: '',
     monthly_incomes: '',
   });
@@ -125,7 +125,7 @@ export default function OnboardingScreen() {
           first_name: personalInfo.first_name || '',
           last_name: personalInfo.last_name || '',
           rut: personalInfo.rut || '',
-          residence_country: personalInfo.residence_country_name || '',
+          residence_country_name: personalInfo.residence_country_name || '',
           birth_date: birthDate || '',
           monthly_incomes: monthlyIncomesValue || '',
         };
@@ -266,7 +266,7 @@ export default function OnboardingScreen() {
         newErrors.push('El RUT debe tener al menos 3 caracteres');
       }
     } else if (step === 2) {
-      if (!data.residence_country.trim()) {
+      if (!data.residence_country_name.trim()) {
         newErrors.push('El país de residencia es requerido');
       }
       
@@ -307,7 +307,7 @@ export default function OnboardingScreen() {
       newErrors.push('El RUT debe tener al menos 3 caracteres');
     }
     
-    if (!formData.residence_country.trim()) {
+    if (!formData.residence_country_name.trim()) {
       newErrors.push('El país de residencia es requerido');
     }
     
@@ -367,7 +367,7 @@ export default function OnboardingScreen() {
           rut: formatRUTForBackend(formData.rut),
           birth_date: convertDateFormat(formData.birth_date),
           monthly_incomes: formData.monthly_incomes,
-          residence_country_name: formData.residence_country,
+          residence_country_name: formData.residence_country_name,
         }
       };
 
@@ -526,8 +526,8 @@ export default function OnboardingScreen() {
                          <Select
                            label="País de residencia"
                            options={COUNTRY_OPTIONS}
-                           value={formData.residence_country}
-                           onSelect={(value) => handleSelectChange('residence_country', value)}
+                           value={formData.residence_country_name}
+                           onSelect={(value) => handleSelectChange('residence_country_name', value)}
                            placeholder="Selecciona tu país"
                          />
                        </View>
