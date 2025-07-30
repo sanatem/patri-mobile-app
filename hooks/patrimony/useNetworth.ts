@@ -27,10 +27,8 @@ export function useNetworth(): UseNetworthReturn {
       setError(null);
       
       const data = await getNetworth(accessToken);
-      if (data) {
-        setNetworthData(data);
-        setLoading(false);
-      }
+      const data = await getNetworth(accessToken);
+      setNetworthData(data);
     } catch (err) {
       console.error('Error loading networth data:', err);
       setError(err instanceof Error ? err.message : 'Error desconocido');
