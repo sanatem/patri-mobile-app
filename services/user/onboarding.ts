@@ -30,7 +30,7 @@ export async function submitOnboarding(
     const url = `${config.apiBaseUrl}/api/v2/user/personal_information`;
 
     const response = await fetch(url, {
-      method: 'POST',
+      method: 'PATCH',
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
