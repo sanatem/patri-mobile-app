@@ -12,7 +12,7 @@ export interface PersonalInformation {
   conjugal_regime: string;
   employment_situation: string;
   monthly_incomes: number;
-  residence_country: string;
+  residence_country_name: string;
 }
 
 export interface ContactInformation {
@@ -58,8 +58,6 @@ export async function getUserData(token: string): Promise<UserResponse | null> {
 
     const url = `${config.apiBaseUrl}/api/v2/user`;
 
-    console.log('📡 Fetching user data from:', url);
-
     const response = await fetch(url, {
       method: 'GET',
       headers: {
@@ -86,7 +84,7 @@ export async function getUserData(token: string): Promise<UserResponse | null> {
     return data;
 
   } catch (error) {
-    console.error('❌ User Service: Error fetching user data from API:', error);
+    console.error('User Service: Error fetching user data from API:', error);
     throw error;
   }
 }

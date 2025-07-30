@@ -23,6 +23,7 @@ import {
 import Colors from '@/constants/Colors';
 import { PatrimoreIcon } from '@/components/icons';
 import { submitOnboarding } from '@/services/user/onboarding';
+import { getUserData } from '@/services/user/get-user';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { height } = Dimensions.get('window');
@@ -58,20 +59,94 @@ export default function OnboardingScreen() {
     first_name: '',
     last_name: '',
     rut: '',
-    residence_country: '',
+    residence_country_name: '',
     birth_date: '',
     monthly_incomes: '',
   });
   const [loading, setLoading] = useState(false);
   const [serviceLoading, setServiceLoading] = useState(false);
   const [serviceError, setServiceError] = useState<string | null>(null);
+  const [isLoadingUserData, setIsLoadingUserData] = useState(true);
+  const [isRutLocked, setIsRutLocked] = useState(false);
   const isLoading = loading || serviceLoading;
   const [errors, setErrors] = useState<string[]>([]);
   const allErrors = [...errors, ...(serviceError ? [serviceError] : [])];
 
   useEffect(() => {
+    loadUserData();
+  }, []);
+
+  useEffect(() => {
     validateStep(currentStep);
   }, [currentStep]);
+
+  const loadUserData = async () => {
+    if (!accessToken) {
+      setIsLoadingUserData(false);
+      return;
+    }
+
+    try {
+      const userResponse = await getUserData(accessToken);
+      
+      if (userResponse?.user?.personal_information) {
+        const personalInfo = userResponse.user.personal_information;
+        
+        if (personalInfo.rut && personalInfo.rut.trim() !== '') {
+          setIsRutLocked(true);
+        }
+        
+        let birthDate = personalInfo.birth_date;
+        if (birthDate && birthDate.includes('-')) {
+          const parts = birthDate.split('-');
+          if (parts.length === 3) {
+            birthDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
+          }
+        }
+        
+        let monthlyIncomesValue = '';
+        if (typeof personalInfo.monthly_incomes === 'number') {
+          if (personalInfo.monthly_incomes < 1000000) {
+            monthlyIncomesValue = 'less_than_1_millon';
+          } else if (personalInfo.monthly_incomes < 5000000) {
+            monthlyIncomesValue = 'between_1_and_5_millons';
+          } else if (personalInfo.monthly_incomes < 10000000) {
+            monthlyIncomesValue = 'between_5_and_10_millons';
+          } else if (personalInfo.monthly_incomes < 25000000) {
+            monthlyIncomesValue = 'between_10_and_25_millons';
+          } else {
+            monthlyIncomesValue = 'greater_than_25_millons';
+          }
+        } else {
+          monthlyIncomesValue = personalInfo.monthly_incomes || '';
+        }
+        
+        const newFormData = {
+          first_name: personalInfo.first_name || '',
+          last_name: personalInfo.last_name || '',
+          rut: personalInfo.rut || '',
+          residence_country_name: personalInfo.residence_country_name || '',
+          birth_date: birthDate || '',
+          monthly_incomes: monthlyIncomesValue || '',
+        };
+        
+        setFormData(newFormData);
+        
+        setTimeout(() => {
+          const currentStepErrors = validateStepWithData(currentStep, newFormData);
+          const step2Errors = validateStepWithData(2, newFormData);
+          
+          if (currentStep === 1 && currentStepErrors.length === 0) {
+            setErrors([]);
+          }
+        }, 100);
+      }
+    } catch (error) {
+      console.error('Error loading user data:', error);
+    } finally {
+      setIsLoadingUserData(false);
+    }
+  };
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => {
@@ -191,7 +266,7 @@ export default function OnboardingScreen() {
         newErrors.push('El RUT debe tener al menos 3 caracteres');
       }
     } else if (step === 2) {
-      if (!data.residence_country.trim()) {
+      if (!data.residence_country_name.trim()) {
         newErrors.push('El país de residencia es requerido');
       }
       
@@ -204,7 +279,10 @@ export default function OnboardingScreen() {
       }
     }
     
-    setErrors(newErrors);
+    if (step === currentStep) {
+      setErrors(newErrors);
+    }
+    
     return newErrors;
   };
 
@@ -229,7 +307,7 @@ export default function OnboardingScreen() {
       newErrors.push('El RUT debe tener al menos 3 caracteres');
     }
     
-    if (!formData.residence_country.trim()) {
+    if (!formData.residence_country_name.trim()) {
       newErrors.push('El país de residencia es requerido');
     }
     
@@ -246,14 +324,24 @@ export default function OnboardingScreen() {
   };
 
   const handleNextStep = () => {
-    const stepErrors = validateStep(currentStep);
-    
-    if (stepErrors.length === 0) {
-      if (currentStep === 1) {
-        setCurrentStep(2);
-      } else {
-        handleComplete();
+    if (currentStep === 1) {
+      const step1Errors = validateStepWithData(1, formData);
+      if (step1Errors.length > 0) {
+        setErrors(step1Errors);
+        return;
       }
+      
+      setTimeout(() => {
+        const step2Errors = validateStepWithData(2, formData);
+        if (step2Errors.length === 0) {
+          setErrors([]);
+        }
+      }, 100);
+      
+      setCurrentStep(2);
+      setErrors([]);
+    } else {
+      handleComplete();
     }
   };
 
@@ -263,6 +351,7 @@ export default function OnboardingScreen() {
 
   const handleComplete = async () => {
     setLoading(true);
+    setServiceError(null);
     
     try {
       const formErrors = validateForm();
@@ -278,7 +367,7 @@ export default function OnboardingScreen() {
           rut: formatRUTForBackend(formData.rut),
           birth_date: convertDateFormat(formData.birth_date),
           monthly_incomes: formData.monthly_incomes,
-          residence_country: formData.residence_country,
+          residence_country_name: formData.residence_country_name,
         }
       };
 
@@ -289,18 +378,17 @@ export default function OnboardingScreen() {
       const response = await submitOnboarding(accessToken, onboardingData);
       
       if (response) {
-        await markAsSeen();
         await AsyncStorage.setItem('onboarding_completed', 'true');
+        await markAsSeen();
         router.replace('/(tabs)/patrimony');
       }
     } catch (error) {
       console.error('Error in handleComplete:', error);
+      setServiceError(error instanceof Error ? error.message : 'Error desconocido');
     } finally {
       setLoading(false);
     }
   };
-
-
 
   return (
     <KeyboardAwareContainer>
@@ -313,196 +401,209 @@ export default function OnboardingScreen() {
           }}
           showsVerticalScrollIndicator={false}
         >
-          <View style={{ flex: 1, paddingHorizontal: 24, paddingTop: height * 0.1 }}>
-            <View style={{ alignItems: 'center', marginBottom: 10 }}>
-              <PatrimoreIcon width={160} height={80} color={Colors.secondary[500]} />
+          {isLoadingUserData ? (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+              <ActivityIndicator size="large" color={Colors.secondary[500]} />
+              <Text 
+                className="text-base font-medium mt-4"
+                style={{ color: Colors.primary[500] }}
+              >
+                Cargando datos del usuario...
+              </Text>
             </View>
-
-            <Card style={{ padding: 24 }}>
-              <View style={{ marginBottom: 24 }}>
-                <Text className='font-medium text-2xl'
-                  style={{
-                    color: Colors.primary[700],
-                    textAlign: 'center',
-                    marginBottom: 8,
-                  }}
-                >
-                  {currentStep === 1 ? 'Información Personal' : 'Información Adicional'}
-                </Text>
-                <Text className='text-base font-regular text-center'
-                  style={{
-                    color: Colors.primary[500],
-                    textAlign: 'center',
-                  }}
-                >
-                  {currentStep === 1 
-                    ? 'Cuéntanos sobre ti' 
-                    : 'Completa tu perfil para personalizar tu experiencia'
-                  }
-                </Text>
-                
-                <View style={{ 
-                  flexDirection: 'row', 
-                  justifyContent: 'center', 
-                  marginTop: 16,
-                  gap: 8
-                }}>
-                  <View style={{
-                    width: 20,
-                    height: 4,
-                    backgroundColor: currentStep >= 1 ? Colors.secondary[500] : Colors.gray[300],
-                    borderRadius: 2,
-                  }} />
-                  <View style={{
-                    width: 20,
-                    height: 4,
-                    backgroundColor: currentStep >= 2 ? Colors.secondary[500] : Colors.gray[300],
-                    borderRadius: 2,
-                  }} />
-                </View>
+          ) : (
+            <View style={{ flex: 1, paddingHorizontal: 24, paddingTop: height * 0.1 }}>
+              <View style={{ alignItems: 'center', marginBottom: 10 }}>
+                <PatrimoreIcon width={160} height={80} color={Colors.secondary[500]} />
               </View>
 
-               <View style={{ gap: 20 }}>
-                 {currentStep === 1 ? (
-                   <>
-                     <View>
-                       <Text className='text-base font-medium' 
-                         style={{
-                           color: Colors.primary[500],
-                           marginBottom: 8,
-                         }}
-                       >
-                         Nombre
-                       </Text>
-                       <Input
-                         placeholder="Ingresa tu nombre"
-                         value={formData.first_name}
-                         onChangeText={(value) => handleInputChange('first_name', value)}
-                         autoCapitalize="words"
-                       />
-                     </View>
+              <Card style={{ padding: 24 }}>
+                <View style={{ marginBottom: 24 }}>
+                  <Text className='font-medium text-2xl'
+                    style={{
+                      color: Colors.primary[700],
+                      textAlign: 'center',
+                      marginBottom: 8,
+                    }}
+                  >
+                    {currentStep === 1 ? 'Información Personal' : 'Información Adicional'}
+                  </Text>
+                  <Text className='text-base font-regular text-center'
+                    style={{
+                      color: Colors.primary[500],
+                      textAlign: 'center',
+                    }}
+                  >
+                    {currentStep === 1 
+                      ? 'Cuéntanos sobre ti' 
+                      : 'Completa tu perfil para personalizar tu experiencia'
+                    }
+                  </Text>
+                  
+                  <View style={{ 
+                    flexDirection: 'row', 
+                    justifyContent: 'center', 
+                    marginTop: 16,
+                    gap: 8
+                  }}>
+                    <View style={{
+                      width: 20,
+                      height: 4,
+                      backgroundColor: currentStep >= 1 ? Colors.secondary[500] : Colors.gray[300],
+                      borderRadius: 2,
+                    }} />
+                    <View style={{
+                      width: 20,
+                      height: 4,
+                      backgroundColor: currentStep >= 2 ? Colors.secondary[500] : Colors.gray[300],
+                      borderRadius: 2,
+                    }} />
+                  </View>
+                </View>
 
-                     <View>
-                       <Text className='text-base font-medium' 
-                         style={{
-                           color: Colors.primary[500],
-                           marginBottom: 8,
-                         }}
-                       >
-                         Apellido
-                       </Text>
-                       <Input
-                         placeholder="Ingresa tu apellido"
-                         value={formData.last_name}
-                         onChangeText={(value) => handleInputChange('last_name', value)}
-                         autoCapitalize="words"
-                       />
-                     </View>
+                 <View style={{ gap: 20 }}>
+                   {currentStep === 1 ? (
+                     <>
+                       <View>
+                         <Text className='text-base font-medium' 
+                           style={{
+                             color: Colors.primary[500],
+                             marginBottom: 8,
+                           }}
+                         >
+                           Nombre
+                         </Text>
+                         <Input
+                           placeholder="Ingresa tu nombre"
+                           value={formData.first_name}
+                           onChangeText={(value) => handleInputChange('first_name', value)}
+                           autoCapitalize="words"
+                         />
+                       </View>
 
-                     <View>
-                       <Text className='text-base font-medium' 
-                         style={{
-                           color: Colors.primary[500],
-                           marginBottom: 8,
-                         }}
-                       >
-                         RUT
-                       </Text>
-                       <Input
-                         placeholder="12345678-9"
-                         value={formData.rut}
-                         onChangeText={handleRUTChange}
-                         autoCapitalize="characters"
-                         maxLength={10}
-                         keyboardType="default"
-                         returnKeyType="next"
-                         clearButtonMode="while-editing"
-                       />
-                     </View>
-                   </>
-                 ) : (
-                   <>
-                     <View>
-                       <Select
-                         label="País de residencia"
-                         options={COUNTRY_OPTIONS}
-                         value={formData.residence_country}
-                         onSelect={(value) => handleSelectChange('residence_country', value)}
-                         placeholder="Selecciona tu país"
-                       />
-                     </View>
+                       <View>
+                         <Text className='text-base font-medium' 
+                           style={{
+                             color: Colors.primary[500],
+                             marginBottom: 8,
+                           }}
+                         >
+                           Apellido
+                         </Text>
+                         <Input
+                           placeholder="Ingresa tu apellido"
+                           value={formData.last_name}
+                           onChangeText={(value) => handleInputChange('last_name', value)}
+                           autoCapitalize="words"
+                         />
+                       </View>
 
-                     <View>
-                       <CalendarSelect
-                         label="Fecha de nacimiento"
-                         value={formData.birth_date}
-                         onSelect={(value: string) => handleInputChange('birth_date', value)}
-                         placeholder="Selecciona tu fecha de nacimiento"
-                       />
-                     </View>
+                       <View>
+                         <Text className='text-base font-medium' 
+                           style={{
+                             color: isRutLocked ? Colors.gray[400] : Colors.primary[500],
+                             marginBottom: 8,
+                           }}
+                         >
+                           RUT
+                         </Text>
+                         <Input
+                           placeholder="12345678-9"
+                           value={formData.rut}
+                           onChangeText={handleRUTChange}
+                           autoCapitalize="characters"
+                           maxLength={10}
+                           keyboardType="default"
+                           returnKeyType="next"
+                           clearButtonMode="while-editing"
+                           disabled={isRutLocked}
+                         />
+                       </View>
+                     </>
+                   ) : (
+                     <>
+                       <View>
+                         <Select
+                           label="País de residencia"
+                           options={COUNTRY_OPTIONS}
+                           value={formData.residence_country_name}
+                           onSelect={(value) => handleSelectChange('residence_country_name', value)}
+                           placeholder="Selecciona tu país"
+                         />
+                       </View>
 
-                     <View>
-                       <Select
-                         label="Ingresos mensuales"
-                         options={MONTHLY_INCOME_OPTIONS}
-                         value={formData.monthly_incomes}
-                         onSelect={(value) => handleSelectChange('monthly_incomes', value)}
-                         placeholder="Selecciona tu rango de ingresos"
-                       />
-                       <Text className='text-sm font-regular' 
-                         style={{
-                           color: Colors.gray[400],
-                         }}
-                       >
-                         Esta información nos ayuda a personalizar tus recomendaciones
-                       </Text>
-                     </View>
-                   </>
-                 )}
-               </View>
+                       <View>
+                         <CalendarSelect
+                           label="Fecha de nacimiento"
+                           value={formData.birth_date}
+                           onSelect={(value: string) => handleInputChange('birth_date', value)}
+                           placeholder="Selecciona tu fecha de nacimiento"
+                         />
+                       </View>
 
-             {serviceError && (
-               <View style={{ 
-                 backgroundColor: Colors.error[50], 
-                 borderWidth: 1, 
-                 borderColor: Colors.error[200],
-                 borderRadius: 8,
-                 padding: 12,
-                 marginBottom: 16
-               }}>
-                 <Text className="text-sm font-medium" style={{ color: Colors.error[700] }}>
-                   Error al enviar datos
-                 </Text>
-                 <Text className="text-sm font-regular" style={{ color: Colors.error[600], marginTop: 4 }}>
-                   {serviceError}
-                 </Text>
-               </View>
-             )}
+                       <View>
+                         <Select
+                           label="Ingresos mensuales"
+                           options={MONTHLY_INCOME_OPTIONS}
+                           value={formData.monthly_incomes}
+                           onSelect={(value) => handleSelectChange('monthly_incomes', value)}
+                           placeholder="Selecciona tu rango de ingresos"
+                         />
+                         <Text className='text-sm font-regular' 
+                           style={{
+                             color: Colors.gray[400],
+                           }}
+                         >
+                           Esta información nos ayuda a personalizar tus recomendaciones
+                         </Text>
+                       </View>
+                     </>
+                   )}
+                 </View>
 
-            <View style={{ marginTop: 32, gap: 12 }}>
-              {currentStep > 1 && (
+               {serviceError && (
+                 <View style={{ 
+                   backgroundColor: Colors.error[50], 
+                   borderWidth: 1, 
+                   borderColor: Colors.error[200],
+                   borderRadius: 8,
+                   padding: 12,
+                   marginBottom: 16
+                 }}>
+                   <Text className="text-sm font-medium" style={{ color: Colors.error[700] }}>
+                     Error al enviar datos
+                   </Text>
+                   <Text className="text-sm font-regular" style={{ color: Colors.error[600], marginTop: 4 }}>
+                     {serviceError}
+                   </Text>
+                 </View>
+               )}
+
+              <View style={{ marginTop: 32, gap: 12 }}>
+                {currentStep > 1 && (
+                  <Button
+                    title="Atrás"
+                    onPress={handlePreviousStep}
+                    disabled={loading}
+                    variant="outline"
+                    fullWidth
+                  />
+                )}
+                
                 <Button
-                  title="Atrás"
-                  onPress={handlePreviousStep}
-                  disabled={loading}
-                  variant="outline"
+                  title={isLoading ? "Guardando..." : currentStep === 1 ? "Siguiente" : "Completar"}
+                  onPress={handleNextStep}
+                  disabled={isLoading || allErrors.length > 0}
+                  loading={isLoading}
+                  variant="primary"
                   fullWidth
                 />
-              )}
-              
-              <Button
-                title={isLoading ? "Guardando..." : currentStep === 1 ? "Siguiente" : "Completar"}
-                onPress={handleNextStep}
-                disabled={isLoading || allErrors.length > 0}
-                loading={isLoading}
-                variant="primary"
-                fullWidth
-              />
-            </View>
-           </Card>
-         </View>
-       </ScrollView>
-     </Container>
-   </KeyboardAwareContainer>
- );
+              </View>
+             </Card>
+           </View>
+          )}
+        </ScrollView>
+      </Container>
+    </KeyboardAwareContainer>
+  );
 } 

@@ -27,8 +27,6 @@ export async function getCash(token: string): Promise<CashResponse | null> {
 
     const url = `${config.apiBaseUrl}/api/v2/cash`;
 
-    console.log('📡 Fetching cash data from:', url);
-
     const response = await fetch(url, {
       method: 'GET',
       headers: {

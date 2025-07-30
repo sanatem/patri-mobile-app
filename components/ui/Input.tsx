@@ -25,6 +25,7 @@ type InputProps = TextInputProps & {
   blurOnSubmit?: boolean;
   returnKeyType?: 'done' | 'go' | 'next' | 'search' | 'send';
   onSubmitEditing?: () => void;
+  disabled?: boolean;
 };
 
 export function Input({
@@ -40,6 +41,7 @@ export function Input({
   blurOnSubmit = true,
   returnKeyType = 'done',
   onSubmitEditing,
+  disabled = false,
   ...props
 }: InputProps) {
   const [isFocused, setIsFocused] = useState(false);
@@ -66,36 +68,56 @@ export function Input({
     }
   };
 
+  const isDisabled = disabled || !editable;
+
+  const borderColor = isDisabled 
+    ? Colors.gray[100] 
+    : error 
+      ? '#DC2626' 
+      : animatedBorderColor;
+
   return (
     <View className="mb-5 w-full">
       {label && (
-        <Text className="text-base font-medium mb-2" style={{ color: Colors.primary[500] }}>{label}</Text>
+        <Text 
+          className="text-base font-medium mb-2" 
+          style={{ 
+            color: isDisabled ? Colors.gray[400] : Colors.primary[500] 
+          }}
+        >
+          {label}
+        </Text>
       )}
 
       <Animated.View
         style={[
           inputStyles.container,
           {
-            borderColor: error ? '#DC2626' : animatedBorderColor,
+            borderColor: borderColor,
             backgroundColor: '#fff',
+            opacity: isDisabled ? 0.6 : 1,
           },
         ]}
       >
         {icon && <View style={inputStyles.iconContainer}>{icon}</View>}
 
         <TextInput
-        className="flex-1 text-base text-gray-800 font-regular "
-          style={inputStyles.textInput}
-          placeholderTextColor={Colors.primary[400]}
+          className="flex-1 text-base text-gray-800 font-regular"
+          style={[
+            inputStyles.textInput,
+            {
+              color: isDisabled ? Colors.gray[400] : Colors.primary[800],
+            }
+          ]}
+          placeholderTextColor={isDisabled ? Colors.gray[400] : Colors.primary[400]}
           underlineColorAndroid="transparent"
-          editable={editable}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
+          editable={editable && !disabled}
+          onFocus={() => !isDisabled && setIsFocused(true)}
+          onBlur={() => !isDisabled && setIsFocused(false)}
           returnKeyType={returnKeyType}
           blurOnSubmit={blurOnSubmit}
           onSubmitEditing={handleSubmitEditing}
           clearButtonMode="never"
-        
           {...props}
         />
 

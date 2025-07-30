@@ -88,8 +88,6 @@ export default function MoreScreen() {
 
       const result = await deleteUserAccount(accessToken);
       
-      console.log('✅ Solicitud de eliminación enviada exitosamente:', result);
-      
       setShowConfirmationModal(true);
       
     } catch (error) {
@@ -358,7 +356,7 @@ const styles = StyleSheet.create({
   headerSubtitle: {
     fontSize: 16,
     color: '#6b7280',
-    marginLeft: 40, // Alineado con el título
+    marginLeft: 40,
   },
   menuContainer: {
     backgroundColor: 'white',
@@ -451,7 +449,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#9ca3af',
   },
-  // Estilos para modales
   modalOverlay: {
     flex: 1,
     justifyContent: 'center',

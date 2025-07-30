@@ -1,4 +1,4 @@
-import { View, ActivityIndicator } from 'react-native';
+import { View, ActivityIndicator, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import WithoutAccountScreen from './without-account';
@@ -27,7 +27,7 @@ export default function InvestmentIndex() {
         try {
           router.replace('/investment/portfolio');
         } catch (error) {
-          console.log('Navigation error:', error);
+          Alert.alert('Error', 'No se pudo navegar a la pantalla solicitada');
         }
       }, 100);
       
