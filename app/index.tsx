@@ -27,10 +27,19 @@ export default function Index() {
   }
 
   if (isAuthenticated && user && accessToken) {
-    if (!hasSeenOnboarding) {
+    if (hasSeenOnboarding === false) {
       return <Redirect href="/onboarding" />;
     }
-    return <Redirect href="/(tabs)/patrimony" />;
+    
+    if (hasSeenOnboarding === true) {
+      return <Redirect href="/(tabs)/patrimony" />;
+    }
+
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
+        <ActivityIndicator size="large" color={Colors.secondary[500]} />
+      </View>
+    );
   }
   
   return <Redirect href="/splash-screens" />;

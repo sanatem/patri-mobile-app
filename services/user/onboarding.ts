@@ -6,7 +6,7 @@ export interface OnboardingPersonalInformation {
   rut: string;
   birth_date: string;
   monthly_incomes: string;
-  residence_country: string;
+  residence_country_name: string;
 }
 
 export interface OnboardingRequest {
