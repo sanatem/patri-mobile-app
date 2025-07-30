@@ -102,25 +102,12 @@ export function PatrimonySummary({
 
   let displayData;
   if (networthData && !error && !loading) {
-    console.log('🔍 Using API data:', {
-      patrimony_value: networthData.networth.patrimony_value,
-      total_assets: networthData.networth.total_assets,
-      total_debts: networthData.networth.total_debts,
-    });
     displayData = {
       totalNetWorth: Number(networthData.networth.patrimony_value) || 0,
       totalAssets: Number(networthData.networth.total_assets) || 0,
       totalLiabilities: Number(networthData.networth.total_debts) || 0,
     };
   } else {
-    console.log('🔍 Using fallback data:', {
-      totalNetWorth,
-      totalAssets,
-      totalLiabilities,
-      error,
-      loading,
-      hasNetworthData: !!networthData
-    });
     displayData = {
       totalNetWorth: Number(totalNetWorth) || 0,
       totalAssets: Number(totalAssets) || 0,

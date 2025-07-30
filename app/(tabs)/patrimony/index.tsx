@@ -83,25 +83,6 @@ export default function PatrimonyScreen() {
   }, true);
 
   useEffect(() => {
-    console.log('🔍 Patrimony Debug Info:', {
-      apiAssets: apiAssets ? 'Loaded' : 'Not loaded',
-      apiDebts: apiDebts ? 'Loaded' : 'Not loaded',
-      assetsLoading,
-      debtsLoading,
-      assetsError,
-      debtsError,
-      totalAssets: apiAssets?.totals?.total_assets || 0,
-      totalDebts: apiDebts?.totals?.total_debts || 0,
-      assetsCount: apiAssets?.assets ? 
-        (apiAssets.assets.fixed_assets.length + 
-         apiAssets.assets.saving_instruments.length + 
-         apiAssets.assets.investment_properties.length + 
-         apiAssets.assets.main_homes.length) : 0,
-      debtsCount: apiDebts?.debts?.length || 0
-    });
-  }, [apiAssets, apiDebts, assetsLoading, debtsLoading, assetsError, debtsError]);
-
-  useEffect(() => {
     const setupRevenueCat = async () => {
       try {
         if (!user?.backendUserId) {
@@ -112,37 +93,21 @@ export default function PatrimonyScreen() {
         const isConfigured = await Purchases.isConfigured();
         if (isConfigured) {
           await Purchases.logIn(user.backendUserId.toString());
-          if (user.email) {
-            await Purchases.setEmail(user.email);
-          }
-          return;
+        } else {
+          await Purchases.configure({
+            apiKey: Platform.OS === 'ios' 
+              ? 'appl_xxx' 
+              : 'goog_xxx',
+            appUserID: user.backendUserId.toString()
+          });
         }
-        const apiKey = Platform.OS === 'android' 
-          ? process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_KEY
-          : Platform.OS === 'ios' 
-          ? process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY
-          : null;
-        if (!apiKey) {
-          throw new Error(`RevenueCat API key not found for platform: ${Platform.OS}`);
-        }
-        await Purchases.configure({
-          apiKey,
-          appUserID: user.backendUserId.toString(),
-        });
-        if (user.email) {
-          await Purchases.setEmail(user.email);
-        }
-
-        console.log('RevenueCat configured successfully');
       } catch (error) {
-        console.error('Error inicializando RevenueCat:', error);
+        console.error('RevenueCat setup error:', error);
       }
     };
 
-    if (user) {
-      setupRevenueCat();
-    }
-  }, [user?.backendUserId, user?.email]);
+    setupRevenueCat();
+  }, [user?.backendUserId]);
 
   useEffect(() => {
     loadPatrimonyData();
