@@ -18,7 +18,8 @@ import {
   CalendarSelect, 
   Container, 
   Card, 
-  KeyboardAwareContainer 
+  KeyboardAwareContainer,
+  InfoTooltip
 } from '@/components/ui';
 import Colors from '@/constants/Colors';
 import { PatrimoreIcon } from '@/components/icons';
@@ -54,10 +55,7 @@ export default function OnboardingScreen() {
   const { keyboardHeight, isKeyboardVisible } = useKeyboardHandler();
   const { accessToken } = useAuth();
   
-  const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
-    first_name: '',
-    last_name: '',
     rut: '',
     residence_country_name: '',
     birth_date: '',
@@ -75,10 +73,6 @@ export default function OnboardingScreen() {
   useEffect(() => {
     loadUserData();
   }, []);
-
-  useEffect(() => {
-    validateStep(currentStep);
-  }, [currentStep]);
 
   const loadUserData = async () => {
     if (!accessToken) {
@@ -122,8 +116,6 @@ export default function OnboardingScreen() {
         }
         
         const newFormData = {
-          first_name: personalInfo.first_name || '',
-          last_name: personalInfo.last_name || '',
           rut: personalInfo.rut || '',
           residence_country_name: personalInfo.residence_country_name || '',
           birth_date: birthDate || '',
@@ -131,15 +123,6 @@ export default function OnboardingScreen() {
         };
         
         setFormData(newFormData);
-        
-        setTimeout(() => {
-          const currentStepErrors = validateStepWithData(currentStep, newFormData);
-          const step2Errors = validateStepWithData(2, newFormData);
-          
-          if (currentStep === 1 && currentStepErrors.length === 0) {
-            setErrors([]);
-          }
-        }, 100);
       }
     } catch (error) {
       console.error('Error loading user data:', error);
@@ -156,7 +139,7 @@ export default function OnboardingScreen() {
       };
       
       setTimeout(() => {
-        validateStepWithData(currentStep, newFormData);
+        validateFormWithData(newFormData);
       }, 100);
       
       return newFormData;
@@ -171,7 +154,7 @@ export default function OnboardingScreen() {
       };
       
       setTimeout(() => {
-        validateStepWithData(currentStep, newFormData);
+        validateFormWithData(newFormData);
       }, 100);
       
       return newFormData;
@@ -204,7 +187,7 @@ export default function OnboardingScreen() {
       };
       
       setTimeout(() => {
-        validateStepWithData(currentStep, newFormData);
+        validateFormWithData(newFormData);
       }, 100);
       
       return newFormData;
@@ -248,74 +231,24 @@ export default function OnboardingScreen() {
     return dateString;
   };
 
-  const validateStepWithData = (step: number, data: typeof formData) => {
+  const validateFormWithData = (data: typeof formData) => {
     const newErrors = [];
     
-    if (step === 1) {
-      if (!data.first_name.trim()) {
-        newErrors.push('El nombre es requerido');
-      }
-      
-      if (!data.last_name.trim()) {
-        newErrors.push('El apellido es requerido');
-      }
-      
-      if (!data.rut.trim()) {
-        newErrors.push('El RUT es requerido');
-      } else if (data.rut.length < 3) {
-        newErrors.push('El RUT debe tener al menos 3 caracteres');
-      }
-    } else if (step === 2) {
-      if (!data.residence_country_name.trim()) {
-        newErrors.push('El país de residencia es requerido');
-      }
-      
-      if (!data.birth_date.trim()) {
-        newErrors.push('La fecha de nacimiento es requerida');
-      }
-      
-      if (!data.monthly_incomes.trim()) {
-        newErrors.push('Los ingresos mensuales son requeridos');
-      }
-    }
-    
-    if (step === currentStep) {
-      setErrors(newErrors);
-    }
-    
-    return newErrors;
-  };
-
-  const validateStep = (step: number) => {
-    return validateStepWithData(step, formData);
-  };
-
-  const validateForm = () => {
-    const newErrors = [];
-    
-    if (!formData.first_name.trim()) {
-      newErrors.push('El nombre es requerido');
-    }
-    
-    if (!formData.last_name.trim()) {
-      newErrors.push('El apellido es requerido');
-    }
-    
-    if (!formData.rut.trim()) {
+    if (!data.rut.trim()) {
       newErrors.push('El RUT es requerido');
-    } else if (formData.rut.length < 3) {
+    } else if (data.rut.length < 3) {
       newErrors.push('El RUT debe tener al menos 3 caracteres');
     }
     
-    if (!formData.residence_country_name.trim()) {
+    if (!data.residence_country_name.trim()) {
       newErrors.push('El país de residencia es requerido');
     }
     
-    if (!formData.birth_date.trim()) {
+    if (!data.birth_date.trim()) {
       newErrors.push('La fecha de nacimiento es requerida');
     }
     
-    if (!formData.monthly_incomes.trim()) {
+    if (!data.monthly_incomes.trim()) {
       newErrors.push('Los ingresos mensuales son requeridos');
     }
     
@@ -323,30 +256,8 @@ export default function OnboardingScreen() {
     return newErrors;
   };
 
-  const handleNextStep = () => {
-    if (currentStep === 1) {
-      const step1Errors = validateStepWithData(1, formData);
-      if (step1Errors.length > 0) {
-        setErrors(step1Errors);
-        return;
-      }
-      
-      setTimeout(() => {
-        const step2Errors = validateStepWithData(2, formData);
-        if (step2Errors.length === 0) {
-          setErrors([]);
-        }
-      }, 100);
-      
-      setCurrentStep(2);
-      setErrors([]);
-    } else {
-      handleComplete();
-    }
-  };
-
-  const handlePreviousStep = () => {
-    setCurrentStep(1);
+  const validateForm = () => {
+    return validateFormWithData(formData);
   };
 
   const handleComplete = async () => {
@@ -362,8 +273,6 @@ export default function OnboardingScreen() {
 
       const onboardingData = {
         personal_information: {
-          first_name: formData.first_name,
-          last_name: formData.last_name,
           rut: formatRUTForBackend(formData.rut),
           birth_date: convertDateFormat(formData.birth_date),
           monthly_incomes: formData.monthly_incomes,
@@ -426,7 +335,7 @@ export default function OnboardingScreen() {
                       marginBottom: 8,
                     }}
                   >
-                    {currentStep === 1 ? 'Información Personal' : 'Información Adicional'}
+                    Información Personal
                   </Text>
                   <Text className='text-base font-regular text-center'
                     style={{
@@ -434,173 +343,131 @@ export default function OnboardingScreen() {
                       textAlign: 'center',
                     }}
                   >
-                    {currentStep === 1 
-                      ? 'Cuéntanos sobre ti' 
-                      : 'Completa tu perfil para personalizar tu experiencia'
-                    }
+                    Ayúdanos a personalizar tu experiencia 😎
                   </Text>
-                  
-                  <View style={{ 
-                    flexDirection: 'row', 
-                    justifyContent: 'center', 
-                    marginTop: 16,
-                    gap: 8
-                  }}>
-                    <View style={{
-                      width: 20,
-                      height: 4,
-                      backgroundColor: currentStep >= 1 ? Colors.secondary[500] : Colors.gray[300],
-                      borderRadius: 2,
-                    }} />
-                    <View style={{
-                      width: 20,
-                      height: 4,
-                      backgroundColor: currentStep >= 2 ? Colors.secondary[500] : Colors.gray[300],
-                      borderRadius: 2,
-                    }} />
+                </View>
+
+                <View style={{ gap: 20 }}>
+                  <View>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+                      <Text className='text-base font-medium' 
+                        style={{
+                          color: isRutLocked ? Colors.gray[400] : Colors.primary[500],
+                        }}
+                      >
+                        RUT
+                      </Text>
+                        <InfoTooltip 
+                         info="El RUT es tu identificación única en Chile. Lo necesitamos para verificar tu identidad y ofrecerte servicios personalizados."
+                         disabled={isRutLocked}
+                       />
+                    </View>
+                    <Input
+                      placeholder="12345678-9"
+                      value={formData.rut}
+                      onChangeText={handleRUTChange}
+                      autoCapitalize="characters"
+                      maxLength={10}
+                      keyboardType="default"
+                      returnKeyType="next"
+                      clearButtonMode="while-editing"
+                      disabled={isRutLocked}
+                    />
+                  </View>
+
+                  <View>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+                      <Text className='text-base font-medium' 
+                        style={{
+                          color: Colors.primary[500],
+                        }}
+                      >
+                        País de residencia
+                      </Text>
+                      <InfoTooltip 
+                        info="Necesitamos conocer tu país de residencia para adaptar nuestros servicios y recomendaciones a tu ubicación geográfica."
+                      />
+                    </View>
+                    <Select
+                      options={COUNTRY_OPTIONS}
+                      value={formData.residence_country_name}
+                      onSelect={(value) => handleSelectChange('residence_country_name', value)}
+                      placeholder="Selecciona tu país"
+                    />
+                  </View>
+
+                  <View>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+                      <Text className='text-base font-medium' 
+                        style={{
+                          color: Colors.primary[500],
+                        }}
+                      >
+                        Fecha de nacimiento
+                      </Text>
+                      <InfoTooltip 
+                        info="Tu fecha de nacimiento nos ayuda a calcular tu edad y ofrecerte recomendaciones financieras apropiadas para tu etapa de vida."
+                      />
+                    </View>
+                    <CalendarSelect
+                      value={formData.birth_date}
+                      onSelect={(value: string) => handleInputChange('birth_date', value)}
+                      placeholder="Selecciona tu fecha de nacimiento"
+                    />
+                  </View>
+
+                  <View>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+                      <Text className='text-base font-medium' 
+                        style={{
+                          color: Colors.primary[500],
+                        }}
+                      >
+                        Ingresos mensuales
+                      </Text>
+                      <InfoTooltip 
+                        info="Conocer tu rango de ingresos nos permite ofrecerte recomendaciones financieras más precisas y productos adecuados a tu capacidad económica."
+                      />
+                    </View>
+                    <Select
+                      options={MONTHLY_INCOME_OPTIONS}
+                      value={formData.monthly_incomes}
+                      onSelect={(value) => handleSelectChange('monthly_incomes', value)}
+                      placeholder="Selecciona tu rango de ingresos"
+                    />
                   </View>
                 </View>
 
-                 <View style={{ gap: 20 }}>
-                   {currentStep === 1 ? (
-                     <>
-                       <View>
-                         <Text className='text-base font-medium' 
-                           style={{
-                             color: Colors.primary[500],
-                             marginBottom: 8,
-                           }}
-                         >
-                           Nombre
-                         </Text>
-                         <Input
-                           placeholder="Ingresa tu nombre"
-                           value={formData.first_name}
-                           onChangeText={(value) => handleInputChange('first_name', value)}
-                           autoCapitalize="words"
-                         />
-                       </View>
+                {serviceError && (
+                  <View style={{ 
+                    backgroundColor: Colors.error[50], 
+                    borderWidth: 1, 
+                    borderColor: Colors.error[200],
+                    borderRadius: 8,
+                    padding: 12,
+                    marginBottom: 16
+                  }}>
+                    <Text className="text-sm font-medium" style={{ color: Colors.error[700] }}>
+                      Error al enviar datos
+                    </Text>
+                    <Text className="text-sm font-regular" style={{ color: Colors.error[600], marginTop: 4 }}>
+                      {serviceError}
+                    </Text>
+                  </View>
+                )}
 
-                       <View>
-                         <Text className='text-base font-medium' 
-                           style={{
-                             color: Colors.primary[500],
-                             marginBottom: 8,
-                           }}
-                         >
-                           Apellido
-                         </Text>
-                         <Input
-                           placeholder="Ingresa tu apellido"
-                           value={formData.last_name}
-                           onChangeText={(value) => handleInputChange('last_name', value)}
-                           autoCapitalize="words"
-                         />
-                       </View>
-
-                       <View>
-                         <Text className='text-base font-medium' 
-                           style={{
-                             color: isRutLocked ? Colors.gray[400] : Colors.primary[500],
-                             marginBottom: 8,
-                           }}
-                         >
-                           RUT
-                         </Text>
-                         <Input
-                           placeholder="12345678-9"
-                           value={formData.rut}
-                           onChangeText={handleRUTChange}
-                           autoCapitalize="characters"
-                           maxLength={10}
-                           keyboardType="default"
-                           returnKeyType="next"
-                           clearButtonMode="while-editing"
-                           disabled={isRutLocked}
-                         />
-                       </View>
-                     </>
-                   ) : (
-                     <>
-                       <View>
-                         <Select
-                           label="País de residencia"
-                           options={COUNTRY_OPTIONS}
-                           value={formData.residence_country_name}
-                           onSelect={(value) => handleSelectChange('residence_country_name', value)}
-                           placeholder="Selecciona tu país"
-                         />
-                       </View>
-
-                       <View>
-                         <CalendarSelect
-                           label="Fecha de nacimiento"
-                           value={formData.birth_date}
-                           onSelect={(value: string) => handleInputChange('birth_date', value)}
-                           placeholder="Selecciona tu fecha de nacimiento"
-                         />
-                       </View>
-
-                       <View>
-                         <Select
-                           label="Ingresos mensuales"
-                           options={MONTHLY_INCOME_OPTIONS}
-                           value={formData.monthly_incomes}
-                           onSelect={(value) => handleSelectChange('monthly_incomes', value)}
-                           placeholder="Selecciona tu rango de ingresos"
-                         />
-                         <Text className='text-sm font-regular' 
-                           style={{
-                             color: Colors.gray[400],
-                           }}
-                         >
-                           Esta información nos ayuda a personalizar tus recomendaciones
-                         </Text>
-                       </View>
-                     </>
-                   )}
-                 </View>
-
-               {serviceError && (
-                 <View style={{ 
-                   backgroundColor: Colors.error[50], 
-                   borderWidth: 1, 
-                   borderColor: Colors.error[200],
-                   borderRadius: 8,
-                   padding: 12,
-                   marginBottom: 16
-                 }}>
-                   <Text className="text-sm font-medium" style={{ color: Colors.error[700] }}>
-                     Error al enviar datos
-                   </Text>
-                   <Text className="text-sm font-regular" style={{ color: Colors.error[600], marginTop: 4 }}>
-                     {serviceError}
-                   </Text>
-                 </View>
-               )}
-
-              <View style={{ marginTop: 32, gap: 12 }}>
-                {currentStep > 1 && (
+                <View style={{ marginTop: 32 }}>
                   <Button
-                    title="Atrás"
-                    onPress={handlePreviousStep}
-                    disabled={loading}
-                    variant="outline"
+                    title={isLoading ? "Guardando..." : "Completar"}
+                    onPress={handleComplete}
+                    disabled={isLoading || allErrors.length > 0}
+                    loading={isLoading}
+                    variant="primary"
                     fullWidth
                   />
-                )}
-                
-                <Button
-                  title={isLoading ? "Guardando..." : currentStep === 1 ? "Siguiente" : "Completar"}
-                  onPress={handleNextStep}
-                  disabled={isLoading || allErrors.length > 0}
-                  loading={isLoading}
-                  variant="primary"
-                  fullWidth
-                />
-              </View>
-             </Card>
-           </View>
+                </View>
+              </Card>
+            </View>
           )}
         </ScrollView>
       </Container>

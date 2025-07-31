@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform } from 'react-native';
 
 export const useOnboarding = () => {
   const [hasSeenOnboarding, setHasSeenOnboarding] = useState<boolean | null>(null);
@@ -11,8 +12,11 @@ export const useOnboarding = () => {
 
   const checkOnboardingStatus = async () => {
     try {
-      const onboardingCompleted = await AsyncStorage.getItem('onboarding_completed');
+      if (Platform.OS !== 'web') {
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
       
+      const onboardingCompleted = await AsyncStorage.getItem('onboarding_completed');
       const hasSeen = onboardingCompleted === 'true';
       
       setHasSeenOnboarding(hasSeen);
