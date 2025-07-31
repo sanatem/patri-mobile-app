@@ -1,4 +1,4 @@
-import { ScrollView, Alert } from 'react-native';
+import { ScrollView } from 'react-native';
 import { LABELS } from '@/constants/AppConstants';
 import {
   Header,
@@ -6,24 +6,24 @@ import {
 } from '@/components/ui';
 import { PlanningCarousel } from '@/components/planning/paid-plan';
 import AdvisorSection from '@/components/planning/paid-plan/AdvisorSection';
-import { PlanningCard } from '@/types/planning';
+
 
 export default function PaidPlan() {
 
-  const handleScheduleMeeting = () => {
-    Alert.alert('Funcionalidad en desarrollo', 'Esta función estará disponible próximamente');
+  const handleSchedulePress = () => {
+    console.log('Programar reunión');
   };
 
-  const handleStartChat = () => {
-    Alert.alert('Funcionalidad en desarrollo', 'Esta función estará disponible próximamente');
+  const handleChatPress = () => {
+    console.log('Iniciar chat');
   };
 
-  const handleCardPress = (card: PlanningCard) => {
-    Alert.alert('Funcionalidad en desarrollo', 'Esta función estará disponible próximamente');
+  const handleCarouselCardPress = (card: any) => {
+    console.log('Plan seleccionado:', card.title, card.price);
   };
 
-  const handleAIRequest = (card: PlanningCard) => {
-    Alert.alert('Funcionalidad en desarrollo', 'Esta función estará disponible próximamente');
+  const handleAIPress = (card: any) => {
+    console.log('IA solicitada para:', card.title);
   };
 
   return (
@@ -36,8 +36,8 @@ export default function PaidPlan() {
         subtitleClassName="text-white"
       />
       <ScrollView className="flex-1 mx-2" showsVerticalScrollIndicator={false} style={{ marginTop: 10 }}>
-        <AdvisorSection onSchedule={handleScheduleMeeting} onChat={handleStartChat} />
-        {false && <PlanningCarousel onCardPress={handleCardPress} onAIPress={handleAIRequest} />}
+        <AdvisorSection onSchedule={handleSchedulePress} onChat={handleChatPress} />
+        {false && <PlanningCarousel onCardPress={handleCarouselCardPress} onAIPress={handleAIPress} />}
       </ScrollView>
     </Container>
   );

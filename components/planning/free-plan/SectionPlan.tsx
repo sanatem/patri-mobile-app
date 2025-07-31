@@ -49,7 +49,6 @@ const SectionPlan: React.FC<SectionPlanProps> = ({ onCardPress, isSubscribed }) 
   return (
     <View className="mb-6 px-4">
       {planCardsData.map((item) => {
-        // Modificar la primera tarjeta (Plan Premium móvil) si el usuario ya está suscrito
         const isSubscriptionCard = item.id === '1';
         const modifiedItem = isSubscriptionCard && isSubscribed 
           ? {
@@ -76,7 +75,6 @@ const SectionPlan: React.FC<SectionPlanProps> = ({ onCardPress, isSubscribed }) 
               minDuration={modifiedItem.minDuration}
               badge={modifiedItem.badge}
               onPress={() => {
-                // Solo permitir click si no está suscrito o es la segunda tarjeta (Planes)
                 if (!isSubscriptionCard || !isSubscribed) {
                   onCardPress?.(item);
                 }

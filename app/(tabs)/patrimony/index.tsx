@@ -44,7 +44,7 @@ export default function PatrimonyScreen() {
   const { userData, loading: userLoading } = useUserData();
   const { rangeSize, setRangeSize } = useChartRangeStore();
   const router = useRouter();
-  
+
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'assets' | 'liabilities'>('assets');
   const [ownerView, setOwnerView] = useState<'mine' | 'partner' | 'both'>('mine');
@@ -83,31 +83,67 @@ export default function PatrimonyScreen() {
   }, true);
 
   useEffect(() => {
+    console.log('🔍 Patrimony Debug Info:', {
+      apiAssets: apiAssets ? 'Loaded' : 'Not loaded',
+      apiDebts: apiDebts ? 'Loaded' : 'Not loaded',
+      assetsLoading,
+      debtsLoading,
+      assetsError,
+      debtsError,
+      totalAssets: apiAssets?.totals?.total_assets || 0,
+      totalDebts: apiDebts?.totals?.total_debts || 0,
+      assetsCount: apiAssets?.assets ? 
+        (apiAssets.assets.fixed_assets.length + 
+         apiAssets.assets.saving_instruments.length + 
+         apiAssets.assets.investment_properties.length + 
+         apiAssets.assets.main_homes.length) : 0,
+      debtsCount: apiDebts?.debts?.length || 0
+    });
+  }, [apiAssets, apiDebts, assetsLoading, debtsLoading, assetsError, debtsError]);
+
+  useEffect(() => {
     const setupRevenueCat = async () => {
       try {
         if (!user?.backendUserId) {
           console.warn('RevenueCat: No backend user ID available');
           return;
         }
-        
+
         const isConfigured = await Purchases.isConfigured();
         if (isConfigured) {
           await Purchases.logIn(user.backendUserId.toString());
-        } else {
-          await Purchases.configure({
-            apiKey: Platform.OS === 'ios' 
-              ? 'appl_xxx' 
-              : 'goog_xxx',
-            appUserID: user.backendUserId.toString()
-          });
+          if (user.email) {
+            await Purchases.setEmail(user.email);
+          }
+          return;
+
         }
+        const apiKey = Platform.OS === 'android' 
+          ? process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_KEY
+          : Platform.OS === 'ios' 
+          ? process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY
+          : null;
+        if (!apiKey) {
+          throw new Error(`RevenueCat API key not found for platform: ${Platform.OS}`);
+        }
+        await Purchases.configure({
+          apiKey,
+          appUserID: user.backendUserId.toString(),
+        });
+        if (user.email) {
+          await Purchases.setEmail(user.email);
+        }
+
+        console.log('RevenueCat configured successfully');
       } catch (error) {
-        console.error('RevenueCat setup error:', error);
+        console.error('Error inicializando RevenueCat:', error);
       }
     };
 
-    setupRevenueCat();
-  }, [user?.backendUserId]);
+    if (user) {
+      setupRevenueCat();
+    }
+  }, [user?.backendUserId, user?.email]);
 
   useEffect(() => {
     loadPatrimonyData();
@@ -221,20 +257,20 @@ export default function PatrimonyScreen() {
   const extractInitialsFromAuth0User = (user: any): string => {
     try {
       const userMetadata = user['https://app.patrimore.com/user_metadata'];
-      
+
       if (userMetadata?.first_name && userMetadata?.last_name) {
         const firstInitial = userMetadata.first_name.charAt(0).toUpperCase();
         const lastInitial = userMetadata.last_name.charAt(0).toUpperCase();
         return firstInitial + lastInitial;
       }
-      
+
       if (user.nickname) {
         const parts = user.nickname.split('.');
         if (parts.length >= 2) {
           return (parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase();
         }
       }
-      
+
       if (user.email) {
         const username = user.email.split('@')[0];
         const parts = username.split(/[._-]+/);
@@ -243,7 +279,7 @@ export default function PatrimonyScreen() {
         }
         return username.slice(0, 2).toUpperCase();
       }
-      
+
       return 'U';
     } catch (error) {
       console.warn('Error extracting initials:', error);
@@ -270,7 +306,7 @@ export default function PatrimonyScreen() {
     a.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
     a.type.toLowerCase().includes(searchQuery.toLowerCase())
   );
-  
+
   const filteredLiabilities = currentLiabilities.filter((l) => 
     l.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
     l.type.toLowerCase().includes(searchQuery.toLowerCase())
@@ -308,10 +344,10 @@ export default function PatrimonyScreen() {
           variant: 'positive' as const
         }
       })),
-      
+
       ...apiAssets.assets.saving_instruments.map(asset => {
         const icon = getSavingInstrumentIcon(asset.type, asset.name);
-        
+
         return {
           id: asset.id.toString(),
           title: asset.name,
@@ -324,7 +360,7 @@ export default function PatrimonyScreen() {
           }
         };
       }),
-      
+
       ...apiAssets.assets.investment_properties.map(asset => ({
         id: asset.id.toString(),
         title: `Propiedad ${asset.location}`,
@@ -341,7 +377,7 @@ export default function PatrimonyScreen() {
           variant: 'positive' as const
         }
       })),
-      
+
       ...apiAssets.assets.main_homes.map(asset => ({
         id: asset.id.toString(),
         title: `Casa ${asset.location}`,
@@ -439,7 +475,7 @@ export default function PatrimonyScreen() {
   const currentTimeRangeLabel = Object.keys(TIME_RANGES.MAPPING).find((key) => 
     TIME_RANGES.MAPPING[key as keyof typeof TIME_RANGES.MAPPING] === rangeSize
   ) || '6 Meses';
-  
+
   const handleUserViewChange = (view: 'mine' | 'partner' | 'both') => {
     setOwnerView(view);
     setShowSelector(false);
@@ -457,7 +493,7 @@ export default function PatrimonyScreen() {
   const currentData = activeTab === 'assets' ? assetsData : liabilitiesData;
   const isLoadingData = (activeTab === 'assets' && assetsLoading) || (activeTab === 'liabilities' && debtsLoading);
   const currentError = activeTab === 'assets' ? assetsError : debtsError;
-  
+
   const hasNoAssets = !hasApiAssets || (hasApiAssets && apiAssetsData.length === 0);
   const hasNoDebts = !hasApiDebts || (hasApiDebts && apiDebtsData.length === 0);
   const hasNoCurrentData = activeTab === 'assets' ? hasNoAssets : hasNoDebts;
@@ -629,7 +665,7 @@ export default function PatrimonyScreen() {
                   {activeTab === 'assets' ? '+' : '-'}${currentTabTotal.toLocaleString('es-CL')}
                 </Text>
               </View>
-              
+
               {isLoadingData ? (
                 <Animated.View style={{ padding: 20, opacity: skeletonFadeAnim }}>
                   {Array.from({ length: 6 }).map((_, index) => (
