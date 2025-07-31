@@ -256,6 +256,14 @@ export default function OnboardingScreen() {
     return newErrors;
   };
 
+  const isFormValid = () => {
+    return formData.rut.trim() !== '' &&
+           formData.residence_country_name.trim() !== '' &&
+           formData.birth_date.trim() !== '' &&
+           formData.monthly_incomes.trim() !== '' &&
+           allErrors.length === 0;
+  };
+
   const validateForm = () => {
     return validateFormWithData(formData);
   };
@@ -460,7 +468,7 @@ export default function OnboardingScreen() {
                   <Button
                     title={isLoading ? "Guardando..." : "Completar"}
                     onPress={handleComplete}
-                    disabled={isLoading || allErrors.length > 0}
+                    disabled={isLoading || !isFormValid()}
                     loading={isLoading}
                     variant="primary"
                     fullWidth
