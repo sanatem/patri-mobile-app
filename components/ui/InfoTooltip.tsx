@@ -103,12 +103,14 @@ export default function InfoTooltip({
               {info}
             </Text>
 
-                         <Button
-               title="Entendido"
-               onPress={handleClose}
-               variant="primary"
-               fullWidth
-             />
+            <View style={{ alignItems: 'center' }}>
+              <Button
+                title="Entendido"
+                onPress={handleClose}
+                variant="primary"
+                fullWidth
+              />
+            </View>
           </Pressable>
         </Pressable>
       </Modal>

@@ -25,6 +25,7 @@ export const useOnboarding = () => {
         setHasSeenOnboarding(hasSeen);
       }
     } catch (error) {
+      console.error('useOnboarding - Error checking status:', error);
       setHasSeenOnboarding(false);
     } finally {
       setIsLoading(false);
