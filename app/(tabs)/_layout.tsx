@@ -2,9 +2,11 @@ import { Tabs } from 'expo-router';
 import TabBarIcon from '@/components/navigation/TabBarIcon';
 import Colors from '@/constants/Colors';
 import {useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 
 export default function TabsLayout() {
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
 
   return (
   <SafeAreaView style={{ flex: 1 }} edges={['left', 'right']}>
@@ -28,40 +30,42 @@ export default function TabsLayout() {
     >
       <Tabs.Screen
         name="patrimony"
-        options={{
-          title: 'Patrimonio',
+        options={() => ({
+          title: t('tabs.patrimony'),
           tabBarIcon: ({ color, size }) => (
             <TabBarIcon name="bar-chart" color={color} size={size} />
           ),
-        }}
+        })}
       />
+
       <Tabs.Screen
         name="budget"
-        options={{
-          title: 'Presupuesto',
+        options={() => ({
+          title: t('tabs.budget'),
           tabBarIcon: ({ color, size }) => (
             <TabBarIcon name="pie-chart" color={color} size={size} />
           ),
-        }}
+        })}
       />
       <Tabs.Screen
         name="investment"
-        options={{
-          title: 'Inversión',
+        options={() => ({
+          title: t('tabs.investment'),
           tabBarIcon: ({ color, size }) => (
             <TabBarIcon name="dollar" color={color} size={size} />
           ),
-        }}
+        })}
       />
-            <Tabs.Screen
+      <Tabs.Screen
         name="planning"
-        options={{
-          title: 'Planificación',
+        options={() => ({
+          title: t('tabs.planning'),
           tabBarIcon: ({ color, size }) => (
             <TabBarIcon name="users" color={color} size={size} />
           ),
-        }}
+        })}
       />
+
     </Tabs>
   </SafeAreaView>
   );
