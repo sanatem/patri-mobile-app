@@ -20,3 +20,5 @@ export { KeyboardAwareContainer } from './KeyboardAwareContainer';
 export { InteractiveChart } from './InteractiveChart';
 export { TipBox } from './TipBox';
 export { default as LockedTabOverlay } from './LockedTabOverlay';
+export { default as FormLayout } from './FormLayout';
+export { default as InfoTooltip } from './InfoTooltip';

@@ -17,11 +17,14 @@ export const useOnboarding = () => {
       }
       
       const onboardingCompleted = await AsyncStorage.getItem('onboarding_completed');
-      const hasSeen = onboardingCompleted === 'true';
       
-      setHasSeenOnboarding(hasSeen);
+      if (onboardingCompleted === null) {
+        setHasSeenOnboarding(false);
+      } else {
+        const hasSeen = onboardingCompleted === 'true';
+        setHasSeenOnboarding(hasSeen);
+      }
     } catch (error) {
-      console.error('useOnboarding - Error checking status:', error);
       setHasSeenOnboarding(false);
     } finally {
       setIsLoading(false);
