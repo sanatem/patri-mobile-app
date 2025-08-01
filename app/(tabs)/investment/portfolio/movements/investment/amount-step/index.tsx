@@ -9,6 +9,7 @@ import { Container } from '@/components/ui/Container';
 import { Button } from '@/components/ui/Button';
 import Colors from '@/constants/Colors';
 import { useFormatValue } from '@/hooks/common/useFormatValue';
+import { useTranslation } from 'react-i18next';
 
 interface AmountStepProps {
   amount: string;
@@ -21,7 +22,8 @@ export default function AmountStep({
   onAmountChange = () => {},
   onFinish = () => {},
 }: AmountStepProps) {
-  const { formatValue, cleanNumericValue } = useFormatValue();
+    const { formatValue, cleanNumericValue } = useFormatValue();
+    const { t } = useTranslation();
   const [displayValue, setDisplayValue] = useState('');
 
   useEffect(() => {
@@ -52,20 +54,20 @@ export default function AmountStep({
     <>
       <Container variant="secondaryPage">
       <View className="flex-1 justify-center items-center px-3">
-        <Text className="text-base font-medium mb-2" style={{ color: Colors.primary[700] }}>Ingresar monto</Text>
+        <Text className="text-base font-medium mb-2" style={{ color: Colors.primary[700] }}>{t('amountStep.title')}</Text>
         <TextInput
           style={styles.amountInput}
           keyboardType="number-pad"
-          placeholder="$0"
+          placeholder={t('amountStep.placeholder')}
           placeholderTextColor={Colors.gray[500]}
           value={displayValue}
           onChangeText={handleAmountChange}
         />
-        <Text className="text-sm font-regular mt-1" style={{ color: Colors.primary[500] }}>(a $946 el dólar)</Text>
+        <Text className="text-sm font-regular mt-1" style={{ color: Colors.primary[500] }}>{t('amountStep.rateNote', { rate: 946 })}</Text>
       </View>
       <View className="px-3 mb-4 mt-4">
         <Button
-          title="Finalizar"
+          title={t('common.finish')} 
           disabled={!amount}
           onPress={() => typeof onFinish === 'function' && onFinish()}
           variant="primary"

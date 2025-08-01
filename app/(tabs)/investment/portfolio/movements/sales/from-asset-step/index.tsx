@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/Button';
 import { PortfolioActionsBar } from '@/components/investment/portfolio/PortfolioActionsBar';
 import { Container } from '@/components/ui/Container';
 import Colors from '@/constants/Colors';
+import { useTranslation } from 'react-i18next';
 
 interface FromAssetStepProps {
   activo: string | undefined;
@@ -19,16 +20,33 @@ interface FromAssetStepProps {
 }
 
 export default function FromAssetStep({ activo, setActivo, destino, cuenta, setCuenta, onNext, onPrev, mockActivos, mockCuentas }: FromAssetStepProps) {
+  const { t } = useTranslation();
+
   return (
     <Container variant="secondaryPage" className="px-3">
-      <Text className="text-base font-regular mb-2" style={{ color: Colors.primary[500] }}>¿De <Text className="font-semibold">qué activo</Text> quieres vender cuotas?</Text>
-      <Select options={mockActivos} value={activo} onSelect={setActivo} placeholder="Selecciona un activo" />
+      <Text className="text-base font-regular mb-2" style={{ color: Colors.primary[500] }}>
+        {t('fromAssetStep.assetQuestion.part1')} <Text className="font-semibold">{t('fromAssetStep.assetQuestion.part2')}</Text> {t('fromAssetStep.assetQuestion.part3')}
+      </Text>
+      <Select
+        options={mockActivos}
+        value={activo}
+        onSelect={setActivo}
+        placeholder={t('fromAssetStep.assetPlaceholder')}
+      />
+
       {destino === 'cuenta-bancaria' && (
         <>
-          <Text className="text-base font-regular mb-2" style={{ color: Colors.primary[500] }}>¿En <Text className="font-semibold">qué cuenta bancaria</Text> quieres recibir el dinero?</Text>
-          <Select options={mockCuentas} value={cuenta} onSelect={setCuenta} placeholder="Selecciona cuenta bancaria" />
+          <Text className="text-base font-regular mb-2" style={{ color: Colors.primary[500] }}>
+            {t('fromAssetStep.accountQuestion.part1')} <Text className="font-semibold">{t('fromAssetStep.accountQuestion.part2')}</Text> {t('fromAssetStep.accountQuestion.part3')}
+          </Text>
+          <Select
+            options={mockCuentas}
+            value={cuenta}
+            onSelect={setCuenta}
+            placeholder={t('fromAssetStep.accountPlaceholder')}
+          />
         </>
       )}
     </Container>
   );
-} 
+}
