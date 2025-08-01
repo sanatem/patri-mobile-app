@@ -45,7 +45,6 @@ export function Textarea({
   ...props
 }: TextareaProps) {
   const [isFocused, setIsFocused] = useState(false);
-  const [textValue, setTextValue] = useState(value || '');
   const borderAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -57,8 +56,10 @@ export function Textarea({
   }, [isFocused]);
 
   useEffect(() => {
-    setTextValue(value || '');
-  }, [value]);
+    return () => {
+      borderAnim.stopAnimation();
+    };
+  }, []);
 
   const animatedBorderColor = borderAnim.interpolate({
     inputRange: [0, 1],
@@ -74,7 +75,6 @@ export function Textarea({
   };
 
   const handleChangeText = (text: string) => {
-    setTextValue(text);
     if (onChangeText) {
       onChangeText(text);
     }
@@ -88,7 +88,7 @@ export function Textarea({
       ? '#DC2626' 
       : animatedBorderColor;
 
-  const characterCount = textValue.length;
+  const characterCount = (value || '').length;
   const isOverLimit = maxLength && characterCount > maxLength;
 
   return (
@@ -133,7 +133,7 @@ export function Textarea({
           multiline={multiline}
           numberOfLines={numberOfLines}
           textAlignVertical="top"
-          value={textValue}
+          value={value || ''}
           onChangeText={handleChangeText}
           maxLength={maxLength}
           placeholder={placeholder}

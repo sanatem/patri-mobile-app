@@ -30,9 +30,12 @@ const UNIT_OPTIONS = [
   { label: 'UF', value: 'uf' },
 ];
 
+// Función para limpiar solo números enteros
+const cleanIntegerValue = (value: string) => value.replace(/[^\d]/g, '');
+
 export default function AddLiabilityScreen() {
   const { accessToken } = useAuth();
-  const { formatValue, cleanNumericValue } = useFormatValue();
+  const { formatValue } = useFormatValue();
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
     name: '',
@@ -54,7 +57,7 @@ export default function AddLiabilityScreen() {
   };
 
   const handleNumericInputChange = (field: string, value: string) => {
-    const cleanValue = cleanNumericValue(value);
+    const cleanValue = cleanIntegerValue(value);
     setFormData(prev => ({
       ...prev,
       [field]: cleanValue
@@ -81,7 +84,7 @@ export default function AddLiabilityScreen() {
       if (!formData.amount.trim()) {
         newErrors.push('El monto del pasivo es requerido');
       } else {
-        const amount = parseFloat(formData.amount.replace(/[^\d]/g, ''));
+        const amount = parseFloat(cleanIntegerValue(formData.amount));
         if (isNaN(amount) || amount <= 0) {
           newErrors.push('El monto debe ser un número válido mayor a 0');
         }
@@ -89,7 +92,7 @@ export default function AddLiabilityScreen() {
       if (!formData.installments_quantity.trim()) {
         newErrors.push('El número de cuotas es requerido');
       } else {
-        const installments = parseInt(formData.installments_quantity);
+        const installments = parseInt(cleanIntegerValue(formData.installments_quantity));
         if (isNaN(installments) || installments <= 0) {
           newErrors.push('El número de cuotas debe ser un número válido mayor a 0');
         }
@@ -97,7 +100,7 @@ export default function AddLiabilityScreen() {
       if (!formData.installment_amount.trim()) {
         newErrors.push('El monto de la cuota es requerido');
       } else {
-        const installment = parseFloat(formData.installment_amount.replace(/[^\d]/g, ''));
+        const installment = parseFloat(cleanIntegerValue(formData.installment_amount));
         if (isNaN(installment) || installment <= 0) {
           newErrors.push('El monto de la cuota debe ser un número válido mayor a 0');
         }
@@ -129,23 +132,24 @@ export default function AddLiabilityScreen() {
   };
 
   const handleComplete = async () => {
+    if (!accessToken) {
+      setErrors(['No hay token de autenticación disponible']);
+      return;
+    }
+
     setLoading(true);
     try {
       const debtData = {
         debt: {
           name: formData.name,
           debt_category_id: parseInt(formData.debt_category_id),
-          amount: parseInt(formData.amount.replace(/[^\d]/g, '')),
+          amount: parseInt(cleanIntegerValue(formData.amount)),
           unit: formData.unit,
-          installments_quantity: parseInt(formData.installments_quantity),
-          installment_amount: parseInt(formData.installment_amount.replace(/[^\d]/g, '')),
+          installments_quantity: parseInt(cleanIntegerValue(formData.installments_quantity)),
+          installment_amount: parseInt(cleanIntegerValue(formData.installment_amount)),
           comments: formData.comments
         }
       };
-
-      if (!accessToken) {
-        throw new Error('No hay token de autenticación disponible');
-      }
 
       const response = await createDebt(debtData, accessToken);
 
@@ -204,7 +208,7 @@ export default function AddLiabilityScreen() {
                 ¿Cuál es el saldo a pagar?
               </Text>
               <View className="flex-row">
-                <View className="flex-1 mr-2">
+                <View style={{ width: 100, marginRight: 8 }}>
                   <Select
                     options={UNIT_OPTIONS}
                     value={formData.unit}
@@ -212,7 +216,7 @@ export default function AddLiabilityScreen() {
                     placeholder="Moneda"
                   />
                 </View>
-                <View className="flex-2">
+                <View style={{ flex: 1 }}>
                   <Input
                     placeholder="$80.000.000"
                     value={formData.amount ? formatValue(formData.amount) : ''}
@@ -263,7 +267,7 @@ export default function AddLiabilityScreen() {
           <View>
             <Textarea
               label="Comentarios (opcional)"
-              placeholder="Agrega comentarios sobre el pasivo"
+              placeholder="Agrega información adicional"
               value={formData.comments}
               onChangeText={(value) => handleInputChange('comments', value)}
             />

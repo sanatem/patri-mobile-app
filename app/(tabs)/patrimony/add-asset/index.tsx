@@ -185,7 +185,7 @@ export default function AddAssetScreen() {
                 ¿Qué valor tiene?
               </Text>
               <View className="flex-row">
-                <View className="flex-1 mr-2">
+                <View style={{ width: 100, marginRight: 8 }}>
                   <Select
                     options={UNIT_OPTIONS}
                     value={formData.unit}
@@ -193,7 +193,7 @@ export default function AddAssetScreen() {
                     placeholder="Moneda"
                   />
                 </View>
-                  <View className="flex-2">
+                <View style={{ flex: 1 }}>
                    <Input
                      placeholder="$150.000.000"
                      value={formData.commercial_value ? formatValue(formData.commercial_value) : ''}
@@ -220,7 +220,7 @@ export default function AddAssetScreen() {
           <View>
               <Textarea
                label="Comentarios (opcional)"
-               placeholder="Agrega comentarios sobre el activo"
+               placeholder="Agrega información adicional"
                value={formData.comments}
                onChangeText={(value) => handleInputChange('comments', value)}
              />

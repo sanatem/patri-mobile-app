@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Animated, Dimensions, ActivityIndicator, RefreshControl } from 'react-native';
 import { Settings, Plus, RefreshCw } from 'lucide-react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
 import { 
   LABELS, 
@@ -45,7 +45,6 @@ export default function PatrimonyScreen() {
   const { userData, loading: userLoading } = useUserData();
   const { rangeSize, setRangeSize } = useChartRangeStore();
   const router = useRouter();
-  const params = useLocalSearchParams();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'assets' | 'liabilities'>('assets');
@@ -69,7 +68,6 @@ export default function PatrimonyScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [showSkeletons, setShowSkeletons] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(5);
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -451,7 +449,6 @@ export default function PatrimonyScreen() {
 
   const handleTabChange = (key: string) => {
     setActiveTab(key as 'assets' | 'liabilities');
-    setCurrentPage(1);
     setIsExpanded(false);
   };
 
