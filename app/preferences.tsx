@@ -12,10 +12,9 @@ import { useTranslation } from 'react-i18next';
 export default function PreferencesScreen() {
   const { t } = useTranslation();
   const LANGUAGES = [
-    { value: 'es', label: t('language.es') },
-    { value: 'es-cl', label: t('language.es-cl') },
-    { value: 'en', label: t('language.en') }
-    
+    { value: 'es', label: t('languages.es') },
+    { value: 'esCL', label: t('languages.es-CL') },
+    { value: 'en', label: t('languages.en') }
   ];
 
 const LANGUAGE_KEY = 'language';
@@ -28,7 +27,7 @@ const LANGUAGE_KEY = 'language';
       const savedLang = await AsyncStorage.getItem(LANGUAGE_KEY);
       const lang = savedLang || 'es';
       setSelectedLang(lang);
-      await setAppLanguage(lang as 'es' | 'en');
+      await setAppLanguage(lang as 'es' | 'en' | 'esCL');
       setLoading(false);
     })();
   }, []);
@@ -36,7 +35,7 @@ const LANGUAGE_KEY = 'language';
   const handleLangChange = async (lang: string) => {
     setSelectedLang(lang);
     await AsyncStorage.setItem(LANGUAGE_KEY, lang);
-    await setAppLanguage(lang as 'es' | 'en');
+    await setAppLanguage(lang as 'es' | 'en' | 'esCL');
   };
 
   if (loading) {
