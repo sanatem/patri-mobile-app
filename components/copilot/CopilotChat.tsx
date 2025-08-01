@@ -3,7 +3,8 @@ import { View, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { MessageBubble } from '@/components/copilot/MessageBubble';
 import { ChatInput } from '@/components/copilot/ChatInput';
 import { SuggestionButtons } from '@/components/copilot/SuggestionButtons';
-import { COPILOT_SUGGESTIONS } from '@/constants/AppConstants';
+import { COPILOT_SUGGESTION_KEYS, COPILOT_SUGGESTION_ICONS } from '@/constants/AppConstants';
+import { useTranslation } from 'react-i18next';
 
 interface Message {
   id: string;
@@ -29,6 +30,7 @@ export function CopilotChat({
   onSuggestionPress
 }: CopilotChatProps) {
   const scrollViewRef = useRef<ScrollView>(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const lastMsg = messages[messages.length - 1];
@@ -42,6 +44,11 @@ export function CopilotChat({
 
     return () => clearTimeout(timeout);
   }, [messages, onTypingComplete]);
+
+  const suggestions = COPILOT_SUGGESTION_KEYS.map((key) => ({
+    text: t(`copilot.suggestions.${key}`),
+    icon: COPILOT_SUGGESTION_ICONS[key],
+  }));
 
   return (
     <KeyboardAvoidingView 
@@ -68,7 +75,7 @@ export function CopilotChat({
         {isSuggestionsOnly && !isTyping && onSuggestionPress && (
           <View className="mt-4">
             <SuggestionButtons 
-              suggestions={COPILOT_SUGGESTIONS.CHAT}
+              suggestions={suggestions}
               onSuggestionPress={onSuggestionPress}
             />
           </View>
