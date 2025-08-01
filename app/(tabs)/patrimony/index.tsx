@@ -4,15 +4,14 @@ import { Settings, Plus, RefreshCw } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
 import { 
-  LABELS, 
-  TIME_RANGES, 
+
   TAB_CONFIG 
 } from '@/constants/AppConstants';
 import { useAuth } from '@/providers/AuthProvider';
 import AreaChart from '@/components/patrimony/AreaChart';
 import { PatrimonySummary } from '@/components/patrimony/PatrimonySummary';
 import LiabilityCard from '@/components/patrimony/LiabilityCard';
-import { useChartRangeStore } from '@/store/chartRangeStore';
+import { useChartRangeStore, RangeSize } from '@/store/chartRangeStore';
 import { Asset, Liability } from '@/types';
 import { patrimonyService } from '@/services/patrimony/get-patrimony';
 import { useAssets, useDebts } from '@/hooks/patrimony';
@@ -35,6 +34,7 @@ import { Platform } from 'react-native';
 
 import assetsHistory from '@/data/static/assets-history.json';
 import { listItemStyles } from '@/styles/ui/ListItem.styles';
+import { useTranslation } from 'react-i18next';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
@@ -44,6 +44,7 @@ export default function PatrimonyScreen() {
   const { userData, loading: userLoading } = useUserData();
   const { rangeSize, setRangeSize } = useChartRangeStore();
   const router = useRouter();
+  const { t } = useTranslation();
   
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'assets' | 'liabilities'>('assets');
@@ -471,23 +472,23 @@ export default function PatrimonyScreen() {
   const totalLiabilities = apiDebts ? Math.round(apiDebts.totals.total_debts) : 0;
   const netWorth = totalAssets - totalLiabilities;
 
-  const currentTimeRangeLabel = Object.keys(TIME_RANGES.MAPPING).find((key) => 
-    TIME_RANGES.MAPPING[key as keyof typeof TIME_RANGES.MAPPING] === rangeSize
-  ) || '6 Meses';
-  
+  const currentTimeRangeLabel = t(`timeRanges.options.${rangeSize}`);
+
   const handleUserViewChange = (view: 'mine' | 'partner' | 'both') => {
     setOwnerView(view);
     setShowSelector(false);
   };
 
-  const handleTimeRangeChange = (range: keyof typeof TIME_RANGES.MAPPING) => {
-    setRangeSize(TIME_RANGES.MAPPING[range]);
-  };
 
   const tabs = TAB_CONFIG.PATRIMONY.map(tab => ({
-    ...tab,
-    badge: (tab.key === 'assets' ? (apiAssets ? apiAssetsData.length : 0) : (apiDebts ? apiDebtsData.length : 0)).toString()
+    key: tab.key,
+    label: t(`tabConfig.patrimony.${tab.key}`),
+    badge: (tab.key === 'assets'
+      ? (apiAssets ? apiAssetsData.length : 0)
+      : (apiDebts ? apiDebtsData.length : 0)
+    ).toString()
   }));
+  
 
   const currentData = activeTab === 'assets' ? assetsData : liabilitiesData;
   const isLoadingData = (activeTab === 'assets' && assetsLoading) || (activeTab === 'liabilities' && debtsLoading);
@@ -511,20 +512,20 @@ export default function PatrimonyScreen() {
     );
   }
 
-  if (shouldBlockTab("Patrimonio")) {
-    return <LockedTabOverlay tabName="Patrimonio" />;
-  }
+  if (shouldBlockTab(t('tabs.patrimony'))) {
+    return <LockedTabOverlay tabName="{t('tabs.patrimony')}" />;
+  } 
 
   if (isLoading) {
     return (
       <Container variant="secondaryPage" style={{ padding: 20 }}>
         <Header
-          title={LABELS.PATRIMONY.TITLE}
+          title={t('labels.patrimony.title')}
           className="border-b border-gray-100"
         />
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color="#007AFF" />
-          <Text className="mt-4 text-gray-600">Cargando datos del patrimonio...</Text>
+          <Text className="mt-4 text-gray-600">{t('patrimony.loading')}</Text>
         </View>
       </Container>
     );
@@ -534,7 +535,7 @@ export default function PatrimonyScreen() {
     return (
       <Container variant="secondaryPage" style={{ padding: 20 }}>
         <Header
-          title={LABELS.PATRIMONY.TITLE}
+          title={t('labels.patrimony.title')}
           className="border-b border-gray-100"
         />
         <View className="flex-1 items-center justify-center">
@@ -547,17 +548,19 @@ export default function PatrimonyScreen() {
               loadPatrimonyData();
             }}
           >
-            <Text className="text-white">Reintentar</Text>
+            <Text className="text-white">{t('common.retry')}</Text>
           </TouchableOpacity>
         </View>
       </Container>
     );
   }
 
+  const TIME_RANGE_KEYS = ['1m', '6m', '1y', 'all'];
+
   return (
     <Container variant="secondaryPage">
       <Header
-        title={LABELS.PATRIMONY.TITLE}
+        title={t('labels.patrimony.title')}
         leftAction={
           <UserSelector
             selectedView={ownerView}
@@ -620,10 +623,14 @@ export default function PatrimonyScreen() {
               </Animated.View>
             ) : (
               <SegmentedControl
-                options={TIME_RANGES.LABELS.map(label => ({ label, value: label }))}
-                value={currentTimeRangeLabel}
-                onChange={val => handleTimeRangeChange(val as keyof typeof TIME_RANGES.MAPPING)}
+                options={TIME_RANGE_KEYS.map(key => ({
+                  label: t(`timeRanges.options.${key}`),
+                  value: key,
+                }))}
+                value={rangeSize}
+                onChange={(val) => setRangeSize(val as RangeSize)}
               />
+
             )}
           </Container>
           <AreaChart />
@@ -643,7 +650,7 @@ export default function PatrimonyScreen() {
                 </Animated.View>
               ) : (
                 <SearchBar
-                  placeholder={LABELS.PATRIMONY.SEARCH_PLACEHOLDER}
+                  placeholder={t('labels.patrimony.search_placeholder')}
                   value={searchQuery}
                   onChangeText={setSearchQuery}
                 />
@@ -658,7 +665,7 @@ export default function PatrimonyScreen() {
               />
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingBottom: 20, paddingTop: 12, borderBottomWidth: 1, borderBottomColor: Colors.gray[200] }}>
                 <Text style={{ color: Colors.gray[700], fontSize: 18, fontFamily: 'Poppins-medium' }}>
-                  {activeTab === 'assets' ? LABELS.PATRIMONY.TOTAL_ASSETS : LABELS.PATRIMONY.TOTAL_LIABILITIES}
+                  {activeTab === 'assets' ? t('labels.patrimony.total_assets') : t('labels.patrimony.total_liabilities')}
                 </Text>
                 <Text style={{ color: Colors.gray[700], fontSize: 18, fontFamily: 'Poppins-medium' }}>
                   {activeTab === 'assets' ? '+' : '-'}${currentTabTotal.toLocaleString('es-CL')}
@@ -743,7 +750,7 @@ export default function PatrimonyScreen() {
                     textAlign: 'center',
                     marginBottom: 8
                   }}>
-                    {activeTab === 'assets' ? 'No hay activos registrados' : 'No hay pasivos registrados'}
+                    {t(`patrimony.empty.${activeTab}.title`)}
                   </Text>
                   <Text style={{ 
                     color: Colors.gray[400], 
@@ -751,10 +758,7 @@ export default function PatrimonyScreen() {
                     fontFamily: 'Poppins-regular',
                     textAlign: 'center'
                   }}>
-                    {activeTab === 'assets' 
-                      ? 'Agrega tus activos para comenzar a gestionar tu patrimonio' 
-                      : 'Agrega tus pasivos para tener una visión completa de tu patrimonio'
-                    }
+                    {t(`patrimony.empty.${activeTab}.subtitle`)}
                   </Text>
                 </View>
               ) : showSkeletons ? (
@@ -868,7 +872,7 @@ export default function PatrimonyScreen() {
               <View style={{ width: 40, height: 4, backgroundColor: '#D1D5DB', borderRadius: 2 }} />
             </View>
             {[
-              { label: 'Integrar datos bancarios', value: 'integrar', icon: <RefreshCw size={20} color={Colors.gray[700]} /> },
+              { label: t('patrimony.integrateBankData'), value: 'integrar', icon: <RefreshCw size={20} color={Colors.gray[700]} /> },
               // { label: 'Añadir activo', value: 'activo' },
               // { label: 'Añadir pasivo', value: 'pasivo' }
             ].map((option, index) => (
