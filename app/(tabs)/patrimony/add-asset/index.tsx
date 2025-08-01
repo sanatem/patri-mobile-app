@@ -113,7 +113,6 @@ export default function AddAssetScreen() {
   const handleComplete = async () => {
     setLoading(true);
     try {
-      // Preparar datos para la API
       const assetData = {
         asset: {
           name: formData.name,
@@ -125,21 +124,15 @@ export default function AddAssetScreen() {
         }
       };
 
-      console.log('Guardando activo:', assetData);
-
       if (!accessToken) {
         throw new Error('No hay token de autenticación disponible');
       }
 
-      // Llamada a la API
       const response = await createAsset(assetData, accessToken);
 
              if (response.success) {
-         console.log('Activo creado exitosamente:', response.data);
-         // Navegar de vuelta
          router.back();
        } else {
-        console.error('Error al crear activo:', response.error);
         setErrors([response.error || 'Error al crear el activo']);
       }
     } catch (error) {
@@ -200,7 +193,7 @@ export default function AddAssetScreen() {
                     placeholder="Moneda"
                   />
                 </View>
-                                 <View className="flex-2">
+                  <View className="flex-2">
                    <Input
                      placeholder="$150.000.000"
                      value={formData.commercial_value ? formatValue(formData.commercial_value) : ''}
@@ -225,7 +218,7 @@ export default function AddAssetScreen() {
       case 2:
         return (
           <View>
-                         <Textarea
+              <Textarea
                label="Comentarios (opcional)"
                placeholder="Agrega comentarios sobre el activo"
                value={formData.comments}
@@ -252,9 +245,9 @@ export default function AddAssetScreen() {
   const getStepSubtitle = () => {
     switch (currentStep) {
       case 1:
-        return 'Ingresa la información básica de tu activo';
+        return 'Cuéntanos sobre tu activo para incluirlo en tu patrimonio 💼 ';
       case 2:
-        return 'Agrega comentarios adicionales si lo deseas';
+        return 'Agrega comentarios adicionales si lo deseas 💬';
       default:
         return '';
     }

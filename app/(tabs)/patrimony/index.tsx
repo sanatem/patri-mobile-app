@@ -765,29 +765,42 @@ export default function PatrimonyScreen() {
                     <Text className="text-white">Reintentar</Text>
                   </TouchableOpacity>
                 </View>
-              ) : hasNoCurrentData ? (
-                <View style={{ padding: 40, alignItems: 'center' }}>
-                  <Text style={{ 
-                    color: Colors.gray[500], 
-                    fontSize: 16, 
-                    fontFamily: 'Poppins-regular',
-                    textAlign: 'center',
-                    marginBottom: 8
-                  }}>
-                    {activeTab === 'assets' ? 'No hay activos registrados' : 'No hay pasivos registrados'}
-                  </Text>
-                  <Text style={{ 
-                    color: Colors.gray[400], 
-                    fontSize: 14, 
-                    fontFamily: 'Poppins-regular',
-                    textAlign: 'center'
-                  }}>
-                    {activeTab === 'assets' 
-                      ? 'Agrega tus activos para comenzar a gestionar tu patrimonio' 
-                      : 'Agrega tus pasivos para tener una visión completa de tu patrimonio'
-                    }
-                  </Text>
-                </View>
+                             ) : hasNoCurrentData ? (
+                 <View style={{ padding: 40, alignItems: 'center' }}>
+                   <Text style={{ 
+                     color: Colors.gray[500], 
+                     fontSize: 16, 
+                     fontFamily: 'Poppins-regular',
+                     textAlign: 'center',
+                     marginBottom: 8
+                   }}>
+                     {activeTab === 'assets' ? 'No hay activos registrados' : 'No hay pasivos registrados'}
+                   </Text>
+                   <Text style={{ 
+                     color: Colors.gray[400], 
+                     fontSize: 14, 
+                     fontFamily: 'Poppins-regular',
+                     textAlign: 'center',
+                     marginBottom: 20
+                   }}>
+                     {activeTab === 'assets' 
+                       ? 'Agrega tus activos para comenzar a gestionar tu patrimonio' 
+                       : 'Agrega tus pasivos para tener una visión completa de tu patrimonio'
+                     }
+                   </Text>
+                   <Button
+                     variant="primary"
+                     onPress={() => {
+                       if (activeTab === 'assets') {
+                         router.push('/patrimony/add-asset');
+                       } else {
+                         router.push('/patrimony/add-liability');
+                       }
+                     }}
+                     title={activeTab === 'assets' ? 'Crear activo' : 'Crear pasivo'}
+                     icon={<Plus size={20} color="white" />}
+                   />
+                 </View>
               ) : showSkeletons ? (
                 <Animated.View style={{ padding: 20, opacity: skeletonFadeAnim }}>
                   {Array.from({ length: 6 }).map((_, index) => (

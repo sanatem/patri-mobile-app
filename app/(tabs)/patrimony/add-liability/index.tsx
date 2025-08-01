@@ -131,7 +131,6 @@ export default function AddLiabilityScreen() {
   const handleComplete = async () => {
     setLoading(true);
     try {
-      // Preparar datos para la API
       const debtData = {
         debt: {
           name: formData.name,
@@ -144,21 +143,15 @@ export default function AddLiabilityScreen() {
         }
       };
 
-      console.log('Guardando pasivo:', debtData);
-
       if (!accessToken) {
         throw new Error('No hay token de autenticación disponible');
       }
 
-      // Llamada a la API
       const response = await createDebt(debtData, accessToken);
 
-             if (response.success) {
-         console.log('Pasivo creado exitosamente:', response.data);
-         // Navegar de vuelta
-         router.back();
-       } else {
-        console.error('Error al crear pasivo:', response.error);
+      if (response.success) {
+        router.back();
+      } else {
         setErrors([response.error || 'Error al crear el pasivo']);
       }
     } catch (error) {
@@ -297,7 +290,7 @@ export default function AddLiabilityScreen() {
       case 1:
         return '';
       case 2:
-        return 'Agrega comentarios adicionales si lo deseas';
+        return 'Agrega comentarios adicionales si lo deseas 💬';
       default:
         return '';
     }
