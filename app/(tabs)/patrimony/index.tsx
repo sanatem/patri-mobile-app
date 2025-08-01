@@ -26,6 +26,7 @@ import {
   SegmentedControl,
   KeyboardAwareContainer,
   LockedTabOverlay,
+  Button,
 } from '@/components/ui';
 import { SkeletonBase } from '@/components/ui/SkeletonBase';
 import { useUserData } from '@/hooks/user/useUserData';
@@ -68,6 +69,9 @@ export default function PatrimonyScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [showSkeletons, setShowSkeletons] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(5);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const overlayAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(0)).current;  
@@ -431,6 +435,26 @@ export default function PatrimonyScreen() {
   const apiAssetsData = transformApiAssets();
   const apiDebtsData = transformApiDebts();
 
+  const getPaginatedData = (data: any[]) => {
+    const startIndex = 0;
+    const endIndex = isExpanded ? data.length : Math.min(itemsPerPage, data.length);
+    return data.slice(startIndex, endIndex);
+  };
+
+  const hasMoreData = (data: any[]) => {
+    return data.length > itemsPerPage;
+  };
+
+  const handleToggleExpand = () => {
+    setIsExpanded(!isExpanded);
+  };
+
+  const handleTabChange = (key: string) => {
+    setActiveTab(key as 'assets' | 'liabilities');
+    setCurrentPage(1);
+    setIsExpanded(false);
+  };
+
   const hasApiAssets = apiAssets !== null && apiAssets !== undefined;
   const hasApiDebts = apiDebts !== null && apiDebts !== undefined;
 
@@ -495,6 +519,8 @@ export default function PatrimonyScreen() {
   }));
 
   const currentData = activeTab === 'assets' ? assetsData : liabilitiesData;
+  const paginatedData = getPaginatedData(currentData);
+  const canShowMore = hasMoreData(currentData);
   const isLoadingData = (activeTab === 'assets' && assetsLoading) || (activeTab === 'liabilities' && debtsLoading);
   const currentError = activeTab === 'assets' ? assetsError : debtsError;
 
@@ -659,7 +685,7 @@ export default function PatrimonyScreen() {
                              <Tabs
                  tabs={tabs}
                  activeTab={activeTab}
-                 onTabChange={(key) => setActiveTab(key as 'assets' | 'liabilities')}
+                 onTabChange={handleTabChange}
                />
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingBottom: 20, paddingTop: 12, borderBottomWidth: 1, borderBottomColor: Colors.gray[200] }}>
                 <Text style={{ color: Colors.gray[700], fontSize: 18, fontFamily: 'Poppins-medium' }}>
@@ -810,11 +836,23 @@ export default function PatrimonyScreen() {
                   ))}
                 </Animated.View>
               ) : (
-                                 <ListItem
-                   data={currentData}
-                   showLoadMore={false}
-                   showContainer={false}
-                 />
+                                 <>
+                   <ListItem
+                     data={paginatedData}
+                     showLoadMore={false}
+                     showContainer={false}
+                   />
+                   
+                    {canShowMore && (
+                      <View style={{ padding: 20, alignItems: 'center' }}>
+                        <Button
+                          variant="ghost"
+                          onPress={handleToggleExpand}
+                          title={isExpanded ? 'Ver menos' : 'Ver más'}
+                        />
+                      </View>
+                    )}
+                 </>
               )}
             </View>
           </Container>
