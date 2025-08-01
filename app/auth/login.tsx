@@ -11,12 +11,14 @@ import Colors from '@/constants/Colors';
 import { PatrimoreWithIcon } from '@/components/icons';
 import { useAuth } from '@/providers/AuthProvider';
 import { getOnboardingStatus } from '@/utils/onboarding';
+import { useTranslation } from 'react-i18next';
 
 const { height } = Dimensions.get('window');
 
 export default function LoginScreen() {
   const [localLoading, setLocalLoading] = useState(false);
   const { login, loading, error } = useAuth();
+  const { t } = useTranslation();
 
   const handleLogin = async () => {
     setLocalLoading(true);
@@ -33,15 +35,15 @@ export default function LoginScreen() {
         }
       } else {
         Alert.alert(
-          'Autenticación cancelada',
-          error || 'No se pudo completar el proceso de autenticación.',
+          t('auth.cancelledTitle'),
+          error || t('auth.cancelledMessage'),
           [{ text: 'OK' }]
         );
       }
     } catch (error: any) {
       Alert.alert(
-        'Error de autenticación',
-        'Ocurrió un error durante el proceso de autenticación. Por favor intenta de nuevo.',
+        t('auth.errorTitle'),
+        t('auth.errorMessage'),
         [{ text: 'OK' }]
       );
     } finally {
@@ -50,8 +52,8 @@ export default function LoginScreen() {
   };
 
   const handleOpenLink = (url: string, title: string) => {
-    Linking.openURL(url).catch(err => {
-      Alert.alert('Error', 'No se pudo abrir el enlace');
+    Linking.openURL(url).catch(() => {
+      Alert.alert(t('common.error'), t('common.linkError'));
     });
   };
 
@@ -73,13 +75,13 @@ export default function LoginScreen() {
                 className="text-base font-regular text-center leading-5 px-2 mt-4 mb-4"
                 style={{ color: Colors.primary[500] }}
               >
-                Accede a tu cuenta para gestionar tus finanzas de manera inteligente
+                {t('login.subtitle')}
               </Text>
             </View>
             
             <View className="mb-4">
               <Button
-                title={(loading || localLoading) ? "Conectando..." : "Ingresa"}
+                title={(loading || localLoading) ? t('login.connecting') : t('login.login')}
                 onPress={handleLogin}
                 disabled={loading || localLoading}
                 loading={loading || localLoading}
@@ -94,21 +96,31 @@ export default function LoginScreen() {
                 className="text-xs font-regular text-center leading-4"
                 style={{ color: Colors.primary[500] }}
               >
-                Al continuar, aceptas nuestros{' '}
+                {t('login.termsPrefix')}
                 <Text 
                   className="font-medium underline"
                   style={{ color: Colors.secondary[500] }}
-                  onPress={() => handleOpenLink('https://patrimore.com/terminos-y-condiciones', 'Términos y Condiciones')}
+                  onPress={() =>
+                    handleOpenLink(
+                      'https://patrimore.com/terminos-y-condiciones',
+                      t('login.termsLink')
+                    )
+                  }
                 >
-                  términos y condiciones
+                  {t('login.termsLink')}
                 </Text>
-                {' '}y{' '}
+                {' '}{t('login.and')}{' '}
                 <Text 
                   className="font-medium underline"
                   style={{ color: Colors.secondary[500] }}
-                  onPress={() => handleOpenLink('https://patrimore.com/politica-de-privacidad', 'Política de Privacidad')}
+                  onPress={() =>
+                    handleOpenLink(
+                      'https://patrimore.com/politica-de-privacidad',
+                      t('login.privacyLink')
+                    )
+                  }
                 >
-                  política de privacidad
+                  {t('login.privacyLink')}
                 </Text>
               </Text>
             </View>
