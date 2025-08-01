@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform } from 'react-native';
 
 export const useOnboarding = () => {
   const [hasSeenOnboarding, setHasSeenOnboarding] = useState<boolean | null>(null);
@@ -11,12 +12,20 @@ export const useOnboarding = () => {
 
   const checkOnboardingStatus = async () => {
     try {
+      if (Platform.OS !== 'web') {
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+      
       const onboardingCompleted = await AsyncStorage.getItem('onboarding_completed');
       
-      const hasSeen = onboardingCompleted === 'true';
-      
-      setHasSeenOnboarding(hasSeen);
+      if (onboardingCompleted === null) {
+        setHasSeenOnboarding(false);
+      } else {
+        const hasSeen = onboardingCompleted === 'true';
+        setHasSeenOnboarding(hasSeen);
+      }
     } catch (error) {
+      console.error('useOnboarding - Error checking status:', error);
       setHasSeenOnboarding(false);
     } finally {
       setIsLoading(false);
@@ -28,6 +37,7 @@ export const useOnboarding = () => {
       await AsyncStorage.setItem('onboarding_completed', 'true');
       setHasSeenOnboarding(true);
     } catch (error) {
+      console.error('useOnboarding - Error marking as seen:', error);
     }
   };
 
@@ -36,8 +46,13 @@ export const useOnboarding = () => {
       await AsyncStorage.removeItem('onboarding_completed');
       setHasSeenOnboarding(false);
     } catch (error) {
-      console.error('Error al resetear el onboarding:', error);
+      console.error('useOnboarding - Error resetting onboarding:', error);
     }
+  };
+
+  const refreshOnboardingStatus = async () => {
+    setIsLoading(true);
+    await checkOnboardingStatus();
   };
 
   return {
@@ -45,5 +60,6 @@ export const useOnboarding = () => {
     isLoading,
     markAsSeen,
     resetOnboarding,
+    refreshOnboardingStatus,
   };
 }; 

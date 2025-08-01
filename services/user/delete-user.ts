@@ -46,9 +46,8 @@ export async function deleteUserAccount(token: string): Promise<DeleteUserRespon
       throw new Error(`API Error ${response.status}: ${errorText}`);
     }
 
-    const data: DeleteUserResponse = await response.json();
+    const data = await response.json();
     
-    console.log('✅ User account deletion request submitted successfully');
     return data;
 
   } catch (error) {

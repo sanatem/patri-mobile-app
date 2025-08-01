@@ -105,7 +105,6 @@ export async function getNetworthHistoric(
       }
       
       if (response.status === 404) {
-        console.log('⚠️ getNetworthHistoric - No historic data available');
         return {
           historic: {
             timeline: [],
@@ -147,9 +146,9 @@ export async function getNetworthHistoric(
 
     
     if ('last_month_variation' in data.historic.variation) {
-      console.log('📊 getNetworthHistoric - Last month variation:', 
-        data.historic.variation.last_month_variation.percentage_change.toFixed(2) + '%'
-      );
+      // console.log('📊 getNetworthHistoric - Last month variation:', 
+      //   data.historic.variation.last_month_variation.percentage_change.toFixed(2) + '%'
+      // );
     }
 
     return data;

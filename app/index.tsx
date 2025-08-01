@@ -27,10 +27,22 @@ export default function Index() {
   }
 
   if (isAuthenticated && user && accessToken) {
-    if (!hasSeenOnboarding) {
+    // Si hasSeenOnboarding es null o false, mostrar onboarding
+    if (hasSeenOnboarding === null || hasSeenOnboarding === false) {
       return <Redirect href="/onboarding" />;
     }
-    return <Redirect href="/(tabs)/patrimony" />;
+    
+    // Si hasSeenOnboarding es true, ir a patrimony
+    if (hasSeenOnboarding === true) {
+      return <Redirect href="/(tabs)/patrimony" />;
+    }
+
+    // Fallback: mostrar loading
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
+        <ActivityIndicator size="large" color={Colors.secondary[500]} />
+      </View>
+    );
   }
   
   return <Redirect href="/splash-screens" />;
