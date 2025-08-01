@@ -3,7 +3,7 @@ import {
   View, 
   Text, 
   ScrollView, 
-  Dimensions, 
+  Dimensions,
   Alert, 
   ActivityIndicator 
 } from 'react-native';
@@ -24,31 +24,34 @@ import Colors from '@/constants/Colors';
 import { PatrimoreIcon } from '@/components/icons';
 import { submitOnboarding } from '@/services/user/onboarding';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useTranslation } from 'react-i18next';
 
 const { height } = Dimensions.get('window');
 
-const MONTHLY_INCOME_OPTIONS = [
-  { value: 'less_than_1_millon', label: 'Menos de $1.000.000' },
-  { value: 'between_1_and_5_millons', label: 'Entre $1.000.001 a $5.000.000' },
-  { value: 'between_5_and_10_millons', label: 'Entre $5.000.001 a $10.000.000' },
-  { value: 'between_10_and_25_millons', label: 'Entre $10.000.001 a $25.000.000' },
-  { value: 'greater_than_25_millons', label: 'Mayor de $25.000.001' },
-];
-
-const COUNTRY_OPTIONS = [
-  { label: 'Chile', value: 'Chile' },
-  { label: 'Argentina', value: 'Argentina' },
-  { label: 'Brasil', value: 'Brasil' },
-  { label: 'Colombia', value: 'Colombia' },
-  { label: 'México', value: 'México' },
-  { label: 'Perú', value: 'Perú' },
-  { label: 'Uruguay', value: 'Uruguay' },
-  { label: 'Estados Unidos', value: 'Estados Unidos' },
-  { label: 'España', value: 'España' },
-  { label: 'Otro', value: 'Otro' }
-];
 
 export default function OnboardingScreen() {
+  const { t } = useTranslation();
+
+ const MONTHLY_INCOME_OPTIONS = [
+    { value: 'less_than_1_millon', label: t('onboarding.incomeOptions.lessThan1M') },
+    { value: 'between_1_and_5_millons', label: t('onboarding.incomeOptions.between1And5M') },
+    { value: 'between_5_and_10_millons', label: t('onboarding.incomeOptions.between5And10M') },
+    { value: 'between_10_and_25_millons', label: t('onboarding.incomeOptions.between10And25M') },
+    { value: 'greater_than_25_millons', label: t('onboarding.incomeOptions.greaterThan25M') },
+  ];
+
+  const COUNTRY_OPTIONS = [
+    { value: 'Chile', label: t('countries.chile') },
+    { value: 'Argentina', label: t('countries.argentina') },
+    { value: 'Brasil', label: t('countries.brazil') },
+    { value: 'Colombia', label: t('countries.colombia') },
+    { value: 'México', label: t('countries.mexico') },
+    { value: 'Perú', label: t('countries.peru') },
+    { value: 'Uruguay', label: t('countries.uruguay') },
+    { value: 'Estados Unidos', label: t('countries.usa') },
+    { value: 'España', label: t('countries.spain') },
+    { value: 'Otro', label: t('countries.other') }
+  ];
   const { markAsSeen } = useOnboarding();
   const { keyboardHeight, isKeyboardVisible } = useKeyboardHandler();
   const { accessToken } = useAuth();
@@ -177,33 +180,18 @@ export default function OnboardingScreen() {
     const newErrors = [];
     
     if (step === 1) {
-      if (!data.first_name.trim()) {
-        newErrors.push('El nombre es requerido');
-      }
-      
-      if (!data.last_name.trim()) {
-        newErrors.push('El apellido es requerido');
-      }
-      
+      if (!data.first_name.trim()) newErrors.push(t('onboarding.errors.firstNameRequired'));
+      if (!data.last_name.trim()) newErrors.push(t('onboarding.errors.lastNameRequired'));
       if (!data.rut.trim()) {
-        newErrors.push('El RUT es requerido');
+        newErrors.push(t('onboarding.errors.rutRequired'));
       } else if (data.rut.length < 3) {
-        newErrors.push('El RUT debe tener al menos 3 caracteres');
+        newErrors.push(t('onboarding.errors.rutMinLength'));
       }
     } else if (step === 2) {
-      if (!data.residence_country.trim()) {
-        newErrors.push('El país de residencia es requerido');
-      }
-      
-      if (!data.birth_date.trim()) {
-        newErrors.push('La fecha de nacimiento es requerida');
-      }
-      
-      if (!data.monthly_incomes.trim()) {
-        newErrors.push('Los ingresos mensuales son requeridos');
-      }
+      if (!data.residence_country.trim()) newErrors.push(t('onboarding.errors.countryRequired'));
+      if (!data.birth_date.trim()) newErrors.push(t('onboarding.errors.birthDateRequired'));
+      if (!data.monthly_incomes.trim()) newErrors.push(t('onboarding.errors.incomeRequired'));
     }
-    
     setErrors(newErrors);
     return newErrors;
   };
@@ -327,7 +315,7 @@ export default function OnboardingScreen() {
                     marginBottom: 8,
                   }}
                 >
-                  {currentStep === 1 ? 'Información Personal' : 'Información Adicional'}
+                  {t(currentStep === 1 ? 'onboarding.titleStep1' : 'onboarding.titleStep2')}
                 </Text>
                 <Text className='text-base font-regular text-center'
                   style={{
@@ -335,10 +323,7 @@ export default function OnboardingScreen() {
                     textAlign: 'center',
                   }}
                 >
-                  {currentStep === 1 
-                    ? 'Cuéntanos sobre ti' 
-                    : 'Completa tu perfil para personalizar tu experiencia'
-                  }
+                  {t(currentStep === 1 ? 'onboarding.subtitleStep1' : 'onboarding.subtitleStep2')}
                 </Text>
                 
                 <View style={{ 
@@ -362,147 +347,152 @@ export default function OnboardingScreen() {
                 </View>
               </View>
 
-               <View style={{ gap: 20 }}>
-                 {currentStep === 1 ? (
-                   <>
-                     <View>
-                       <Text className='text-base font-medium' 
-                         style={{
-                           color: Colors.primary[500],
-                           marginBottom: 8,
-                         }}
-                       >
-                         Nombre
-                       </Text>
-                       <Input
-                         placeholder="Ingresa tu nombre"
-                         value={formData.first_name}
-                         onChangeText={(value) => handleInputChange('first_name', value)}
-                         autoCapitalize="words"
-                       />
-                     </View>
+                <View style={{ gap: 20 }}>
+                  {currentStep === 1 ? (
+                    <>
+                      <View>
+                        <Text className='text-base font-medium' 
+                          style={{
+                            color: Colors.primary[500],
+                            marginBottom: 8,
+                          }}
+                        >
+                          {t('onboarding.firstNameLabel')}
+                        </Text>
+                        <Input
+                          placeholder={t('onboarding.firstNamePlaceholder')}
+                          value={formData.first_name}
+                          onChangeText={(value) => handleInputChange('first_name', value)}
+                          autoCapitalize="words"
+                        />
+                      </View>
 
-                     <View>
-                       <Text className='text-base font-medium' 
-                         style={{
-                           color: Colors.primary[500],
-                           marginBottom: 8,
-                         }}
-                       >
-                         Apellido
-                       </Text>
-                       <Input
-                         placeholder="Ingresa tu apellido"
-                         value={formData.last_name}
-                         onChangeText={(value) => handleInputChange('last_name', value)}
-                         autoCapitalize="words"
-                       />
-                     </View>
+                    <View>
+                      <Text className='text-base font-medium' 
+                        style={{
+                          color: Colors.primary[500],
+                          marginBottom: 8,
+                        }}
+                      >
+                        {t('onboarding.lastNameLabel')}
+                      </Text>
+                      <Input
+                        placeholder={t('onboarding.lastNamePlaceholder')}
+                        value={formData.last_name}
+                        onChangeText={(value) => handleInputChange('last_name', value)}
+                        autoCapitalize="words"
+                      />
+                    </View>
 
-                     <View>
-                       <Text className='text-base font-medium' 
-                         style={{
-                           color: Colors.primary[500],
-                           marginBottom: 8,
-                         }}
-                       >
-                         RUT
-                       </Text>
-                       <Input
-                         placeholder="12345678-9"
-                         value={formData.rut}
-                         onChangeText={handleRUTChange}
-                         autoCapitalize="characters"
-                         maxLength={10}
-                         keyboardType="default"
-                         returnKeyType="next"
-                         clearButtonMode="while-editing"
-                       />
-                     </View>
-                   </>
-                 ) : (
-                   <>
-                     <View>
-                       <Select
-                         label="País de residencia"
-                         options={COUNTRY_OPTIONS}
-                         value={formData.residence_country}
-                         onSelect={(value) => handleSelectChange('residence_country', value)}
-                         placeholder="Selecciona tu país"
-                       />
-                     </View>
+                    <View>
+                      <Text className='text-base font-medium'
+                        style={{
+                          color: Colors.primary[500],
+                          marginBottom: 8,
+                        }}
+                      >
+                        {t('onboarding.rutLabel')}
+                      </Text>
+                      <Input
+                        placeholder={t('onboarding.rutPlaceholder')}
+                        value={formData.rut}
+                        onChangeText={handleRUTChange}
+                        autoCapitalize="characters"
+                        maxLength={10}
+                        keyboardType="default"
+                        returnKeyType="next"
+                        clearButtonMode="while-editing"
+                      />
+                    </View>
+                  </>
+                ) : (
+                  <>
+                  <View>
+                    <Select
+                      label={t('onboarding.countryLabel')}
+                      options={COUNTRY_OPTIONS}
+                      value={formData.residence_country}
+                      onSelect={(value) => handleSelectChange('residence_country', value)}
+                      placeholder={t('onboarding.countryPlaceholder')}
+                    />
+                  </View>
 
-                     <View>
-                       <CalendarSelect
-                         label="Fecha de nacimiento"
-                         value={formData.birth_date}
-                         onSelect={(value: string) => handleInputChange('birth_date', value)}
-                         placeholder="Selecciona tu fecha de nacimiento"
-                       />
-                     </View>
+                  <View>
+                    <CalendarSelect
+                      label={t('onboarding.birthLabel')}
+                      value={formData.birth_date}
+                      onSelect={(value: string) => handleInputChange('birth_date', value)}
+                      placeholder={t('onboarding.birthPlaceholder')}
+                    />
+                  </View>
 
-                     <View>
-                       <Select
-                         label="Ingresos mensuales"
-                         options={MONTHLY_INCOME_OPTIONS}
-                         value={formData.monthly_incomes}
-                         onSelect={(value) => handleSelectChange('monthly_incomes', value)}
-                         placeholder="Selecciona tu rango de ingresos"
-                       />
-                       <Text className='text-sm font-regular' 
-                         style={{
-                           color: Colors.gray[400],
-                         }}
-                       >
-                         Esta información nos ayuda a personalizar tus recomendaciones
-                       </Text>
-                     </View>
-                   </>
-                 )}
-               </View>
+                  <View>
+                      <Select
+                        label={t('onboarding.incomeLabel')}
+                        options={MONTHLY_INCOME_OPTIONS}
+                        value={formData.monthly_incomes}
+                        onSelect={(value) => handleSelectChange('monthly_incomes', value)}
+                        placeholder={t('onboarding.incomePlaceholder')}
+                      />
+                      <Text className='text-sm font-regular' 
+                      style={{ 
+                        color: Colors.gray[400],
+                        }}
+                        >
+                        {t('onboarding.incomeNote')}
+                      </Text>
+                    </View>
+                  </>
+                )}
+              </View>
 
-             {serviceError && (
-               <View style={{ 
-                 backgroundColor: Colors.error[50], 
-                 borderWidth: 1, 
-                 borderColor: Colors.error[200],
-                 borderRadius: 8,
-                 padding: 12,
-                 marginBottom: 16
-               }}>
-                 <Text className="text-sm font-medium" style={{ color: Colors.error[700] }}>
-                   Error al enviar datos
-                 </Text>
-                 <Text className="text-sm font-regular" style={{ color: Colors.error[600], marginTop: 4 }}>
-                   {serviceError}
-                 </Text>
-               </View>
-             )}
+              {serviceError && (
+                <View style={{ 
+                  backgroundColor: Colors.error[50], 
+                  borderWidth: 1, 
+                  borderColor: Colors.error[200], 
+                  borderRadius: 8, 
+                  padding: 12, 
+                  marginBottom: 16 
+                  }}>
+                  <Text className="text-sm font-medium" style={{ color: Colors.error[700] }}>
+                    {t('onboarding.serviceError.title')}
+                  </Text>
+                  <Text className="text-sm font-regular" style={{ color: Colors.error[600], marginTop: 4 }}>
+                    {serviceError}
+                  </Text>
+                </View>
+              )}
 
-            <View style={{ marginTop: 32, gap: 12 }}>
-              {currentStep > 1 && (
+              <View style={{ marginTop: 32, gap: 12 }}>
+                {currentStep > 1 && (
+                  <Button
+                    title={t('common.back')}
+                    onPress={handlePreviousStep}
+                    disabled={loading}
+                    variant="outline"
+                    fullWidth
+                  />
+                )}
                 <Button
-                  title="Atrás"
-                  onPress={handlePreviousStep}
-                  disabled={loading}
-                  variant="outline"
+                  title={
+                    isLoading
+                      ? t('common.saving')
+                      : currentStep === 1
+                        ? t('common.next')
+                        : t('common.finish')
+                  }
+                  onPress={handleNextStep}
+                  disabled={isLoading || allErrors.length > 0}
+                  loading={isLoading}
+                  variant="primary"
                   fullWidth
                 />
-              )}
-              
-              <Button
-                title={isLoading ? "Guardando..." : currentStep === 1 ? "Siguiente" : "Completar"}
-                onPress={handleNextStep}
-                disabled={isLoading || allErrors.length > 0}
-                loading={isLoading}
-                variant="primary"
-                fullWidth
-              />
-            </View>
-           </Card>
-         </View>
-       </ScrollView>
-     </Container>
-   </KeyboardAwareContainer>
- );
-} 
+              </View>
+            </Card>
+          </View>
+        </ScrollView>
+      </Container>
+    </KeyboardAwareContainer>
+  );
+}
