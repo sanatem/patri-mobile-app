@@ -4,12 +4,14 @@ import * as Localization from 'expo-localization';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import es from '../locales/es.json';
+import esCL from '../locales/es-CL.json';
 import en from '../locales/en.json';
 
 const LANGUAGE_KEY = 'language';
 
 export const resources = {
   es: { translation: es },
+  esCL: { translation: esCL },
   en: { translation: en },
 };
 
@@ -38,7 +40,7 @@ export const initI18n = async () => {
 
 export const i18nInitPromise = initI18n();
 
-export const setAppLanguage = async (lang: 'es' | 'en') => {
+export const setAppLanguage = async (lang: 'es' | 'en' | 'esCL') => {
   try {
     await i18n.changeLanguage(lang);
     await AsyncStorage.setItem(LANGUAGE_KEY, lang);

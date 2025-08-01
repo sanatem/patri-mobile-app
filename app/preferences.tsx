@@ -7,15 +7,18 @@ import { ArrowLeft, Languages } from 'lucide-react-native';
 import { Select } from '@/components/ui/Select';
 import { setAppLanguage } from '../lib/i18n';
 import Colors from '@/constants/Colors';
-
-const LANGUAGES = [
-  { value: 'es', label: 'Español' },
-  { value: 'en', label: 'Inglés' },
-];
-
-const LANGUAGE_KEY = 'language';
+import { useTranslation } from 'react-i18next';
 
 export default function PreferencesScreen() {
+  const { t } = useTranslation();
+  const LANGUAGES = [
+    { value: 'es', label: t('language.es') },
+    { value: 'es-cl', label: t('language.es-cl') },
+    { value: 'en', label: t('language.en') }
+    
+  ];
+
+const LANGUAGE_KEY = 'language';
   const router = useRouter();
   const [selectedLang, setSelectedLang] = useState('es');
   const [loading, setLoading] = useState(true);
@@ -39,7 +42,7 @@ export default function PreferencesScreen() {
   if (loading) {
     return (
       <View style={styles.container}>
-        <Text style={styles.loadingText}>Cargando preferencias...</Text>
+        <Text style={styles.loadingText}>{t('preferences.loading')}</Text>
       </View>
     );
   }
@@ -52,10 +55,10 @@ export default function PreferencesScreen() {
             <ArrowLeft size={24} color="#1f2937" />
           </TouchableOpacity>
           <View style={styles.headerTextContainer}>
-            <Text style={styles.headerTitle}>Preferencias de Usuario</Text>
+            <Text style={styles.headerTitle}>{t('preferences.title')}</Text>
           </View>
         </View>
-        <Text style={styles.headerSubtitle}>Personaliza tu experiencia</Text>
+        <Text style={styles.headerSubtitle}>{t('preferences.subtitle')}</Text>
       </View>
 
       <View style={{ height: 8 }} />
@@ -67,8 +70,8 @@ export default function PreferencesScreen() {
               <Languages size={22} color={Colors.primary[500]} />
             </View>
             <View style={styles.textContainer}>
-              <Text style={styles.menuTitle}>Idioma de la aplicación</Text>
-              <Text style={styles.menuSubtitle}>Selecciona tu idioma</Text>
+              <Text style={styles.menuTitle}>{t('preferences.language.title')}</Text>
+              <Text style={styles.menuSubtitle}>{t('preferences.language.subtitle')}</Text>
             </View>
           </View>
         </View>
