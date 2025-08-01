@@ -438,7 +438,11 @@
         },
         "net_worth": "Patrimonio neto",
         "cash_balance": "Saldo en caja",
-        "title": "Mi patrimonio"
+        "title": "Mi patrimonio",
+        "netWorthTitle": "Tu Patrimonio",
+        "assets": "Total de activos",
+        "liabilities": "Total de pasivos",
+        "comparedToLastMonth": "vs el mes pasado"
     },
     "tabs": {
         "patrimony": "Patrimonio",
