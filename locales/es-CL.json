@@ -429,11 +429,13 @@
         "empty": {
             "assets": {
                 "title": "No tienes activos registrados",
-                "subtitle": "Agrega tus activos para empezar a gestionar tu patrimonio"
+                "subtitle": "Agrega tus activos para empezar a gestionar tu patrimonio",
+                "cta": "Crear activo"
             },
             "liabilities": {
                 "title": "No tienes pasivos registrados",
-                "subtitle": "Agrega tus pasivos y mira tu patrimonio completo"
+                "subtitle": "Agrega tus pasivos y mira tu patrimonio completo",
+                "cta": "Crear pasivo"
             }
         },
         "net_worth": "Patrimonio neto",

@@ -429,11 +429,13 @@
     "empty": {
       "assets": {
         "title": "No assets recorded",
-        "subtitle": "Add your assets to start managing your networth"
+        "subtitle": "Add your assets to start managing your networth",
+        "cta": "Create asset"
       },
       "liabilities": {
         "title": "No liabilities recorded",
-        "subtitle": "Add your liabilities to get a complete view of your finances"
+        "subtitle": "Add your liabilities to get a complete view of your finances",
+        "cta": "Create liability"
       }
     },
     "net_worth": "Net Worth",
