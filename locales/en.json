@@ -218,7 +218,7 @@
         ]
       },
       {
-        "text": "What is your estimated investable net worth?",
+        "text": "What is your estimated investable networth?",
         "options": [
           "Over CLP 200 million",
           "Between CLP 50 and 200 million",
@@ -424,24 +424,28 @@
     "title": "Sync bank data"
   },
   "patrimony": {
-    "loading": "Loading net worth data...",
+    "loading": "Loading networth data...",
     "integrateBankData": "Connect bank data",
     "empty": {
       "assets": {
         "title": "No assets recorded",
-        "subtitle": "Add your assets to start managing your net worth"
+        "subtitle": "Add your assets to start managing your networth"
       },
       "liabilities": {
         "title": "No liabilities recorded",
         "subtitle": "Add your liabilities to get a complete view of your finances"
       }
     },
-    "net_worth": "Net worth",
+    "net_worth": "Net Worth",
     "cash_balance": "Cash balance",
-    "title": "Net worth"
+    "title": "Networth",
+    "netWorthTitle": "Networth",
+    "assets": "Assets",
+    "liabilities": "Liabilities",
+    "comparedToLastMonth": "vs last month"
   },
   "tabs": {
-    "patrimony": "Net Worth",
+    "networth": "Networth",
     "budget": "Budget",
     "investment": "Investment",
     "planning": "Planning"
@@ -570,8 +574,8 @@
       "expenses": "What are my expenses this month?",
       "budget": "How is my budget doing?",
       "invested": "How much do I have invested?",
-      "summary": "What's my net worth summary?",
-      "netWorth": "What's my net worth summary?"
+      "summary": "What's my networth summary?",
+      "netWorth": "What's my networth summary?"
     },
     "welcomeTitle": "Hi {{name}}",
     "welcomeSubtitle": "I'm your financial copilot. Ready to start planning your future?"
@@ -618,7 +622,7 @@
       "title": "Financial Report",
       "description": "Comprehensive analysis of your financial situation",
       "points": {
-        "balance": "Net worth balance",
+        "balance": "Networth balance",
         "cashflow": "Monthly cash flow",
         "recommendations": "Personalized recommendations"
       }
@@ -672,7 +676,7 @@
       "total_assets": "Total assets",
       "total_liabilities": "Total liabilities",
       "last_month_comparison": "vs last month",
-      "title": "Net Worth"
+      "title": "Networth"
     },
     "budget": {
       "search_income_placeholder": "Search in income",
@@ -704,12 +708,12 @@
     },
     "investment": {
       "portfolio": "Portfolio",
-      "patrimony_label": "Your net worth",
+      "patrimony_label": "Your networth",
       "invest": "Invest",
       "create": "Create",
       "begin": "Start",
       "continue_without_account": "Continue without an account",
-      "grow_patrimony": "One place to grow your net worth.",
+      "grow_patrimony": "One place to grow your networth.",
       "personalized_options": "Personalized saving and investment options for every type of investor."
     },
     "benefits": {
