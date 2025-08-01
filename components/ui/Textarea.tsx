@@ -32,7 +32,7 @@ export function Textarea({
   error,
   className,
   blurOnSubmit = false,
-  returnKeyType = 'default',
+  returnKeyType = 'done',
   onSubmitEditing,
   disabled = false,
   showCharacterCount = false,
