@@ -1028,5 +1028,20 @@
                 "period": "Plazo de inversión"
             }
         }
+    },
+    "auth": {
+        "cancelledTitle": "Inicio de sesión cancelado",
+        "cancelledMessage": "No pudimos completar el proceso de autenticación.",
+        "errorTitle": "Problema con el inicio de sesión",
+        "errorMessage": "Ocurrió un error durante la autenticación. Intenta nuevamente más tarde."
+    },
+    "login": {
+        "subtitle": "Inicia sesión para administrar tus finanzas de forma inteligente",
+        "connecting": "Conectando...",
+        "login": "Entrar",
+        "termsPrefix": "Al continuar aceptas nuestros ",
+        "termsLink": "términos y condiciones",
+        "privacyLink": "política de privacidad",
+        "and": "y"
     }
 }

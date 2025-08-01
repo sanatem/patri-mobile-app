@@ -1028,5 +1028,20 @@
         "period": "Investment period"
       }
     }
+  },
+  "auth": {
+    "cancelledTitle": "Authentication Cancelled",
+    "cancelledMessage": "Authentication process could not be completed.",
+    "errorTitle": "Authentication Error",
+    "errorMessage": "An error occurred during authentication. Please try again."
+  },
+  "login": {
+    "subtitle": "Sign in to manage your finances intelligently",
+    "connecting": "Connecting...",
+    "login": "Sign In",
+    "termsPrefix": "By continuing, you agree to our ",
+    "termsLink": "terms and conditions",
+    "privacyLink": "privacy policy",
+    "and": "and"
   }
 }

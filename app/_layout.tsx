@@ -8,7 +8,7 @@ import { StatusBar } from 'expo-status-bar';
 import { AuthProvider } from '@/providers/AuthProvider';
 import { CopilotProvider } from '@/providers/CopilotProvider';
 import { useFrameworkReady } from '@/hooks/common/useFrameworkReady';
-import { i18nInitPromise } from '../lib/i18n'; // nuevo import
+import { i18nInitPromise } from '../lib/i18n';
 
 SplashScreen.preventAutoHideAsync();
 
