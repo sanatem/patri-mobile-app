@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Animated, Dimensions, ActivityIndicator, RefreshControl } from 'react-native';
 import { Settings, Plus, RefreshCw } from 'lucide-react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import Colors from '@/constants/Colors';
 import { 
   LABELS, 
@@ -44,6 +44,7 @@ export default function PatrimonyScreen() {
   const { userData, loading: userLoading } = useUserData();
   const { rangeSize, setRangeSize } = useChartRangeStore();
   const router = useRouter();
+  const params = useLocalSearchParams();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'assets' | 'liabilities'>('assets');
@@ -72,12 +73,12 @@ export default function PatrimonyScreen() {
   const slideAnim = useRef(new Animated.Value(0)).current;  
   const skeletonFadeAnim = useRef(new Animated.Value(1)).current;
 
-  const { assets: apiAssets, loading: assetsLoading, error: assetsError } = useAssets({
+  const { assets: apiAssets, loading: assetsLoading, error: assetsError, refetch: refetchAssets } = useAssets({
     page: 1,
     per_page: 50
   }, true);
 
-  const { debts: apiDebts, loading: debtsLoading, error: debtsError } = useDebts({
+  const { debts: apiDebts, loading: debtsLoading, error: debtsError, refetch: refetchDebts } = useDebts({
     page: 1,
     per_page: 50
   }, true);
@@ -99,6 +100,7 @@ export default function PatrimonyScreen() {
          apiAssets.assets.main_homes.length) : 0,
       debtsCount: apiDebts?.debts?.length || 0
     });
+
   }, [apiAssets, apiDebts, assetsLoading, debtsLoading, assetsError, debtsError]);
 
   useEffect(() => {
@@ -148,6 +150,8 @@ export default function PatrimonyScreen() {
   useEffect(() => {
     loadPatrimonyData();
   }, []);
+
+
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -652,11 +656,11 @@ export default function PatrimonyScreen() {
             </Container>
           <Container variant="content">
             <View style={listItemStyles.cardContainer}>
-              <Tabs
-                tabs={tabs}
-                activeTab={activeTab}
-                onTabChange={(key) => setActiveTab(key as 'assets' | 'liabilities')}
-              />
+                             <Tabs
+                 tabs={tabs}
+                 activeTab={activeTab}
+                 onTabChange={(key) => setActiveTab(key as 'assets' | 'liabilities')}
+               />
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingBottom: 20, paddingTop: 12, borderBottomWidth: 1, borderBottomColor: Colors.gray[200] }}>
                 <Text style={{ color: Colors.gray[700], fontSize: 18, fontFamily: 'Poppins-medium' }}>
                   {activeTab === 'assets' ? LABELS.PATRIMONY.TOTAL_ASSETS : LABELS.PATRIMONY.TOTAL_LIABILITIES}
@@ -806,11 +810,11 @@ export default function PatrimonyScreen() {
                   ))}
                 </Animated.View>
               ) : (
-                <ListItem
-                  data={currentData}
-                  showLoadMore={false}
-                  showContainer={false}
-                />
+                                 <ListItem
+                   data={currentData}
+                   showLoadMore={false}
+                   showContainer={false}
+                 />
               )}
             </View>
           </Container>
@@ -870,8 +874,8 @@ export default function PatrimonyScreen() {
             </View>
             {[
               { label: 'Integrar datos bancarios', value: 'integrar', icon: <RefreshCw size={20} color={Colors.gray[700]} /> },
-              // { label: 'Añadir activo', value: 'activo' },
-              // { label: 'Añadir pasivo', value: 'pasivo' }
+              { label: 'Añadir activo', value: 'activo' },
+              { label: 'Añadir pasivo', value: 'pasivo' }
             ].map((option, index) => (
               <TouchableOpacity
                 key={option.value}
@@ -886,8 +890,8 @@ export default function PatrimonyScreen() {
                   closeModal();
                   switch(option.value) {
                     case 'integrar': handleIntegrarDatos(); break;
-                    // case 'activo': handleAddActivo(); break;
-                    // case 'pasivo': handleAddPasivo(); break;
+                    case 'activo': router.push('/patrimony/add-asset'); break;
+                    case 'pasivo': router.push('/patrimony/add-liability'); break;
                   }
                 }}
                 activeOpacity={0.7}
