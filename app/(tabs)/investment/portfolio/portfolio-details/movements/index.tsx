@@ -10,8 +10,10 @@ import { getMovementsByGoal, Movement } from '@/services/investment/portfolio/mo
 import { useAuth } from '@/providers/AuthProvider';
 import Colors from '@/constants/Colors';
 import { SkeletonBase } from '@/components/ui/SkeletonBase';
+import { useTranslation } from 'react-i18next';
 
 export default function MovementsScreen() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { goalId, goalName } = useLocalSearchParams<{ goalId: string; goalName: string }>();
   
@@ -106,7 +108,7 @@ export default function MovementsScreen() {
     return (
       <Container variant="secondaryPage">
         <Header 
-          title="Movimientos" 
+          title={t('movements.title')} 
           leftAction={
             <TouchableOpacity
               onPress={handleBackPress}
@@ -174,7 +176,7 @@ export default function MovementsScreen() {
     return (
       <Container variant="secondaryPage">
         <Header 
-          title="Movimientos" 
+          title={t('movements.title')} 
           leftAction={
             <TouchableOpacity
               onPress={handleBackPress}
@@ -185,12 +187,12 @@ export default function MovementsScreen() {
           }
         />
         <View className="flex-1 justify-center items-center px-6">
-          <Text className="text-red-500 text-center mb-4">{error}</Text>
+          <Text className="text-red-500 text-center mb-4">{t(error) || error}</Text>
           <TouchableOpacity
             onPress={handleBackPress}
             className="bg-primary-500 px-4 py-2 rounded-lg"
           >
-            <Text className="text-white">Volver</Text>
+            <Text className="text-white">{t('common.back')}</Text>
           </TouchableOpacity>
         </View>
       </Container>
@@ -200,7 +202,7 @@ export default function MovementsScreen() {
   return (
     <Container variant="secondaryPage">
       <Header 
-        title="Movimientos" 
+        title={t('movements.title')} 
         leftAction={
           <TouchableOpacity
             onPress={handleBackPress}
@@ -222,10 +224,10 @@ export default function MovementsScreen() {
         ) : (
           <View className="flex-1 justify-center items-center py-8">
             <Text className="text-lg font-semibold text-gray-900 mb-2">
-              No hay movimientos
+              {t('movements.emptyTitle')}
             </Text>
             <Text className="text-sm text-gray-600 text-center">
-              Aún no hay movimientos registrados para esta meta
+              {t('movements.emptySubtitle')}
             </Text>
           </View>
         )}
