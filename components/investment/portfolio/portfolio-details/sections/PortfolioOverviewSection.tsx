@@ -3,6 +3,7 @@ import { View } from 'react-native';
 import PortfolioSummaryCard from '../cards/PortfolioSummaryCard';
 import PortfolioAssetsCard from '../cards/PortfolioAssetsCard';
 import PortfolioMovementsCard from '../cards/PortfolioMovementsCard';
+import { useTranslation } from 'react-i18next';
 
 interface SummaryItem {
   title: string;
@@ -44,18 +45,19 @@ interface PortfolioOverviewSectionProps {
 }
 
 export default function PortfolioOverviewSection({ summary, assets, movements, goalName, goalId }: PortfolioOverviewSectionProps) {
+  const { t } = useTranslation();
   return (
     <View>
       <PortfolioSummaryCard 
-        title="Ver resumen" 
+        title={t('portfolio.view_summary')} 
         summary={summary} 
       />
       <PortfolioAssetsCard 
-        title="Ver activos" 
+        title={t('portfolio.view_assets')} 
         assets={assets} 
       />
       <PortfolioMovementsCard 
-        title="Movimientos" 
+        title={t('movements.title')}  
         movements={movements}
         goalName={goalName}
         goalId={goalId}

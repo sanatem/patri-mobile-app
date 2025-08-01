@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { inputStyles } from '@/styles/ui/Input.styles';
 import { selectStyles, SCREEN_HEIGHT } from '@/styles/ui/Select.styles';
 import Colors from '@/constants/Colors';
+import { useTranslation } from 'react-i18next';
 
 interface SelectOption {
   label: string;
@@ -22,17 +23,18 @@ interface SelectProps {
   disabled?: boolean;
   className?: string;
 }
-
 export function Select({
   options,
   value,
   onSelect,
-  placeholder = "Selecciona una opción",
+  placeholder,
   label,
   error,
   disabled = false,
   className,
 }: SelectProps) {
+  const { t } = useTranslation();
+  const placeholderText = placeholder ?? t('common.select_option')
   const [isOpen, setIsOpen] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const borderAnim = useRef(new Animated.Value(0)).current;
@@ -159,7 +161,7 @@ export function Select({
                   : Colors.primary[400]
             }}
           >
-            {selectedOption ? selectedOption.label : placeholder}
+            {selectedOption ? selectedOption.label : placeholderText}
           </Text>
           <ChevronDown
             size={18}

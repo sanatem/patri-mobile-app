@@ -4,6 +4,7 @@ import { ChevronRight } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { Card } from '@/components/ui/Card';
 import Colors from '@/constants/Colors';
+import { useTranslation } from 'react-i18next';
 
 interface MovementDetails {
   tipo: string;
@@ -34,6 +35,7 @@ interface PortfolioMovementsCardProps {
 
 export default function PortfolioMovementsCard({ title, movements, goalName, goalId }: PortfolioMovementsCardProps) {
   const router = useRouter();
+  const { t } = useTranslation();
 
   const handlePress = () => {
     
@@ -51,7 +53,7 @@ export default function PortfolioMovementsCard({ title, movements, goalName, goa
       <Card className="mb-4">
         <View className="flex-row items-center justify-between">
           <View className="flex-row items-center">
-            <Text className="text-base font-medium" style={{ color: Colors.primary[500] }}>Movimientos</Text>
+            <Text className="text-base font-medium" style={{ color: Colors.primary[500] }}>{t('movements.title')}</Text>
           </View>
           <ChevronRight size={20} color={Colors.gray[500]} />
         </View>

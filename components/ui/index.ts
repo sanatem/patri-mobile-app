@@ -13,7 +13,7 @@ export { Carousel } from './Carousel';
 export { CarouselCard } from './CarouselCard';
 export { UserSelector } from './UserSelector';
 export { Select } from './Select';
-export { CalendarSelect } from './CalendarSelect';
+export { default as CalendarSelect } from './CalendarSelect';
 export { SegmentedControl } from './SegmentedControl';
 export { InfiniteCarousel } from './InfiniteCarousel';
 export { KeyboardAwareContainer } from './KeyboardAwareContainer';

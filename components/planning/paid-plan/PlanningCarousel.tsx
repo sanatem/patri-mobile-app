@@ -7,6 +7,7 @@ import {
 import { FileText, TrendingUp, PieChart } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import { PlanningCard } from './PlanningCard';
+import { useTranslation } from 'react-i18next';
 
 interface ReportCard {
   id: string;
@@ -28,40 +29,54 @@ const { width: screenWidth } = Dimensions.get('window');
 const cardWidth = screenWidth * 0.8;
 const sideMargin = (screenWidth - cardWidth) / 10;
 
+export default function PlanningCarousel({ onCardPress, onAIPress }: PlanningCarouselProps) {
+  const { t } = useTranslation();
+
 const reportCards: ReportCard[] = [
   {
     id: '1',
-    title: 'Reporte Financiero',
-    description: 'Análisis completo de tu situación financiera',
+    title: t('planningCarousel.report1.title'),
+    description: t('planningCarousel.report1.description'),
     icon: FileText,
     color: Colors.primary[500],
     fileType: 'PDF',
     size: '2.1 MB',
-    contentPoints: ['Balance patrimonial', 'Flujo de caja mensual', 'Recomendaciones personalizadas']
+    contentPoints: [
+      t('planningCarousel.report1.points.balance'),
+      t('planningCarousel.report1.points.cashflow'),
+      t('planningCarousel.report1.points.recommendations')
+    ]
   },
   {
     id: '2',
-    title: 'Inversión',
-    description: 'Estado y rendimiento de tus inversiones',
+    title: t('planningCarousel.report2.title'),
+    description: t('planningCarousel.report2.description'),
     icon: TrendingUp,
     color: Colors.secondary[500],
     fileType: 'PDF',
     size: '1.9 MB',
-    contentPoints: ['Análisis de performance', 'Distribución de activos', 'Comparación con benchmarks']
+    contentPoints: [
+      t('planningCarousel.report2.points.performance'),
+      t('planningCarousel.report2.points.allocation'),
+      t('planningCarousel.report2.points.benchmarks')
+    ]
   },
   {
     id: '3',
-    title: 'Estado Fondos Mutuos',
-    description: 'Performance detallada de fondos mutuos',
+    title: t('planningCarousel.report3.title'),
+    description: t('planningCarousel.report3.description'),
     icon: PieChart,
     color: Colors.success[500],
     fileType: 'PDF',
     size: '2.7 MB',
-    contentPoints: ['Evolución mensual', 'Composición de cartera', 'Ranking de rentabilidad']
+    contentPoints: [
+      t('planningCarousel.report3.points.evolution'),
+      t('planningCarousel.report3.points.composition'),
+      t('planningCarousel.report3.points.ranking')
+    ]
   }
 ];
 
-export default function PlanningCarousel({ onCardPress, onAIPress }: PlanningCarouselProps) {
   const scrollViewRef = useRef<ScrollView>(null);
 
   const handleCardPress = (card: ReportCard) => {

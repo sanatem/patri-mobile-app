@@ -5,6 +5,7 @@ import Colors from '@/constants/Colors';
 import { useNetworth } from '@/hooks/patrimony/useNetworth';
 import { useNetworthHistoric } from '@/hooks/patrimony/useNetworthHistoric';
 import { SkeletonBase } from '@/components/ui/SkeletonBase';
+import { useTranslation } from 'react-i18next';
 
 interface PatrimonySummaryProps {
   totalNetWorth: number;
@@ -26,6 +27,7 @@ export function PatrimonySummary({
   const [isExpanded, setIsExpanded] = useState(false);
   const [rotateAnim] = useState(new Animated.Value(0));
   const [showContent, setShowContent] = useState(false);
+  const { t } = useTranslation();
 
   const { networthData, loading, error } = useNetworth();
   const { historicData, loading: historicLoading } = useNetworthHistoric();
@@ -147,7 +149,7 @@ export function PatrimonySummary({
     <View style={styles.gradient}>
       <View style={styles.container}>
         <Text style={styles.title}>
-          Patrimonio Neto
+          {t('patrimony.netWorthTitle')}
         </Text>
         
         <TouchableOpacity
@@ -172,7 +174,7 @@ export function PatrimonySummary({
               <View style={styles.itemLeft}>
                 <TrendingUp size={16} color={Colors.success[500]} />
                 <Text style={styles.itemLabel}>
-                  Activos
+                  {t('patrimony.assets')}
                 </Text>
               </View>
               <Text style={[styles.itemValue, { color: Colors.success[500] }]}>
@@ -183,7 +185,7 @@ export function PatrimonySummary({
               <View style={styles.itemLeft}>
                 <TrendingDown size={16} color={Colors.error[400]} />
                 <Text style={styles.itemLabel}>
-                  Pasivos
+                  {t('patrimony.liabilities')}
                 </Text>
               </View>
               <Text style={[styles.itemValue, { color: Colors.error[400] }]}>
@@ -201,7 +203,7 @@ export function PatrimonySummary({
             {formatVariation(variationData.variation)} ({variationData.variationPercentage.toFixed(2)}%)
           </Text>
           <Text style={styles.comparisonText}>
-            vs último mes
+            {t('patrimony.comparedToLastMonth')}
           </Text>
         </View>
       </View>
