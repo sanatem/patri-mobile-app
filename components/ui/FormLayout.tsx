@@ -93,11 +93,11 @@ export default function FormLayout({
           <View style={{ flex: 1, paddingHorizontal: 24, paddingTop: height * 0.1 }}>
             {showLogo && (
               <View style={{ alignItems: 'center', marginBottom: 10 }}>
-                <PatrimoreIcon width={160} height={80} color={Colors.secondary[500]} />
+                <PatrimoreIcon width={140} height={50} color={Colors.secondary[500]} />
               </View>
             )}
 
-            <Card style={{ padding: 24 }}>
+            <Card style={{ padding: 24, marginBottom: 24 }}>
               <View style={{ marginBottom: 24 }}>
                 <Text className='font-medium text-2xl'
                   style={{

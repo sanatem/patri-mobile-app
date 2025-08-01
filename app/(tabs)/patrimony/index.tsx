@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Animated, Dimensions, ActivityIndicator, RefreshControl } from 'react-native';
 import { Settings, Plus, RefreshCw } from 'lucide-react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import Colors from '@/constants/Colors';
 import { 
   LABELS, 
@@ -26,6 +26,7 @@ import {
   SegmentedControl,
   KeyboardAwareContainer,
   LockedTabOverlay,
+  Button,
 } from '@/components/ui';
 import { SkeletonBase } from '@/components/ui/SkeletonBase';
 import { useUserData } from '@/hooks/user/useUserData';
@@ -44,6 +45,7 @@ export default function PatrimonyScreen() {
   const { userData, loading: userLoading } = useUserData();
   const { rangeSize, setRangeSize } = useChartRangeStore();
   const router = useRouter();
+  const params = useLocalSearchParams();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'assets' | 'liabilities'>('assets');
@@ -67,17 +69,20 @@ export default function PatrimonyScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [showSkeletons, setShowSkeletons] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(5);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const overlayAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(0)).current;  
   const skeletonFadeAnim = useRef(new Animated.Value(1)).current;
 
-  const { assets: apiAssets, loading: assetsLoading, error: assetsError } = useAssets({
+  const { assets: apiAssets, loading: assetsLoading, error: assetsError, refetch: refetchAssets } = useAssets({
     page: 1,
     per_page: 50
   }, true);
 
-  const { debts: apiDebts, loading: debtsLoading, error: debtsError } = useDebts({
+  const { debts: apiDebts, loading: debtsLoading, error: debtsError, refetch: refetchDebts } = useDebts({
     page: 1,
     per_page: 50
   }, true);
@@ -99,6 +104,7 @@ export default function PatrimonyScreen() {
          apiAssets.assets.main_homes.length) : 0,
       debtsCount: apiDebts?.debts?.length || 0
     });
+
   }, [apiAssets, apiDebts, assetsLoading, debtsLoading, assetsError, debtsError]);
 
   useEffect(() => {
@@ -148,6 +154,8 @@ export default function PatrimonyScreen() {
   useEffect(() => {
     loadPatrimonyData();
   }, []);
+
+
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -427,6 +435,26 @@ export default function PatrimonyScreen() {
   const apiAssetsData = transformApiAssets();
   const apiDebtsData = transformApiDebts();
 
+  const getPaginatedData = (data: any[]) => {
+    const startIndex = 0;
+    const endIndex = isExpanded ? data.length : Math.min(itemsPerPage, data.length);
+    return data.slice(startIndex, endIndex);
+  };
+
+  const hasMoreData = (data: any[]) => {
+    return data.length > itemsPerPage;
+  };
+
+  const handleToggleExpand = () => {
+    setIsExpanded(!isExpanded);
+  };
+
+  const handleTabChange = (key: string) => {
+    setActiveTab(key as 'assets' | 'liabilities');
+    setCurrentPage(1);
+    setIsExpanded(false);
+  };
+
   const hasApiAssets = apiAssets !== null && apiAssets !== undefined;
   const hasApiDebts = apiDebts !== null && apiDebts !== undefined;
 
@@ -491,6 +519,8 @@ export default function PatrimonyScreen() {
   }));
 
   const currentData = activeTab === 'assets' ? assetsData : liabilitiesData;
+  const paginatedData = getPaginatedData(currentData);
+  const canShowMore = hasMoreData(currentData);
   const isLoadingData = (activeTab === 'assets' && assetsLoading) || (activeTab === 'liabilities' && debtsLoading);
   const currentError = activeTab === 'assets' ? assetsError : debtsError;
 
@@ -652,11 +682,11 @@ export default function PatrimonyScreen() {
             </Container>
           <Container variant="content">
             <View style={listItemStyles.cardContainer}>
-              <Tabs
-                tabs={tabs}
-                activeTab={activeTab}
-                onTabChange={(key) => setActiveTab(key as 'assets' | 'liabilities')}
-              />
+                             <Tabs
+                 tabs={tabs}
+                 activeTab={activeTab}
+                 onTabChange={handleTabChange}
+               />
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingBottom: 20, paddingTop: 12, borderBottomWidth: 1, borderBottomColor: Colors.gray[200] }}>
                 <Text style={{ color: Colors.gray[700], fontSize: 18, fontFamily: 'Poppins-medium' }}>
                   {activeTab === 'assets' ? LABELS.PATRIMONY.TOTAL_ASSETS : LABELS.PATRIMONY.TOTAL_LIABILITIES}
@@ -735,29 +765,42 @@ export default function PatrimonyScreen() {
                     <Text className="text-white">Reintentar</Text>
                   </TouchableOpacity>
                 </View>
-              ) : hasNoCurrentData ? (
-                <View style={{ padding: 40, alignItems: 'center' }}>
-                  <Text style={{ 
-                    color: Colors.gray[500], 
-                    fontSize: 16, 
-                    fontFamily: 'Poppins-regular',
-                    textAlign: 'center',
-                    marginBottom: 8
-                  }}>
-                    {activeTab === 'assets' ? 'No hay activos registrados' : 'No hay pasivos registrados'}
-                  </Text>
-                  <Text style={{ 
-                    color: Colors.gray[400], 
-                    fontSize: 14, 
-                    fontFamily: 'Poppins-regular',
-                    textAlign: 'center'
-                  }}>
-                    {activeTab === 'assets' 
-                      ? 'Agrega tus activos para comenzar a gestionar tu patrimonio' 
-                      : 'Agrega tus pasivos para tener una visión completa de tu patrimonio'
-                    }
-                  </Text>
-                </View>
+                             ) : hasNoCurrentData ? (
+                 <View style={{ padding: 40, alignItems: 'center' }}>
+                   <Text style={{ 
+                     color: Colors.gray[500], 
+                     fontSize: 16, 
+                     fontFamily: 'Poppins-regular',
+                     textAlign: 'center',
+                     marginBottom: 8
+                   }}>
+                     {activeTab === 'assets' ? 'No hay activos registrados' : 'No hay pasivos registrados'}
+                   </Text>
+                   <Text style={{ 
+                     color: Colors.gray[400], 
+                     fontSize: 14, 
+                     fontFamily: 'Poppins-regular',
+                     textAlign: 'center',
+                     marginBottom: 20
+                   }}>
+                     {activeTab === 'assets' 
+                       ? 'Agrega tus activos para comenzar a gestionar tu patrimonio' 
+                       : 'Agrega tus pasivos para tener una visión completa de tu patrimonio'
+                     }
+                   </Text>
+                   <Button
+                     variant="primary"
+                     onPress={() => {
+                       if (activeTab === 'assets') {
+                         router.push('/patrimony/add-asset');
+                       } else {
+                         router.push('/patrimony/add-liability');
+                       }
+                     }}
+                     title={activeTab === 'assets' ? 'Crear activo' : 'Crear pasivo'}
+                     icon={<Plus size={20} color="white" />}
+                   />
+                 </View>
               ) : showSkeletons ? (
                 <Animated.View style={{ padding: 20, opacity: skeletonFadeAnim }}>
                   {Array.from({ length: 6 }).map((_, index) => (
@@ -806,11 +849,23 @@ export default function PatrimonyScreen() {
                   ))}
                 </Animated.View>
               ) : (
-                <ListItem
-                  data={currentData}
-                  showLoadMore={false}
-                  showContainer={false}
-                />
+                                 <>
+                   <ListItem
+                     data={paginatedData}
+                     showLoadMore={false}
+                     showContainer={false}
+                   />
+                   
+                    {canShowMore && (
+                      <View style={{ padding: 20, alignItems: 'center' }}>
+                        <Button
+                          variant="ghost"
+                          onPress={handleToggleExpand}
+                          title={isExpanded ? 'Ver menos' : 'Ver más'}
+                        />
+                      </View>
+                    )}
+                 </>
               )}
             </View>
           </Container>
@@ -870,8 +925,8 @@ export default function PatrimonyScreen() {
             </View>
             {[
               { label: 'Integrar datos bancarios', value: 'integrar', icon: <RefreshCw size={20} color={Colors.gray[700]} /> },
-              // { label: 'Añadir activo', value: 'activo' },
-              // { label: 'Añadir pasivo', value: 'pasivo' }
+              { label: 'Añadir activo', value: 'activo' },
+              { label: 'Añadir pasivo', value: 'pasivo' }
             ].map((option, index) => (
               <TouchableOpacity
                 key={option.value}
@@ -886,8 +941,8 @@ export default function PatrimonyScreen() {
                   closeModal();
                   switch(option.value) {
                     case 'integrar': handleIntegrarDatos(); break;
-                    // case 'activo': handleAddActivo(); break;
-                    // case 'pasivo': handleAddPasivo(); break;
+                    case 'activo': router.push('/patrimony/add-asset'); break;
+                    case 'pasivo': router.push('/patrimony/add-liability'); break;
                   }
                 }}
                 activeOpacity={0.7}

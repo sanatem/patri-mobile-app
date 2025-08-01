@@ -67,7 +67,7 @@ export function Button({
     const variants: Record<typeof variant, string> = {
       primary: 'bg-primary-500 text-white rounded-full',
       outline: 'border border-primary-500 text-primary-500 bg-white rounded-full',
-      ghost: 'bg-transparent text-primary-500 border border-primary-500',
+      ghost: 'bg-transparent text-primary-500 underline',
       disabled: 'border border-gray-300 text-gray-400 bg-white rounded-full'
     };
     return variants[variant];
