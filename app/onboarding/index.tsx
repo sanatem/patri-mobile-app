@@ -1,31 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  View, 
-  Text, 
-  ScrollView, 
-  Dimensions, 
-  Alert, 
-  ActivityIndicator 
-} from 'react-native';
+import { View, Text, ScrollView, ActivityIndicator, Dimensions } from 'react-native';
 import { router } from 'expo-router';
-import { useKeyboardHandler } from '@/hooks/common/useKeyboardHandler';
-import { useOnboarding } from '@/hooks/common/useOnboarding';
 import { useAuth } from '@/providers/AuthProvider';
-import { 
-  Button, 
-  Input, 
-  Select, 
-  CalendarSelect, 
-  Container, 
-  Card, 
+import { useUserData } from '@/hooks/user/useUserData';
+import { useOnboarding } from '@/hooks/user/useOnboarding';
+import { submitOnboarding } from '@/services/user/onboarding';
+import { validateRut, cleanRutForBackend, formatRutWhileTyping } from '@/utils/rut-validation';
+import {
+  Container,
+  Input,
+  Select,
   KeyboardAwareContainer,
+  Button,
+  Card,
+  CalendarSelect,
   InfoTooltip
 } from '@/components/ui';
 import Colors from '@/constants/Colors';
 import { PatrimoreIcon } from '@/components/icons';
-import { submitOnboarding } from '@/services/user/onboarding';
 import { getUserData } from '@/services/user/get-user';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useKeyboardHandler } from '@/hooks/common/useKeyboardHandler';
+import { useOnboarding as useOnboardingCommon } from '@/hooks/common/useOnboarding';
 
 const { height } = Dimensions.get('window');
 
@@ -51,9 +46,11 @@ const COUNTRY_OPTIONS = [
 ];
 
 export default function OnboardingScreen() {
-  const { markAsSeen } = useOnboarding();
-  const { keyboardHeight, isKeyboardVisible } = useKeyboardHandler();
   const { accessToken } = useAuth();
+  const { userData, loading: isLoadingUserData } = useUserData();
+  const { submitOnboardingData, loading: isSubmitting, error: serviceError, success } = useOnboarding();
+  const { markAsCompleted } = useOnboardingCommon();
+  const { isKeyboardVisible, keyboardHeight } = useKeyboardHandler();
   
   const [formData, setFormData] = useState({
     rut: '',
@@ -62,11 +59,8 @@ export default function OnboardingScreen() {
     monthly_incomes: '',
   });
   const [loading, setLoading] = useState(false);
-  const [serviceLoading, setServiceLoading] = useState(false);
-  const [serviceError, setServiceError] = useState<string | null>(null);
-  const [isLoadingUserData, setIsLoadingUserData] = useState(true);
   const [isRutLocked, setIsRutLocked] = useState(false);
-  const isLoading = loading || serviceLoading;
+  const isLoading = loading || isSubmitting;
   const [errors, setErrors] = useState<string[]>([]);
   const allErrors = [...errors, ...(serviceError ? [serviceError] : [])];
 
@@ -76,7 +70,6 @@ export default function OnboardingScreen() {
 
   const loadUserData = async () => {
     if (!accessToken) {
-      setIsLoadingUserData(false);
       return;
     }
 
@@ -125,9 +118,6 @@ export default function OnboardingScreen() {
         setFormData(newFormData);
       }
     } catch (error) {
-      console.error('Error loading user data:', error);
-    } finally {
-      setIsLoadingUserData(false);
     }
   };
 
@@ -162,28 +152,12 @@ export default function OnboardingScreen() {
   };
 
   const handleRUTChange = (value: string) => {
-    if (value.trim() === '') {
-      setFormData(prev => ({
-        ...prev,
-        rut: '',
-      }));
-      return;
-    }
-    
-    const cleanValue = value.replace(/[^0-9kK-]/g, '');
-    
-    if (cleanValue.length === 0) {
-      return;
-    }
-    
-    if (cleanValue.length > 10) {
-      return;
-    }
+    const formattedValue = formatRutWhileTyping(value);
     
     setFormData(prev => {
       const newFormData = {
         ...prev,
-        rut: cleanValue.toUpperCase(),
+        rut: formattedValue,
       };
       
       setTimeout(() => {
@@ -195,24 +169,7 @@ export default function OnboardingScreen() {
   };
 
   const formatRUTForBackend = (rut: string): string => {
-    const cleanRut = rut.replace(/[^0-9kK]/g, '');
-    
-    if (cleanRut.length < 2) {
-      return cleanRut.toUpperCase();
-    }
-    
-    const body = cleanRut.slice(0, -1);
-    const digit = cleanRut.slice(-1);
-    
-    let formattedBody = '';
-    for (let i = body.length - 1, j = 0; i >= 0; i--, j++) {
-      if (j > 0 && j % 3 === 0) {
-        formattedBody = '.' + formattedBody;
-      }
-      formattedBody = body[i] + formattedBody;
-    }
-    
-    return formattedBody + '-' + digit.toUpperCase();
+    return cleanRutForBackend(rut);
   };
 
   const convertDateFormat = (dateString: string): string => {
@@ -236,8 +193,11 @@ export default function OnboardingScreen() {
     
     if (!data.rut.trim()) {
       newErrors.push('El RUT es requerido');
-    } else if (data.rut.length < 3) {
-      newErrors.push('El RUT debe tener al menos 3 caracteres');
+    } else {
+      const rutValidation = validateRut(data.rut);
+      if (!rutValidation.isValid) {
+        newErrors.push(rutValidation.error || 'El RUT ingresado no es válido');
+      }
     }
     
     if (!data.residence_country_name.trim()) {
@@ -270,7 +230,6 @@ export default function OnboardingScreen() {
 
   const handleComplete = async () => {
     setLoading(true);
-    setServiceError(null);
     
     try {
       const formErrors = validateForm();
@@ -295,13 +254,10 @@ export default function OnboardingScreen() {
       const response = await submitOnboarding(accessToken, onboardingData);
       
       if (response) {
-        await AsyncStorage.setItem('onboarding_completed', 'true');
-        await markAsSeen();
+        await markAsCompleted();
         router.replace('/(tabs)/patrimony');
       }
     } catch (error) {
-      console.error('Error in handleComplete:', error);
-      setServiceError(error instanceof Error ? error.message : 'Error desconocido');
     } finally {
       setLoading(false);
     }
@@ -375,7 +331,7 @@ export default function OnboardingScreen() {
                       value={formData.rut}
                       onChangeText={handleRUTChange}
                       autoCapitalize="characters"
-                      maxLength={10}
+                      maxLength={12}
                       keyboardType="default"
                       returnKeyType="next"
                       clearButtonMode="while-editing"

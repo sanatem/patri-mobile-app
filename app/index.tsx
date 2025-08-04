@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react';
-import { View, ActivityIndicator, Platform } from 'react-native';
+import { View, ActivityIndicator } from 'react-native';
 import { Redirect } from 'expo-router';
 import { useAuth } from '@/providers/AuthProvider';
 import { useOnboarding } from '@/hooks/common';
+import { useOnboardingValidation } from '@/hooks/common/useOnboardingValidation';
 import Colors from '@/constants/Colors';
 
 export default function Index() {
   const { user, loading, isAuthenticated, accessToken } = useAuth();
   const { hasSeenOnboarding, isLoading: onboardingLoading } = useOnboarding();
+  const { shouldShowOnboarding, userDataLoading, userData } = useOnboardingValidation();
   const [isReady, setIsReady] = useState(false);
   
   useEffect(() => {
@@ -18,7 +20,7 @@ export default function Index() {
     return () => clearTimeout(timer);
   }, []);
 
-  if (loading || !isReady || onboardingLoading) {
+  if (loading || !isReady || onboardingLoading || userDataLoading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
         <ActivityIndicator size="large" color={Colors.secondary[500]} />
@@ -27,22 +29,12 @@ export default function Index() {
   }
 
   if (isAuthenticated && user && accessToken) {
-    // Si hasSeenOnboarding es null o false, mostrar onboarding
-    if (hasSeenOnboarding === null || hasSeenOnboarding === false) {
+    // SOLO considerar shouldShowOnboarding, NO hasSeenOnboarding
+    if (shouldShowOnboarding) {
       return <Redirect href="/onboarding" />;
     }
     
-    // Si hasSeenOnboarding es true, ir a patrimony
-    if (hasSeenOnboarding === true) {
-      return <Redirect href="/(tabs)/patrimony" />;
-    }
-
-    // Fallback: mostrar loading
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
-        <ActivityIndicator size="large" color={Colors.secondary[500]} />
-      </View>
-    );
+    return <Redirect href="/(tabs)/patrimony" />;
   }
   
   return <Redirect href="/splash-screens" />;
