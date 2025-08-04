@@ -1,12 +1,10 @@
 import config from '@/config/constants';
 
 export interface OnboardingPersonalInformation {
-  first_name: string;
-  last_name: string;
   rut: string;
   birth_date: string;
   monthly_incomes: string;
-  residence_country: string;
+  residence_country_name: string;
 }
 
 export interface OnboardingRequest {

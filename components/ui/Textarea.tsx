@@ -4,46 +4,46 @@ import {
   Text,
   TextInput,
   TextInputProps,
-  TouchableOpacity,
   Animated,
   StyleSheet,
   Keyboard,
 } from 'react-native';
 import { cn } from '@/lib/utils';
-import { inputStyles } from '@/styles/ui/Input.styles';
+import { textareaStyles } from '@/styles/ui/Textarea.styles';
 import Colors from '@/constants/Colors';
 
-type InputProps = TextInputProps & {
+type TextareaProps = TextInputProps & {
   label?: string;
   error?: string;
-  icon?: React.ReactNode;
-  rightIcon?: React.ReactNode;
-  onRightIconPress?: () => void;
-  rightIconStyle?: any;
-  rightIconDisabled?: boolean;
   className?: string;
   blurOnSubmit?: boolean;
   returnKeyType?: 'done' | 'go' | 'next' | 'search' | 'send';
   onSubmitEditing?: () => void;
   disabled?: boolean;
+  showCharacterCount?: boolean;
+  maxLength?: number;
+  placeholder?: string;
+  multiline?: boolean;
+  numberOfLines?: number;
 };
 
-export function Input({
+export function Textarea({
   label,
   error,
-  icon,
-  rightIcon,
-  onRightIconPress,
-  editable = true,
   className,
-  rightIconStyle,
-  rightIconDisabled,
-  blurOnSubmit = true,
+  blurOnSubmit = false,
   returnKeyType = 'done',
   onSubmitEditing,
   disabled = false,
+  showCharacterCount = false,
+  maxLength,
+  placeholder,
+  multiline = true,
+  numberOfLines = 4,
+  value,
+  onChangeText,
   ...props
-}: InputProps) {
+}: TextareaProps) {
   const [isFocused, setIsFocused] = useState(false);
   const borderAnim = useRef(new Animated.Value(0)).current;
 
@@ -54,6 +54,12 @@ export function Input({
       useNativeDriver: false,
     }).start();
   }, [isFocused]);
+
+  useEffect(() => {
+    return () => {
+      borderAnim.stopAnimation();
+    };
+  }, []);
 
   const animatedBorderColor = borderAnim.interpolate({
     inputRange: [0, 1],
@@ -68,13 +74,22 @@ export function Input({
     }
   };
 
-  const isDisabled = disabled || !editable;
+  const handleChangeText = (text: string) => {
+    if (onChangeText) {
+      onChangeText(text);
+    }
+  };
+
+  const isDisabled = disabled;
 
   const borderColor = isDisabled 
     ? Colors.gray[100] 
     : error 
       ? '#DC2626' 
       : animatedBorderColor;
+
+  const characterCount = (value || '').length;
+  const isOverLimit = maxLength && characterCount > maxLength;
 
   return (
     <View className="mb-5 w-full">
@@ -91,7 +106,7 @@ export function Input({
 
       <Animated.View
         style={[
-          inputStyles.container,
+          textareaStyles.container,
           {
             borderColor: borderColor,
             backgroundColor: '#fff',
@@ -99,36 +114,51 @@ export function Input({
           },
         ]}
       >
-        {icon && <View style={inputStyles.iconContainer}>{icon}</View>}
-
         <TextInput
           className="flex-1 text-base text-gray-800 font-regular"
           style={[
-            inputStyles.textInput,
+            textareaStyles.textInput,
             {
               color: isDisabled ? Colors.gray[400] : Colors.primary[800],
             }
           ]}
           placeholderTextColor={isDisabled ? Colors.gray[400] : Colors.primary[400]}
           underlineColorAndroid="transparent"
-          editable={editable && !disabled}
+          editable={!isDisabled}
           onFocus={() => !isDisabled && setIsFocused(true)}
           onBlur={() => !isDisabled && setIsFocused(false)}
           returnKeyType={returnKeyType}
           blurOnSubmit={blurOnSubmit}
           onSubmitEditing={handleSubmitEditing}
-          clearButtonMode="never"
+          multiline={multiline}
+          numberOfLines={numberOfLines}
+          textAlignVertical="top"
+          value={value || ''}
+          onChangeText={handleChangeText}
+          maxLength={maxLength}
+          placeholder={placeholder}
           {...props}
         />
-
-        {rightIcon && (
-          <TouchableOpacity onPress={onRightIconPress} style={[inputStyles.rightIconContainer, rightIconStyle]} disabled={rightIconDisabled}>
-            {rightIcon}
-          </TouchableOpacity>
-        )}
       </Animated.View>
 
-      {error && <Text className="text-sm text-[#DC2626] mt-1 font-regular">{error}</Text>}
+      <View className="flex-row justify-between items-center">
+        {error && (
+          <Text className="text-sm text-[#DC2626] mt-1 font-regular flex-1">
+            {error}
+          </Text>
+        )}
+        
+        {showCharacterCount && maxLength && (
+          <Text 
+            style={[
+              textareaStyles.characterCount,
+              { color: isOverLimit ? '#DC2626' : '#9CA3AF' }
+            ]}
+          >
+            {characterCount}/{maxLength}
+          </Text>
+        )}
+      </View>
     </View>
   );
-}
+} 

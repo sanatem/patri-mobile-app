@@ -61,15 +61,12 @@ export default function FreePlan({ onPurchase, isSubscribed = false }: FreePlanP
       );
     }
   };
-
-
-
   return (
     <View className="flex-1 bg-white">
       <Header
         title={t('planning.title')}
       />
-      
+
       <Container variant="secondaryPage">
         <ScrollView 
           className="flex-1 mt-5" 

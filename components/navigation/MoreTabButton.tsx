@@ -44,8 +44,7 @@ const MoreTabButton: React.FC<MoreTabButtonProps> = ({ color, size }) => {
       title: t('more_menu.properties'),
       icon: <Home size={20} color={Colors.gray[600]} />,
       onPress: () => {
-        console.log('Navegando a Propiedades');
-        closeMenu();
+        router.push('/(tabs)/patrimony');
       },
     },
     {
@@ -53,8 +52,7 @@ const MoreTabButton: React.FC<MoreTabButtonProps> = ({ color, size }) => {
       title: t('more_menu.insurance'),
       icon: <Shield size={20} color={Colors.gray[600]} />,
       onPress: () => {
-        console.log('Navegando a Seguros');
-        closeMenu();
+        router.push('/(tabs)/patrimony');
       },
     },
     {
@@ -62,8 +60,7 @@ const MoreTabButton: React.FC<MoreTabButtonProps> = ({ color, size }) => {
       title: t('more_menu.my_plan'),
       icon: <FileText size={20} color={Colors.gray[600]} />,
       onPress: () => {
-        console.log('Navegando a Mi Plan');
-        closeMenu();
+        router.push('/(tabs)/planning');
       },
     },
   ];

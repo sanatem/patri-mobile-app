@@ -1,29 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  View, 
-  Text, 
-  ScrollView, 
-  Dimensions,
-  Alert, 
-  ActivityIndicator 
-} from 'react-native';
+import { View, Text, ScrollView, ActivityIndicator, Dimensions } from 'react-native';
 import { router } from 'expo-router';
-import { useKeyboardHandler } from '@/hooks/common/useKeyboardHandler';
-import { useOnboarding } from '@/hooks/common/useOnboarding';
 import { useAuth } from '@/providers/AuthProvider';
-import { 
-  Button, 
-  Input, 
-  Select, 
-  CalendarSelect, 
-  Container, 
-  Card, 
-  KeyboardAwareContainer 
+import { useUserData } from '@/hooks/user/useUserData';
+import { useOnboarding } from '@/hooks/user/useOnboarding';
+import { submitOnboarding } from '@/services/user/onboarding';
+import { validateRut, cleanRutForBackend, formatRutWhileTyping } from '@/utils/rut-validation';
+import {
+  Container,
+  Input,
+  Select,
+  KeyboardAwareContainer,
+  Button,
+  Card,
+  CalendarSelect,
+  InfoTooltip
 } from '@/components/ui';
 import Colors from '@/constants/Colors';
 import { PatrimoreIcon } from '@/components/icons';
-import { submitOnboarding } from '@/services/user/onboarding';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getUserData } from '@/services/user/get-user';
+import { useKeyboardHandler } from '@/hooks/common/useKeyboardHandler';
+import { useOnboarding as useOnboardingCommon } from '@/hooks/common/useOnboarding';
 import { useTranslation } from 'react-i18next';
 
 const { height } = Dimensions.get('window');
@@ -52,29 +49,80 @@ export default function OnboardingScreen() {
     { value: 'España', label: t('countries.spain') },
     { value: 'Otro', label: t('countries.other') }
   ];
-  const { markAsSeen } = useOnboarding();
-  const { keyboardHeight, isKeyboardVisible } = useKeyboardHandler();
   const { accessToken } = useAuth();
+  const { userData, loading: isLoadingUserData } = useUserData();
+  const { submitOnboardingData, loading: isSubmitting, error: serviceError, success } = useOnboarding();
+  const { markAsCompleted } = useOnboardingCommon();
+  const { isKeyboardVisible, keyboardHeight } = useKeyboardHandler();
   
-  const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
-    first_name: '',
-    last_name: '',
     rut: '',
-    residence_country: '',
+    residence_country_name: '',
     birth_date: '',
     monthly_incomes: '',
   });
   const [loading, setLoading] = useState(false);
-  const [serviceLoading, setServiceLoading] = useState(false);
-  const [serviceError, setServiceError] = useState<string | null>(null);
-  const isLoading = loading || serviceLoading;
+  const [isRutLocked, setIsRutLocked] = useState(false);
+  const isLoading = loading || isSubmitting;
   const [errors, setErrors] = useState<string[]>([]);
   const allErrors = [...errors, ...(serviceError ? [serviceError] : [])];
 
   useEffect(() => {
-    validateStep(currentStep);
-  }, [currentStep]);
+    loadUserData();
+  }, []);
+
+  const loadUserData = async () => {
+    if (!accessToken) {
+      return;
+    }
+
+    try {
+      const userResponse = await getUserData(accessToken);
+      
+      if (userResponse?.user?.personal_information) {
+        const personalInfo = userResponse.user.personal_information;
+        
+        if (personalInfo.rut && personalInfo.rut.trim() !== '') {
+          setIsRutLocked(true);
+        }
+        
+        let birthDate = personalInfo.birth_date;
+        if (birthDate && birthDate.includes('-')) {
+          const parts = birthDate.split('-');
+          if (parts.length === 3) {
+            birthDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
+          }
+        }
+        
+        let monthlyIncomesValue = '';
+        if (typeof personalInfo.monthly_incomes === 'number') {
+          if (personalInfo.monthly_incomes < 1000000) {
+            monthlyIncomesValue = 'less_than_1_millon';
+          } else if (personalInfo.monthly_incomes < 5000000) {
+            monthlyIncomesValue = 'between_1_and_5_millons';
+          } else if (personalInfo.monthly_incomes < 10000000) {
+            monthlyIncomesValue = 'between_5_and_10_millons';
+          } else if (personalInfo.monthly_incomes < 25000000) {
+            monthlyIncomesValue = 'between_10_and_25_millons';
+          } else {
+            monthlyIncomesValue = 'greater_than_25_millons';
+          }
+        } else {
+          monthlyIncomesValue = personalInfo.monthly_incomes || '';
+        }
+        
+        const newFormData = {
+          rut: personalInfo.rut || '',
+          residence_country_name: personalInfo.residence_country_name || '',
+          birth_date: birthDate || '',
+          monthly_incomes: monthlyIncomesValue || '',
+        };
+        
+        setFormData(newFormData);
+      }
+    } catch (error) {
+    }
+  };
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => {
@@ -84,7 +132,7 @@ export default function OnboardingScreen() {
       };
       
       setTimeout(() => {
-        validateStepWithData(currentStep, newFormData);
+        validateFormWithData(newFormData);
       }, 100);
       
       return newFormData;
@@ -99,7 +147,7 @@ export default function OnboardingScreen() {
       };
       
       setTimeout(() => {
-        validateStepWithData(currentStep, newFormData);
+        validateFormWithData(newFormData);
       }, 100);
       
       return newFormData;
@@ -107,32 +155,16 @@ export default function OnboardingScreen() {
   };
 
   const handleRUTChange = (value: string) => {
-    if (value.trim() === '') {
-      setFormData(prev => ({
-        ...prev,
-        rut: '',
-      }));
-      return;
-    }
-    
-    const cleanValue = value.replace(/[^0-9kK-]/g, '');
-    
-    if (cleanValue.length === 0) {
-      return;
-    }
-    
-    if (cleanValue.length > 10) {
-      return;
-    }
+    const formattedValue = formatRutWhileTyping(value);
     
     setFormData(prev => {
       const newFormData = {
         ...prev,
-        rut: cleanValue.toUpperCase(),
+        rut: formattedValue,
       };
       
       setTimeout(() => {
-        validateStepWithData(currentStep, newFormData);
+        validateFormWithData(newFormData);
       }, 100);
       
       return newFormData;
@@ -140,24 +172,7 @@ export default function OnboardingScreen() {
   };
 
   const formatRUTForBackend = (rut: string): string => {
-    const cleanRut = rut.replace(/[^0-9kK]/g, '');
-    
-    if (cleanRut.length < 2) {
-      return cleanRut.toUpperCase();
-    }
-    
-    const body = cleanRut.slice(0, -1);
-    const digit = cleanRut.slice(-1);
-    
-    let formattedBody = '';
-    for (let i = body.length - 1, j = 0; i >= 0; i--, j++) {
-      if (j > 0 && j % 3 === 0) {
-        formattedBody = '.' + formattedBody;
-      }
-      formattedBody = body[i] + formattedBody;
-    }
-    
-    return formattedBody + '-' + digit.toUpperCase();
+    return cleanRutForBackend(rut);
   };
 
   const convertDateFormat = (dateString: string): string => {
@@ -176,56 +191,27 @@ export default function OnboardingScreen() {
     return dateString;
   };
 
-  const validateStepWithData = (step: number, data: typeof formData) => {
+  const validateFormWithData = (data: typeof formData) => {
     const newErrors = [];
     
-    if (step === 1) {
-      if (!data.first_name.trim()) newErrors.push(t('onboarding.errors.firstNameRequired'));
-      if (!data.last_name.trim()) newErrors.push(t('onboarding.errors.lastNameRequired'));
-      if (!data.rut.trim()) {
-        newErrors.push(t('onboarding.errors.rutRequired'));
-      } else if (data.rut.length < 3) {
-        newErrors.push(t('onboarding.errors.rutMinLength'));
-      }
-    } else if (step === 2) {
-      if (!data.residence_country.trim()) newErrors.push(t('onboarding.errors.countryRequired'));
-      if (!data.birth_date.trim()) newErrors.push(t('onboarding.errors.birthDateRequired'));
-      if (!data.monthly_incomes.trim()) newErrors.push(t('onboarding.errors.incomeRequired'));
-    }
-    setErrors(newErrors);
-    return newErrors;
-  };
-
-  const validateStep = (step: number) => {
-    return validateStepWithData(step, formData);
-  };
-
-  const validateForm = () => {
-    const newErrors = [];
-    
-    if (!formData.first_name.trim()) {
-      newErrors.push('El nombre es requerido');
-    }
-    
-    if (!formData.last_name.trim()) {
-      newErrors.push('El apellido es requerido');
-    }
-    
-    if (!formData.rut.trim()) {
+    if (!data.rut.trim()) {
       newErrors.push('El RUT es requerido');
-    } else if (formData.rut.length < 3) {
-      newErrors.push('El RUT debe tener al menos 3 caracteres');
+    } else {
+      const rutValidation = validateRut(data.rut);
+      if (!rutValidation.isValid) {
+        newErrors.push(rutValidation.error || 'El RUT ingresado no es válido');
+      }
     }
     
-    if (!formData.residence_country.trim()) {
+    if (!data.residence_country_name.trim()) {
       newErrors.push('El país de residencia es requerido');
     }
     
-    if (!formData.birth_date.trim()) {
+    if (!data.birth_date.trim()) {
       newErrors.push('La fecha de nacimiento es requerida');
     }
     
-    if (!formData.monthly_incomes.trim()) {
+    if (!data.monthly_incomes.trim()) {
       newErrors.push('Los ingresos mensuales son requeridos');
     }
     
@@ -233,20 +219,16 @@ export default function OnboardingScreen() {
     return newErrors;
   };
 
-  const handleNextStep = () => {
-    const stepErrors = validateStep(currentStep);
-    
-    if (stepErrors.length === 0) {
-      if (currentStep === 1) {
-        setCurrentStep(2);
-      } else {
-        handleComplete();
-      }
-    }
+  const isFormValid = () => {
+    return formData.rut.trim() !== '' &&
+           formData.residence_country_name.trim() !== '' &&
+           formData.birth_date.trim() !== '' &&
+           formData.monthly_incomes.trim() !== '' &&
+           allErrors.length === 0;
   };
 
-  const handlePreviousStep = () => {
-    setCurrentStep(1);
+  const validateForm = () => {
+    return validateFormWithData(formData);
   };
 
   const handleComplete = async () => {
@@ -261,12 +243,10 @@ export default function OnboardingScreen() {
 
       const onboardingData = {
         personal_information: {
-          first_name: formData.first_name,
-          last_name: formData.last_name,
           rut: formatRUTForBackend(formData.rut),
           birth_date: convertDateFormat(formData.birth_date),
           monthly_incomes: formData.monthly_incomes,
-          residence_country: formData.residence_country,
+          residence_country_name: formData.residence_country_name,
         }
       };
 
@@ -277,18 +257,14 @@ export default function OnboardingScreen() {
       const response = await submitOnboarding(accessToken, onboardingData);
       
       if (response) {
-        await markAsSeen();
-        await AsyncStorage.setItem('onboarding_completed', 'true');
+        await markAsCompleted();
         router.replace('/(tabs)/patrimony');
       }
     } catch (error) {
-      console.error('Error in handleComplete:', error);
     } finally {
       setLoading(false);
     }
   };
-
-
 
   return (
     <KeyboardAwareContainer>
@@ -301,150 +277,133 @@ export default function OnboardingScreen() {
           }}
           showsVerticalScrollIndicator={false}
         >
-          <View style={{ flex: 1, paddingHorizontal: 24, paddingTop: height * 0.1 }}>
-            <View style={{ alignItems: 'center', marginBottom: 10 }}>
-              <PatrimoreIcon width={160} height={80} color={Colors.secondary[500]} />
+          {isLoadingUserData ? (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+              <ActivityIndicator size="large" color={Colors.secondary[500]} />
+              <Text 
+                className="text-base font-medium mt-4"
+                style={{ color: Colors.primary[500] }}
+              >
+                Cargando datos del usuario...
+              </Text>
             </View>
-
-            <Card style={{ padding: 24 }}>
-              <View style={{ marginBottom: 24 }}>
-                <Text className='font-medium text-2xl'
-                  style={{
-                    color: Colors.primary[700],
-                    textAlign: 'center',
-                    marginBottom: 8,
-                  }}
-                >
-                  {t(currentStep === 1 ? 'onboarding.titleStep1' : 'onboarding.titleStep2')}
-                </Text>
-                <Text className='text-base font-regular text-center'
-                  style={{
-                    color: Colors.primary[500],
-                    textAlign: 'center',
-                  }}
-                >
-                  {t(currentStep === 1 ? 'onboarding.subtitleStep1' : 'onboarding.subtitleStep2')}
-                </Text>
-                
-                <View style={{ 
-                  flexDirection: 'row', 
-                  justifyContent: 'center', 
-                  marginTop: 16,
-                  gap: 8
-                }}>
-                  <View style={{
-                    width: 20,
-                    height: 4,
-                    backgroundColor: currentStep >= 1 ? Colors.secondary[500] : Colors.gray[300],
-                    borderRadius: 2,
-                  }} />
-                  <View style={{
-                    width: 20,
-                    height: 4,
-                    backgroundColor: currentStep >= 2 ? Colors.secondary[500] : Colors.gray[300],
-                    borderRadius: 2,
-                  }} />
-                </View>
+          ) : (
+            <View style={{ flex: 1, paddingHorizontal: 24, paddingTop: height * 0.1 }}>
+              <View style={{ alignItems: 'center', marginBottom: 10 }}>
+                <PatrimoreIcon width={140} height={50} color={Colors.secondary[500]} />
               </View>
 
-                <View style={{ gap: 20 }}>
-                  {currentStep === 1 ? (
-                    <>
-                      <View>
-                        <Text className='text-base font-medium' 
-                          style={{
-                            color: Colors.primary[500],
-                            marginBottom: 8,
-                          }}
-                        >
-                          {t('onboarding.firstNameLabel')}
-                        </Text>
-                        <Input
-                          placeholder={t('onboarding.firstNamePlaceholder')}
-                          value={formData.first_name}
-                          onChangeText={(value) => handleInputChange('first_name', value)}
-                          autoCapitalize="words"
-                        />
-                      </View>
+              <Card style={{ padding: 24, marginBottom: 24 }}>
+                <View style={{ marginBottom: 24 }}>
+                  <Text className='font-medium text-2xl'
+                    style={{
+                      color: Colors.primary[700],
+                      textAlign: 'center',
+                      marginBottom: 8,
+                    }}
+                  >
+                    Información Personal
+                  </Text>
+                  <Text className='text-base font-regular text-center'
+                    style={{
+                      color: Colors.primary[500],
+                      textAlign: 'center',
+                    }}
+                  >
+                    Ayúdanos a personalizar tu experiencia 😎
+                  </Text>
+                </View>
 
-                    <View>
+                <View style={{ gap: 20 }}>
+                  <View>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+                      <Text className='text-base font-medium' 
+                        style={{
+                          color: isRutLocked ? Colors.gray[400] : Colors.primary[500],
+                        }}
+                      >
+                        RUT
+                      </Text>
+                        <InfoTooltip 
+                         info="El RUT es tu identificación única en Chile. Lo necesitamos para verificar tu identidad y ofrecerte servicios personalizados."
+                         disabled={isRutLocked}
+                       />
+                    </View>
+                    <Input
+                      placeholder="12345678-9"
+                      value={formData.rut}
+                      onChangeText={handleRUTChange}
+                      autoCapitalize="characters"
+                      maxLength={12}
+                      keyboardType="default"
+                      returnKeyType="next"
+                      clearButtonMode="while-editing"
+                      disabled={isRutLocked}
+                    />
+                  </View>
+
+                  <View>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
                       <Text className='text-base font-medium' 
                         style={{
                           color: Colors.primary[500],
-                          marginBottom: 8,
                         }}
                       >
-                        {t('onboarding.lastNameLabel')}
+                        País de residencia
                       </Text>
-                      <Input
-                        placeholder={t('onboarding.lastNamePlaceholder')}
-                        value={formData.last_name}
-                        onChangeText={(value) => handleInputChange('last_name', value)}
-                        autoCapitalize="words"
+                      <InfoTooltip 
+                        info="Necesitamos conocer tu país de residencia para adaptar nuestros servicios y recomendaciones a tu ubicación geográfica."
                       />
                     </View>
+                    <Select
+                      options={COUNTRY_OPTIONS}
+                      value={formData.residence_country_name}
+                      onSelect={(value) => handleSelectChange('residence_country_name', value)}
+                      placeholder="Selecciona tu país"
+                    />
+                  </View>
 
-                    <View>
-                      <Text className='text-base font-medium'
+                  <View>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+                      <Text className='text-base font-medium' 
                         style={{
                           color: Colors.primary[500],
-                          marginBottom: 8,
                         }}
                       >
-                        {t('onboarding.rutLabel')}
+                        Fecha de nacimiento
                       </Text>
-                      <Input
-                        placeholder={t('onboarding.rutPlaceholder')}
-                        value={formData.rut}
-                        onChangeText={handleRUTChange}
-                        autoCapitalize="characters"
-                        maxLength={10}
-                        keyboardType="default"
-                        returnKeyType="next"
-                        clearButtonMode="while-editing"
+                      <InfoTooltip 
+                        info="Tu fecha de nacimiento nos ayuda a calcular tu edad y ofrecerte recomendaciones financieras apropiadas para tu etapa de vida."
                       />
                     </View>
-                  </>
-                ) : (
-                  <>
-                  <View>
-                    <Select
-                      label={t('onboarding.countryLabel')}
-                      options={COUNTRY_OPTIONS}
-                      value={formData.residence_country}
-                      onSelect={(value) => handleSelectChange('residence_country', value)}
-                      placeholder={t('onboarding.countryPlaceholder')}
-                    />
-                  </View>
-
-                  <View>
                     <CalendarSelect
-                      label={t('onboarding.birthLabel')}
                       value={formData.birth_date}
                       onSelect={(value: string) => handleInputChange('birth_date', value)}
-                      placeholder={t('onboarding.birthPlaceholder')}
+                      placeholder="Selecciona tu fecha de nacimiento"
                     />
                   </View>
 
                   <View>
-                      <Select
-                        label={t('onboarding.incomeLabel')}
-                        options={MONTHLY_INCOME_OPTIONS}
-                        value={formData.monthly_incomes}
-                        onSelect={(value) => handleSelectChange('monthly_incomes', value)}
-                        placeholder={t('onboarding.incomePlaceholder')}
-                      />
-                      <Text className='text-sm font-regular' 
-                      style={{ 
-                        color: Colors.gray[400],
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+                      <Text className='text-base font-medium' 
+                        style={{
+                          color: Colors.primary[500],
                         }}
-                        >
-                        {t('onboarding.incomeNote')}
+                      >
+                        Ingresos mensuales
                       </Text>
+                      <InfoTooltip 
+                        info="Conocer tu rango de ingresos nos permite ofrecerte recomendaciones financieras más precisas y productos adecuados a tu capacidad económica."
+                      />
                     </View>
-                  </>
-                )}
-              </View>
+                    <Select
+                      options={MONTHLY_INCOME_OPTIONS}
+                      value={formData.monthly_incomes}
+                      onSelect={(value) => handleSelectChange('monthly_incomes', value)}
+                      placeholder="Selecciona tu rango de ingresos"
+                    />
+                  </View>
+                </View>
 
               {serviceError && (
                 <View style={{ 
@@ -464,35 +423,21 @@ export default function OnboardingScreen() {
                 </View>
               )}
 
-              <View style={{ marginTop: 32, gap: 12 }}>
-                {currentStep > 1 && (
+                <View style={{ marginTop: 32 }}>
                   <Button
-                    title={t('common.back')}
-                    onPress={handlePreviousStep}
-                    disabled={loading}
-                    variant="outline"
+                    title={isLoading ? "Guardando..." : "Completar"}
+                    onPress={handleComplete}
+                    disabled={isLoading || !isFormValid()}
+                    loading={isLoading}
+                    variant="primary"
                     fullWidth
                   />
-                )}
-                <Button
-                  title={
-                    isLoading
-                      ? t('common.saving')
-                      : currentStep === 1
-                        ? t('common.next')
-                        : t('common.finish')
-                  }
-                  onPress={handleNextStep}
-                  disabled={isLoading || allErrors.length > 0}
-                  loading={isLoading}
-                  variant="primary"
-                  fullWidth
-                />
-              </View>
-            </Card>
-          </View>
+                </View>
+              </Card>
+            </View>
+          )}
         </ScrollView>
       </Container>
     </KeyboardAwareContainer>
   );
-}
+} 

@@ -7,6 +7,7 @@ import { PlanningCarousel } from '@/components/planning/paid-plan';
 import AdvisorSection from '@/components/planning/paid-plan/AdvisorSection';
 import { useTranslation } from 'react-i18next';
 
+
 export default function PaidPlan() {
   const { t } = useTranslation();
 
