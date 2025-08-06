@@ -5,7 +5,6 @@ import {
   FormLayout,
   Input,
   Select,
-  Textarea
 } from '@/components/ui';
 import Colors from '@/constants/Colors';
 import { createAsset } from '@/services/patrimony/create-asset';
@@ -32,14 +31,12 @@ const UNIT_OPTIONS = [
 export default function AddAssetScreen() {
   const { accessToken } = useAuth();
   const { formatValue, cleanNumericValue } = useFormatValue();
-  const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
     name: '',
     asset_category_id: '',
     commercial_value: '',
     unit: 'clp',
     kind: 'investment',
-    comments: '',
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
@@ -66,23 +63,21 @@ export default function AddAssetScreen() {
     }));
   };
 
-  const validateStep = (step: number) => {
+  const validateForm = () => {
     const newErrors: string[] = [];
 
-    if (step === 1) {
-      if (!formData.name.trim()) {
-        newErrors.push('El nombre del activo es requerido');
-      }
-      if (!formData.asset_category_id) {
-        newErrors.push('Debes seleccionar una categoría de activo');
-      }
-      if (!formData.commercial_value.trim()) {
-        newErrors.push('El valor comercial del activo es requerido');
-      } else {
-        const value = parseFloat(formData.commercial_value.replace(/[^\d]/g, ''));
-        if (isNaN(value) || value <= 0) {
-          newErrors.push('El valor debe ser un número válido mayor a 0');
-        }
+    if (!formData.name.trim()) {
+      newErrors.push('El nombre del activo es requerido');
+    }
+    if (!formData.asset_category_id) {
+      newErrors.push('Debes seleccionar una categoría de activo');
+    }
+    if (!formData.commercial_value.trim()) {
+      newErrors.push('El valor comercial del activo es requerido');
+    } else {
+      const value = parseFloat(formData.commercial_value.replace(/[^\d]/g, ''));
+      if (isNaN(value) || value <= 0) {
+        newErrors.push('El valor debe ser un número válido mayor a 0');
       }
     }
 
@@ -90,24 +85,14 @@ export default function AddAssetScreen() {
     return newErrors.length === 0;
   };
 
-  const handleNextStep = () => {
-    if (validateStep(currentStep)) {
-      if (currentStep < 2) {
-        setCurrentStep(currentStep + 1);
-      } else {
-        handleComplete();
-      }
-    }
-  };
-
-  const handlePreviousStep = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
+  const handleSubmit = () => {
+    if (validateForm()) {
+      handleComplete();
     }
   };
 
   const handleCancel = () => {
-    router.back();
+    router.push('/(tabs)/patrimony');
   };
 
   const handleComplete = async () => {
@@ -120,7 +105,6 @@ export default function AddAssetScreen() {
           commercial_value: parseInt(formData.commercial_value.replace(/[^\d]/g, '')),
           unit: formData.unit,
           kind: formData.kind,
-          comments: formData.comments
         }
       };
 
@@ -130,9 +114,9 @@ export default function AddAssetScreen() {
 
       const response = await createAsset(assetData, accessToken);
 
-             if (response.success) {
-         router.back();
-       } else {
+      if (response.success) {
+        router.back();
+      } else {
         setErrors([response.error || 'Error al crear el activo']);
       }
     } catch (error) {
@@ -143,131 +127,84 @@ export default function AddAssetScreen() {
     }
   };
 
-  const renderStepContent = () => {
-    switch (currentStep) {
-      case 1:
-        return (
-          <>
-            <View>
-              <Text className='text-base font-medium'
-                style={{
-                  color: Colors.primary[500],
-                  marginBottom: 8,
-                }}
-              >
-                Nombre
-              </Text>
-              <Input
-                placeholder="Ej: Casa principal"
-                value={formData.name}
-                onChangeText={(value) => handleInputChange('name', value)}
-                autoCapitalize="words"
-              />
-            </View>
-
-            <View>
-              <Select
-                label="¿Qué activo tienes?"
-                options={ASSET_CATEGORY_OPTIONS}
-                value={formData.asset_category_id}
-                onSelect={(value) => handleSelectChange('asset_category_id', value)}
-                placeholder="Selecciona la categoría"
-              />
-            </View>
-
-            <View>
-              <Text className='text-base font-medium'
-                style={{
-                  color: Colors.primary[500],
-                  marginBottom: 8,
-                }}
-              >
-                ¿Qué valor tiene?
-              </Text>
-              <View className="flex-row">
-                <View style={{ width: 100, marginRight: 8 }}>
-                  <Select
-                    options={UNIT_OPTIONS}
-                    value={formData.unit}
-                    onSelect={(value) => handleSelectChange('unit', value)}
-                    placeholder="Moneda"
-                  />
-                </View>
-                <View style={{ flex: 1 }}>
-                   <Input
-                     placeholder="$150.000.000"
-                     value={formData.commercial_value ? formatValue(formData.commercial_value) : ''}
-                     onChangeText={(value) => handleNumericInputChange('commercial_value', value)}
-                     keyboardType="numeric"
-                   />
-                 </View>
-              </View>
-            </View>
-
-            <View>
-              <Select
-                label="¿Qué tipo de activo es?"
-                options={ASSET_KIND_OPTIONS}
-                value={formData.kind}
-                onSelect={(value) => handleSelectChange('kind', value)}
-                placeholder="Selecciona el tipo"
-              />
-            </View>
-          </>
-        );
-      case 2:
-        return (
-          <View>
-              <Textarea
-               label="Comentarios (opcional)"
-               placeholder="Agrega información adicional"
-               value={formData.comments}
-               onChangeText={(value) => handleInputChange('comments', value)}
-             />
-          </View>
-        );
-      default:
-        return null;
-    }
-  };
-
-  const getStepTitle = () => {
-    switch (currentStep) {
-      case 1:
-        return 'Añadir un nuevo Activo';
-      case 2:
-        return 'Añadir un nuevo Activo';
-      default:
-        return 'Agregar Activo';
-    }
-  };
-
-  const getStepSubtitle = () => {
-    switch (currentStep) {
-      case 1:
-        return 'Cuéntanos sobre tu activo para incluirlo en tu patrimonio 💼 ';
-      case 2:
-        return 'Agrega comentarios adicionales si lo deseas 💬';
-      default:
-        return '';
-    }
-  };
-
   return (
     <FormLayout
-      title={getStepTitle()}
-      subtitle={getStepSubtitle()}
-      currentStep={currentStep}
-      totalSteps={2}
-      onNext={handleNextStep}
-      onPrevious={currentStep > 1 ? handlePreviousStep : undefined}
+      title="Añadir un nuevo Activo"
+      subtitle="Cuéntanos sobre tu activo para incluirlo en tu patrimonio 💼"
+      currentStep={1}
+      totalSteps={1}
+      onNext={handleSubmit}
       onCancel={handleCancel}
-      nextButtonTitle={currentStep === 2 ? "Guardar Activo" : "Siguiente"}
+      nextButtonTitle="Crear Activo"
       isLoading={loading}
       isNextDisabled={errors.length > 0}
       error={errors.length > 0 ? errors[0] : null}
     >
-      {renderStepContent()}
+      <View>
+        <Text className='text-base font-medium'
+          style={{
+            color: Colors.primary[500],
+            marginBottom: 8,
+          }}
+        >
+          Nombre
+        </Text>
+        <Input
+          placeholder="Ej: Casa principal"
+          value={formData.name}
+          onChangeText={(value) => handleInputChange('name', value)}
+          autoCapitalize="words"
+        />
+      </View>
+
+      <View>
+        <Select
+          label="¿Qué tipo de activo es?"
+          options={ASSET_KIND_OPTIONS}
+          value={formData.kind}
+          onSelect={(value) => handleSelectChange('kind', value)}
+          placeholder="Selecciona el tipo"
+        />
+      </View>
+
+      <View>
+        <Select
+          label="¿Qué activo tienes?"
+          options={ASSET_CATEGORY_OPTIONS}
+          value={formData.asset_category_id}
+          onSelect={(value) => handleSelectChange('asset_category_id', value)}
+          placeholder="Selecciona la categoría"
+        />
+      </View>
+
+      <View>
+        <Text className='text-base font-medium'
+          style={{
+            color: Colors.primary[500],
+            marginBottom: 8,
+          }}
+        >
+          ¿Qué valor tiene?
+        </Text>
+        <View className="flex-row">
+          <View style={{ width: 100, marginRight: 8 }}>
+            <Select
+              options={UNIT_OPTIONS}
+              value={formData.unit}
+              onSelect={(value) => handleSelectChange('unit', value)}
+              placeholder="Moneda"
+            />
+          </View>
+          <View style={{ flex: 1 }}>
+             <Input
+               placeholder="$150.000.000"
+               value={formData.commercial_value ? formatValue(formData.commercial_value) : ''}
+               onChangeText={(value) => handleNumericInputChange('commercial_value', value)}
+               keyboardType="numeric"
+             />
+           </View>
+        </View>
+      </View>
     </FormLayout>
   );
 } 
