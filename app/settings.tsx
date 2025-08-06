@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
   Linking
 } from 'react-native';
+import { Button } from '@/components/ui';
 import { 
   HelpCircle, 
   FileText, 
@@ -263,19 +264,23 @@ export default function MoreScreen() {
             </View>
             
             <View style={styles.modalButtons}>
-              <TouchableOpacity 
-                style={styles.cancelButton}
-                onPress={() => setShowDeleteModal(false)}
-              >
-                <Text style={styles.cancelButtonText}>Cancelar</Text>
-              </TouchableOpacity>
+              <View style={{ flex: 1 }}>
+                <Button
+                  title="Cancelar"
+                  variant="outline"
+                  fullWidth
+                  onPress={() => setShowDeleteModal(false)}
+                />
+              </View>
               
-              <TouchableOpacity 
-                style={styles.deleteButton}
-                onPress={handleConfirmDelete}
-              >
-                <Text style={styles.deleteButtonText}>Eliminar cuenta</Text>
-              </TouchableOpacity>
+              <View style={{ flex: 1 }}>
+                <Button
+                  title="Eliminar cuenta"
+                  variant="primary"
+                  fullWidth
+                  onPress={handleConfirmDelete}
+                />
+              </View>
             </View>
           </View>
         </View>
@@ -545,34 +550,6 @@ const styles = StyleSheet.create({
   modalButtons: {
     flexDirection: 'row',
     gap: 12,
-  },
-  cancelButton: {
-    flex: 1,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: Colors.gray[300],
-    backgroundColor: 'white',
-    alignItems: 'center',
-  },
-  cancelButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: Colors.gray[700],
-  },
-  deleteButton: {
-    flex: 1,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    backgroundColor: Colors.secondary[500],
-    alignItems: 'center',
-  },
-  deleteButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: 'white',
   },
   loadingOverlay: {
     flex: 1,
