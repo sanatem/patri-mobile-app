@@ -5,81 +5,14 @@ export interface RutValidationResult {
   formattedRut?: string;
 }
 
-const VALID_RUT_RANGES = [
-  { min: 1000000, max: 99999999 },
-];
-
-const INVALID_RUTS = [
-  '00000000',
-  '11111111',
-  '22222222',
-  '33333333',
-  '44444444',
-  '55555555',
-  '66666666',
-  '77777777',
-  '88888888',
-  '99999999',
-];
-
 export function validateRut(rut: string): RutValidationResult {
   const cleanRut = rut.replace(/[.-]/g, '').toUpperCase();
   
-  if (!/^[0-9]{7,8}[0-9K]$/.test(cleanRut)) {
+  if (!/^[0-9]+[0-9K]$/.test(cleanRut)) {
     return {
       isValid: false,
       isReal: false,
-      error: 'El RUT debe tener entre 8 y 9 dígitos y terminar en número o K'
-    };
-  }
-
-  const rutNumber = cleanRut.slice(0, -1);
-  const dv = cleanRut.slice(-1);
-
-  if (parseInt(rutNumber) === 0) {
-    return {
-      isValid: false,
-      isReal: false,
-      error: 'El RUT no puede ser 0'
-    };
-  }
-
-  if (INVALID_RUTS.includes(rutNumber)) {
-    return {
-      isValid: false,
-      isReal: false,
-      error: 'El RUT ingresado no es válido'
-    };
-  }
-
-  const rutNumberInt = parseInt(rutNumber);
-  const isValidRange = VALID_RUT_RANGES.some(range => 
-    rutNumberInt >= range.min && rutNumberInt <= range.max
-  );
-
-  if (!isValidRange) {
-    return {
-      isValid: false,
-      isReal: false,
-      error: 'El RUT está fuera del rango válido'
-    };
-  }
-
-  const calculatedDv = calculateDv(rutNumber);
-  
-  if (calculatedDv !== dv) {
-    return {
-      isValid: false,
-      isReal: false,
-      error: 'El dígito verificador no es válido'
-    };
-  }
-
-  if (!isRealisticRut(rutNumber)) {
-    return {
-      isValid: false,
-      isReal: false,
-      error: 'El RUT ingresado no parece ser válido'
+      error: 'El RUT debe contener solo números y terminar en número o K'
     };
   }
 

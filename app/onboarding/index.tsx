@@ -254,7 +254,7 @@ export default function OnboardingScreen() {
         throw new Error('No hay token de autenticación disponible');
       }
 
-      const response = await submitOnboarding(accessToken, onboardingData);
+      const response = await submitOnboardingData(onboardingData);
       
       if (response) {
         await markAsCompleted();
