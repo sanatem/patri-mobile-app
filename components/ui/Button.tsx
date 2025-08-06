@@ -16,16 +16,21 @@ type ButtonProps = {
 };
 
 const buttonStyles = StyleSheet.create({
+  base: {
+    borderRadius: 16,
+  },
   disabled: {
     borderWidth: 1,
     borderColor: Colors.gray[300],
     backgroundColor: Colors.gray[50],
+    borderRadius: 16,
   },
   disabledText: {
     color: Colors.gray[300],
   },
   disabledPrimary: {
     backgroundColor: Colors.gray[300],
+    borderRadius: 16,
   },
   disabledPrimaryText: {
     color: Colors.gray[500],
@@ -36,6 +41,7 @@ const buttonStyles = StyleSheet.create({
   disabledOutline: {
     borderColor: Colors.gray[300],
     backgroundColor: 'white',
+    borderRadius: 16,
   },
 });
 
@@ -48,27 +54,27 @@ export function Button({
   fullWidth = false,
   icon = null,
 }: ButtonProps) {
-  const baseStyles = 'flex-row items-center justify-center h-12 rounded-full px-4 font-semibold';
+  const baseStyles = 'flex-row items-center justify-center h-12 px-4 font-semibold';
   
   const getVariantStyles = () => {
     if (disabled) {
       if (variant === 'primary') {
-        return 'bg-gray-200 text-gray-300 rounded-full border border-gray-200';
+        return 'bg-gray-200 text-gray-300 border border-gray-200';
       }
-      return 'border border-gray-200 text-gray-300 bg-gray-100 rounded-full';
+      return 'border border-gray-200 text-gray-300 bg-gray-100';
     }
     if (disabled) {
       if (variant === 'outline') {
-        return 'border border-gray-200 text-gray-300 rounded-full';
+        return 'border border-gray-200 text-gray-300';
       }
-      return 'text-gray-500 rounded-full border border-gray-300';
+      return 'text-gray-500 border border-gray-300';
     }
     
     const variants: Record<typeof variant, string> = {
-      primary: 'bg-primary-500 text-white rounded-full',
-      outline: 'border border-primary-500 text-primary-500 bg-white rounded-full',
+      primary: 'bg-primary-500 text-white',
+      outline: 'border border-primary-500 text-primary-500 bg-white',
       ghost: 'bg-transparent text-primary-500 underline',
-      disabled: 'border border-gray-300 text-gray-400 bg-white rounded-full'
+      disabled: 'border border-gray-300 text-gray-400 bg-white'
     };
     return variants[variant];
   };
@@ -114,7 +120,7 @@ export function Button({
     <TouchableOpacity
       onPress={onPress}
       disabled={disabled || loading}
-      style={getDisabledStyle()}
+      style={[buttonStyles.base, getDisabledStyle()]}
       className={cn(
         baseStyles,
         getVariantStyles(),

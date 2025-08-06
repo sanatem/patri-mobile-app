@@ -46,7 +46,7 @@ export default function PatrimonyScreen() {
   const { rangeSize, setRangeSize } = useChartRangeStore();
   const router = useRouter();
   const { t } = useTranslation();
-  
+
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'assets' | 'liabilities'>('assets');
   const [ownerView, setOwnerView] = useState<'mine' | 'partner' | 'both'>('mine');
@@ -500,7 +500,6 @@ export default function PatrimonyScreen() {
 
   const currentTimeRangeLabel = t(`timeRanges.options.${rangeSize}`);
 
-
   const handleUserViewChange = (view: 'mine' | 'partner' | 'both') => {
     setOwnerView(view);
     setShowSelector(false);
@@ -770,7 +769,7 @@ export default function PatrimonyScreen() {
                     <Text className="text-white">Reintentar</Text>
                   </TouchableOpacity>
                 </View>
-                             ) : hasNoCurrentData ? (
+              ) : hasNoCurrentData ? (
                 <View style={{ padding: 40, alignItems: 'center' }}>
                   <Text style={{ 
                     color: Colors.gray[500], 
@@ -785,23 +784,22 @@ export default function PatrimonyScreen() {
                     color: Colors.gray[400], 
                     fontSize: 14, 
                     fontFamily: 'Poppins-regular',
-                    textAlign: 'center',
-                    marginBottom: 16
+                    textAlign: 'center'
                   }}>
                     {t(`patrimony.empty.${activeTab}.subtitle`)}
                   </Text>
                   <Button
-                    variant="primary"
-                    onPress={() => {
-                      if (activeTab === 'assets') {
-                        router.push('/patrimony/add-asset' as any);
-                      } else {
-                        router.push('/patrimony/add-liability' as any);
-                      }
-                    }}
-                    title={t(`patrimony.empty.${activeTab}.cta`)}
-                    icon={<Plus size={20} color="white" />}
-                  />
+                     variant="primary"
+                     onPress={() => {
+                       if (activeTab === 'assets') {
+                         router.push('/patrimony/add-asset');
+                       } else {
+                         router.push('/patrimony/add-liability');
+                       }
+                     }}
+                     title={activeTab === 'assets' ? 'Crear activo' : 'Crear pasivo'}
+                     icon={<Plus size={20} color="white" />}
+                   />
                 </View>
               ) : showSkeletons ? (
                 <Animated.View style={{ padding: 20, opacity: skeletonFadeAnim }}>
@@ -926,7 +924,7 @@ export default function PatrimonyScreen() {
               <View style={{ width: 40, height: 4, backgroundColor: '#D1D5DB', borderRadius: 2 }} />
             </View>
             {[
-              { label: 'Integrar datos bancarios', value: 'integrar', icon: <RefreshCw size={20} color={Colors.gray[700]} /> },
+              { label: t('patrimony.integrateBankData'), value: 'integrar', icon: <RefreshCw size={20} color={Colors.gray[700]} /> },
               { label: 'Añadir activo', value: 'activo' },
               { label: 'Añadir pasivo', value: 'pasivo' }
             ].map((option, index) => (
