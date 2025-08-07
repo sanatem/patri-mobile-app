@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text } from 'react-native';
 import { router } from 'expo-router';
 import {
@@ -36,11 +36,20 @@ export default function AddAssetScreen() {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
 
+  useEffect(() => {
+    if (errors.length === 0 && loading) {
+      setLoading(false);
+    }
+  }, [errors, loading]);
+
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
     }));
+    if (errors.length > 0) {
+      setErrors([]);
+    }
   };
 
   const handleNumericInputChange = (field: string, value: string) => {
@@ -49,6 +58,9 @@ export default function AddAssetScreen() {
       ...prev,
       [field]: cleanValue
     }));
+    if (errors.length > 0) {
+      setErrors([]);
+    }
   };
 
   const handleSelectChange = (field: string, value: string) => {
@@ -56,6 +68,9 @@ export default function AddAssetScreen() {
       ...prev,
       [field]: value
     }));
+    if (errors.length > 0) {
+      setErrors([]);
+    }
   };
 
   const validateForm = () => {
@@ -124,43 +139,52 @@ export default function AddAssetScreen() {
 
       if (formData.kind === 'property') {
         const propertyType = formData.property_kind === 'own' ? 'main_home' : 'investment';
+        const cleanCommercialValue = formData.commercial_value.replace(/[^\d]/g, '');
+        
+        if (!cleanCommercialValue) {
+          setErrors(['El valor comercial es requerido']);
+          setLoading(false);
+          return;
+        }
+        
+        if (!formData.location.trim()) {
+          setErrors(['La ubicación es requerida']);
+          setLoading(false);
+          return;
+        }
+        
+        if (!formData.square_mts.trim()) {
+          setErrors(['Los metros cuadrados son requeridos']);
+          setLoading(false);
+          return;
+        }
+        
+        const squareMts = parseInt(formData.square_mts);
+        if (isNaN(squareMts) || squareMts <= 0) {
+          setErrors(['Los metros cuadrados deben ser un número válido mayor a 0']);
+          setLoading(false);
+          return;
+        }
         
         const propertyData = {
           property_type: propertyType as 'main_home' | 'investment',
           property: {
-            kind: formData.property_kind as 'own' | 'rent',
+            kind: 'own' as 'own',
             property_attributes: {
-              location: formData.location,
-              commercial_value: formData.commercial_value,
-              square_mts: parseInt(formData.square_mts),
+              location: formData.location.trim(),
+              commercial_value: cleanCommercialValue.replace(/\B(?=(\d{3})+(?!\d))/g, '.'),
+              square_mts: squareMts,
             }
           }
         };
 
         const propertyResponse = await createProperty(propertyData, accessToken);
         
-        if (!propertyResponse.success) {
-          setErrors([propertyResponse.error || 'Error al crear la propiedad']);
-          return;
-        }
-
-        const assetData = {
-          asset: {
-            name: formData.name,
-            asset_category_id: formData.property_kind === 'own' ? 4 : 5, // IDs para propiedades
-            commercial_value: parseInt(formData.commercial_value.replace(/[^\d]/g, '')),
-            unit: formData.unit,
-            kind: formData.kind,
-            comments: `Propiedad: ${formData.location}, ${formData.square_mts}m2`,
-          }
-        };
-
-        const assetResponse = await createAsset(assetData, accessToken);
-        
-        if (assetResponse.success) {
+        if (propertyResponse.success) {
           router.back();
         } else {
-          setErrors([assetResponse.error || 'Error al sincronizar con assets']);
+          setErrors([propertyResponse.error || 'Error al crear la propiedad']);
+          setLoading(false);
         }
       } else if (formData.kind === 'fixed_asset') {
         const assetData = {
@@ -179,6 +203,7 @@ export default function AddAssetScreen() {
           router.back();
         } else {
           setErrors([response.error || 'Error al crear el activo']);
+          setLoading(false);
         }
       } else if (formData.kind === 'investment') {
         const assetData = {
@@ -198,11 +223,12 @@ export default function AddAssetScreen() {
           router.back();
         } else {
           setErrors([response.error || 'Error al crear la inversión/ahorro']);
+          setLoading(false);
         }
       }
     } catch (error) {
-      console.error('Error al guardar activo:', error);
       setErrors(['Error inesperado al crear el activo']);
+      setLoading(false);
     } finally {
       setLoading(false);
     }

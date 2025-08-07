@@ -80,22 +80,6 @@ export default function PropertyFields({
             marginBottom: 8,
           }}
         >
-          ¿Eres el propietario?
-        </Text>
-        <RadioButton
-          options={PROPERTY_OWNERSHIP_OPTIONS}
-          selectedValue={property_kind}
-          onSelect={(value) => onSelectChange('property_kind', value)}
-        />
-      </View>
-
-      <View>
-        <Text className='text-base font-medium'
-          style={{
-            color: Colors.primary[500],
-            marginBottom: 8,
-          }}
-        >
           ¿Qué valor tiene?
         </Text>
         <View className="flex-row">
@@ -116,6 +100,22 @@ export default function PropertyFields({
              />
            </View>
         </View>
+      </View>
+
+      <View>
+        <Text className='text-base font-medium'
+          style={{
+            color: Colors.primary[500],
+            marginBottom: 8,
+          }}
+        >
+          ¿Es ésta tu vivienda principal?
+        </Text>
+        <RadioButton
+          options={PROPERTY_OWNERSHIP_OPTIONS}
+          selectedValue={property_kind}
+          onSelect={(value) => onSelectChange('property_kind', value)}
+        />
       </View>
     </>
   );

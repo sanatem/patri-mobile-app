@@ -3,6 +3,10 @@ import type { CreatePropertyRequest, CreatePropertyResponse } from '@/types/api'
 
 export const createProperty = async (data: CreatePropertyRequest, token: string): Promise<CreatePropertyResponse> => {
   try {
+    if (!token) {
+      throw new Error('No hay token de autenticación disponible');
+    }
+
     const url = `${config.apiBaseUrl}/api/v2/properties`;
 
     const response = await fetch(url, {
@@ -19,7 +23,7 @@ export const createProperty = async (data: CreatePropertyRequest, token: string)
       
       try {
         const errorData = await response.json();
-        errorMessage = errorData.message || errorData.error || 'Error desconocido del servidor';
+        errorMessage = errorData.message || errorData.error || errorData.detail || 'Error desconocido del servidor';
       } catch (parseError) {
         const errorText = await response.text();
         errorMessage = `Error ${response.status}: ${errorText}`;
@@ -38,8 +42,6 @@ export const createProperty = async (data: CreatePropertyRequest, token: string)
       data: responseData
     };
   } catch (error: any) {
-    console.error('Error creating property:', error);
-    
     return {
       success: false,
       error: error.message || 'Error al crear la propiedad'
