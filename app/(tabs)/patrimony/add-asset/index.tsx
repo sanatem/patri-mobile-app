@@ -193,7 +193,7 @@ export default function AddAssetScreen() {
           asset: {
             name: formData.name,
             asset_category_id: parseInt(formData.asset_category_id),
-            commercial_value: parseInt(formData.commercial_value.replace(/[^\d]/g, '')),
+            commercial_value: formData.commercial_value.replace(/[^\d]/g, ''),
             unit: formData.unit,
             kind: formData.kind,
           }
@@ -214,7 +214,7 @@ export default function AddAssetScreen() {
           asset: {
             name: formData.name,
             asset_category_id: 3,
-            commercial_value: 0,
+            commercial_value: '0', // Enviar como string
             unit: 'clp',
             kind: formData.kind,
             comments: `Tipo de inversión: ${formData.investment_type}`,
