@@ -9,9 +9,10 @@ import {
 } from '@/components/ui';
 import Colors from '@/constants/Colors';
 import { createDebt } from '@/services/patrimony/create-debt';
-import { getProperty, Property } from '@/services/properties/get-property';
+import { getProperties  } from '@/services/properties/get-properties';
 import { useAuth } from '@/providers/AuthProvider';
 import { useFormatValue } from '@/hooks/common/useFormatValue';
+import { ApiProperty } from '@/types/api';
 
 const DEBT_CATEGORY_OPTIONS = [
   { label: 'Automotriz', value: '1' },
@@ -63,7 +64,7 @@ export default function AddLiabilityScreen() {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
   const [serverError, setServerError] = useState<string | null>(null);
-  const [properties, setProperties] = useState<Property[]>([]);
+  const [properties, setProperties] = useState<ApiProperty[]>([]);
   const [loadingProperties, setLoadingProperties] = useState(false);
 
   const handleInputChange = (field: string, value: string) => {
@@ -71,7 +72,6 @@ export default function AddLiabilityScreen() {
       ...prev,
       [field]: value
     }));
-    // Clear server error when user makes changes
     if (serverError) {
       setServerError(null);
     }
@@ -103,8 +103,8 @@ export default function AddLiabilityScreen() {
     
     setLoadingProperties(true);
     try {
-      const response = await getProperty(accessToken);
-      if (response.success && response.properties) {
+      const response = await getProperties(accessToken, { page: 1, per_page: 100 });
+      if (response && response.properties) {
         setProperties(response.properties);
       }
     } catch (error) {
@@ -114,7 +114,6 @@ export default function AddLiabilityScreen() {
     }
   };
 
-  // Load properties when property_associated changes to 'yes'
   useEffect(() => {
     if (formData.property_associated === 'yes' && properties.length === 0) {
       loadProperties();
@@ -234,9 +233,7 @@ export default function AddLiabilityScreen() {
       const response = await createDebt(debtData, accessToken);
 
       if (response.success) {
-        setTimeout(() => {
-          router.back();
-        }, 500);
+        router.push('/(tabs)/patrimony');
       } else {
         setServerError(response.error || 'Error al crear el pasivo');
       }

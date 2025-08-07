@@ -364,10 +364,11 @@ export interface ApiPropertiesResponse {
 export interface CreatePropertyRequest {
   property_type: 'main_home' | 'investment';
   property: {
-    kind: 'own' | 'rent';
+    kind?: 'own' | '';
     property_attributes: {
       location: string;
       commercial_value: string;
+      unit: string;
       square_mts: number;
       apartment_number?: number;
       number_of_bedrooms?: number;

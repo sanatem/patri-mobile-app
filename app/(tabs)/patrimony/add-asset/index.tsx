@@ -138,6 +138,7 @@ export default function AddAssetScreen() {
       }
 
       if (formData.kind === 'property') {
+        // Determinar el tipo de propiedad basado en si es propietario o no
         const propertyType = formData.property_kind === 'own' ? 'main_home' : 'investment';
         const cleanCommercialValue = formData.commercial_value.replace(/[^\d]/g, '');
         
@@ -169,22 +170,25 @@ export default function AddAssetScreen() {
         const propertyData = {
           property_type: propertyType as 'main_home' | 'investment',
           property: {
-            kind: 'own' as 'own',
+            ...(formData.property_kind === 'own' && { kind: 'own' as const }),
             property_attributes: {
               location: formData.location.trim(),
               commercial_value: cleanCommercialValue.replace(/\B(?=(\d{3})+(?!\d))/g, '.'),
+              unit: formData.unit,
               square_mts: squareMts,
             }
           }
         };
 
+        
         const propertyResponse = await createProperty(propertyData, accessToken);
         
+        
         if (propertyResponse.success) {
-          setTimeout(() => {
-            router.back();
-          }, 500);
+          setLoading(false);
+          router.push('/(tabs)/patrimony');
         } else {
+          console.error('Property creation failed:', propertyResponse.error);
           setErrors([propertyResponse.error || 'Error al crear la propiedad']);
           setLoading(false);
         }
@@ -198,14 +202,15 @@ export default function AddAssetScreen() {
             kind: formData.kind,
           }
         };
-
+        
         const response = await createAsset(assetData, accessToken);
-
+        
+        
         if (response.success) {
-          setTimeout(() => {
-            router.back();
-          }, 500);
+          setLoading(false);
+          router.push('/(tabs)/patrimony');
         } else {
+          console.error('Asset creation failed:', response.error);
           setErrors([response.error || 'Error al crear el activo']);
           setLoading(false);
         }
@@ -214,20 +219,21 @@ export default function AddAssetScreen() {
           asset: {
             name: formData.name,
             asset_category_id: 3,
-            commercial_value: '0', // Enviar como string
+            commercial_value: '0',
             unit: 'clp',
             kind: formData.kind,
             comments: `Tipo de inversión: ${formData.investment_type}`,
           }
         };
-
+        
         const response = await createAsset(assetData, accessToken);
-
+        
+        
         if (response.success) {
-          setTimeout(() => {
-            router.back();
-          }, 500);
+          setLoading(false);
+          router.push('/(tabs)/patrimony');
         } else {
+          console.error('Investment creation failed:', response.error);
           setErrors([response.error || 'Error al crear la inversión/ahorro']);
           setLoading(false);
         }
