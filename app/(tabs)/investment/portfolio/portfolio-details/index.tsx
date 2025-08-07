@@ -14,9 +14,11 @@ import { getPortfolioDetails, MetaDetails } from '@/services/investment/portfoli
 import Colors from '@/constants/Colors';
 import { PortfolioActionsBar } from '@/components/investment/portfolio/PortfolioActionsBar';
 import { useAuth } from '@/providers/AuthProvider';
+import { useTranslation } from 'react-i18next';
 
 export default function PortfolioDetailsScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const { goalId, goalName } = useLocalSearchParams<{ goalId: string; goalName: string }>();
   const [movements, setMovements] = useState<Movement[]>([]);
   const [metaDetails, setMetaDetails] = useState<MetaDetails | null>(null);
@@ -31,11 +33,11 @@ export default function PortfolioDetailsScreen() {
         setError(null);
         
         if (!goalId) {
-          throw new Error('ID de meta no proporcionado');
+          throw new Error('portfolioDetails.error.noGoalId');
         }
         
         if (!accessToken) {
-          throw new Error('No hay token de autenticación disponible');
+          throw new Error('portfolioDetails.error.noToken');
         }
         
         const [movementsData, metaData] = await Promise.all([
@@ -47,7 +49,7 @@ export default function PortfolioDetailsScreen() {
         setMetaDetails(metaData);
       } catch (error) {
         console.error('Error loading portfolio details:', error);
-        setError(error instanceof Error ? error.message : 'Error desconocido');
+        setError(error instanceof Error ? error.message : 'portfolioDetails.error.unknown');
       } finally {
         setLoading(false);
       }
@@ -62,7 +64,7 @@ export default function PortfolioDetailsScreen() {
     return (
       <Container variant="secondaryPage">
           <Header 
-            title="Detalles de la meta" 
+            title={t('portfolioDetails.title')} 
             leftAction={
               <TouchableOpacity
                 onPress={() => router.push('/investment/portfolio')}
@@ -74,12 +76,14 @@ export default function PortfolioDetailsScreen() {
           />
           {error && (
             <View className="flex-1 justify-center items-center px-6">
-              <Text className="text-red-500 text-center mb-4">{error}</Text>
+              <Text className="text-red-500 text-center mb-4">
+                {t(error) || error}
+              </Text>
               <TouchableOpacity
                 onPress={() => router.push('/investment/portfolio')}
                 className="bg-primary-500 px-4 py-2 rounded-lg"
               >
-                <Text className="text-white">Volver al portfolio</Text>
+                <Text className="text-white">{t('common.backToPortfolio')}</Text>
               </TouchableOpacity>
             </View>
           )}
@@ -88,11 +92,11 @@ export default function PortfolioDetailsScreen() {
   }
 
   const transformedSummary = [
-    { title: 'Estrategia', value: metaDetails.summary.estrategia },
-    { title: 'Nivel de riesgo', value: metaDetails.summary.riesgo },
-    { title: 'Aportes', value: `$${Math.round(metaDetails.summary.aportes).toLocaleString('es-CL')}` },
-    { title: 'Rescates', value: `$${Math.round(metaDetails.summary.rescates).toLocaleString('es-CL')}` },
-    { title: 'Variación', value: `$${Math.round(metaDetails.summary.variacionPesos).toLocaleString('es-CL')}` },
+    { title: t('portfolioDetails.summary.strategy'), value: metaDetails.summary.estrategia },
+    { title: t('portfolioDetails.summary.riskLevel'), value: metaDetails.summary.riesgo },
+    { title: t('portfolioDetails.summary.invested'), value: `$${Math.round(metaDetails.summary.aportes).toLocaleString('es-CL')}` },
+    { title: t('portfolioDetails.summary.withdrawn'), value: `$${Math.round(metaDetails.summary.rescates).toLocaleString('es-CL')}` },
+    { title: t('portfolioDetails.summary.variation'), value: `$${Math.round(metaDetails.summary.variacionPesos).toLocaleString('es-CL')}` },
   ];
 
   const transformedAssets = metaDetails.assets.map(asset => ({
@@ -106,7 +110,7 @@ export default function PortfolioDetailsScreen() {
     <Container variant="secondaryPage" className="px-1">
       <View className="flex-1 bg-white">
         <Header 
-          title="Detalles de la meta" 
+          title={t('portfolioDetails.title')} 
           leftAction={
             <TouchableOpacity
               onPress={() => router.push('/investment/portfolio')}
@@ -137,13 +141,13 @@ export default function PortfolioDetailsScreen() {
           <PortfolioActionsBar
             actions={[
               {
-                title: 'Invertir',
+                title: t('portfolioDetails.actions.invest'),
                 onPress: () => router.push('/investment/portfolio/movements/investment' as any),
                 icon: <ArrowDown size={20} color="#fff" />,
                 variant: 'primary'
               },
               {
-                title: 'Retirar',
+                title: t('portfolioDetails.actions.withdraw'),
                 onPress: () => {
                   router.push('/investment/portfolio/movements/sales' as any);
                 },

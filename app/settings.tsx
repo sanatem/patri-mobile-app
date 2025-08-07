@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  TouchableOpacity, 
-  ScrollView, 
-  Alert, 
-  Modal, 
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  Alert,
+  Modal,
   ActivityIndicator,
   Linking
 } from 'react-native';
@@ -19,7 +19,8 @@ import {
   ArrowLeft,
   LogOut,
   Trash2,
-  X
+  X,
+  Settings
 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
@@ -27,10 +28,12 @@ import { useAuth } from '@/providers/AuthProvider';
 import { deleteUserAccount } from '@/services/user/delete-user';
 
 import Constants from 'expo-constants';
+import { useTranslation } from 'react-i18next';
 
 
 export default function MoreScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const { logout, forceLogout, user, accessToken, isAuthenticated, loading } = useAuth();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
@@ -39,15 +42,12 @@ export default function MoreScreen() {
 
   const handleLogout = () => {
     Alert.alert(
-      'Cerrar sesión',
-      '¿Estás seguro que deseas cerrar sesión?',
+      t('settings.logout.title'),
+      t('settings.logout.message'),
       [
+        { text: t('common.cancel'), style: 'cancel' },
         {
-          text: 'Cancelar',
-          style: 'cancel',
-        },
-        {
-          text: 'Cerrar sesión',
+          text: t('settings.logout.action'),
           style: 'destructive',
           onPress: async () => {
             setIsLoggingOut(true);
@@ -92,17 +92,10 @@ export default function MoreScreen() {
       setShowConfirmationModal(true);
       
     } catch (error) {
-      console.error('Error durante solicitud de eliminación de cuenta:', error);
-      
-      let errorMessage = 'Hubo un problema al solicitar la eliminación de tu cuenta.';
-      
-      if (error instanceof Error) {
-        errorMessage = error.message;
-      }
-      
+      console.error('Error durante solicitud de eliminación de la cuenta:', error);
       Alert.alert(
-        'Error al solicitar eliminación',
-        errorMessage,
+        t('common.error'),
+        error instanceof Error ? error.message : t('settings.delete.error'),
         [{ text: 'OK' }]
       );
     } finally {
@@ -131,48 +124,47 @@ export default function MoreScreen() {
       if (supported) {
         await Linking.openURL(url);
       } else {
-        Alert.alert(
-          'Error',
-          `No se puede abrir el enlace: ${title}`,
-          [{ text: 'OK' }]
-        );
+        Alert.alert(t('common.error'), t('settings.links.cannotOpen', { title }), [{ text: 'OK' }]);
       }
     } catch (error) {
-      console.error('Error opening link:', error);
-      Alert.alert(
-        'Error',
-        `Hubo un problema al abrir el enlace: ${title}`,
-        [{ text: 'OK' }]
-      );
+      console.error('Open link error:', error);
+      Alert.alert(t('common.error'), t('settings.links.cannotOpen', { title }), [{ text: 'OK' }]);
     }
   };
 
   const menuItems = [
     {
+      id: '0',
+      title: t('settings.menu.preferences'),
+      subtitle: t('settings.menu.preferencesSubtitle'),
+      icon: Settings,
+      onPress: () => router.push('/preferences'),
+    },
+    {
       id: '5',
-      title: 'Términos y Condiciones',
-      subtitle: 'Políticas de uso',
+      title: t('settings.menu.terms'),
+      subtitle: t('settings.menu.termsSubtitle'),
       icon: FileText,
-      onPress: () => handleOpenLink('https://patrimore.com/terminos-y-condiciones', 'Términos y Condiciones'),
+      onPress: () => handleOpenLink('https://patrimore.com/terminos-y-condiciones', t('settings.menu.terms')),
     },
     {
       id: '6',
-      title: 'Privacidad y Seguridad',
-      subtitle: 'Configuración de privacidad',
+      title: t('settings.menu.privacy'),
+      subtitle: t('settings.menu.privacySubtitle'),
       icon: Shield,
-      onPress: () => handleOpenLink('https://patrimore.com/politica-de-privacidad', 'Política de Privacidad'),
+      onPress: () => handleOpenLink('https://patrimore.com/politica-de-privacidad', t('settings.menu.privacy')),
     },
     {
       id: '7',
-      title: 'Ayuda y Soporte',
-      subtitle: 'Centro de ayuda y contacto',
+      title: t('settings.menu.help'),
+      subtitle: t('settings.menu.helpSubtitle'),
       icon: HelpCircle,
-      onPress: () => handleOpenLink('https://patrimore.com/contacto', 'Ayuda y Soporte'),
+      onPress: () => handleOpenLink('https://patrimore.com/contacto', t('settings.menu.help')),
     },
     {
       id: '8',
-      title: 'Cerrar sesión',
-      subtitle: user?.email || 'Salir de la aplicación',
+      title: t('settings.menu.logout'),
+      subtitle: user?.email || t('settings.menu.logoutSubtitle'),
       icon: LogOut,
       onPress: handleLogout,
       isDestructive: true,
@@ -203,64 +195,53 @@ export default function MoreScreen() {
   );
 
   return (
-    <>
-      <ScrollView style={styles.container}>
-        <View style={styles.header}>
-          <View style={styles.headerTop}>
-            <TouchableOpacity 
-              style={styles.backButton}
-              onPress={() => router.back()}
-            >
-              <ArrowLeft size={24} color="#1f2937" />
-            </TouchableOpacity>
-            <View style={styles.headerTextContainer}>
-              <Text style={styles.headerTitle}>Configuración</Text>
-            </View>
+    <ScrollView style={styles.container}>
+      <View style={styles.header}>
+        <View style={styles.headerTop}>
+          <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+            <ArrowLeft size={24} color="#1f2937" />
+          </TouchableOpacity>
+          <View style={styles.headerTextContainer}>
+            <Text style={styles.headerTitle}>{t('settings.title')}</Text>
           </View>
-          <Text style={styles.headerSubtitle}>Configuración y herramientas adicionales</Text>
         </View>
-        <View style={styles.menuContainer}>
-          {menuItems.map(renderMenuItem)}
-        </View>
-        <View style={styles.dangerZoneContainer}>
-          <View style={styles.dangerZoneCard}>
-            <TouchableOpacity style={styles.menuItem} onPress={handleDeleteAccount}>
-              <View style={styles.menuItemLeft}>
-                <View style={[styles.iconContainer, styles.destructiveIconContainer]}>
-                  <Trash2 size={22} color={Colors.secondary[500]} />
-                </View>
-                <View style={styles.textContainer}>
-                  <Text style={[styles.menuTitle, styles.destructiveTitle]}>
-                    Eliminar cuenta
-                  </Text>
-                  <Text style={styles.menuSubtitle}>
-                    Eliminar permanentemente tu cuenta y todos tus datos
-                  </Text>
-                </View>
+        <Text style={styles.headerSubtitle}>{t('settings.subtitle')}</Text>
+      </View>
+
+      <View style={styles.menuContainer}>
+        {menuItems.map(renderMenuItem)}
+      </View>
+
+      <View style={styles.dangerZoneContainer}>
+        <View style={styles.dangerZoneCard}>
+          <TouchableOpacity style={styles.menuItem} onPress={handleDeleteAccount}>
+            <View style={styles.menuItemLeft}>
+              <View style={[styles.iconContainer, styles.destructiveIconContainer]}>
+                <Trash2 size={22} color={Colors.secondary[500]} />
               </View>
-              <ChevronRight size={20} color={Colors.gray[400]} />
-            </TouchableOpacity>
-          </View>
+              <View style={styles.textContainer}>
+                <Text style={[styles.menuTitle, styles.destructiveTitle]}>{t('settings.delete.title')}</Text>
+                <Text style={styles.menuSubtitle}>{t('settings.delete.subtitle')}</Text>
+              </View>
+            </View>
+            <ChevronRight size={20} color={Colors.gray[400]} />
+          </TouchableOpacity>
         </View>
-        <View style={styles.footer}>
-          <Text style={styles.versionText}>Versión {Constants.expoConfig?.version ?? 'desconocida'}</Text>
-        </View>
-      </ScrollView>
-      <Modal
-        visible={showDeleteModal}
-        transparent={true}
-        animationType="fade"
-      >
+      </View>
+
+      <View style={styles.footer}>
+        <Text style={styles.versionText}>Version {Constants.expoConfig?.version ?? 'unknown'}</Text>
+      </View>
+
+      <Modal visible={showDeleteModal} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
             <View style={styles.modalHeader}>
               <View style={[styles.modalIconContainer, styles.destructiveIconContainer]}>
                 <Trash2 size={32} color={Colors.secondary[500]} />
               </View>
-              <Text style={styles.modalTitle}>Eliminar cuenta</Text>
-              <Text style={styles.modalSubtitle}>
-                ¿Estás seguro que deseas eliminar tu cuenta? Esta acción no se puede deshacer y perderás todos tus datos.
-              </Text>
+              <Text style={styles.modalTitle}>{t('settings.delete.title')}</Text>
+              <Text style={styles.modalSubtitle}>{t('settings.delete.subtitle')}</Text>
             </View>
             
             <View style={styles.modalButtons}>
@@ -285,11 +266,8 @@ export default function MoreScreen() {
           </View>
         </View>
       </Modal>
-      <Modal
-        visible={showConfirmationModal}
-        transparent={true}
-        animationType="fade"
-      >
+
+      <Modal visible={showConfirmationModal} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.confirmationModalContainer}>
             <TouchableOpacity 
@@ -300,13 +278,11 @@ export default function MoreScreen() {
             </TouchableOpacity>
             
             <View style={styles.confirmationContent}>
-              <View style={[styles.modalIconContainer, { backgroundColor: Colors.success[100] }]}>
+              <View style={[styles.modalIconContainer, { backgroundColor: Colors.success[100] }]}> 
                 <Text style={[styles.checkmarkIcon, { color: Colors.success[500] }]}>✓</Text>
               </View>
-              <Text style={styles.confirmationTitle}>Solicitud procesada</Text>
-              <Text style={styles.confirmationSubtitle}>
-                Tu solicitud de eliminación de cuenta será procesada dentro de los siguientes días hábiles.
-              </Text>
+              <Text style={styles.confirmationTitle}>{t('settings.confirmation.title')}</Text>
+              <Text style={styles.confirmationSubtitle}>{t('settings.confirmation.subtitle')}</Text>
             </View>
           </View>
         </View>
@@ -320,12 +296,12 @@ export default function MoreScreen() {
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color={Colors.primary[500]} />
             <Text style={styles.loadingText}>
-              {isDeletingAccount ? 'Enviando solicitud...' : 'Cerrando sesión...'}
+              {isDeletingAccount ? t('settings.loading.deleting') : t('settings.loading.loggingOut')}
             </Text>
           </View>
         </View>
       </Modal>
-    </>
+    </ScrollView>
   );
 }
 

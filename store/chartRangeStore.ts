@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-type RangeSize = '1m' | '6m' | '1y' | 'all';
+export type RangeSize = '1m' | '6m' | '1y' | 'all';
 
 interface ChartRangeStore {
   rangeSize: RangeSize;

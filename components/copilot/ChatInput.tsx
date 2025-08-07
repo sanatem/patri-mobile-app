@@ -3,12 +3,14 @@ import { View, TouchableOpacity } from 'react-native';
 import { Send } from 'lucide-react-native';
 import { Input } from '@/components/ui/Input';
 import Colors from '@/constants/Colors';
+import { useTranslation } from 'react-i18next';
 
 interface ChatInputProps {
   onSendMessage: (message: string) => void;
 }
 
 export function ChatInput({ onSendMessage }: ChatInputProps) {
+  const { t } = useTranslation();
   const [message, setMessage] = useState('');
   const inputRef = useRef<any>(null);
 
@@ -34,7 +36,7 @@ export function ChatInput({ onSendMessage }: ChatInputProps) {
         <Input
           value={message}
           onChangeText={setMessage}
-          placeholder="¿En qué te puedo ayudar hoy?"
+          placeholder={t('copilot.chat_placeholder')}
           placeholderTextColor="#9CA3AF"
           multiline
           style={{ paddingRight: 48 }}

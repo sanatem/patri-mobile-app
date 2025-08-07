@@ -9,9 +9,9 @@ export default function SplashScreensLayout() {
       }}
     >
       <Stack.Screen name="index" />
-      <Stack.Screen name="splash-1" />
-      <Stack.Screen name="splash-2" />
-      <Stack.Screen name="splash-3" />
+      <Stack.Screen name="splash-1/index" />
+      <Stack.Screen name="splash-2/index" />
+      <Stack.Screen name="splash-3/index" />
     </Stack>
   );
 } 

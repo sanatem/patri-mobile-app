@@ -4,6 +4,7 @@ import Colors from '@/constants/Colors';
 import { useCash } from '@/hooks/patrimony/useCash';
 import { ChevronDown } from 'lucide-react-native';
 import { SkeletonBase } from '@/components/ui/SkeletonBase';
+import { useTranslation } from 'react-i18next';
 
 interface PortfolioHeaderProps {
   patrimony: string;
@@ -11,6 +12,7 @@ interface PortfolioHeaderProps {
 }
 
 export function PortfolioHeader({ patrimony, isLoading }: PortfolioHeaderProps) {
+  const { t } = useTranslation();
   const { cashData, loading: cashLoading, error } = useCash();
   const [isExpanded, setIsExpanded] = useState(false);
   const [rotateAnim] = useState(new Animated.Value(0));
@@ -92,7 +94,7 @@ export function PortfolioHeader({ patrimony, isLoading }: PortfolioHeaderProps) 
 
   return (
     <View style={styles.card}>
-      <Text style={styles.title}>Patrimonio Neto</Text>
+      <Text style={styles.title}>{t('patrimony.net_worth')}</Text>
       <TouchableOpacity onPress={toggleExpanded} style={styles.headerContainer} activeOpacity={0.8}>
         <Text style={styles.amount}>${patrimony}</Text>
         <Animated.View style={[rotateStyle]}>
@@ -102,7 +104,7 @@ export function PortfolioHeader({ patrimony, isLoading }: PortfolioHeaderProps) 
       {isExpanded && (
         <View style={styles.expandedContainer}>
           <View style={styles.rowContainer}>
-            <Text style={styles.subtitle}>Saldo en caja</Text>
+            <Text style={styles.subtitle}>{t('patrimony.cash_balance')}</Text>
             <Text style={styles.cashAmount}>${cashDisplayValue}</Text>
           </View>
         </View>

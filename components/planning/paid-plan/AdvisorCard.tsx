@@ -3,6 +3,7 @@ import Colors from '@/constants/Colors';
 import { Card } from '@/components/ui';
 import { useUserData } from '@/hooks/user/useUserData';
 import { SkeletonBase } from '@/components/ui/SkeletonBase';
+import { useTranslation } from 'react-i18next';
 
 interface AdvisorCardProps {
   onSchedule?: () => void;
@@ -10,6 +11,7 @@ interface AdvisorCardProps {
 }
 
 export default function AdvisorCard({ onSchedule, onChat }: AdvisorCardProps) {
+  const { t } = useTranslation();
   const { userData, loading, error } = useUserData();
     const advisor = userData?.user?.advisor;
   
@@ -90,14 +92,14 @@ export default function AdvisorCard({ onSchedule, onChat }: AdvisorCardProps) {
             marginBottom: 8,
             textAlign: 'center'
           }}>
-            No se encontró información del asesor.
+            {t('advisor.not_found')}
           </Text>
           <Text style={{
             fontSize: 14,
             color: Colors.gray[500],
             textAlign: 'center'
           }}>
-            {error || 'No tienes un asesor asignado actualmente.'}
+            {error || t('advisor.not_assigned')}
           </Text>
         </View>
       </Card>
@@ -134,7 +136,7 @@ export default function AdvisorCard({ onSchedule, onChat }: AdvisorCardProps) {
             </Text>
           </View>
           <Text className="text-sm font-medium mb-0.5" style={{ color: Colors.primary[500] }}>
-            Asesor de Inversiones Certificado
+            {t('advisor.certified_title')}
           </Text>
           <Text className="text-xs font-regular" style={{ color: Colors.gray[500] }}>
             {advisor.email}
@@ -143,7 +145,7 @@ export default function AdvisorCard({ onSchedule, onChat }: AdvisorCardProps) {
       </View>
       
       <Text className="text-sm font-regular" style={{ color: Colors.gray[700] }}>
-        {advisor.description || `${advisor.advisor_name} es un Asesor de Inversiones acreditado especializado en planificación financiera integral y estrategias de inversión a largo plazo.`}
+        {advisor.description || t('advisor.default_description', { name: advisor.advisor_name })}
       </Text>
 
     </Card>

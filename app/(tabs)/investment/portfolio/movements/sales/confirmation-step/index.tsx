@@ -5,6 +5,7 @@ import { PortfolioActionsBar } from '@/components/investment/portfolio/Portfolio
 import { Container } from '@/components/ui/Container';
 import Colors from '@/constants/Colors';
 import { Card } from '@/components/ui/Card';
+import { useTranslation } from 'react-i18next';
 
 interface ConfirmationStepProps {
   activo: string | undefined;
@@ -15,18 +16,42 @@ interface ConfirmationStepProps {
 }
 
 export default function ConfirmationStep({ activo, mockActivos, destino, onPrev, onFinish }: ConfirmationStepProps) {
+  const { t } = useTranslation();
+
   return (
-    <Container variant="secondaryPage" className="px-3" >
-      <Text className="text-base font-regular mb-2" style={{ color: Colors.primary[500] }}>Confirma que los datos sean correctos antes de finalizar la operación.</Text>
+    <Container variant="secondaryPage" className="px-3">
+      <Text className="text-base font-regular mb-2" style={{ color: Colors.primary[500] }}>
+        {t('confirmationStep.title')}
+      </Text>
+
       <Card className="bg-gray-50 rounded-xl p-4 mb-4">
-        <Text className="text-sm font-regular mb-1" style={{ color: Colors.primary[500] }}>Origen</Text>
-        <Text className="text-base font-semibold mb-2" style={{ color: Colors.primary[500] }}>{activo ? mockActivos.find(a => a.value === activo)?.label : ''}</Text>
-        <Text className="text-sm font-regular mb-1" style={{ color: Colors.primary[500] }}>Dinero a retirar</Text>
-        <Text className="text-base font-semibold mb-2" style={{ color: Colors.primary[500] }}>$1.492.500,00 CLP</Text>
-        <Text className="text-sm font-regular mb-1" style={{ color: Colors.primary[500] }}>Destino</Text>
-        <Text className="text-base font-semibold mb-2" style={{ color: Colors.primary[500] }}>{destino === 'cuenta-bancaria' ? 'Mi cuenta bancaria' : 'Mi saldo en caja'}</Text>
+        <Text className="text-sm font-regular mb-1" style={{ color: Colors.primary[500] }}>
+          {t('confirmationStep.origin')}
+        </Text>
+        <Text className="text-base font-semibold mb-2" style={{ color: Colors.primary[500] }}>
+          {activo ? mockActivos.find(a => a.value === activo)?.label : ''}
+        </Text>
+
+        <Text className="text-sm font-regular mb-1" style={{ color: Colors.primary[500] }}>
+          {t('confirmationStep.amount')}
+        </Text>
+        <Text className="text-base font-semibold mb-2" style={{ color: Colors.primary[500] }}>
+          $1.492.500,00 CLP
+        </Text>
+
+        <Text className="text-sm font-regular mb-1" style={{ color: Colors.primary[500] }}>
+          {t('confirmationStep.destination')}
+        </Text>
+        <Text className="text-base font-semibold mb-2" style={{ color: Colors.primary[500] }}>
+          {destino === 'cuenta-bancaria'
+            ? t('confirmationStep.bankAccount')
+            : t('confirmationStep.wallet')}
+        </Text>
       </Card>
-      <Text className="text-xs text-gray-500 mb-4">Al presionar finalizar tu solicitud será enviada a la corredora. El dinero será enviado a tu método de pago seleccionado dos días hábiles después de ejecutada la venta de las cuotas.</Text>
+
+      <Text className="text-xs text-gray-500 mb-4">
+        {t('confirmationStep.note')}
+      </Text>
     </Container>
   );
 } 

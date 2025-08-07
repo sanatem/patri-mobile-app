@@ -3,20 +3,21 @@ import { View, Text, TouchableOpacity, TextInput } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { router } from 'expo-router';
 import { Container } from '@/components/ui/Container';
-import { Button } from '@/components/ui';
-import { PERSONAL_INFORMATION_QUESTIONS, REGIONS_AND_COMMUNES } from '@/constants/AppConstants';
+import { useTranslation } from 'react-i18next';
+import { REGIONS_AND_COMMUNES } from '@/constants/AppConstants';
 
 export default function PersonalInformationStepper() {
+  const { t } = useTranslation();
+  const questions = t('personalInfo.questions', { returnObjects: true }) as any[];
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, any>>({});
 
-  const currentQuestion = PERSONAL_INFORMATION_QUESTIONS[currentStep];
+  const currentQuestion = questions[currentStep];
 
   const handleChoiceSelect = (value: string) => {
     const newAnswers = { ...answers, [currentQuestion.id]: value };
     setAnswers(newAnswers);
-    
-    if (currentStep < PERSONAL_INFORMATION_QUESTIONS.length - 1) {
+    if (currentStep < questions.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
       router.push('/investment/create-account/summary' as any);
@@ -45,20 +46,17 @@ export default function PersonalInformationStepper() {
       case 'choice':
         return !!answer;
       case 'input':
-        if ('validation' in currentQuestion && currentQuestion.validation) {
-          return currentQuestion.validation(answer || '');
-        }
         return !!answer;
       case 'form':
         if (!answer) return false;
-        return 'fields' in currentQuestion && currentQuestion.fields?.every(field => !!answer[field.name]);
+        return currentQuestion.fields?.every((field: any) => !!answer[field.name]);
       default:
         return false;
     }
   };
 
   const handleContinue = () => {
-    if (currentStep < PERSONAL_INFORMATION_QUESTIONS.length - 1) {
+    if (currentStep < questions.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
       router.push('/investment/create-account/summary' as any);
@@ -76,7 +74,7 @@ export default function PersonalInformationStepper() {
       case 'choice':
         return (
           <View>
-            {'options' in currentQuestion && currentQuestion.options?.map((option, index) => (
+            {currentQuestion.options.map((option: any, index: number) => (
               <TouchableOpacity
                 key={index}
                 className="bg-gray-100 p-3 rounded-lg mb-3"
@@ -92,8 +90,8 @@ export default function PersonalInformationStepper() {
         return (
           <View>
             <TextInput
-              placeholder={'placeholder' in currentQuestion ? currentQuestion.placeholder : ''}
-              keyboardType={'inputType' in currentQuestion ? currentQuestion.inputType : 'default'}
+              placeholder={currentQuestion.placeholder || ''}
+              keyboardType="phone-pad"
               value={answers[currentQuestion.id] || ''}
               onChangeText={handleInputChange}
               className="bg-gray-100 p-3 rounded-lg mb-3"
@@ -104,7 +102,7 @@ export default function PersonalInformationStepper() {
               disabled={!canContinue()}
               style={{ opacity: canContinue() ? 1 : 0.5 }}
             >
-              <Text className="text-white font-semibold text-base text-center">Continuar</Text>
+              <Text className="text-white font-semibold text-base text-center">{t('common.continue')}</Text>
             </TouchableOpacity>
           </View>
         );
@@ -113,7 +111,7 @@ export default function PersonalInformationStepper() {
         const formData = answers[currentQuestion.id] || {};
         return (
           <View>
-            {'fields' in currentQuestion && currentQuestion.fields?.map((field, index) => {
+            {currentQuestion.fields.map((field: any, index: number) => {
               if (field.type === 'text') {
                 return (
                   <TextInput
@@ -136,17 +134,21 @@ export default function PersonalInformationStepper() {
                 
                 return (
                   <View key={index} className="mb-3">
-                    <Text className="font-medium mb-1">{field.name === 'region' ? 'Región' : 'Comuna'}</Text>
+                    <Text className="font-medium mb-1">
+                      {field.name === 'region'
+                        ? t('personalInfo.regionLabel')
+                        : t('personalInfo.communeLabel')}
+                    </Text>
                     <View className="bg-gray-100 rounded-lg">
                       <Picker
                         selectedValue={formData[field.name] || ''}
                         onValueChange={(value) => handleFormChange(field.name, value)}
                         style={{ height: 50 }}
-                        enabled={!('dependsOn' in field) || !field.dependsOn || !!formData[field.dependsOn]}
+                        enabled={!field.dependsOn || !!formData[field.dependsOn]}
                       >
                         <Picker.Item label={field.placeholder} value="" />
-                        {options.map((option: string) => (
-                          <Picker.Item key={option} label={option} value={option} />
+                        {options.map((option: string, idx: number) => (
+                          <Picker.Item key={idx} label={option} value={option} />
                         ))}
                       </Picker>
                     </View>
@@ -163,7 +165,7 @@ export default function PersonalInformationStepper() {
               disabled={!canContinue()}
               style={{ opacity: canContinue() ? 1 : 0.5 }}
             >
-              <Text className="text-white font-semibold text-base text-center">Continuar</Text>
+              <Text className="text-white font-semibold text-base text-center">{t('common.continue')}</Text>
             </TouchableOpacity>
           </View>
         );
@@ -177,7 +179,7 @@ export default function PersonalInformationStepper() {
     <Container variant="secondaryPage" style={{ padding: 20 }}>
       <View className="flex-1 p-5 justify-center bg-white">
         <View className="flex-row mb-6">
-          {PERSONAL_INFORMATION_QUESTIONS.map((_, index) => (
+          {questions.map((_, index) => (
             <View
               key={index}
               className={`flex-1 h-1 mx-1 rounded ${
@@ -190,8 +192,8 @@ export default function PersonalInformationStepper() {
         <Text className="text-lg font-semibold mb-5">
           {currentQuestion.text}
         </Text>
-        
-        {'subtitle' in currentQuestion && currentQuestion.subtitle && (
+
+        {currentQuestion.subtitle && (
           <Text className="text-sm text-gray-500 mb-5">
             {currentQuestion.subtitle}
           </Text>
@@ -204,7 +206,7 @@ export default function PersonalInformationStepper() {
             className="mt-4 items-center"
             onPress={goBack}
           >
-            <Text className="text-gray-500">Volver</Text>
+            <Text className="text-gray-500">{t('common.back')}</Text>
           </TouchableOpacity>
         )}
       </View>

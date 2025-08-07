@@ -2,13 +2,21 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import { Container } from '@/components/ui/Container';
-import { INVESTMENT_SURVEY_QUESTIONS } from '@/constants/AppConstants';
+import { useTranslation } from 'react-i18next';
 
 export default function ProfileQuestion() {
+  const { t } = useTranslation();
+
+  const questions = t('investmentSurvey.questions', { returnObjects: true }) as {
+    text: string;
+    options: string[];
+  }[];
+
+  const totalSteps = questions.length;
   const [step, setStep] = useState(0);
 
   const handleSelect = (index: number) => {
-    if (step < INVESTMENT_SURVEY_QUESTIONS.length - 1) {
+    if (step < totalSteps - 1) {
       setStep(step + 1);
     } else {
       router.push('/investment/create-account/investment-survey/loading-profile' as any);
@@ -18,8 +26,9 @@ export default function ProfileQuestion() {
   return (
     <Container variant="secondaryPage" style={{ padding: 20 }}>
       <View className="flex-1 p-5 justify-center bg-white">
+        {/* Progreso visual */}
         <View className="flex-row mb-6">
-          {Array.from({ length: INVESTMENT_SURVEY_QUESTIONS.length }).map((_, index) => (
+          {Array.from({ length: totalSteps }).map((_, index) => (
             <View
               key={index}
               className={`flex-1 h-1 mx-1 rounded ${
@@ -29,11 +38,13 @@ export default function ProfileQuestion() {
           ))}
         </View>
 
+        {/* Pregunta actual */}
         <Text className="text-lg font-semibold mb-5">
-          {INVESTMENT_SURVEY_QUESTIONS[step].text}
+          {questions[step]?.text}
         </Text>
 
-        {INVESTMENT_SURVEY_QUESTIONS[step].options.map((option, index) => (
+        {/* Opciones */}
+        {questions[step]?.options.map((option, index) => (
           <TouchableOpacity
             key={index}
             className="bg-gray-100 p-3 rounded-lg mb-3"
@@ -43,12 +54,13 @@ export default function ProfileQuestion() {
           </TouchableOpacity>
         ))}
 
+        {/* Botón para retroceder */}
         {step > 0 && (
           <TouchableOpacity
             className="mt-4 items-center"
             onPress={() => setStep(step - 1)}
           >
-            <Text className="text-gray-500">Volver</Text>
+            <Text className="text-gray-500">{t('common.back', 'Volver')}</Text>
           </TouchableOpacity>
         )}
       </View>

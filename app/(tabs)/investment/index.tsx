@@ -6,9 +6,11 @@ import { LockedTabOverlay } from '@/components/ui';
 import { useSubscriptionStatus } from '@/hooks/common/useSubscriptionStatus';
 import { useHasInvestmentAccount } from '@/hooks/investment/usePortfolioDetails';
 import Colors from '@/constants/Colors';
+import { useTranslation } from 'react-i18next';
 
 export default function InvestmentIndex() {
   const router = useRouter();
+  const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(true);
   
   const { shouldBlockTab, loading: subscriptionLoading } = useSubscriptionStatus();
@@ -43,8 +45,8 @@ export default function InvestmentIndex() {
     );
   }
 
-  if (shouldBlockTab("Inversión")) {
-    return <LockedTabOverlay tabName="Inversión" />;
+  if (shouldBlockTab(t('investments.title'))) {
+    return <LockedTabOverlay tabName={t('investments.title')} />;
   }
 
   if (hasInvestmentAccount) {

@@ -1,6 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 import SectionPlanCard from './SectionPlanCard';
+import { useTranslation } from 'react-i18next';
 
 interface PlanCardData {
   id: string;
@@ -19,26 +20,7 @@ interface PlanCardData {
   };
 }
 
-const planCardsData: PlanCardData[] = [
-  {
-    id: '1',
-    title: 'Plan Premium (móvil)',
-    price: '$9.990',
-    description: 'Accede a todas las funcionalidades premium y herramientas avanzadas de planificación financiera.',
-    buttonText: 'Suscribirme',
-    duration: '/mes',
-    iconType: 'coins' as const
-  },
-  {
-    id: '2',
-    title: 'Planes',
-    description: 'Descubre nuestros planes y empieza hoy a construir un mejor futuro financiero',
-    buttonText: 'Ver planes',
-    iconType: 'coins' as const,
-    minPrice: '$99.000 /mes',
-    minDuration: '3 meses',
-  },
-];
+
 
 interface SectionPlanProps {
   onCardPress?: (card: PlanCardData) => void;
@@ -46,6 +28,27 @@ interface SectionPlanProps {
 }
 
 const SectionPlan: React.FC<SectionPlanProps> = ({ onCardPress, isSubscribed }) => {
+  const { t } = useTranslation();
+  const planCardsData: PlanCardData[] = [
+    {
+      id: '1',
+      title: t('plans.premium.title'),
+      price: t('plans.premium.price'),
+      description: t('plans.premium.description'),
+      buttonText: t('plans.premium.button'),
+      duration: t('common.per_month'),
+      iconType: 'coins' as const
+    },
+    {
+      id: '2',
+      title: t('plans.general.title'),
+      description: t('plans.general.description'),
+      buttonText: t('plans.general.button'),
+      iconType: 'coins' as const,
+      minPrice: t('plans.general.min_price'),
+      minDuration: t('plans.general.min_duration'),
+    },
+  ];
   return (
     <View className="mb-6 px-4">
       {planCardsData.map((item) => {
@@ -53,9 +56,9 @@ const SectionPlan: React.FC<SectionPlanProps> = ({ onCardPress, isSubscribed }) 
         const modifiedItem = isSubscriptionCard && isSubscribed 
           ? {
               ...item,
-              buttonText: 'Ya suscrito',
+              buttonText: t('common.already_subscribed'),
               badge: {
-                text: 'Activo',
+                text: t('common.active'),
                 bgColor: '#ff6501',
                 textColor: '#FFFFFF'
               }

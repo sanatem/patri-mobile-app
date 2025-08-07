@@ -9,10 +9,12 @@ import { CopilotWelcome } from '@/components/copilot/CopilotWelcome';
 import { CopilotChat } from '@/components/copilot/CopilotChat';
 import { Container } from '@/components/ui/Container';
 import Colors from '@/constants/Colors';
+import { useTranslation } from 'react-i18next';
 
 export default function CopilotScreen() {
   const { user } = useAuth();
   const router = useRouter();
+  const { t } = useTranslation();
   const [isChatActive, setIsChatActive] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [isSuggestionsOnly, setIsSuggestionsOnly] = useState(false);
@@ -66,7 +68,7 @@ export default function CopilotScreen() {
   return (
     <Container variant="secondaryPage">
       <Header 
-        title="Copiloto"
+        title={t('copilot.title')}
         leftAction={leftAction}
         rightAction={rightAction}
       />
