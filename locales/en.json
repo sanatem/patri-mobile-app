@@ -22,7 +22,8 @@
     "delete": {
       "title": "Delete Account",
       "subtitle": "Permanently delete your account and all data.",
-      "confirm": "Delete Account"
+      "confirm": "Delete Account",
+      "error": "Error deleting account"
     },
     "confirmation": {
       "title": "Request Received",
@@ -60,15 +61,15 @@
     "next": "Next"
   },
   "budget": {
-    "income": "Income",
+    "income": "Incomes",
     "expenses": "Expenses",
     "all_categories": "All categories",
-    "integrate_data": "Link bank data",
+    "integrate_data": "Sync bank data",
     "tab_name": "Budget",
     "title": "Budget",
-    "search_income_placeholder": "Search income...",
+    "search_income_placeholder": "Search incomes...",
     "search_expenses_placeholder": "Search expenses...",
-    "total_income": "Total income",
+    "total_income": "Total incomes",
     "total_expenses": "Total expenses"
   },
   "identityConfirm": {
@@ -425,7 +426,7 @@
   },
   "patrimony": {
     "loading": "Loading networth data...",
-    "integrateBankData": "Connect bank data",
+    "integrateBankData": "Sync  bank data",
     "empty": {
       "assets": {
         "title": "No assets recorded",
@@ -599,16 +600,20 @@
   },
   "plans": {
     "premium": {
+      "title": "Premium Plan (mobile)",
+      "price": "$9.990",
+      "duration": "/month",
       "description": "Access all premium features and advanced financial planning tools.",
       "button": "Subscribe"
     },
     "general": {
-      "description": "Explore our plans and start building a better financial future today",
-      "button": "View Plans",
-      "min_price": "$99,000 /month",
+      "title": "Plans",
+      "description": "Discover our plans and start building a better financial future today",
+      "button": "View plans",
+      "min_price": "$99.000 /month",
       "min_duration": "3 months"
     },
-    "ver_planes": "View Plans"
+    "ver_planes": "View plans"
   },
   "advisor": {
     "not_found": "Advisor information not found.",
@@ -734,7 +739,8 @@
       "view_all": "View all",
       "load_more": "Load more",
       "search": "Search",
-      "filter": "Filter"
+      "filter": "Filter",
+      "linkError": "The link could not be opened."
     }
   },
   "foryouCards": {

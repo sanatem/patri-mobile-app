@@ -3,8 +3,8 @@
         "title": "Configuración",
         "subtitle": "Configuración y herramientas adicionales",
         "menu": {
-            "preferences": "Preferencias del usuario",
-            "preferencesSubtitle": "Idioma y otras opciones",
+            "preferences": "Preferencias de usuario",
+            "preferencesSubtitle": "Idioma y otras preferencias",
             "terms": "Términos y condiciones",
             "termsSubtitle": "Políticas de uso",
             "privacy": "Privacidad y seguridad",
@@ -12,21 +12,22 @@
             "help": "Ayuda y soporte",
             "helpSubtitle": "Centro de ayuda y contacto",
             "logout": "Cerrar sesión",
-            "logoutSubtitle": "Salir de la app"
+            "logoutSubtitle": "Salir de la aplicación"
         },
         "logout": {
             "title": "Cerrar sesión",
-            "message": "¿Estás segur@ de que quieres cerrar sesión?",
+            "message": "¿Estás seguro que deseas cerrar sesión?",
             "action": "Cerrar sesión"
         },
         "delete": {
             "title": "Eliminar cuenta",
-            "subtitle": "Se eliminará de forma permanente tu cuenta y toda tu info.",
-            "confirm": "Eliminar cuenta"
+            "subtitle": "Eliminar permanentemente tu cuenta y todos tus datos.",
+            "confirm": "Eliminar cuenta",
+            "error": "Error al solicitar eliminación"
         },
         "confirmation": {
-            "title": "Solicitud recibida",
-            "subtitle": "Vamos a procesar tu solicitud de eliminación en unos días hábiles."
+            "title": "Solicitud procesada",
+            "subtitle": "Tu solicitud de eliminación de cuenta será procesada en los próximos días hábiles."
         },
         "loading": {
             "loggingOut": "Cerrando sesión...",
@@ -39,186 +40,186 @@
     "common": {
         "cancel": "Cancelar",
         "error": "Error",
-        "continue": "Seguir",
-        "permissionsRequired": "Se requieren permisos",
-        "understoodAndContinue": "Entendido, sigamos",
-        "start": "Partamos",
+        "continue": "Continuar",
+        "permissionsRequired": "Permisos requeridos",
+        "understoodAndContinue": "Entendido, continuemos",
+        "start": "Empecemos",
         "back": "Volver",
         "create": "Crear",
         "finish": "Finalizar",
         "backToPortfolio": "Volver al portafolio",
-        "retry": "Intentar de nuevo",
+        "retry": "Reintentar",
         "saving": "Guardando...",
         "loading": "Cargando...",
         "per_month": "/mes",
-        "already_subscribed": "Ya estás suscrit@",
+        "already_subscribed": "Ya suscrito",
         "active": "Activo",
         "from": "Desde",
         "select": "Seleccionar...",
         "search_placeholder": "Buscar...",
-        "select_option": "Elige una opción",
-        "next": "Siguiente"
+        "select_option": "Selecciona una opción",
+        "next": "Continuar"
     },
     "budget": {
         "income": "Ingresos",
         "expenses": "Gastos",
-        "all_categories": "Todas las categorías",
-        "integrate_data": "Conectar con tus bancos",
+        "all_categories": "Todas",
+        "integrate_data": "Integrar datos bancarios",
         "tab_name": "Presupuesto",
-        "title": "Tu presupuesto",
-        "search_income_placeholder": "Busca ingresos...",
-        "search_expenses_placeholder": "Busca gastos...",
-        "total_income": "Ingresos totales",
-        "total_expenses": "Gastos totales"
+        "title": "Presupuesto",
+        "search_income_placeholder": "Buscar ingresos...",
+        "search_expenses_placeholder": "Buscar gastos...",
+        "total_income": "Total de ingresos",
+        "total_expenses": "Total de gastos"
     },
     "identityConfirm": {
         "title": "Confirma tus datos",
-        "description": "Edita si ves un error o falta algo.",
+        "description": "Edítala si encuentras un error o falta algo.",
         "firstName": "Nombre",
-        "lastName1": "Apellido paterno",
-        "lastName2": "Apellido materno",
+        "lastName1": "Primer apellido",
+        "lastName2": "Segundo apellido",
         "gender": "Género",
         "birthDate": "Fecha de nacimiento",
-        "idExpiryDate": "Fecha de vencimiento del carnet"
+        "idExpiryDate": "Fecha de vencimiento del documento"
     },
     "identityMethod": {
         "title": "Verificación de identidad",
-        "question": "¿Con qué documento te vas a verificar?",
-        "description": "Necesitamos un documento chileno, vigente y que sea de una persona mayor de edad.",
-        "option_id_card": "Cédula de identidad",
-        "option_passport": "Con pasaporte chileno",
-        "why": "¿Por qué necesitamos un documento?"
+        "question": "¿Con qué documento te verificarás?",
+        "description": "Necesitamos un documento emitido en Chile, vigente y que pertenezca a un mayor de edad",
+        "option_id_card": "Documento de identidad",
+        "option_passport": "Con pasaporte",
+        "why": "¿Por qué necesitan un documento?"
     },
     "identityUploadBack": {
         "title": "Verificación de identidad",
-        "uploadTitle": "Sube tu carnet (reverso)",
+        "uploadTitle": "Sube tu documento (reverso)",
         "uploadSubtitle": "Ahora necesitamos la parte trasera de tu carnet de identidad",
-        "uploadPrompt": "+ Subir foto del carnet (reverso)",
+        "uploadPrompt": "+ Subir foto del carnet (Reverso)",
         "changeImage": "Cambiar imagen",
         "selectImage": "Seleccionar imagen",
-        "selectMethod": "Elige cómo subir la foto de tu carnet",
+        "selectMethod": "Elige cómo quieres subir la foto de tu carnet",
         "gallery": "Galería",
         "camera": "Cámara",
         "galleryPermission": "Necesitamos acceso a tu galería para subir la foto",
         "cameraPermission": "Necesitamos acceso a tu cámara para tomar la foto",
-        "errorGallery": "No pudimos abrir la galería",
-        "errorCamera": "No pudimos abrir la cámara",
+        "errorGallery": "No se pudo abrir la galería",
+        "errorCamera": "No se pudo abrir la cámara",
         "tips": {
             "title": "💡 Consejos para una buena foto:",
-            "light": "Que tenga buena luz",
-            "legible": "Que se lean bien todos los datos",
+            "light": "Asegúrate de que esté bien iluminada",
+            "legible": "Todos los datos deben ser legibles",
             "noGlare": "Evita reflejos o sombras"
         }
     },
     "identityUpload": {
         "title": "Verificación de identidad",
-        "uploadTitle": "Sube tu carnet (frente)",
-        "uploadHintWeb": "Haz clic en el recuadro para elegir una imagen",
-        "uploadHintMobile": "Haz clic en el recuadro para subir o tomar la foto",
-        "uploadPrompt": "+ Subir foto del carnet (frente)",
+        "uploadTitle": "Sube tu documento (frente)",
+        "uploadHintWeb": "Haz clic en el recuadro para seleccionar una imagen",
+        "uploadHintMobile": "Haz clic en el recuadro para subir la foto o tomar una nueva",
+        "uploadPrompt": "+ Subir foto del documento (frente)",
         "changeImage": "Cambiar imagen",
         "selectImage": "Seleccionar imagen",
-        "selectMethod": "Elige cómo subir la foto de tu carnet",
+        "selectMethod": "Elige cómo quieres subir la foto de tu documento",
         "gallery": "Galería",
         "camera": "Cámara",
         "cancel": "Cancelar",
         "galleryPermission": "Necesitamos acceso a tu galería para subir la foto",
-        "cameraPermission": "Necesitamos acceso a tu cámara para sacar la foto",
-        "errorGallery": "No pudimos abrir la galería",
-        "errorCamera": "No pudimos abrir la cámara",
-        "explanation": "¿Qué datos sacarán de mi carnet?",
+        "cameraPermission": "Necesitamos acceso a tu cámara para tomar la foto",
+        "errorGallery": "No se pudo abrir la galería",
+        "errorCamera": "No se pudo abrir la cámara",
+        "explanation": "¿Qué datos se obtendrán de mi documento?",
         "tips": {
             "title": "💡 Consejos para una buena foto:",
-            "light": "Que tenga buena luz",
-            "legible": "Que se lean bien todos los datos",
+            "light": "Asegúrate de que esté bien iluminada",
+            "legible": "Todos los datos deben ser legibles",
             "noGlare": "Evita reflejos o sombras"
         }
     },
     "investmentSurvey": {
-        "loadingMessage": "Estamos definiendo tu perfil de inversionista...",
+        "loadingMessage": "Definiendo tu perfil de inversor...",
         "questions": [
             {
-                "text": "¿Cuál es el objetivo principal de tu inversión?",
+                "text": "¿Cuál es el principal objetivo de tu inversión?",
                 "options": [
                     "Ahorrar para la educación de mis hijos",
                     "Asegurar mi jubilación",
-                    "Hacer crecer mi patrimonio",
-                    "Ahorrar para un viaje"
+                    "Incrementar mi patrimonio",
+                    "Planificar un viaje"
                 ]
             },
             {
-                "text": "¿Qué opción representa mejor tu horizonte de inversión?",
+                "text": "¿Cuál de estas alternativas representa mejor tu horizonte de inversión?",
                 "options": [
-                    "Podría necesitar la plata en cualquier momento",
-                    "Necesitaré una parte este año",
-                    "Quizás retire algo ocasionalmente, pero el resto lo dejaré a largo plazo",
-                    "No planeo usar esta plata en los próximos 3 años"
+                    "Podría necesitar el dinero en cualquier momento",
+                    "Necesitaré parte del dinero este año",
+                    "Quizás haga retiros esporádicos, pero la mayor parte de la inversión será a largo plazo",
+                    "No usaré este dinero en los próximos 3 años"
                 ]
             },
             {
-                "text": "¿Cuánto sabes de finanzas?",
+                "text": "¿Qué grado de conocimiento financiero posees?",
                 "options": [
-                    "Nada",
-                    "Sé la diferencia entre acciones y renta fija",
-                    "Conozco distintas alternativas de inversión y sus riesgos",
-                    "Tengo buen manejo de productos y estrategias de inversión"
+                    "Nulo",
+                    "Entiendo la diferencia entre acciones y renta fija",
+                    "Conozco distintas opciones de inversión y sus niveles de riesgo",
+                    "Tengo un amplio conocimiento sobre productos y estrategias de inversión"
                 ]
             },
             {
-                "text": "¿En qué has invertido antes?",
+                "text": "¿En qué productos has invertido anteriormente?",
                 "options": [
                     "Cuenta de ahorro, depósitos a plazo y/o instrumentos de renta fija",
                     "Fondos mutuos",
                     "Acciones",
-                    "Instrumentos derivados"
+                    "Productos derivados"
                 ]
             },
             {
-                "text": "¿Con cuál de estas frases te sientes más identificado?",
+                "text": "¿Con cuál de las siguientes afirmaciones te identificas mejor?",
                 "options": [
-                    "Prefiero que mi inversión crezca de forma estable, sin caídas",
-                    "Puedo aceptar caídas menores si son por menos de un año",
-                    "Busco rentabilidad a mediano/largo plazo sin caídas importantes",
-                    "Estoy dispuesto a asumir variaciones grandes si eso me da más rentabilidad"
+                    "Lo más importante es que mi inversión crezca de manera estable, no acepto fluctuaciones negativas del mercado",
+                    "Acepto oscilaciones negativas en el valor de mi patrimonio durante períodos de tiempo inferiores a un año",
+                    "Me importa la rentabilidad a mediano y largo plazo, sin sufrir fluctuaciones negativas importantes en el valor de mi patrimonio",
+                    "Puedo asumir fluctuaciones de mercado importantes en mis inversiones a cambio de mayores rentabilidades en el largo plazo"
                 ]
             },
             {
-                "text": "Si tu inversión sube un 30% y luego baja un 20%, quedando un 10% arriba, ¿qué harías?",
+                "text": "Si tienes una inversión con una rentabilidad del 30% y tiene una baja de 20% obteniendo un 10% a favor, ¿qué harías?",
                 "options": [
-                    "Me cambiaría a inversiones sin riesgo",
-                    "Movería parte a algo más conservador",
-                    "Me preocuparía, pero no haría nada",
-                    "Invertiría más si hay buenos fundamentos"
+                    "Me cambiaría a instrumentos sin riesgo",
+                    "Transferiría parte de los fondos a inversiones de menor riesgo",
+                    "Me preocuparía, pero no tomaría ninguna acción",
+                    "Invertiría más si hay fundamentos para ello"
                 ]
             },
             {
-                "text": "¿Cuál es tu ingreso líquido mensual total?",
+                "text": "¿Cuál es tu nivel de ingreso mensual neto considerando todas tus fuentes de ingresos?",
                 "options": [
-                    "Menos de 1 millón",
-                    "Entre 1 y 3 millones",
-                    "Entre 3 y 5 millones",
-                    "Más de 5 millones"
+                    "Menos de 1 millón de pesos",
+                    "Entre 1 y 3 millones de pesos",
+                    "Entre 3 y 5 millones de pesos",
+                    "Más de 5 millones de pesos"
                 ]
             },
             {
-                "text": "¿Qué porcentaje de tus ahorros invertirías?",
+                "text": "¿Cuánto de tus ahorros estás dispuesto a invertir?",
                 "options": [
                     "Menos del 30%",
-                    "Entre 30% y 60%",
+                    "Entre el 30% y el 60%",
                     "Más del 60%"
                 ]
             },
             {
-                "text": "¿Tu profesión está relacionada con las finanzas?",
+                "text": "¿Qué relación tiene tu profesión con temas financieros?",
                 "options": [
-                    "Sí, totalmente",
-                    "Algo relacionada",
-                    "Poco relacionada",
-                    "Nada que ver"
+                    "Está muy relacionada",
+                    "Tiene cierta relación",
+                    "Tiene poca relación",
+                    "No tiene relación"
                 ]
             },
             {
-                "text": "¿Cuánto tienes disponible para invertir (aproximadamente)?",
+                "text": "¿Cuál es el valor aproximado de tu patrimonio disponible para invertir?",
                 "options": [
                     "Más de $200 millones",
                     "Entre $50 y $200 millones",
@@ -229,62 +230,62 @@
     },
     "profileResult": {
         "title": "Tu perfil es conservador",
-        "description1": "Te importa que tu inversión sea estable, pero estás dispuesto a asumir algo de riesgo.",
-        "description2": "Si más adelante quieres cambiarlo, puedes hacerlo sin problema."
+        "description1": "Valoras principalmente la estabilidad, aunque aceptas un poco de riesgo en tus inversiones.",
+        "description2": "Puedes cambiarlo más adelante si lo deseas."
     },
     "startProfile": {
         "title": "Veamos qué tipo de inversionista eres",
-        "description": "Te haremos unas preguntas para saber cuál es tu perfil como inversionista. Si quieres, lo puedes cambiar después.",
-        "timeEstimate": "⏱ unos 4 minutos"
+        "description": "Te haremos algunas preguntas para determinar tu perfil de inversionista. Puedes cambiarlo más adelante si lo necesitas.",
+        "timeEstimate": "⏱ aprox. 4 minutos"
     },
     "completeProfile": {
         "title": "Completa tu perfil",
         "steps": {
             "identity": {
                 "title": "Verificación de identidad",
-                "description": "Sube una foto de tu carnet"
+                "description": "Sube un documento de identidad"
             },
             "basic": {
                 "title": "Información básica",
-                "description": "Cuéntanos un poco sobre ti"
+                "description": "Compártenos un poco sobre ti"
             },
             "contract": {
                 "title": "Contrato y validación de correo",
-                "description": "Firma el contrato y confirma tu correo"
+                "description": "Firma tu contrato y verifica tu cuenta"
             },
             "start": {
                 "title": "Comenzar a invertir",
-                "description": "Elige qué quieres hacer con tu plata"
+                "description": "Elige qué deseas hacer con tu dinero"
             }
         }
     },
     "summary": {
         "title": "Tu perfil está casi listo",
-        "description": "Estamos validando tu info. Cuando esté todo ok, podrás empezar a invertir 🚀",
+        "description": "Estamos validando tu información. Una vez aprobado, podrás comenzar a invertir 🚀",
         "returnHome": "Volver al inicio",
         "steps": {
             "identity": {
                 "title": "Verificación de identidad",
-                "validated": "Documento validado con éxito"
+                "validated": "Documento validado correctamente"
             },
             "basic": {
                 "title": "Información básica",
-                "completed": "Perfil completado sin problemas"
+                "completed": "Perfil completado exitosamente"
             },
             "contract": {
                 "title": "Contrato y validación de correo",
-                "inProgress": "Estamos revisando tu contrato..."
+                "inProgress": "En proceso de validación..."
             },
             "start": {
                 "title": "Comenzar a invertir",
-                "description": "Decide qué hacer con tu plata"
+                "description": "Elige qué deseas hacer con tu dinero"
             }
         }
     },
     "createGoal": {
         "title": "Crear meta",
         "goalNameLabel": "Nombre de la meta",
-        "goalNamePlaceholder": "Ej: Comprar una casa",
+        "goalNamePlaceholder": "Ej: Comprar casa",
         "accountTypeLabel": "Tipo de cuenta",
         "accountType": {
             "investment": "Cuenta de inversión",
@@ -292,24 +293,24 @@
         }
     },
     "amountStep": {
-        "title": "Ingresa el monto",
+        "title": "Ingresar monto",
         "placeholder": "Ingresa el monto",
         "rateNote": "(a ${{ rate }} el dólar)"
     },
     "investmentMovement": {
         "header": {
             "from": "Mover desde {{from}}",
-            "amount": "Ingresa el monto"
+            "amount": "Ingresar monto"
         }
     },
     "confirmationStep": {
-        "title": "Revisa que los datos estén correctos antes de terminar la operación.",
+        "title": "Confirma que los datos sean correctos antes de finalizar la operación.",
         "origin": "Origen",
-        "amount": "Plata a retirar",
+        "amount": "Dinero a retirar",
         "destination": "Destino",
         "bankAccount": "Mi cuenta bancaria",
         "wallet": "Mi saldo en caja",
-        "note": "Cuando hagas clic en finalizar, tu solicitud se enviará a la corredora. La plata llegará a tu cuenta dos días hábiles después de vender las cuotas."
+        "note": "Al presionar finalizar, tu solicitud será enviada a la corredora. El dinero será transferido a tu método de pago seleccionado dos días hábiles después de la venta de las cuotas."
     },
     "fromAssetStep": {
         "assetQuestion": {
@@ -317,32 +318,32 @@
             "part2": "qué activo",
             "part3": "quieres vender cuotas?"
         },
-        "assetPlaceholder": "Elige un activo",
+        "assetPlaceholder": "Selecciona un activo",
         "accountQuestion": {
-            "part1": "¿A",
-            "part2": "qué cuenta",
-            "part3": "quieres que llegue la plata?"
+            "part1": "¿En",
+            "part2": "qué cuenta bancaria",
+            "part3": "quieres recibir el dinero?"
         },
-        "accountPlaceholder": "Elige cuenta"
+        "accountPlaceholder": "Selecciona cuenta bancaria"
     },
     "fromGoalStep": {
         "from": {
             "part1": "¿De",
-            "part2": "qué meta",
-            "part3": "quieres sacar plata?"
+            "part2": "dónde",
+            "part3": "quieres retirar dinero?"
         },
         "to": {
             "part1": "¿A",
             "part2": "dónde",
-            "part3": "quieres enviarla?"
+            "part3": "quieres destinarlo?"
         },
         "goalPlaceholder": "Selecciona una meta",
         "destinationPlaceholder": "Selecciona destino"
     },
     "salesFlow": {
-        "header": "Pedir retiro",
+        "header": "Solicitud de retiro",
         "next": "Siguiente",
-        "previous": "Atrás",
+        "previous": "Anterior",
         "finish": "Finalizar",
         "mockGoals": {
             "newGoal": "Nueva meta ($1.492.500,00)",
@@ -363,16 +364,16 @@
     },
     "movements": {
         "title": "Movimientos",
-        "emptyTitle": "Sin movimientos aún",
-        "emptySubtitle": "No hay movimientos registrados para esta meta"
+        "emptyTitle": "No hay movimientos",
+        "emptySubtitle": "Aún no hay movimientos registrados para esta meta"
     },
     "portfolioDetails": {
-        "title": "Detalle de la meta",
+        "title": "Detalles de la meta",
         "summary": {
             "strategy": "Estrategia",
             "riskLevel": "Nivel de riesgo",
             "invested": "Aportes",
-            "withdrawn": "Retiros",
+            "withdrawn": "Rescates",
             "variation": "Variación"
         },
         "actions": {
@@ -380,16 +381,16 @@
             "withdraw": "Retirar"
         },
         "error": {
-            "noGoalId": "No se entregó el ID de la meta",
-            "noToken": "No hay token disponible",
-            "unknown": "Ocurrió un error desconocido"
+            "noGoalId": "ID de meta no proporcionado",
+            "noToken": "No hay token de autenticación disponible",
+            "unknown": "Error desconocido"
         }
     },
     "portfolio": {
-        "title": "Mi portafolio",
-        "goalsTitle": "Mis metas",
-        "goalsError": "No pudimos cargar tus metas",
-        "noGoals": "Aún no has creado metas.",
+        "title": "Portafolio",
+        "goalsTitle": "Metas",
+        "goalsError": "Error al cargar metas",
+        "noGoals": "Aún no tienes metas definidas.",
         "goalPrefix": "Meta",
         "actions": {
             "invest": "Invertir",
@@ -411,40 +412,40 @@
                 "subtitle": "Largo plazo"
             },
             "jubilacion": {
-                "title": "Mi jubilación",
-                "subtitle": "Con APV-B"
+                "title": "Mejorar mi jubilación",
+                "subtitle": "Jubilación con APV-B"
             }
         }
     },
     "investments": {
         "title": "Inversión",
-        "needAccount": "Para ver esta sección necesitas tener activa una cuenta de inversión."
+        "needAccount": "Para acceder a esta sección necesitas tener una cuenta de inversión activa."
     },
     "floid": {
-        "title": "Conectar tus bancos"
+        "title": "Sincronizar datos bancarios"
     },
     "patrimony": {
-        "loading": "Cargando datos de tu patrimonio...",
-        "integrateBankData": "Conectar datos bancarios",
+        "loading": "Cargando datos del patrimonio...",
+        "integrateBankData": "Integrar datos bancarios",
         "empty": {
             "assets": {
-                "title": "No tienes activos registrados",
-                "subtitle": "Agrega tus activos para empezar a gestionar tu patrimonio",
+                "title": "No hay activos registrados",
+                "subtitle": "Agrega tus activos para comenzar a gestionar tu patrimonio",
                 "cta": "Crear activo"
             },
             "liabilities": {
-                "title": "No tienes pasivos registrados",
-                "subtitle": "Agrega tus pasivos y mira tu patrimonio completo",
+                "title": "No hay pasivos registrados",
+                "subtitle": "Agrega tus pasivos para tener una visión completa de tu patrimonio",
                 "cta": "Crear pasivo"
             }
         },
-        "net_worth": "Patrimonio neto",
+        "net_worth": "Patrimonio Neto",
         "cash_balance": "Saldo en caja",
-        "title": "Mi patrimonio",
-        "netWorthTitle": "Tu Patrimonio",
-        "assets": "Total de activos",
-        "liabilities": "Total de pasivos",
-        "comparedToLastMonth": "vs el mes pasado"
+        "title": "Patrimonio",
+        "netWorthTitle": "Patrimonio Neto",
+        "assets": "Activos",
+        "liabilities": "Pasivos",
+        "comparedToLastMonth": "vs último mes"
     },
     "tabs": {
         "patrimony": "Patrimonio",
@@ -455,57 +456,57 @@
     "planning": {
         "title": "Planificación",
         "success": {
-            "title": "¡Te suscribiste con éxito!",
-            "message": "Ahora puedes usar todas las funciones premium."
+            "title": "¡Suscripción exitosa!",
+            "message": "Ahora tienes acceso a todas las funciones premium."
         },
         "error": {
-            "title": "¡Ups!",
-            "subscription": "Tuvimos un problema con la suscripción. Intenta de nuevo.",
-            "unexpected": "Ocurrió un error inesperado. Intenta de nuevo."
+            "title": "Error",
+            "subscription": "Hubo un problema con la suscripción. Intenta nuevamente.",
+            "unexpected": "Hubo un problema inesperado. Intenta nuevamente."
         },
         "cardTitles": {
             "premiumMobile": "Plan Premium (móvil)",
             "plans": "Planes"
         },
         "top_title": "Comienza tu planificación financiera",
-        "top_subtitle": "Accede a herramientas pro y asesoría experta para lograr tus metas"
+        "top_subtitle": "Accede a herramientas profesionales y asesoría experta para alcanzar tus metas financieras"
     },
     "onboarding": {
-        "titleStep1": "Tus datos personales",
-        "titleStep2": "Más información",
+        "titleStep1": "Información Personal",
+        "titleStep2": "Información Adicional",
         "subtitleStep1": "Cuéntanos sobre ti",
         "subtitleStep2": "Completa tu perfil para personalizar tu experiencia",
         "firstNameLabel": "Nombre",
-        "firstNamePlaceholder": "Escribe tu nombre",
+        "firstNamePlaceholder": "Ingresa tu nombre",
         "lastNameLabel": "Apellido",
-        "lastNamePlaceholder": "Escribe tu apellido",
+        "lastNamePlaceholder": "Ingresa tu apellido",
         "rutLabel": "RUT",
         "rutPlaceholder": "12345678-9",
-        "countryLabel": "País donde vives",
+        "countryLabel": "País de residencia",
         "countryPlaceholder": "Selecciona tu país",
         "birthLabel": "Fecha de nacimiento",
         "birthPlaceholder": "Selecciona tu fecha de nacimiento",
         "incomeLabel": "Ingresos mensuales",
-        "incomePlaceholder": "Elige tu rango de ingresos",
-        "incomeNote": "Nos ayuda a darte mejores recomendaciones",
+        "incomePlaceholder": "Selecciona tu rango de ingresos",
+        "incomeNote": "Esta información nos ayuda a personalizar tus recomendaciones",
         "incomeOptions": {
             "lessThan1M": "Menos de $1.000.000",
-            "between1And5M": "Entre $1.000.001 y $5.000.000",
-            "between5And10M": "Entre $5.000.001 y $10.000.000",
-            "between10And25M": "Entre $10.000.001 y $25.000.000",
+            "between1And5M": "Entre $1.000.001 a $5.000.000",
+            "between5And10M": "Entre $5.000.001 a $10.000.000",
+            "between10And25M": "Entre $10.000.001 a $25.000.000",
             "greaterThan25M": "Más de $25.000.001"
         },
         "errors": {
-            "firstNameRequired": "Debes ingresar tu nombre",
-            "lastNameRequired": "Debes ingresar tu apellido",
-            "rutRequired": "El RUT es obligatorio",
-            "rutMinLength": "Tu RUT debe tener al menos 3 caracteres",
-            "countryRequired": "Indica tu país de residencia",
-            "birthDateRequired": "Debes seleccionar tu fecha de nacimiento",
-            "incomeRequired": "Debes indicar tus ingresos mensuales"
+            "firstNameRequired": "El nombre es requerido",
+            "lastNameRequired": "El apellido es requerido",
+            "rutRequired": "El RUT es requerido",
+            "rutMinLength": "El RUT debe tener al menos 3 caracteres",
+            "countryRequired": "El país de residencia es requerido",
+            "birthDateRequired": "La fecha de nacimiento es requerida",
+            "incomeRequired": "Los ingresos mensuales son requeridos"
         },
         "serviceError": {
-            "title": "Error al enviar los datos"
+            "title": "Error al enviar datos"
         }
     },
     "countries": {
@@ -533,12 +534,12 @@
             "title": "Todo tu patrimonio, en un solo lugar.",
             "subtitle": "Integra tus cuentas y fondos para ver cómo crece tu patrimonio en el tiempo desde un dashboard claro y completo."
         },
-        "primaryButton": "Comenzar",
+        "primaryButton": "Empezar",
         "secondaryButton": "Iniciar sesión"
     },
     "preferences": {
         "loading": "Cargando preferencias...",
-        "title": "Preferencias de Usuario",
+        "title": "Preferencias de usuario",
         "subtitle": "Personaliza tu experiencia",
         "language": {
             "title": "Idioma de la aplicación",
@@ -554,23 +555,24 @@
         "no_data_title": "Sin datos",
         "no_data_subtitle": "No hay transacciones para {{month}}",
         "remaining_of": "restante de ${{amount}}",
-        "no_data_this_month": "Sin datos para este mes",
-        "total_expenses": "Gastos Totales"
+        "no_data_this_month": "Sin datos este mes",
+        "total_expenses": "Gastos totales"
     },
     "transactions_list": {
         "no_income_title_with_month": "Sin ingresos en {{month}}",
         "no_income_title": "Sin ingresos",
-        "no_income_desc_with_month": "No hay transacciones de ingresos registradas para este mes",
+        "no_income_desc_with_month": "No se registraron ingresos este mes",
         "no_income_desc_with_search": "No se encontraron ingresos que coincidan con \"{{query}}\"",
         "no_income_desc": "No hay ingresos disponibles",
         "no_expenses_title_with_month": "Sin gastos en {{month}}",
         "no_expenses_title": "Sin gastos",
-        "no_expenses_desc_with_month": "No hay transacciones de gastos registradas para este mes",
+        "no_expenses_desc_with_month": "No se registraron gastos este mes",
         "no_expenses_desc_with_search": "No se encontraron gastos que coincidan con \"{{query}}\"",
         "no_expenses_desc": "No hay gastos disponibles",
         "no_results_title": "Sin resultados"
     },
     "copilot": {
+        "title": "Copiloto",
         "chat_placeholder": "¿En qué te puedo ayudar hoy?",
         "suggestions": {
             "expenses": "¿Cuáles son mis gastos este mes?",
@@ -599,10 +601,14 @@
     },
     "plans": {
         "premium": {
+            "title": "Plan Premium (móvil)",
+            "price": "$9.990",
+            "duration": "/mes",
             "description": "Accede a todas las funcionalidades premium y herramientas avanzadas de planificación financiera.",
             "button": "Suscribirme"
         },
         "general": {
+            "title": "Planes",
             "description": "Descubre nuestros planes y empieza hoy a construir un mejor futuro financiero",
             "button": "Ver planes",
             "min_price": "$99.000 /mes",
@@ -613,15 +619,15 @@
     "advisor": {
         "not_found": "No se encontró información del asesor.",
         "not_assigned": "No tienes un asesor asignado actualmente.",
-        "certified_title": "Asesor de Inversiones Certificado",
-        "default_description": "{{name}} es un Asesor de Inversiones acreditado especializado en planificación financiera integral y estrategias de inversión a largo plazo.",
+        "certified_title": "Asesor de inversiones certificado",
+        "default_description": "{{name}} es un asesor acreditado en planificación financiera integral y estrategias de inversión a largo plazo.",
         "next_meeting": "Próxima reunión",
         "none_scheduled": "Ninguna programada",
         "schedule": "Programar"
     },
     "planningCarousel": {
         "report1": {
-            "title": "Reporte Financiero",
+            "title": "Reporte financiero",
             "description": "Análisis completo de tu situación financiera",
             "points": {
                 "balance": "Balance patrimonial",
@@ -635,11 +641,11 @@
             "points": {
                 "performance": "Análisis de rendimiento",
                 "allocation": "Distribución de activos",
-                "benchmarks": "Comparación con benchmarks"
+                "benchmarks": "Comparación con indicadores de referencia"
             }
         },
         "report3": {
-            "title": "Estado Fondos Mutuos",
+            "title": "Estado de fondos mutuos",
             "description": "Rendimiento detallado de fondos mutuos",
             "points": {
                 "evolution": "Evolución mensual",
@@ -654,17 +660,17 @@
         "benefits": {
             "asset_analysis": "Análisis detallado de patrimonio.",
             "budget_management": "Gestión avanzada de presupuestos.",
-            "investment_access": "Acceder a Cuenta de inversión si posees una."
+            "investment_access": "Acceso a cuenta de inversión si dispones de una."
         }
     },
     "labels": {
         "planning": {
-            "title": "Planificación Financiera",
+            "title": "Planificación financiera",
             "subtitle": "Tu camino hacia el éxito financiero",
             "advisor_name": "Fernando Slebe",
-            "advisor_title": "Asesor de Inversiones Certificado",
+            "advisor_title": "Asesor de inversiones certificado",
             "advisor_experience": "+10 años de experiencia",
-            "advisor_bio": "Fernando Slebe es un Asesor de Inversiones acreditado especializado en planificación financiera integral y estrategias de inversión a largo plazo.",
+            "advisor_bio": "Fernando Slebe es un asesor acreditado en planificación financiera integral y estrategias de inversión a largo plazo.",
             "next_meeting": "Próxima reunión",
             "no_meeting": "Ninguna programada",
             "inbox": "Bandeja de entrada",
@@ -677,14 +683,14 @@
             "total_in": "Total en",
             "total_assets": "Total en activos",
             "total_liabilities": "Total en pasivos",
-            "last_month_comparison": "vs último mes",
+            "last_month_comparison": "vs mes anterior",
             "title": "Patrimonio"
         },
         "budget": {
             "search_income_placeholder": "Buscar en ingresos",
             "search_expenses_placeholder": "Buscar en gastos",
             "remaining": "restante de",
-            "no_data": "Sin datos para este mes",
+            "no_data": "Sin datos este mes",
             "categories": {
                 "housing": {
                     "label": "Vivienda",
@@ -692,7 +698,7 @@
                 },
                 "transport": {
                     "label": "Transporte",
-                    "description": "Combustible, transporte público, mantenimiento vehículo"
+                    "description": "Combustible, transporte público, mantenimiento del vehículo"
                 },
                 "leisure": {
                     "label": "Ocio",
@@ -709,7 +715,7 @@
             }
         },
         "investment": {
-            "portfolio": "Portfolio",
+            "portfolio": "Portafolio",
             "patrimony_label": "Tu patrimonio",
             "invest": "Invertir",
             "create": "Crear",
@@ -722,9 +728,9 @@
             "title": "¿Por qué elegir nuestro asesoramiento?",
             "availability": "Disponibilidad 24/7",
             "availability_desc": "Chat y consultas cuando lo necesites",
-            "certification": "Certificación Garantizada",
+            "certification": "Certificación garantizada",
             "certification_desc": "Todos nuestros asesores están certificados",
-            "personalized": "Planes Personalizados",
+            "personalized": "Planes personalizados",
             "personalized_desc": "Estrategias adaptadas a tus objetivos"
         },
         "common": {
@@ -734,19 +740,20 @@
             "view_all": "Ver todo",
             "load_more": "Cargar más",
             "search": "Buscar",
-            "filter": "Filtrar"
+            "filter": "Filtrar",
+            "linkError": "No se pudo abrir el enlace"
         }
     },
     "foryouCards": {
         "category": "Gastos",
-        "description": "Gastado en servicios básicos, encuentra formas de ahorrar ahora",
+        "description": "Gasto en servicios básicos, encuentra formas de ahorrar ahora",
         "title": "${{amount}}/mes"
     },
     "timeRanges": {
         "options": {
-            "1m": "1 Mes",
-            "6m": "6 Meses",
-            "1y": "1 Año",
+            "1m": "1 mes",
+            "6m": "6 meses",
+            "1y": "1 año",
             "all": "Todo"
         }
     },
@@ -1022,10 +1029,10 @@
         },
         "messages": {
             "welcomeTitle": "Un solo lugar para hacer crecer tu patrimonio.",
-            "welcomeSubtitle": "Opciones de ahorro e inversión personalizadas, para todo tipo de inversionista.",
-            "guestTitle": "Invierte en Acciones o ETF",
-            "guestSubtitle": "La forma más fácil de invertir en la bolsa de Estados Unidos",
-            "goalSelectionQuestion": "¿A qué meta quieres mover tu dinero?",
+            "welcomeSubtitle": "Opciones de ahorro e inversión personalizadas para todo tipo de inversionista.",
+            "guestTitle": "Invierte en acciones o ETF",
+            "guestSubtitle": "La forma más sencilla de invertir en la bolsa de Estados Unidos",
+            "goalSelectionQuestion": "¿A qué meta deseas mover tu dinero?",
             "goalSelectionPlaceholder": "Selecciona una meta",
             "amountStepTitle": "Ingresar monto",
             "amountCurrencyLabel": "Pesos chilenos",
@@ -1036,16 +1043,16 @@
         }
     },
     "auth": {
-        "cancelledTitle": "Inicio de sesión cancelado",
-        "cancelledMessage": "No pudimos completar el proceso de autenticación.",
-        "errorTitle": "Problema con el inicio de sesión",
-        "errorMessage": "Ocurrió un error durante la autenticación. Intenta nuevamente más tarde."
+        "cancelledTitle": "Autenticación cancelada",
+        "cancelledMessage": "No se pudo completar el proceso de autenticación.",
+        "errorTitle": "Error de autenticación",
+        "errorMessage": "Ocurrió un error durante el proceso de autenticación. Por favor intenta de nuevo."
     },
     "login": {
-        "subtitle": "Inicia sesión para administrar tus finanzas de forma inteligente",
+        "subtitle": "Accede a tu cuenta para gestionar tus finanzas de manera inteligente",
         "connecting": "Conectando...",
-        "login": "Entrar",
-        "termsPrefix": "Al continuar aceptas nuestros ",
+        "login": "Ingresa",
+        "termsPrefix": "Al continuar, aceptas nuestros ",
         "termsLink": "términos y condiciones",
         "privacyLink": "política de privacidad",
         "and": "y"

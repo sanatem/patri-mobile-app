@@ -16,13 +16,14 @@
     },
     "logout": {
       "title": "Cerrar sesión",
-      "message": "¿Estás seguro de que deseas cerrar sesión?",
+      "message": "¿Estás seguro que deseas cerrar sesión?",
       "action": "Cerrar sesión"
     },
     "delete": {
       "title": "Eliminar cuenta",
       "subtitle": "Eliminar permanentemente tu cuenta y todos tus datos.",
-      "confirm": "Eliminar cuenta"
+      "confirm": "Eliminar cuenta",
+      "error": "Error al solicitar eliminación"
     },
     "confirmation": {
       "title": "Solicitud procesada",
@@ -72,7 +73,7 @@
     "total_expenses": "Total de gastos"
   },
   "identityConfirm": {
-    "title": "Confirma tu información",
+    "title": "Confirma tus datos",
     "description": "Edítala si encuentras un error o falta algo.",
     "firstName": "Nombre",
     "lastName1": "Primer apellido",
@@ -83,20 +84,20 @@
   },
   "identityMethod": {
     "title": "Verificación de identidad",
-    "question": "¿Con qué documento te vas a verificar?",
-    "description": "Necesitamos un documento válido, vigente y emitido en tu país que pertenezca a una persona mayor de edad.",
+    "question": "¿Con qué documento te verificarás?",
+    "description": "Necesitamos un documento emitido en Chile, vigente y que pertenezca a un mayor de edad",
     "option_id_card": "Documento de identidad",
     "option_passport": "Con pasaporte",
-    "why": "¿Por qué se necesita un documento?"
+    "why": "¿Por qué necesitan un documento?"
   },
   "identityUploadBack": {
     "title": "Verificación de identidad",
     "uploadTitle": "Sube tu documento (reverso)",
-    "uploadSubtitle": "Ahora necesitamos la parte trasera de tu documento de identidad",
-    "uploadPrompt": "+ Subir foto del documento (reverso)",
+    "uploadSubtitle": "Ahora necesitamos la parte trasera de tu carnet de identidad",
+    "uploadPrompt": "+ Subir foto del carnet (Reverso)",
     "changeImage": "Cambiar imagen",
     "selectImage": "Seleccionar imagen",
-    "selectMethod": "Elige cómo quieres subir la foto de tu documento",
+    "selectMethod": "Elige cómo quieres subir la foto de tu carnet",
     "gallery": "Galería",
     "camera": "Cámara",
     "galleryPermission": "Necesitamos acceso a tu galería para subir la foto",
@@ -522,16 +523,16 @@
   },
   "splash": {
     "1": {
-      "title": "Tus datos, protegidos.",
-      "subtitle": "Cuidamos tu información con seguridad de nivel bancario. Sin publicidad ni compartir tus datos."
+      "title": "Tus datos, blindados.",
+      "subtitle": "Protegemos tu información con seguridad de nivel bancario. Sin publicidad, sin compartir tus datos."
     },
     "2": {
       "title": "Convierte tus sueños en un plan.",
-      "subtitle": "Crea tu estrategia financiera y entiende cómo tus decisiones impactan tu patrimonio."
+      "subtitle": "Diseña tu estrategia financiera y descubre cómo tus decisiones impactan tu patrimonio con el tiempo."
     },
     "3": {
-      "title": "Todo tu patrimonio en un solo lugar.",
-      "subtitle": "Integra tus cuentas y fondos para ver cómo evoluciona tu patrimonio desde un panel claro y completo."
+      "title": "Todo tu patrimonio, en un solo lugar.",
+      "subtitle": "Integra tus cuentas y fondos para ver cómo crece tu patrimonio en el tiempo desde un dashboard claro y completo."
     },
     "primaryButton": "Empezar",
     "secondaryButton": "Iniciar sesión"
@@ -552,7 +553,7 @@
   },
   "budget_chart": {
     "no_data_title": "Sin datos",
-    "no_data_subtitle": "No hay transacciones en {{month}}",
+    "no_data_subtitle": "No hay transacciones para {{month}}",
     "remaining_of": "restante de ${{amount}}",
     "no_data_this_month": "Sin datos este mes",
     "total_expenses": "Gastos totales"
@@ -571,7 +572,8 @@
     "no_results_title": "Sin resultados"
   },
   "copilot": {
-    "chat_placeholder": "¿En qué puedo ayudarte hoy?",
+    "title": "Copiloto",
+    "chat_placeholder": "¿En qué te puedo ayudar hoy?",
     "suggestions": {
       "expenses": "¿Cuáles son mis gastos este mes?",
       "budget": "¿Cómo va mi presupuesto?",
@@ -580,10 +582,10 @@
       "netWorth": "¿Cuál es el resumen de mi patrimonio?"
     },
     "welcomeTitle": "Hola {{name}}",
-    "welcomeSubtitle": "Soy tu copiloto financiero. ¿Listo para planificar tu futuro?"
+    "welcomeSubtitle": "Soy tu Copiloto financiero. ¿Listo para empezar a planificar tu futuro?"
   },
   "goals": {
-    "goal_progress_title": "Avance de la meta",
+    "goal_progress_title": "Evolución de la meta",
     "projected": "Proyectado",
     "date_unavailable": "Fecha no disponible",
     "of": "de",
@@ -599,11 +601,15 @@
   },
   "plans": {
     "premium": {
-      "description": "Accede a herramientas avanzadas y todas las funcionalidades premium de planificación financiera.",
+      "title": "Plan Premium (móvil)",
+      "price": "$9.990",
+      "duration": "/mes",
+      "description": "Accede a todas las funcionalidades premium y herramientas avanzadas de planificación financiera.",
       "button": "Suscribirme"
     },
     "general": {
-      "description": "Explora nuestros planes y comienza hoy a construir un mejor futuro financiero",
+      "title": "Planes",
+      "description": "Descubre nuestros planes y empieza hoy a construir un mejor futuro financiero",
       "button": "Ver planes",
       "min_price": "$99.000 /mes",
       "min_duration": "3 meses"
@@ -612,7 +618,7 @@
   },
   "advisor": {
     "not_found": "No se encontró información del asesor.",
-    "not_assigned": "Actualmente no tienes un asesor asignado.",
+    "not_assigned": "No tienes un asesor asignado actualmente.",
     "certified_title": "Asesor de inversiones certificado",
     "default_description": "{{name}} es un asesor acreditado en planificación financiera integral y estrategias de inversión a largo plazo.",
     "next_meeting": "Próxima reunión",
@@ -734,7 +740,8 @@
       "view_all": "Ver todo",
       "load_more": "Cargar más",
       "search": "Buscar",
-      "filter": "Filtrar"
+      "filter": "Filtrar",
+      "linkError": "No se pudo abrir el enlace"
     }
   },
   "foryouCards": {
