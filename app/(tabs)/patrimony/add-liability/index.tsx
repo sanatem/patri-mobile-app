@@ -138,19 +138,20 @@ export default function AddLiabilityScreen() {
           unit: formData.unit,
           installments_quantity: parseInt(cleanIntegerValue(formData.installments_quantity)),
           installment_amount: parseInt(cleanIntegerValue(formData.installment_amount)),
-          property_associated: formData.property_associated === 'yes',
+          property_associated: (formData.debt_category_id === '5' || formData.debt_category_id === '6') && formData.property_associated === 'yes',
         }
       };
 
       const response = await createDebt(debtData, accessToken);
 
       if (response.success) {
-        router.back();
+        setTimeout(() => {
+          router.back();
+        }, 500);
       } else {
         setErrors([response.error || 'Error al crear el pasivo']);
       }
     } catch (error) {
-      console.error('Error al guardar pasivo:', error);
       setErrors(['Error inesperado al crear el pasivo']);
     } finally {
       setLoading(false);
@@ -260,14 +261,16 @@ export default function AddLiabilityScreen() {
         />
       </View>
 
-      <View>
-        <RadioButton
-          label="¿La deuda está asociada a alguna propiedad?"
-          options={PROPERTY_ASSOCIATION_OPTIONS}
-          selectedValue={formData.property_associated}
-          onSelect={(value) => handleSelectChange('property_associated', value)}
-        />
-      </View>
+      {(formData.debt_category_id === '5' || formData.debt_category_id === '6') && (
+        <View>
+          <RadioButton
+            label="¿La deuda está asociada a alguna propiedad?"
+            options={PROPERTY_ASSOCIATION_OPTIONS}
+            selectedValue={formData.property_associated}
+            onSelect={(value) => handleSelectChange('property_associated', value)}
+          />
+        </View>
+      )}
     </FormLayout>
   );
 } 

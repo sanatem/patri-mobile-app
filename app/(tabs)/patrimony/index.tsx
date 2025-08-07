@@ -68,7 +68,7 @@ export default function PatrimonyScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [showSkeletons, setShowSkeletons] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [itemsPerPage] = useState(5);
+  const [visibleCount, setVisibleCount] = useState(5);
   const [isExpanded, setIsExpanded] = useState(false);
 
   const overlayAnim = useRef(new Animated.Value(0)).current;
@@ -77,31 +77,20 @@ export default function PatrimonyScreen() {
 
   const { assets: apiAssets, loading: assetsLoading, error: assetsError, refetch: refetchAssets } = useAssets({
     page: 1,
-    per_page: 50
+    per_page: 100
   }, true);
 
   const { debts: apiDebts, loading: debtsLoading, error: debtsError, refetch: refetchDebts } = useDebts({
     page: 1,
-    per_page: 50
+    per_page: 100
   }, true);
 
   useEffect(() => {
-    console.log('🔍 Patrimony Debug Info:', {
-      apiAssets: apiAssets ? 'Loaded' : 'Not loaded',
-      apiDebts: apiDebts ? 'Loaded' : 'Not loaded',
-      assetsLoading,
-      debtsLoading,
-      assetsError,
-      debtsError,
-      totalAssets: apiAssets?.totals?.total_assets || 0,
-      totalDebts: apiDebts?.totals?.total_debts || 0,
-      assetsCount: apiAssets?.assets ? 
-        (apiAssets.assets.fixed_assets.length + 
-         apiAssets.assets.saving_instruments.length + 
-         apiAssets.assets.investment_properties.length + 
-         apiAssets.assets.main_homes.length) : 0,
-      debtsCount: apiDebts?.debts?.length || 0
-    });
+    setVisibleCount(5);
+    setIsExpanded(false);
+  }, [activeTab]);
+
+  useEffect(() => {
 
   }, [apiAssets, apiDebts, assetsLoading, debtsLoading, assetsError, debtsError]);
 
@@ -109,7 +98,6 @@ export default function PatrimonyScreen() {
     const setupRevenueCat = async () => {
       try {
         if (!user?.backendUserId) {
-          console.warn('RevenueCat: No backend user ID available');
           return;
         }
 
@@ -138,7 +126,6 @@ export default function PatrimonyScreen() {
           await Purchases.setEmail(user.email);
         }
 
-        console.log('RevenueCat configured successfully');
       } catch (error) {
         console.error('Error inicializando RevenueCat:', error);
       }
@@ -152,8 +139,6 @@ export default function PatrimonyScreen() {
   useEffect(() => {
     loadPatrimonyData();
   }, []);
-
-
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -402,10 +387,12 @@ export default function PatrimonyScreen() {
       }))
     ];
 
-    return allAssets.filter(asset => 
+    const filteredAssets = allAssets.filter(asset => 
       asset.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
       asset.subtitle.toLowerCase().includes(searchQuery.toLowerCase())
     );
+
+    return filteredAssets;
   };
 
   const transformApiDebts = () => {
@@ -434,17 +421,30 @@ export default function PatrimonyScreen() {
   const apiDebtsData = transformApiDebts();
 
   const getPaginatedData = (data: any[]) => {
-    const startIndex = 0;
-    const endIndex = isExpanded ? data.length : Math.min(itemsPerPage, data.length);
-    return data.slice(startIndex, endIndex);
+    return data.slice(0, visibleCount);
   };
 
   const hasMoreData = (data: any[]) => {
-    return data.length > itemsPerPage;
+    return data.length > visibleCount;
+  };
+
+  const handleLoadMore = () => {
+    const nextCount = Math.min(visibleCount + 5, currentData.length);
+    setVisibleCount(nextCount);
+    setIsExpanded(nextCount === currentData.length);
+  };
+
+  const handleLoadLess = () => {
+    setVisibleCount(5);
+    setIsExpanded(false);
   };
 
   const handleToggleExpand = () => {
-    setIsExpanded(!isExpanded);
+    if (isExpanded) {
+      handleLoadLess();
+    } else {
+      handleLoadMore();
+    }
   };
 
   const handleTabChange = (key: string) => {
@@ -853,12 +853,21 @@ export default function PatrimonyScreen() {
                      showContainer={false}
                    />
                    
-                    {canShowMore && (
+                    {(hasMoreData(currentData) && !isExpanded) && (
                       <View style={{ padding: 20, alignItems: 'center' }}>
                         <Button
                           variant="ghost"
                           onPress={handleToggleExpand}
-                          title={isExpanded ? 'Ver menos' : 'Ver más'}
+                          title={`Ver más`}
+                        />
+                      </View>
+                    )}
+                    {isExpanded && visibleCount === currentData.length && (
+                      <View style={{ padding: 20, alignItems: 'center' }}>
+                        <Button
+                          variant="ghost"
+                          onPress={handleToggleExpand}
+                          title="Ver menos"
                         />
                       </View>
                     )}

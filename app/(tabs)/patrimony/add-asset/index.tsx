@@ -181,7 +181,9 @@ export default function AddAssetScreen() {
         const propertyResponse = await createProperty(propertyData, accessToken);
         
         if (propertyResponse.success) {
-          router.back();
+          setTimeout(() => {
+            router.back();
+          }, 500);
         } else {
           setErrors([propertyResponse.error || 'Error al crear la propiedad']);
           setLoading(false);
@@ -200,7 +202,9 @@ export default function AddAssetScreen() {
         const response = await createAsset(assetData, accessToken);
 
         if (response.success) {
-          router.back();
+          setTimeout(() => {
+            router.back();
+          }, 500);
         } else {
           setErrors([response.error || 'Error al crear el activo']);
           setLoading(false);
@@ -220,7 +224,9 @@ export default function AddAssetScreen() {
         const response = await createAsset(assetData, accessToken);
 
         if (response.success) {
-          router.back();
+          setTimeout(() => {
+            router.back();
+          }, 500);
         } else {
           setErrors([response.error || 'Error al crear la inversión/ahorro']);
           setLoading(false);
