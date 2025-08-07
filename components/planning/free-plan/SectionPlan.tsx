@@ -32,8 +32,8 @@ const SectionPlan: React.FC<SectionPlanProps> = ({ onCardPress, isSubscribed }) 
   const planCardsData: PlanCardData[] = [
     {
       id: '1',
-      title: t('planning.cardTitles.premiumMobile'),
-      price: '$9.990',
+      title: t('plans.premium.title'),
+      price: t('plans.premium.price'),
       description: t('plans.premium.description'),
       buttonText: t('plans.premium.button'),
       duration: t('common.per_month'),
@@ -41,9 +41,9 @@ const SectionPlan: React.FC<SectionPlanProps> = ({ onCardPress, isSubscribed }) 
     },
     {
       id: '2',
-      title: t('planning.cardTitles.plans'),
-      description: t('plans.plans.description'),
-      buttonText: t('plans.ver_planes'),
+      title: t('plans.general.title'),
+      description: t('plans.general.description'),
+      buttonText: t('plans.general.button'),
       iconType: 'coins' as const,
       minPrice: t('plans.general.min_price'),
       minDuration: t('plans.general.min_duration'),

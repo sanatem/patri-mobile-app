@@ -22,7 +22,7 @@ const TopTitle: React.FC<TopTitleProps> = ({ onPurchase }) => {
           className="text-base text-center mb-5 font-regular leading-6"
           style={{ color: Colors.gray[600] }}
         >
-          {t('planning.top_title')}
+          {t('planning.top_subtitle')}
         </Text>
       </View>
   );

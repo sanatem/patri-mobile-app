@@ -18,7 +18,7 @@ export default function SummaryStep() {
           {t('summary.description')}
         </Text>
 
-        <View className="bg-primary-500 p-4 rounded-xl mb-4 flex-row justify-between items-center">
+        <View className="bg-primary-500 p-4 rounded-xl mb-4 flex-row justify-between items-center" style={{paddingLeft: 10, paddingRight: 10, paddingTop: 10, paddingBottom: 10 }}>
           <View>
             <Text className="text-white font-semibold text-base">
               {t('summary.steps.identity.title')}
@@ -30,7 +30,7 @@ export default function SummaryStep() {
           <Check size={24} color="white" className="mr-2" />
         </View>
 
-        <View className="bg-primary-500 p-4 rounded-xl mb-4 flex-row justify-between items-center">
+        <View className="bg-primary-500 p-4 rounded-xl mb-4 flex-row justify-between items-center" style={{paddingLeft: 10, paddingRight: 10, paddingTop: 10, paddingBottom: 10 }}>
           <View>
             <Text className="text-white font-semibold text-base">
               {t('summary.steps.basic.title')}
