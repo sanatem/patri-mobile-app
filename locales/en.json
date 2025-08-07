@@ -426,7 +426,7 @@
   },
   "patrimony": {
     "loading": "Loading networth data...",
-    "integrateBankData": "Sync  bank data",
+    "integrateBankData": "Sync bank data",
     "empty": {
       "assets": {
         "title": "No assets recorded",
