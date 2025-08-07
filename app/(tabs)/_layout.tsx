@@ -40,7 +40,7 @@ export default function TabsLayout() {
         <Tabs.Screen
           name="patrimony"
           options={() => ({
-            title: t('tabs.patrimony'),
+            title: t('tabs.networth'),
             tabBarIcon: ({ color, size }) => (
               <TabBarIcon name="bar-chart" color={color} size={size} />
             ),
