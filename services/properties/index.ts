@@ -1,2 +1,3 @@
-export { getProperties } from './get-properties';
-export { createProperty } from './create-property';
+export * from './create-property';
+export * from './get-properties';
+export * from './get-property';
