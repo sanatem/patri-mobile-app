@@ -45,7 +45,7 @@ export default function InvestmentIndex() {
     );
   }
 
-  if (shouldBlockTab(t('investments.title'))) {
+  if (shouldBlockTab("Inversión")) {
     return <LockedTabOverlay tabName={t('investments.title')} />;
   }
 
