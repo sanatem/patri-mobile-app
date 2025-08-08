@@ -5,31 +5,39 @@ import { useRouter } from 'expo-router';
 import { ArrowLeft, Languages } from 'lucide-react-native';
 
 import { Select } from '@/components/ui/Select';
-import { setAppLanguage } from '../lib/i18n';
+import { setAppLanguage, LANGUAGE_KEY } from '../lib/i18n';
 import Colors from '@/constants/Colors';
 import { useTranslation } from 'react-i18next';
+import { useMemo } from 'react';
+
+const getLanguageOptions = (t: any) => [
+  { value: 'es',  label: t('languages.es')   },
+  { value: 'esCL',label: t('languages.es-CL')},
+  { value: 'en',  label: t('languages.en')   }
+];
 
 export default function PreferencesScreen() {
   const { t } = useTranslation();
-  const LANGUAGES = [
-    { value: 'es', label: t('languages.es') },
-    { value: 'esCL', label: t('languages.es-CL') },
-    { value: 'en', label: t('languages.en') }
-  ];
 
-const LANGUAGE_KEY = 'language';
   const router = useRouter();
   const [selectedLang, setSelectedLang] = useState('es');
   const [loading, setLoading] = useState(true);
+  const LANGUAGES = useMemo(() => getLanguageOptions(t), [t]);
 
   useEffect(() => {
-    (async () => {
-      const savedLang = await AsyncStorage.getItem(LANGUAGE_KEY);
-      const lang = savedLang || 'es';
-      setSelectedLang(lang);
-      await setAppLanguage(lang as 'es' | 'en' | 'esCL');
-      setLoading(false);
-    })();
+    const initializeLanguage = async () => {
+      try {
+        const savedLang = await AsyncStorage.getItem(LANGUAGE_KEY);
+        const lang = savedLang || 'es';
+        setSelectedLang(lang);
+      } catch (error) {
+        console.error('Error loading saved language:', error);
+        setSelectedLang('es');
+      } finally {
+        setLoading(false);
+      }
+    };
+    initializeLanguage();
   }, []);
 
   const handleLangChange = async (lang: string) => {
