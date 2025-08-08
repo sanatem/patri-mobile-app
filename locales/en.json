@@ -58,7 +58,9 @@
     "select": "Select...",
     "search_placeholder": "Search...",
     "select_option": "Select an option",
-    "next": "Next"
+    "next": "Next",
+    "viewMore": "View more",
+    "viewLess": "View less"
   },
   "budget": {
     "income": "Incomes",
@@ -439,6 +441,8 @@
         "cta": "Create liability"
       }
     },
+    "createAsset": "Create asset",
+    "createLiability": "Create liability",
     "net_worth": "Net Worth",
     "cash_balance": "Cash balance",
     "title": "Networth",
@@ -547,7 +551,7 @@
     }
   },
   "languages": {
-    "es": "Spanish (LatAm)",
+    "es": "Spanish (Latam)",
     "es-CL": "Spanish (Chile)",
     "en": "English"
   },

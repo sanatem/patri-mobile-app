@@ -58,7 +58,9 @@
     "select": "Seleccionar...",
     "search_placeholder": "Buscar...",
     "select_option": "Selecciona una opción",
-    "next": "Continuar"
+    "next": "Continuar",
+    "viewMore": "Ver más",
+    "viewLess": "Ver menos"
   },
   "budget": {
     "income": "Ingresos",
@@ -439,6 +441,8 @@
         "cta": "Crear pasivo"
       }
     },
+    "createAsset": "Crear activo",
+    "createLiability": "Crear pasivo",
     "net_worth": "Patrimonio Neto",
     "cash_balance": "Saldo en caja",
     "title": "Patrimonio",
@@ -448,7 +452,7 @@
     "comparedToLastMonth": "vs último mes"
   },
   "tabs": {
-    "patrimony": "Patrimonio",
+    "networth": "Patrimonio",
     "budget": "Presupuesto",
     "investment": "Inversión",
     "planning": "Planificación"
