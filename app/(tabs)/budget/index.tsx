@@ -78,14 +78,40 @@ export default function BudgetScreen() {
   });
 
   const filterTransactionsByMonth = (transactions: any[], selectedMonth: string) => {
-    if (!transactions || transactions.length === 0) return [];
-    const monthIndex = months.indexOf(selectedMonth);
-    if (monthIndex === -1) return transactions;
-    return transactions.filter(transaction => {
+    if (!Array.isArray(transactions) || transactions.length === 0) return [];
+
+    const monthsValid = Array.isArray(months) && months.length === 12;
+    if (!monthsValid) {
+      console.warn('[Budget] Months array is invalid. Expected 12 entries.');
+    }
+
+    if (typeof selectedMonth !== 'string') {
+      console.warn('[Budget] Selected month is not a string:', selectedMonth);
+      return [];
+    }
+
+    let monthIndex = months.indexOf(selectedMonth);
+    if (monthIndex === -1) {
+      console.warn(`[Budget] Unexpected month value "${selectedMonth}". Falling back to current month index.`);
+      monthIndex = new Date().getMonth();
+    }
+
+    return transactions.filter((transaction) => {
       try {
-        const transactionDate = new Date(transaction.date);
+        const rawDate = transaction?.date;
+        if (!rawDate) {
+          console.warn('[Budget] Transaction missing date field:', transaction);
+          return false;
+        }
+        const transactionDate = new Date(rawDate);
+        const time = transactionDate.getTime();
+        if (Number.isNaN(time)) {
+          console.warn('[Budget] Failed to parse transaction date:', rawDate, transaction);
+          return false;
+        }
         return transactionDate.getMonth() === monthIndex;
-      } catch {
+      } catch (err) {
+        console.error('[Budget] Error while filtering transaction by month:', err, transaction);
         return false;
       }
     });
