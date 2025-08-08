@@ -11,7 +11,7 @@ import { createAsset } from '@/services/patrimony/create-asset';
 import { createProperty } from '@/services/properties/create-property';
 import { useAuth } from '@/providers/AuthProvider';
 import { useFormatValue } from '@/hooks/common/useFormatValue';
-import { FixedAssetFields, InvestmentFields, PropertyFields } from '@/components/patrimony/add-asset';
+import { FixedAssetFields, PropertyFields, SavingInstrumentFields } from '@/components/patrimony/add-asset';
 
 const ASSET_KIND_OPTIONS = [
   { label: 'Activo fijo', value: 'fixed_asset' },
@@ -32,6 +32,27 @@ export default function AddAssetScreen() {
     location: '',
     square_mts: '',
     investment_type: '',
+    // AFP2 and APV fields
+    institution: '',
+    fund1: '',
+    fund1_percentage: '',
+    fund2: '',
+    fund2_percentage: '',
+    tax_regime: '',
+    // Specific fields for different types
+    brokerage: '',
+    bank: '',
+    platform: '',
+    description: '',
+    // New fields for TermsFields
+    deposit_type: '',
+    opening_date: '',
+    maturity_date: '',
+    // New fields for MutualFundsFields
+    fund: '',
+    series: '',
+    // New fields for OthersFields
+    comments: '',
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
@@ -95,21 +116,26 @@ export default function AddAssetScreen() {
           newErrors.push('Los metros cuadrados deben ser un número válido mayor a 0');
         }
       }
-          } else if (formData.kind === 'fixed_asset') {
-        if (!formData.asset_category_id) {
-          newErrors.push('Debes seleccionar una categoría de activo');
-        }
-      } else if (formData.kind === 'investment') {
-        if (!formData.investment_type) {
-          newErrors.push('Debes seleccionar un tipo de inversión o ahorro');
-        }
+    } else if (formData.kind === 'fixed_asset') {
+      if (!formData.asset_category_id) {
+        newErrors.push('Debes seleccionar una categoría de activo');
       }
-    
-    if (formData.kind !== 'investment') {
       if (!formData.commercial_value.trim()) {
         newErrors.push('El valor comercial es requerido');
       } else {
-        const value = parseFloat(formData.commercial_value.replace(/[^\d]/g, ''));
+        const value = parseFloat(formData.commercial_value);
+        if (isNaN(value) || value <= 0) {
+          newErrors.push('El valor comercial debe ser un número válido mayor a 0');
+        }
+      }
+    } else if (formData.kind === 'investment') {
+      if (!formData.investment_type) {
+        newErrors.push('Debes seleccionar un tipo de inversión');
+      }
+      if (!formData.commercial_value.trim()) {
+        newErrors.push('El valor es requerido');
+      } else {
+        const value = parseFloat(formData.commercial_value);
         if (isNaN(value) || value <= 0) {
           newErrors.push('El valor debe ser un número válido mayor a 0');
         }
@@ -127,66 +153,54 @@ export default function AddAssetScreen() {
   };
 
   const handleCancel = () => {
-    router.push('/(tabs)/patrimony');
+    router.back();
   };
 
   const handleComplete = async () => {
+    if (!accessToken) {
+      setErrors(['No hay token de autenticación disponible']);
+      return;
+    }
+
     setLoading(true);
     try {
-      if (!accessToken) {
-        throw new Error('No hay token de autenticación disponible');
-      }
-
       if (formData.kind === 'property') {
-        // Determinar el tipo de propiedad basado en si es propietario o no
-        const propertyType = formData.property_kind === 'own' ? 'main_home' : 'investment';
-        const cleanCommercialValue = formData.commercial_value.replace(/[^\d]/g, '');
-        
-        if (!cleanCommercialValue) {
-          setErrors(['El valor comercial es requerido']);
-          setLoading(false);
-          return;
-        }
-        
-        if (!formData.location.trim()) {
-          setErrors(['La ubicación es requerida']);
-          setLoading(false);
-          return;
-        }
-        
-        if (!formData.square_mts.trim()) {
-          setErrors(['Los metros cuadrados son requeridos']);
-          setLoading(false);
-          return;
-        }
-        
-        const squareMts = parseInt(formData.square_mts);
-        if (isNaN(squareMts) || squareMts <= 0) {
-          setErrors(['Los metros cuadrados deben ser un número válido mayor a 0']);
-          setLoading(false);
-          return;
-        }
-        
         const propertyData = {
-          property_type: propertyType as 'main_home' | 'investment',
+          property_type: formData.property_kind === 'own' ? 'main_home' as const : 'investment' as const,
           property: {
-            ...(formData.property_kind === 'own' && { kind: 'own' as const }),
+            kind: formData.property_kind === 'own' ? 'own' as const : '' as const,
             property_attributes: {
-              location: formData.location.trim(),
-              commercial_value: cleanCommercialValue.replace(/\B(?=(\d{3})+(?!\d))/g, '.'),
+              location: formData.location,
+              commercial_value: formData.commercial_value.replace(/[^\d]/g, ''),
               unit: formData.unit,
-              square_mts: squareMts,
+              square_mts: parseInt(formData.square_mts),
             }
           }
         };
-
         
         const propertyResponse = await createProperty(propertyData, accessToken);
         
-        
         if (propertyResponse.success) {
-          setLoading(false);
-          router.push('/(tabs)/patrimony');
+          const assetData = {
+            asset: {
+              name: formData.name,
+              asset_category_id: 2,
+              commercial_value: formData.commercial_value.replace(/[^\d]/g, ''),
+              unit: formData.unit,
+              kind: formData.kind,
+            }
+          };
+          
+          const response = await createAsset(assetData, accessToken);
+          
+          if (response.success) {
+            setLoading(false);
+            router.push('/(tabs)/patrimony');
+          } else {
+            console.error('Asset creation failed:', response.error);
+            setErrors([response.error || 'Error al crear el activo']);
+            setLoading(false);
+          }
         } else {
           console.error('Property creation failed:', propertyResponse.error);
           setErrors([propertyResponse.error || 'Error al crear la propiedad']);
@@ -205,7 +219,6 @@ export default function AddAssetScreen() {
         
         const response = await createAsset(assetData, accessToken);
         
-        
         if (response.success) {
           setLoading(false);
           router.push('/(tabs)/patrimony');
@@ -219,15 +232,14 @@ export default function AddAssetScreen() {
           asset: {
             name: formData.name,
             asset_category_id: 3,
-            commercial_value: '0',
-            unit: 'clp',
+            commercial_value: formData.commercial_value.replace(/[^\d]/g, ''),
+            unit: formData.unit,
             kind: formData.kind,
             comments: `Tipo de inversión: ${formData.investment_type}`,
           }
         };
         
         const response = await createAsset(assetData, accessToken);
-        
         
         if (response.success) {
           setLoading(false);
@@ -308,9 +320,31 @@ export default function AddAssetScreen() {
           formatValue={formatValue}
         />
       ) : formData.kind === 'investment' ? (
-        <InvestmentFields
+        <SavingInstrumentFields
           investment_type={formData.investment_type}
+          institution={formData.institution}
+          fund1={formData.fund1}
+          fund1_percentage={formData.fund1_percentage}
+          fund2={formData.fund2}
+          fund2_percentage={formData.fund2_percentage}
+          tax_regime={formData.tax_regime}
+          commercial_value={formData.commercial_value}
+          unit={formData.unit}
+          name={formData.name}
+          brokerage={formData.brokerage}
+          bank={formData.bank}
+          platform={formData.platform}
+          description={formData.description}
+          deposit_type={formData.deposit_type}
+          opening_date={formData.opening_date}
+          maturity_date={formData.maturity_date}
+          fund={formData.fund}
+          series={formData.series}
+          comments={formData.comments}
+          onInputChange={handleInputChange}
           onSelectChange={handleSelectChange}
+          onNumericInputChange={handleNumericInputChange}
+          formatValue={formatValue}
         />
       ) : null}
     </FormLayout>
