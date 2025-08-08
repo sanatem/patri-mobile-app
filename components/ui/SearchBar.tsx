@@ -16,9 +16,8 @@ interface SearchBarProps {
   returnKeyType?: 'done' | 'go' | 'next' | 'search' | 'send';
   blurOnSubmit?: boolean;
 }
-const { t } = useTranslation();
 export function SearchBar({
-  placeholder = t('common.search_placeholder'),
+  placeholder,
   value,
   onChangeText,
   onClear,
@@ -28,6 +27,8 @@ export function SearchBar({
   returnKeyType = 'search',
   blurOnSubmit = true,
 }: SearchBarProps) {
+  const { t } = useTranslation();
+  const defaultPlaceholder = placeholder || t('common.search_placeholder');
   const [internalValue, setInternalValue] = useState('');
   const [isFocused, setIsFocused] = useState(false);
   const borderAnim = useRef(new Animated.Value(0)).current;
@@ -78,7 +79,7 @@ export function SearchBar({
       />
       <TextInput
         style={inputStyles.textInput}
-        placeholder={placeholder}
+        placeholder={defaultPlaceholder}
         placeholderTextColor={Colors.gray[400]}
         value={currentValue}
         onChangeText={handleChangeText}
