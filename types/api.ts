@@ -251,6 +251,25 @@ export interface ApiSavingInstrument {
   updated_at: string;
 }
 
+export interface ApiSavingInstrumentFund {
+  id: number;
+  name: string;
+  type: string;
+  description?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ApiSavingInstrumentsFundsData {
+  investment_funds: ApiSavingInstrumentFund[];
+  mutual_funds: ApiSavingInstrumentFund[];
+}
+
+export interface ApiSavingInstrumentsFundsResponse {
+  success: boolean;
+  data: ApiSavingInstrumentsFundsData;
+}
+
 export interface ApiInvestmentProperty {
   id: number;
   location: string;
