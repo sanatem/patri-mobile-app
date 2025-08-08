@@ -540,8 +540,8 @@ export default function PatrimonyScreen() {
     );
   }
 
-  if (shouldBlockTab(t('tabs.patrimony'))) {
-    return <LockedTabOverlay tabName="{t('tabs.patrimony')}" />;
+  if (shouldBlockTab("Patrimonio")) {
+    return <LockedTabOverlay tabName={t('tabs.networth')} />;
   } 
 
   if (isLoading) {
@@ -797,7 +797,7 @@ export default function PatrimonyScreen() {
                          router.push('/patrimony/add-liability');
                        }
                      }}
-                     title={activeTab === 'assets' ? 'Crear activo' : 'Crear pasivo'}
+                     title={activeTab === 'assets' ? t('patrimony.createAsset') : t('patrimony.createLiability')}
                      icon={<Plus size={20} color="white" />}
                    />
                 </View>
@@ -861,7 +861,7 @@ export default function PatrimonyScreen() {
                         <Button
                           variant="ghost"
                           onPress={handleToggleExpand}
-                          title={isExpanded ? 'Ver menos' : 'Ver más'}
+                          title={isExpanded ? t('common.viewLess') : t('common.viewMore')}
                         />
                       </View>
                     )}
