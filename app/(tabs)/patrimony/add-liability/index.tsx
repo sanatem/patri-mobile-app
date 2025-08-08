@@ -5,8 +5,8 @@ import {
   FormLayout,
   Input,
   Select,
-  RadioButton,
 } from '@/components/ui';
+import { HypothecaryFields } from '@/components/patrimony/add-liability';
 import Colors from '@/constants/Colors';
 import { createDebt } from '@/services/patrimony/create-debt';
 import { getProperties  } from '@/services/properties/get-properties';
@@ -34,16 +34,6 @@ const UNIT_OPTIONS = [
 
 const cleanIntegerValue = (value: string) => value.replace(/[^\d]/g, '');
 
-const PROPERTY_ASSOCIATION_OPTIONS = [
-  { label: 'Sí', value: 'yes' },
-  { label: 'No', value: 'no' },
-];
-
-const CREATE_PROPERTY_OPTIONS = [
-  { label: 'Sí', value: 'yes' },
-  { label: 'No', value: 'no' },
-];
-
 export default function AddLiabilityScreen() {
   const { accessToken } = useAuth();
   const { formatValue } = useFormatValue();
@@ -59,6 +49,7 @@ export default function AddLiabilityScreen() {
     create_property: 'no',
     property_location: '',
     property_commercial_value: '',
+    property_unit: 'clp',
     property_square_mts: '',
   });
   const [loading, setLoading] = useState(false);
@@ -115,10 +106,14 @@ export default function AddLiabilityScreen() {
   };
 
   useEffect(() => {
-    if (formData.property_associated === 'yes' && properties.length === 0) {
+    if (
+      accessToken &&
+      formData.property_associated === 'yes' &&
+      properties.length === 0
+    ) {
       loadProperties();
     }
-  }, [formData.property_associated]);
+  }, [formData.property_associated, accessToken]);
 
   const validateForm = () => {
     const newErrors: string[] = [];
@@ -223,7 +218,7 @@ export default function AddLiabilityScreen() {
           const formattedCommercialValue = cleanCommercialValue.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
           debtData.debt.property_attributes = {
             commercial_value: String(formattedCommercialValue),
-            unit: formData.unit,
+            unit: formData.property_unit,
             location: formData.property_location.trim(),
             square_mts: parseInt(cleanIntegerValue(formData.property_square_mts))
           };
@@ -243,6 +238,8 @@ export default function AddLiabilityScreen() {
       setLoading(false);
     }
   };
+
+  const isHypothecaryDebt = formData.debt_category_id === '5' || formData.debt_category_id === '6';
 
   return (
     <FormLayout
@@ -347,99 +344,22 @@ export default function AddLiabilityScreen() {
         />
       </View>
 
-      {(formData.debt_category_id === '5' || formData.debt_category_id === '6') && (
-        <View>
-          <RadioButton
-            label="¿La deuda está asociada a alguna propiedad?"
-            options={PROPERTY_ASSOCIATION_OPTIONS}
-            selectedValue={formData.property_associated}
-            onSelect={(value) => handleSelectChange('property_associated', value)}
-          />
-        </View>
-      )}
-
-      {(formData.debt_category_id === '5' || formData.debt_category_id === '6') && 
-       formData.property_associated === 'yes' && (
-        <View>
-          <Select
-            label="Selecciona la propiedad"
-            options={properties.map(property => ({
-              label: `${property.location} - $${property.commercial_value.toLocaleString('es-CL')}`,
-              value: property.id.toString()
-            }))}
-            value={formData.property_id}
-            onSelect={(value) => handleSelectChange('property_id', value)}
-            placeholder="Selecciona una propiedad"
-          />
-        </View>
-      )}
-
-      {(formData.debt_category_id === '5' || formData.debt_category_id === '6') && 
-       formData.property_associated === 'no' && (
-        <View>
-          <RadioButton
-            label="¿Deseas crear una nueva propiedad?"
-            options={CREATE_PROPERTY_OPTIONS}
-            selectedValue={formData.create_property}
-            onSelect={(value) => handleSelectChange('create_property', value)}
-          />
-        </View>
-      )}
-
-      {(formData.debt_category_id === '5' || formData.debt_category_id === '6') && 
-       formData.property_associated === 'no' && formData.create_property === 'yes' && (
-        <>
-          <View>
-            <Text className='text-base font-medium'
-              style={{
-                color: Colors.primary[500],
-                marginBottom: 8,
-              }}
-            >
-              Ubicación de la propiedad
-            </Text>
-            <Input
-              placeholder="Ej: Las Condes, Santiago"
-              value={formData.property_location}
-              onChangeText={(value) => handleInputChange('property_location', value)}
-              autoCapitalize="words"
-            />
-          </View>
-
-          <View>
-            <Text className='text-base font-medium'
-              style={{
-                color: Colors.primary[500],
-                marginBottom: 8,
-              }}
-            >
-              Valor comercial de la propiedad
-            </Text>
-            <Input
-              placeholder="$550.000.000"
-              value={formData.property_commercial_value ? formatValue(formData.property_commercial_value) : ''}
-              onChangeText={(value) => handleNumericInputChange('property_commercial_value', value)}
-              keyboardType="numeric"
-            />
-          </View>
-
-          <View>
-            <Text className='text-base font-medium'
-              style={{
-                color: Colors.primary[500],
-                marginBottom: 8,
-              }}
-            >
-              Metros cuadrados
-            </Text>
-            <Input
-              placeholder="65"
-              value={formData.property_square_mts}
-              onChangeText={(value) => handleNumericInputChange('property_square_mts', value)}
-              keyboardType="numeric"
-            />
-          </View>
-        </>
+      {isHypothecaryDebt && (
+        <HypothecaryFields
+          propertyAssociated={formData.property_associated}
+          propertyId={formData.property_id}
+          createProperty={formData.create_property}
+          propertyLocation={formData.property_location}
+          propertyCommercialValue={formData.property_commercial_value}
+          propertyUnit={formData.property_unit}
+          propertySquareMts={formData.property_square_mts}
+          properties={properties}
+          loadingProperties={loadingProperties}
+          onInputChange={handleInputChange}
+          onSelectChange={handleSelectChange}
+          onNumericInputChange={handleNumericInputChange}
+          formatValue={formatValue}
+        />
       )}
     </FormLayout>
   );

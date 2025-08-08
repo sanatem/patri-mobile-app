@@ -122,25 +122,34 @@ export function Select({
     },
   ];
 
+  const isDisabled = disabled;
+  const borderColor = isDisabled ? Colors.gray[100] : (error ? '#DC2626' : animatedBorderColor);
+  const labelColor = isDisabled ? Colors.gray[400] : Colors.primary[500];
+  const textColor = isDisabled ? Colors.gray[400] : Colors.primary[500];
+  const placeholderColor = isDisabled ? Colors.gray[400] : Colors.primary[400];
+
   return (
     <View className={cn('mb-5 w-full', className)}>
       {label && (
-        <Text className="text-base font-medium mb-2" style={{ color: Colors.primary[500] }}>{label}</Text>
+        <Text className="text-base font-medium mb-2" style={{ color: labelColor }}>{label}</Text>
       )}
       <Animated.View
         style={[
           inputStyles.container,
           {
-            borderColor: error ? '#DC2626' : animatedBorderColor,
-            backgroundColor: disabled ? '#F3F4F6' : '#fff',
+            borderColor: borderColor,
+            backgroundColor: '#fff',
+            opacity: isDisabled ? 0.6 : 1,
           },
+          isDisabled && inputStyles.containerDisabled,
+          error && inputStyles.containerError,
         ]}
       >
         <TouchableOpacity
           className="flex-1 flex-row items-center"
           onPress={toggleDropdown}
           activeOpacity={0.7}
-          disabled={disabled}
+          disabled={isDisabled}
         >
           {selectedOption?.icon && (
             <View style={inputStyles.iconContainer}>{selectedOption.icon}</View>
@@ -148,22 +157,18 @@ export function Select({
           <Text
             className={cn(
               'text-base font-regular',
-              disabled && 'text-gray-400'
+              isDisabled && 'text-gray-400'
             )}
             style={{ 
               flex: 1,
-              color: disabled 
-                ? Colors.gray[400] 
-                : selectedOption 
-                  ? Colors.primary[500] 
-                  : Colors.primary[400]
+              color: selectedOption ? textColor : placeholderColor,
             }}
           >
             {selectedOption ? selectedOption.label : placeholder}
           </Text>
           <ChevronDown
             size={18}
-            color={disabled ? '#D1D5DB' : '#6B7280'}
+            color={isDisabled ? '#D1D5DB' : '#6B7280'}
             style={{ transform: [{ rotate: isOpen ? '180deg' : '0deg' }] }}
           />
         </TouchableOpacity>
