@@ -16,15 +16,16 @@ interface DropdownProps {
   placeholder?: string;
   className?: string;
 }
-const { t } = useTranslation();
 export function Dropdown({
   options,
   selectedValue,
   onSelect,
-  placeholder = t('common.select'),
+  placeholder,
   className,
 }: DropdownProps) {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
+  const effectivePlaceholder = placeholder ?? t('common.select');
 
   const selectedOption = options.find(option => option.value === selectedValue);
 
@@ -41,7 +42,7 @@ export function Dropdown({
           onPress={() => setIsOpen(!isOpen)}
         >
           <Text className="text-base font-medium text-gray-800 mr-1">
-            {selectedOption?.label || placeholder}
+            {selectedOption?.label || effectivePlaceholder}
           </Text>
           <ChevronDown 
             size={16} 
