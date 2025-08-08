@@ -23,12 +23,15 @@ export default function RootLayout() {
     'Poppins-SemiBold': Poppins_600SemiBold,
     'Poppins-Bold': Poppins_700Bold,
   });
-
-  // Esperar inicialización de i18n
   useEffect(() => {
-    i18nInitPromise.then(() => {
-      setI18nReady(true);
-    });
+    i18nInitPromise
+      .then(() => {
+        setI18nReady(true);
+      })
+      .catch((err) => {
+        console.error('i18n initialization failed:', err);
+        setI18nReady(true);
+      });
   }, []);
 
   useEffect(() => {
