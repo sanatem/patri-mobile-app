@@ -6,9 +6,25 @@ import { Container } from '@/components/ui/Container';
 import { useTranslation } from 'react-i18next';
 import { REGIONS_AND_COMMUNES } from '@/constants/AppConstants';
 
+interface PersonalInfoQuestion {
+  id: string;
+  text: string;
+  subtitle?: string;
+  type: 'choice' | 'input' | 'form';
+  options?: Array<{ label: string; value: string }>;
+  placeholder?: string;
+  fields?: Array<{
+    name: string;
+    type: string;
+    placeholder: string;
+    dependsOn?: string;
+    options?: string[];
+  }>;
+}
+
 export default function PersonalInformationStepper() {
   const { t } = useTranslation();
-  const questions = t('personalInfo.questions', { returnObjects: true }) as any[];
+  const questions = t('personalInfo.questions', { returnObjects: true }) as PersonalInfoQuestion[];
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, any>>({});
 
@@ -74,7 +90,7 @@ export default function PersonalInformationStepper() {
       case 'choice':
         return (
           <View>
-            {currentQuestion.options.map((option: any, index: number) => (
+            {currentQuestion.options?.map((option: any, index: number) => (
               <TouchableOpacity
                 key={index}
                 className="bg-gray-100 p-3 rounded-lg mb-3"
@@ -111,7 +127,7 @@ export default function PersonalInformationStepper() {
         const formData = answers[currentQuestion.id] || {};
         return (
           <View>
-            {currentQuestion.fields.map((field: any, index: number) => {
+            {currentQuestion.fields?.map((field: any, index: number) => {
               if (field.type === 'text') {
                 return (
                   <TextInput
