@@ -7,7 +7,7 @@ import es from '../locales/es.json';
 import esCL from '../locales/es-CL.json';
 import en from '../locales/en.json';
 
-const LANGUAGE_KEY = 'language';
+export const LANGUAGE_KEY = 'language';
 
 export const resources = {
   es: { translation: es },
@@ -41,6 +41,11 @@ export const initI18n = async () => {
 export const i18nInitPromise = initI18n();
 
 export const setAppLanguage = async (lang: 'es' | 'en' | 'esCL') => {
+  const SUPPORTED_LANGS = ['es', 'en', 'esCL'] as const;
+  if (!SUPPORTED_LANGS.includes(lang)) {
+    console.warn(`Unsupported language provided to setAppLanguage: ${lang}`);
+    return;
+  }
   try {
     await i18n.changeLanguage(lang);
     await AsyncStorage.setItem(LANGUAGE_KEY, lang);
