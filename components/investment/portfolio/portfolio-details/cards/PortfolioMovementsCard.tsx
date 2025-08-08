@@ -33,7 +33,7 @@ interface PortfolioMovementsCardProps {
   goalId?: string;
 }
 
-export default function PortfolioMovementsCard({ title, movements, goalName, goalId }: PortfolioMovementsCardProps) {
+export default function PortfolioMovementsCard({ movements, goalName, goalId }: PortfolioMovementsCardProps) {
   const router = useRouter();
   const { t } = useTranslation();
 
