@@ -44,14 +44,21 @@ export default function InvestmentPortfolioScreen() {
     BarChart: <BarChart size={24} color={Colors.gray[500]} />,
   };
 
+  interface Goal {
+    id: string;
+    name: string;
+    currentAmount: number;
+    targetAmount: number;
+  }
   const staticInvestmentIds = ['reserva', 'emergencias', 'casa', 'jubilacion'];
 
-  const allGoals = [...goals.shortTerm, ...goals.mediumTerm, ...goals.longTerm];
+  const allGoals: Goal[] = [...goals.shortTerm, ...goals.mediumTerm, ...goals.longTerm];
 
   const investmentData = staticInvestmentIds.map(id => {
-    const matchedGoal = allGoals.find((g: any) => g.id === id);
-    const value = matchedGoal ? formatValue(matchedGoal.currentAmount.toString()) : '$0';
-  
+    const matchedGoal = allGoals.find((g: Goal) => g.id === id);
+    const value = matchedGoal
+      ? formatValue(matchedGoal.currentAmount.toString())
+      : '$0';
     return {
       id,
       title: t(`portfolio.cards.${id}.title`),
