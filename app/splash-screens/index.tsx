@@ -70,6 +70,7 @@ export default function SplashScreens() {
       await AsyncStorage.setItem('att_permission_shown', 'true');
     } finally {
       setIsRequestingATT(false);
+      await AsyncStorage.setItem('splash_seen', 'true');
       router.replace('/auth/login');
     }
   };
@@ -88,6 +89,7 @@ export default function SplashScreens() {
       if (!attSeen && Platform.OS === 'ios') {
         await requestATT();
       } else {
+        await AsyncStorage.setItem('splash_seen', 'true');
         router.replace('/auth/login');
       }
     }
@@ -99,6 +101,7 @@ export default function SplashScreens() {
     if (!attSeen && Platform.OS === 'ios') {
       await requestATT();
     } else {
+      await AsyncStorage.setItem('splash_seen', 'true');
       router.replace('/auth/login');
     }
   };

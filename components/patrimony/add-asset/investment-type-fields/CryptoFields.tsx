@@ -14,17 +14,6 @@ interface CryptoFieldsProps {
   formatValue: (value: string) => string;
 }
 
-const PLATFORM_OPTIONS = [
-  { label: 'Binance', value: 'binance' },
-  { label: 'Coinbase', value: 'coinbase' },
-  { label: 'Kraken', value: 'kraken' },
-  { label: 'Crypto.com', value: 'crypto_com' },
-  { label: 'Buda', value: 'buda' },
-  { label: 'Orionx', value: 'orionx' },
-  { label: 'CryptoMKT', value: 'cryptomkt' },
-  { label: 'Otros', value: 'otros' },
-];
-
 const UNIT_OPTIONS = [
   { label: 'CLP', value: 'clp' },
   { label: 'USD', value: 'usd' },
@@ -43,23 +32,6 @@ export default function CryptoFields({
 }: CryptoFieldsProps) {
   return (
     <>
-      <View>
-        <Text className='text-base font-medium'
-          style={{
-            color: Colors.primary[500],
-            marginBottom: 8,
-          }}
-        >
-          ¿En qué plataforma está?
-        </Text>
-        <Select
-          options={PLATFORM_OPTIONS}
-          value={platform}
-          onSelect={(value) => onSelectChange('platform', value)}
-          placeholder="Selecciona la plataforma"
-        />
-      </View>
-
       <View>
         <Text className='text-base font-medium'
           style={{
@@ -87,26 +59,6 @@ export default function CryptoFields({
             />
           </View>
         </View>
-      </View>
-
-      <View>
-        <Text className='text-base font-medium'
-          style={{
-            color: Colors.primary[500],
-            marginBottom: 8,
-          }}
-        >
-          ¿Cuál es su nombre?
-        </Text>
-        <Text className='text-sm text-gray-500 mb-2'>
-          Dale un nombre descriptivo para reconocerlo
-        </Text>
-        <Input
-          placeholder="Criptomonedas"
-          value={name}
-          onChangeText={(value) => onInputChange('name', value)}
-          autoCapitalize="words"
-        />
       </View>
     </>
   );

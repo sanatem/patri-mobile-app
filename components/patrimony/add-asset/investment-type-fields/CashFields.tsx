@@ -15,12 +15,9 @@ interface CashFieldsProps {
 }
 
 const BROKERAGE_OPTIONS = [
-  { label: 'MBI', value: 'mbi' },
-  { label: 'Banco de Chile', value: 'banco_chile' },
-  { label: 'Banco Santander', value: 'banco_santander' },
-  { label: 'Banco BCI', value: 'banco_bci' },
-  { label: 'Banco Estado', value: 'banco_estado' },
-  { label: 'Otros', value: 'otros' },
+  { label: 'HMC', value: '1' },
+  { label: 'MBI', value: '2' },
+  { label: 'Vector', value: '3' },
 ];
 
 const UNIT_OPTIONS = [

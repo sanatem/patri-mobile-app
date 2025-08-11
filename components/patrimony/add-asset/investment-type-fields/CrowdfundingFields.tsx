@@ -18,18 +18,17 @@ interface CrowdfundingFieldsProps {
 }
 
 const INSTITUTION_OPTIONS = [
-  { label: 'Cumplo', value: 'cumplo' },
-  { label: 'Broota', value: 'broota' },
-  { label: 'Fintual', value: 'fintual' },
-  { label: 'Destácame', value: 'destacame' },
-  { label: 'Otros', value: 'otros' },
+  { label: 'Cumplo', value: '1' },
+  { label: 'Becual', value: '2' },
+  { label: 'Broota', value: '3' },
+  { label: 'RedCapital', value: '4' },
 ];
 
 const CREDIT_TYPE_OPTIONS = [
-  { label: 'Hipotecario', value: 'hipotecario' },
-  { label: 'Consumo', value: 'consumo' },
-  { label: 'Comercial', value: 'comercial' },
-  { label: 'Otro', value: 'otro' },
+  { label: 'Crédito Amortizable', value: 'amortizable' },
+  { label: 'Crédito Bullet', value: 'bullet' },
+  { label: 'Crédito Cero Cupón', value: 'cero_cupon' },
+  { label: 'Crédito Factura', value: 'factura' },
 ];
 
 const UNIT_OPTIONS = [
@@ -115,24 +114,6 @@ export default function CrowdfundingFields({
           </View>
         </View>
       </View>
-
-      <View>
-        <Text className='text-base font-medium'
-          style={{
-            color: Colors.primary[500],
-            marginBottom: 8,
-          }}
-        >
-          ¿Cuánto fue la rentabilidad del período? (en %)
-        </Text>
-        <Input
-          placeholder="0.0"
-          value={period_return_rate}
-          onChangeText={(value) => onInputChange('period_return_rate', value)}
-          keyboardType="numeric"
-        />
-      </View>
-
       <View>
         <Text className='text-base font-medium'
           style={{
@@ -147,27 +128,7 @@ export default function CrowdfundingFields({
           value={due_date}
           onChangeText={(value) => onInputChange('due_date', value)}
         />
-      </View>
-
-      <View>
-        <Text className='text-base font-medium'
-          style={{
-            color: Colors.primary[500],
-            marginBottom: 8,
-          }}
-        >
-          ¿Cuál es su nombre?
-        </Text>
-        <Text className='text-sm text-gray-500 mb-2'>
-          Dale un nombre descriptivo para reconocerlo
-        </Text>
-        <Input
-          placeholder="Crowdfunding"
-          value={name}
-          onChangeText={(value) => onInputChange('name', value)}
-          autoCapitalize="words"
-        />
-      </View>
+      </View>   
     </>
   );
 }

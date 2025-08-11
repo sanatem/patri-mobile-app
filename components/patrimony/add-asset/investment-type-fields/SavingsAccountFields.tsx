@@ -15,17 +15,33 @@ interface SavingsAccountFieldsProps {
 }
 
 const BANK_OPTIONS = [
-  { label: 'Banco de Chile', value: 'banco_chile' },
-  { label: 'Banco Santander', value: 'banco_santander' },
-  { label: 'Banco BCI', value: 'banco_bci' },
-  { label: 'Banco Estado', value: 'banco_estado' },
-  { label: 'Banco Falabella', value: 'banco_falabella' },
-  { label: 'Banco Ripley', value: 'banco_ripley' },
-  { label: 'Banco Consorcio', value: 'banco_consorcio' },
-  { label: 'Banco Security', value: 'banco_security' },
-  { label: 'Banco Itaú', value: 'banco_itau' },
-  { label: 'Banco Scotiabank', value: 'banco_scotiabank' },
-  { label: 'Otros', value: 'otros' },
+  { label: 'Bice', value: '2' },
+  { label: 'Chile-Edwards', value: '3' },
+  { label: 'Banco de Crédito e Inversiones (BCI)', value: '4' },
+  { label: 'Banco del Desarrollo', value: '5' },
+  { label: 'Falabella', value: '6' },
+  { label: 'Internacional', value: '7' },
+  { label: 'Penta', value: '9' },
+  { label: 'Santander', value: '10' },
+  { label: 'Banco Security', value: '11' },
+  { label: 'Banco Estado', value: '12' },
+  { label: 'BBVA', value: '13' },
+  { label: 'Citibank N.A. Chile', value: '14' },
+  { label: 'Itau-Corpbanca', value: '15' },
+  { label: 'Scotiabank', value: '16' },
+  { label: 'Credichile', value: '17' },
+  { label: 'Credit Suisse', value: '18' },
+  { label: 'Deutsche Bank', value: '19' },
+  { label: 'ING Bank', value: '20' },
+  { label: 'Ripley', value: '21' },
+  { label: 'Banco de Santiago', value: '22' },
+  { label: 'TBanc', value: '23' },
+  { label: 'Consorcio', value: '24' },
+  { label: 'Copeuch', value: '25' },
+  { label: 'Prepago Los Héroes', value: '26' },
+  { label: 'Tenpo Prepago', value: '27' },
+  { label: 'Mercado Pago', value: '28' },
+  { label: 'TAPP Caja Los Andes', value: '29' },
 ];
 
 const UNIT_OPTIONS = [
@@ -92,25 +108,7 @@ export default function SavingsAccountFields({
         </View>
       </View>
 
-      <View>
-        <Text className='text-base font-medium'
-          style={{
-            color: Colors.primary[500],
-            marginBottom: 8,
-          }}
-        >
-          ¿Cuál es su nombre?
-        </Text>
-        <Text className='text-sm text-gray-500 mb-2'>
-          Dale un nombre descriptivo para reconocerlo
-        </Text>
-        <Input
-          placeholder="Cuenta de Ahorros"
-          value={name}
-          onChangeText={(value) => onInputChange('name', value)}
-          autoCapitalize="words"
-        />
-      </View>
+      
     </>
   );
 }

@@ -14,21 +14,6 @@ interface StocksFieldsProps {
   formatValue: (value: string) => string;
 }
 
-const BROKERAGE_OPTIONS = [
-  { label: 'Banco de Chile', value: 'banco_chile' },
-  { label: 'Banco Santander', value: 'banco_santander' },
-  { label: 'Banco BCI', value: 'banco_bci' },
-  { label: 'Banco Estado', value: 'banco_estado' },
-  { label: 'Banco Falabella', value: 'banco_falabella' },
-  { label: 'Banco Ripley', value: 'banco_ripley' },
-  { label: 'Banco Consorcio', value: 'banco_consorcio' },
-  { label: 'Banco Security', value: 'banco_security' },
-  { label: 'Banco Itaú', value: 'banco_itau' },
-  { label: 'Banco Scotiabank', value: 'banco_scotiabank' },
-  { label: 'MBI', value: 'mbi' },
-  { label: 'Otros', value: 'otros' },
-];
-
 const UNIT_OPTIONS = [
   { label: 'CLP', value: 'clp' },
   { label: 'USD', value: 'usd' },
@@ -47,23 +32,6 @@ export default function StocksFields({
 }: StocksFieldsProps) {
   return (
     <>
-      <View>
-        <Text className='text-base font-medium'
-          style={{
-            color: Colors.primary[500],
-            marginBottom: 8,
-          }}
-        >
-          ¿En qué corredora está?
-        </Text>
-        <Select
-          options={BROKERAGE_OPTIONS}
-          value={brokerage}
-          onSelect={(value) => onSelectChange('brokerage', value)}
-          placeholder="Selecciona la corredora"
-        />
-      </View>
-
       <View>
         <Text className='text-base font-medium'
           style={{
@@ -91,26 +59,6 @@ export default function StocksFields({
             />
           </View>
         </View>
-      </View>
-
-      <View>
-        <Text className='text-base font-medium'
-          style={{
-            color: Colors.primary[500],
-            marginBottom: 8,
-          }}
-        >
-          ¿Cuál es su nombre?
-        </Text>
-        <Text className='text-sm text-gray-500 mb-2'>
-          Dale un nombre descriptivo para reconocerlo
-        </Text>
-        <Input
-          placeholder="Acciones"
-          value={name}
-          onChangeText={(value) => onInputChange('name', value)}
-          autoCapitalize="words"
-        />
       </View>
     </>
   );

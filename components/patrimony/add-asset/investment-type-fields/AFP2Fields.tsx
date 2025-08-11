@@ -20,13 +20,13 @@ interface AFP2FieldsProps {
 }
 
 const INSTITUTION_OPTIONS = [
-  { label: 'AFP Capital', value: 'afp_capital' },
-  { label: 'AFP Cuprum', value: 'afp_cuprum' },
-  { label: 'AFP Habitat', value: 'afp_habitat' },
-  { label: 'AFP Modelo', value: 'afp_modelo' },
-  { label: 'AFP Planvital', value: 'afp_planvital' },
-  { label: 'AFP Provida', value: 'afp_provida' },
-  { label: 'AFP UNO', value: 'afp_uno' },
+  { label: 'Cuprum', value: '1' },
+  { label: 'Habitat', value: '2' },
+  { label: 'PlanVital', value: '3' },
+  { label: 'ProVida', value: '4' },
+  { label: 'Capital', value: '5' },
+  { label: 'Modelo', value: '6' },
+  { label: 'Uno', value: '7' },
 ];
 
 const FUND_OPTIONS = [
@@ -39,7 +39,8 @@ const FUND_OPTIONS = [
 
 const TAX_REGIME_OPTIONS = [
   { label: 'Régimen General', value: 'regimen_general' },
-  { label: 'Régimen Simplificado', value: 'regimen_simplificado' },
+  { label: 'Régimen 54 Bis', value: 'regimen_54bis' },
+  { label: 'Régimen 57 Bis Transitorio', value: 'regimen_57bis_transitorio' },
 ];
 
 const UNIT_OPTIONS = [
@@ -120,7 +121,11 @@ export default function AFP2Fields({
         >
           ¿En qué fondo lo tienes?
         </Text>
-        <Text className='text-sm text-gray-500 mb-2'>
+        <Text className='text-sm mb-2 font-regular'
+          style={{
+            color: Colors.primary[500],
+          }}
+        >
           Puedes elegir hasta 2
         </Text>
         
@@ -177,26 +182,6 @@ export default function AFP2Fields({
           value={tax_regime}
           onSelect={(value) => onSelectChange('tax_regime', value)}
           placeholder="Selecciona un régimen"
-        />
-      </View>
-
-      <View>
-        <Text className='text-base font-medium'
-          style={{
-            color: Colors.primary[500],
-            marginBottom: 8,
-          }}
-        >
-          ¿Cuál es su nombre?
-        </Text>
-        <Text className='text-sm text-gray-500 mb-2'>
-          Dale un nombre descriptivo para reconocerlo
-        </Text>
-        <Input
-          placeholder="Cuenta 2 AFP"
-          value={name}
-          onChangeText={(value) => onInputChange('name', value)}
-          autoCapitalize="words"
         />
       </View>
     </>

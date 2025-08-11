@@ -32,34 +32,28 @@ export default function AddAssetScreen() {
     location: '',
     square_mts: '',
     investment_type: '',
-    // AFP2 and APV fields
     institution: '',
     fund1: '',
     fund1_percentage: '',
     fund2: '',
     fund2_percentage: '',
     tax_regime: '',
-    // Specific fields for different types
     brokerage: '',
     bank: '',
     platform: '',
     description: '',
-    // Crowdfunding fields
     crowdfunding_institution: '',
     crowdfunding_credit_id: '',
     period_return_rate: '',
     due_date: '',
-    // New fields for TermsFields
     deposit_type: '',
     opening_date: '',
     maturity_date: '',
-    // New fields for MutualFundsFields
     fund: '',
     fund_kind: '',
     fund_id: '',
     fund_series_id: '',
     series: '',
-    // New fields for OthersFields
     comments: '',
   });
   const [loading, setLoading] = useState(false);
@@ -236,9 +230,8 @@ export default function AddAssetScreen() {
           setLoading(false);
         }
       } else if (formData.kind === 'investment') {
-        // Builder para payloads de saving_instruments
         const { createSavingInstrument } = await import('@/services/investment/saving-instruments/create-saving-instrument');
-        const totalAmount = Number(formData.commercial_value.replace(/[^\d]/g, ''));
+        const totalAmount = formatValue(formData.commercial_value || '');
 
         let payload: any | null = null;
         let validationError: string | null = null;
@@ -307,7 +300,6 @@ export default function AddAssetScreen() {
             break;
           }
           case 'investment_fund': {
-            // En la UI este valor corresponde a "Acciones". Según documentación, usar kind 'shares'.
             payload = {
               saving_instrument: {
                 kind: 'shares',
@@ -319,14 +311,145 @@ export default function AddAssetScreen() {
             };
             break;
           }
-          case 'cash_account':
-          case 'checking_account':
-          case 'saving_account':
-          case 'fixed_term_deposit':
-          case 'crowdfunding':
-          case 'afp_account_two':
+          case 'cash_account': {
+            if (!formData.brokerage) {
+              validationError = 'Debes seleccionar la corredora';
+              break;
+            }
+            payload = {
+              saving_instrument: {
+                kind: 'cash_account',
+                name: formData.name,
+                total_amount: totalAmount,
+                unit: formData.unit,
+                broker_id: Number(formData.brokerage),
+              },
+            };
+            break;
+          }
+          case 'checking_account': {
+            if (!formData.bank) {
+              validationError = 'Debes seleccionar el banco';
+              break;
+            }
+            payload = {
+              saving_instrument: {
+                kind: 'checking_account',
+                name: formData.name,
+                total_amount: totalAmount,
+                unit: formData.unit,
+                bank_id: Number(formData.bank),
+              },
+            };
+            break;
+          }
+          case 'saving_account': {
+            if (!formData.bank) {
+              validationError = 'Debes seleccionar el banco';
+              break;
+            }
+            payload = {
+              saving_instrument: {
+                kind: 'saving_account',
+                name: formData.name,
+                total_amount: totalAmount,
+                unit: formData.unit,
+                bank_id: Number(formData.bank),
+              },
+            };
+            break;
+          }
+          case 'fixed_term_deposit': {
+            if (!formData.bank || !formData.deposit_type) {
+              validationError = 'Debes seleccionar banco y tipo de depósito';
+              break;
+            }
+            payload = {
+              saving_instrument: {
+                kind: 'fixed_term_deposit',
+                name: formData.name,
+                total_amount: totalAmount,
+                unit: formData.unit,
+                bank_id: Number(formData.bank),
+                deposit_kind: formData.deposit_type,
+                start_date: formData.opening_date || undefined,
+                end_date: formData.maturity_date || undefined,
+              },
+            };
+            break;
+          }
+          case 'afp_account_two': {
+            if (!formData.institution) {
+              validationError = 'Debes seleccionar la AFP';
+              break;
+            }
+            const mapFundCode = (code: string) => {
+              switch (code) {
+                case 'fondo_a': return 'A';
+                case 'fondo_b': return 'B';
+                case 'fondo_c': return 'C';
+                case 'fondo_d': return 'D';
+                case 'fondo_e': return 'E';
+                default: return undefined as unknown as string;
+              }
+            };
+            const funds: Record<string, { code: string; percentage: string }> = {};
+            if (formData.fund1 && formData.fund1_percentage) {
+              const f1 = mapFundCode(formData.fund1);
+              if (f1) funds['1'] = { code: f1, percentage: formData.fund1_percentage };
+            }
+            if (formData.fund2 && formData.fund2_percentage) {
+              const f2 = mapFundCode(formData.fund2);
+              if (f2) funds['2'] = { code: f2, percentage: formData.fund2_percentage };
+            }
+            payload = {
+              saving_instrument: {
+                kind: 'afp_account_two',
+                name: formData.name,
+                total_amount: totalAmount,
+                unit: formData.unit,
+                afp_institution_id: Number(formData.institution),
+                tax_regime: formData.tax_regime || undefined,
+                funds: Object.keys(funds).length ? funds : undefined,
+              },
+            };
+            break;
+          }
           case 'apv_account': {
-            validationError = 'Este tipo requiere IDs específicos (banco/institución/fondo) que aún no capturamos. Agrega selectores de IDs o servicios de instituciones para habilitarlo.';
+            if (!formData.institution) {
+              validationError = 'Debes seleccionar la institución APV';
+              break;
+            }
+            const mapFundCode = (code: string) => {
+              switch (code) {
+                case 'fondo_a': return 'A';
+                case 'fondo_b': return 'B';
+                case 'fondo_c': return 'C';
+                case 'fondo_d': return 'D';
+                case 'fondo_e': return 'E';
+                default: return undefined as unknown as string;
+              }
+            };
+            const funds: Record<string, { code: string; percentage: string }> = {};
+            if (formData.fund1 && formData.fund1_percentage) {
+              const f1 = mapFundCode(formData.fund1);
+              if (f1) funds['1'] = { code: f1, percentage: formData.fund1_percentage };
+            }
+            if (formData.fund2 && formData.fund2_percentage) {
+              const f2 = mapFundCode(formData.fund2);
+              if (f2) funds['2'] = { code: f2, percentage: formData.fund2_percentage };
+            }
+            payload = {
+              saving_instrument: {
+                kind: 'apv_account',
+                name: formData.name,
+                total_amount: totalAmount,
+                unit: formData.unit,
+                apv_institution_id: Number(formData.institution),
+                tax_regime: formData.tax_regime || undefined,
+                funds: Object.keys(funds).length ? funds : undefined,
+              },
+            };
             break;
           }
           default: {

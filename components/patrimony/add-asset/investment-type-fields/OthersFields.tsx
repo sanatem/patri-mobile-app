@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text } from 'react-native';
-import { Input, Select } from '@/components/ui';
+import { Input, Select, Textarea } from '@/components/ui';
 import Colors from '@/constants/Colors';
 
 interface OthersFieldsProps {
@@ -64,63 +64,15 @@ export default function OthersFields({
       </View>
 
       <View>
-        <Text className='text-base font-medium'
-          style={{
-            color: Colors.primary[500],
-            marginBottom: 8,
-          }}
-        >
-          Descripción
-        </Text>
-        <Input
-          placeholder="Describe brevemente el tipo de inversión"
-          value={description}
-          onChangeText={(value) => onInputChange('description', value)}
-          autoCapitalize="sentences"
-          multiline
-          numberOfLines={3}
-        />
-      </View>
-
-      <View>
-        <Text className='text-base font-medium'
-          style={{
-            color: Colors.primary[500],
-            marginBottom: 8,
-          }}
-        >
-          Comentarios
-        </Text>
-        <Text className='text-sm text-gray-500 mb-2'>
-          Opcional
-        </Text>
-        <Input
+        <Textarea
+          label="Comentarios"
           placeholder="Tus comentarios aquí"
           value={comments}
           onChangeText={(value) => onInputChange('comments', value)}
           autoCapitalize="sentences"
-          multiline
-          numberOfLines={3}
-        />
-      </View>
-
-      <View>
-        <Text className='text-base font-medium'
-          style={{
-            color: Colors.primary[500],
-            marginBottom: 8,
-          }}
-        >
-          ¿Cuál es su nombre?
-        </Text>
-        <Text className='text-sm text-gray-500 mb-2'>
-          Dale un nombre descriptivo para reconocerlo
-        </Text>
-        <Input
-          placeholder="Otros"
-          value={name}
-          onChangeText={(value) => onInputChange('name', value)}
-          autoCapitalize="words"
+          numberOfLines={4}
+          showCharacterCount
+          maxLength={500}
         />
       </View>
     </>
