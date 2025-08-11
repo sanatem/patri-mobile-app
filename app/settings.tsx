@@ -55,7 +55,6 @@ export default function MoreScreen() {
             try {
               await logout();
               router.dismissAll();
-              router.replace('/auth/login');
             } catch (error) {
               console.error('Error durante logout:', error);
               try {
@@ -64,7 +63,6 @@ export default function MoreScreen() {
                 console.error('Error durante logout forzado:', forceError);
               }
               router.dismissAll();
-              router.replace('/auth/login');
             } finally {
               setIsLoggingOut(false);
             }
@@ -114,7 +112,6 @@ export default function MoreScreen() {
     }
     
     router.dismissAll();
-    router.replace('/auth/login');
   };
 
   const handleOpenLink = async (url: string, title: string) => {
