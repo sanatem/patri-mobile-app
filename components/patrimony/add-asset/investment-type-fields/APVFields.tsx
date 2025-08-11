@@ -38,8 +38,8 @@ const FUND_OPTIONS = [
 ];
 
 const TAX_REGIME_OPTIONS = [
-  { label: 'Régimen A', value: 'regimen_a' },
-  { label: 'Régimen B', value: 'regimen_b' },
+  { label: 'Régimen A', value: 'regime_a' },
+  { label: 'Régimen B', value: 'regime_b' },
 ];
 
 const UNIT_OPTIONS = [

@@ -54,6 +54,7 @@ export default function AddAssetScreen() {
     fund_id: '',
     fund_series_id: '',
     series: '',
+    mutual_fund_manager_id: '',
     comments: '',
   });
   const [loading, setLoading] = useState(false);
@@ -249,7 +250,7 @@ export default function AddAssetScreen() {
                 total_amount: totalAmount,
                 unit: formData.unit,
                 crowdfunding_institution_id: formData.crowdfunding_institution as any,
-                crowdfunding_credit_id: formData.crowdfunding_credit_id,
+                crowdfunding_credit_id: Number(formData.crowdfunding_credit_id),
                 period_return_rate: formData.period_return_rate ? Number(formData.period_return_rate) : undefined,
                 due_date: formData.due_date,
               },
@@ -261,15 +262,17 @@ export default function AddAssetScreen() {
               validationError = 'Debes seleccionar un fondo';
               break;
             }
+            const [fk, fid] = formData.fund.split('@');
             payload = {
               saving_instrument: {
                 kind: 'mutual_fund_instrument',
                 name: formData.name,
                 total_amount: totalAmount,
                 unit: formData.unit,
-                fund_kind: 'mutual' as const,
-                fund_id: `mutual@${formData.fund}`,
+                fund_kind: (fk as 'investment' | 'mutual') || 'mutual',
+                fund_id: `${fk}@${fid}`,
                 fund_series_id: formData.series || undefined,
+                mutual_fund_manager_id: formData.mutual_fund_manager_id ? Number(formData.mutual_fund_manager_id) : undefined,
                 comments: formData.comments || undefined,
               },
             };

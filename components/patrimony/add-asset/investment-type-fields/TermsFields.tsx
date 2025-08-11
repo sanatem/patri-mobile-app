@@ -48,9 +48,8 @@ const BANK_OPTIONS = [
 ];
 
 const DEPOSIT_TYPE_OPTIONS = [
-  { label: 'Fijo', value: 'fijo' },
-  { label: 'Renovable', value: 'renovable' },
-
+  { label: 'Fijo', value: 'fixed' },
+  { label: 'Renovable', value: 'renewable' },
 ];
 
 const UNIT_OPTIONS = [

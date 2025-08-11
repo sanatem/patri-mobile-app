@@ -38,9 +38,9 @@ const FUND_OPTIONS = [
 ];
 
 const TAX_REGIME_OPTIONS = [
-  { label: 'Régimen General', value: 'regimen_general' },
-  { label: 'Régimen 54 Bis', value: 'regimen_54bis' },
-  { label: 'Régimen 57 Bis Transitorio', value: 'regimen_57bis_transitorio' },
+  { label: 'Régimen General', value: 'general_regime' },
+  { label: 'Régimen 54 Bis', value: 'regime_54_bis' },
+  { label: 'Régimen 57 Bis Transitorio', value: 'transitory_regime_57_bis' },
 ];
 
 const UNIT_OPTIONS = [

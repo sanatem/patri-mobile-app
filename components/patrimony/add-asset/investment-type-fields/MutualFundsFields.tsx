@@ -166,10 +166,14 @@ export default function MutualFundsFields({
 
   const fundOptions = funds.map(fundItem => ({
     label: fundItem.name,
-    value: fundItem.id.toString()
+    value: `${fundItem.kind}@${fundItem.id}`,
   }));
 
-  const selectedFund = useMemo(() => funds.find((f) => f.id.toString() === fund), [funds, fund]);
+  const selectedFund = useMemo(() => {
+    if (!fund) return undefined;
+    const [kind, id] = fund.includes('@') ? fund.split('@') : ['mutual', fund];
+    return funds.find((f) => f.id.toString() === id && f.kind === (kind as any));
+  }, [funds, fund]);
   const [seriesOptions, setSeriesOptions] = useState<Array<{ label: string; value: string }>>([]);
 
   useEffect(() => {
@@ -229,10 +233,15 @@ export default function MutualFundsFields({
               onSelectChange('fund', value);
               onSelectChange('series', '');
               onSelectChange('fund_series_id', '');
-              const selected = funds.find((f) => f.id.toString() === value);
-              if (selected?.kind) {
-                onSelectChange('fund_kind', selected.kind);
-                onSelectChange('fund_id', `${selected.kind}@${value}`);
+              const [k, id] = value.split('@');
+              onSelectChange('fund_kind', k);
+              onSelectChange('fund_id', value);
+              const selected = funds.find((f) => f.id.toString() === id && f.kind === (k as any));
+              const managerId = (selected as any)?.mutual_fund_manager?.id?.toString?.() || '';
+              if (managerId) {
+                onSelectChange('mutual_fund_manager_id', managerId);
+              } else {
+                onSelectChange('mutual_fund_manager_id', '');
               }
             }}
             placeholder="Selecciona un fondo"

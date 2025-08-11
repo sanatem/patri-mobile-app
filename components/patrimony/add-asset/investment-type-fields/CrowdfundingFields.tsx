@@ -25,10 +25,10 @@ const INSTITUTION_OPTIONS = [
 ];
 
 const CREDIT_TYPE_OPTIONS = [
-  { label: 'Crédito Amortizable', value: 'amortizable' },
-  { label: 'Crédito Bullet', value: 'bullet' },
-  { label: 'Crédito Cero Cupón', value: 'cero_cupon' },
-  { label: 'Crédito Factura', value: 'factura' },
+  { label: 'Crédito Amortizable', value: '1' },
+  { label: 'Crédito Bullet', value: '2' },
+  { label: 'Crédito Cero Cupón', value: '3' },
+  { label: 'Crédito Factura', value: '4' },
 ];
 
 const UNIT_OPTIONS = [
@@ -63,7 +63,7 @@ export default function CrowdfundingFields({
         </Text>
         <Select
           options={INSTITUTION_OPTIONS}
-          value={crowdfunding_institution}
+          value={(crowdfunding_institution ?? '').toString()}
           onSelect={(value) => onSelectChange('crowdfunding_institution', value)}
           placeholder="Selecciona la institución"
         />
@@ -80,7 +80,7 @@ export default function CrowdfundingFields({
         </Text>
         <Select
           options={CREDIT_TYPE_OPTIONS}
-          value={crowdfunding_credit_id}
+          value={(crowdfunding_credit_id ?? '').toString()}
           onSelect={(value) => onSelectChange('crowdfunding_credit_id', value)}
           placeholder="Selecciona tipo de crédito"
         />
