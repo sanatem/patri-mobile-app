@@ -44,12 +44,20 @@ export default function AddAssetScreen() {
     bank: '',
     platform: '',
     description: '',
+    // Crowdfunding fields
+    crowdfunding_institution: '',
+    crowdfunding_credit_id: '',
+    period_return_rate: '',
+    due_date: '',
     // New fields for TermsFields
     deposit_type: '',
     opening_date: '',
     maturity_date: '',
     // New fields for MutualFundsFields
     fund: '',
+    fund_kind: '',
+    fund_id: '',
+    fund_series_id: '',
     series: '',
     // New fields for OthersFields
     comments: '',
@@ -228,24 +236,117 @@ export default function AddAssetScreen() {
           setLoading(false);
         }
       } else if (formData.kind === 'investment') {
-        const assetData = {
-          asset: {
-            name: formData.name,
-            asset_category_id: 3,
-            commercial_value: formData.commercial_value.replace(/[^\d]/g, ''),
-            unit: formData.unit,
-            kind: formData.kind,
-            comments: `Tipo de inversión: ${formData.investment_type}`,
+        // Builder para payloads de saving_instruments
+        const { createSavingInstrument } = await import('@/services/investment/saving-instruments/create-saving-instrument');
+        const totalAmount = Number(formData.commercial_value.replace(/[^\d]/g, ''));
+
+        let payload: any | null = null;
+        let validationError: string | null = null;
+
+        switch (formData.investment_type) {
+          case 'crowdfunding': {
+            if (!formData.crowdfunding_institution || !formData.crowdfunding_credit_id || !formData.due_date) {
+              validationError = 'Completa institución, tipo de crédito y fecha de vencimiento';
+              break;
+            }
+            payload = {
+              saving_instrument: {
+                kind: 'crowdfunding',
+                name: formData.name,
+                total_amount: totalAmount,
+                unit: formData.unit,
+                crowdfunding_institution_id: formData.crowdfunding_institution as any,
+                crowdfunding_credit_id: formData.crowdfunding_credit_id,
+                period_return_rate: formData.period_return_rate ? Number(formData.period_return_rate) : undefined,
+                due_date: formData.due_date,
+              },
+            };
+            break;
           }
-        };
-        
-        const response = await createAsset(assetData, accessToken);
+          case 'mutual_fund_instrument': {
+            if (!formData.fund) {
+              validationError = 'Debes seleccionar un fondo';
+              break;
+            }
+            payload = {
+              saving_instrument: {
+                kind: 'mutual_fund_instrument',
+                name: formData.name,
+                total_amount: totalAmount,
+                unit: formData.unit,
+                fund_kind: 'mutual' as const,
+                fund_id: `mutual@${formData.fund}`,
+                fund_series_id: formData.series || undefined,
+                comments: formData.comments || undefined,
+              },
+            };
+            break;
+          }
+          case 'cryptocurrency': {
+            payload = {
+              saving_instrument: {
+                kind: 'cryptocurrency',
+                name: formData.name,
+                total_amount: totalAmount,
+                unit: formData.unit,
+                comments: formData.description || formData.comments || undefined,
+              },
+            };
+            break;
+          }
+          case 'other': {
+            payload = {
+              saving_instrument: {
+                kind: 'another',
+                name: formData.name,
+                total_amount: totalAmount,
+                unit: formData.unit,
+                comments: formData.comments || formData.description || undefined,
+              },
+            };
+            break;
+          }
+          case 'investment_fund': {
+            // En la UI este valor corresponde a "Acciones". Según documentación, usar kind 'shares'.
+            payload = {
+              saving_instrument: {
+                kind: 'shares',
+                name: formData.name,
+                total_amount: totalAmount,
+                unit: formData.unit,
+                comments: formData.brokerage ? `Corredora: ${formData.brokerage}` : undefined,
+              },
+            };
+            break;
+          }
+          case 'cash_account':
+          case 'checking_account':
+          case 'saving_account':
+          case 'fixed_term_deposit':
+          case 'crowdfunding':
+          case 'afp_account_two':
+          case 'apv_account': {
+            validationError = 'Este tipo requiere IDs específicos (banco/institución/fondo) que aún no capturamos. Agrega selectores de IDs o servicios de instituciones para habilitarlo.';
+            break;
+          }
+          default: {
+            validationError = 'Tipo de inversión no soportado aún';
+          }
+        }
+
+        if (validationError) {
+          setErrors([validationError]);
+          setLoading(false);
+          return;
+        }
+
+        const response = await createSavingInstrument(payload, accessToken);
         
         if (response.success) {
           setLoading(false);
           router.push('/(tabs)/patrimony');
         } else {
-          console.error('Investment creation failed:', response.error);
+          console.error('Saving instrument creation failed:', response.error);
           setErrors([response.error || 'Error al crear la inversión/ahorro']);
           setLoading(false);
         }

@@ -30,10 +30,18 @@ interface SavingInstrumentFieldsProps {
   bank?: string;
   platform?: string;
   description?: string;
+  // crowdfunding specifics
+  crowdfunding_institution?: string;
+  crowdfunding_credit_id?: string;
+  period_return_rate?: string;
+  due_date?: string;
   deposit_type?: string;
   opening_date?: string;
   maturity_date?: string;
   fund?: string;
+  fund_kind?: string;
+  fund_id?: string;
+  fund_series_id?: string;
   series?: string;
   comments?: string;
   onInputChange: (field: string, value: string) => void;
@@ -71,10 +79,17 @@ export default function SavingInstrumentFields({
   bank = '',
   platform = '',
   description = '',
+  crowdfunding_institution = '',
+  crowdfunding_credit_id = '',
+  period_return_rate = '',
+  due_date = '',
   deposit_type = '',
   opening_date = '',
   maturity_date = '',
   fund = '',
+  fund_kind = '',
+  fund_id = '',
+  fund_series_id = '',
   series = '',
   comments = '',
   onInputChange,
@@ -149,7 +164,10 @@ export default function SavingInstrumentFields({
       case 'crowdfunding':
         return (
           <CrowdfundingFields
-            platform={platform}
+            crowdfunding_institution={crowdfunding_institution}
+            crowdfunding_credit_id={crowdfunding_credit_id}
+            period_return_rate={period_return_rate}
+            due_date={due_date}
             commercial_value={commercial_value}
             unit={unit}
             name={name}

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, ActivityIndicator } from 'react-native';
 import { Input, Select } from '@/components/ui';
 import Colors from '@/constants/Colors';
-import { getSavingInstrumentsFunds } from '@/services/investment/get-saving-instruments-funds';
+import { getSavingInstrumentsFunds } from '@/services/investment/saving-instruments/get-saving-instruments-funds';
 import { useAuth } from '@/providers/AuthProvider';
 import type { ApiSavingInstrumentFund } from '@/types/api';
 
@@ -19,16 +19,7 @@ interface MutualFundsFieldsProps {
   formatValue: (value: string) => string;
 }
 
-const SERIES_OPTIONS = [
-  { label: 'Única', value: 'unica' },
-  { label: 'Serie A', value: 'serie_a' },
-  { label: 'Serie B', value: 'serie_b' },
-  { label: 'Serie C', value: 'serie_c' },
-  { label: 'Serie D', value: 'serie_d' },
-  { label: 'Serie E', value: 'serie_e' },
-  { label: 'Serie F', value: 'serie_f' },
-  { label: 'Otros', value: 'otros' },
-];
+// Series options will be built dynamically from selected fund
 
 const UNIT_OPTIONS = [
   { label: 'CLP', value: 'clp' },
@@ -129,6 +120,12 @@ export default function MutualFundsFields({
     value: fundItem.id.toString()
   }));
 
+  const selectedFund = funds.find((f) => f.id.toString() === fund);
+  const seriesOptions = (selectedFund?.series || []).map((s) => ({
+    label: s.name,
+    value: s.id.toString(),
+  }));
+
   return (
     <>
       <View>
@@ -157,7 +154,14 @@ export default function MutualFundsFields({
           <Select
             options={fundOptions}
             value={fund}
-            onSelect={(value) => onSelectChange('fund', value)}
+            onSelect={(value) => {
+              onSelectChange('fund', value);
+              const selected = funds.find((f) => f.id.toString() === value);
+              if (selected?.kind) {
+                onSelectChange('fund_kind', selected.kind);
+                onSelectChange('fund_id', `${selected.kind}@${value}`);
+              }
+            }}
             placeholder="Selecciona un fondo"
           />
         )}
@@ -175,9 +179,12 @@ export default function MutualFundsFields({
               ¿En cuál serie tienes el ahorro o inversión?
             </Text>
             <Select
-              options={SERIES_OPTIONS}
+              options={seriesOptions}
               value={series}
-              onSelect={(value) => onSelectChange('series', value)}
+              onSelect={(value) => {
+                onSelectChange('series', value);
+                onSelectChange('fund_series_id', value);
+              }}
               placeholder="Selecciona la serie"
             />
           </View>

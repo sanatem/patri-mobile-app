@@ -251,11 +251,21 @@ export interface ApiSavingInstrument {
   updated_at: string;
 }
 
+export interface ApiSavingInstrumentFundSeries {
+  id: number;
+  name: string;
+  initial_quote?: number;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface ApiSavingInstrumentFund {
   id: number;
   name: string;
-  type: string;
+  kind?: 'investment' | 'mutual';
+  type?: string;
   description?: string;
+  series?: ApiSavingInstrumentFundSeries[];
   created_at: string;
   updated_at: string;
 }

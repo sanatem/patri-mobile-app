@@ -4,7 +4,10 @@ import { Input, Select } from '@/components/ui';
 import Colors from '@/constants/Colors';
 
 interface CrowdfundingFieldsProps {
-  platform: string;
+  crowdfunding_institution: string;
+  crowdfunding_credit_id: string;
+  period_return_rate: string;
+  due_date: string;
   commercial_value: string;
   unit: string;
   name: string;
@@ -14,12 +17,19 @@ interface CrowdfundingFieldsProps {
   formatValue: (value: string) => string;
 }
 
-const PLATFORM_OPTIONS = [
+const INSTITUTION_OPTIONS = [
   { label: 'Cumplo', value: 'cumplo' },
   { label: 'Broota', value: 'broota' },
   { label: 'Fintual', value: 'fintual' },
   { label: 'Destácame', value: 'destacame' },
   { label: 'Otros', value: 'otros' },
+];
+
+const CREDIT_TYPE_OPTIONS = [
+  { label: 'Hipotecario', value: 'hipotecario' },
+  { label: 'Consumo', value: 'consumo' },
+  { label: 'Comercial', value: 'comercial' },
+  { label: 'Otro', value: 'otro' },
 ];
 
 const UNIT_OPTIONS = [
@@ -29,7 +39,10 @@ const UNIT_OPTIONS = [
 ];
 
 export default function CrowdfundingFields({
-  platform,
+  crowdfunding_institution,
+  crowdfunding_credit_id,
+  period_return_rate,
+  due_date,
   commercial_value,
   unit,
   name,
@@ -47,13 +60,13 @@ export default function CrowdfundingFields({
             marginBottom: 8,
           }}
         >
-          ¿En qué plataforma está?
+          ¿En qué institución está?
         </Text>
         <Select
-          options={PLATFORM_OPTIONS}
-          value={platform}
-          onSelect={(value) => onSelectChange('platform', value)}
-          placeholder="Selecciona la plataforma"
+          options={INSTITUTION_OPTIONS}
+          value={crowdfunding_institution}
+          onSelect={(value) => onSelectChange('crowdfunding_institution', value)}
+          placeholder="Selecciona la institución"
         />
       </View>
 
@@ -64,7 +77,24 @@ export default function CrowdfundingFields({
             marginBottom: 8,
           }}
         >
-          ¿Cuál es el valor actual?
+          ¿Qué tipo de crédito es?
+        </Text>
+        <Select
+          options={CREDIT_TYPE_OPTIONS}
+          value={crowdfunding_credit_id}
+          onSelect={(value) => onSelectChange('crowdfunding_credit_id', value)}
+          placeholder="Selecciona tipo de crédito"
+        />
+      </View>
+
+      <View>
+        <Text className='text-base font-medium'
+          style={{
+            color: Colors.primary[500],
+            marginBottom: 8,
+          }}
+        >
+          ¿Cuál es el saldo actual?
         </Text>
         <View className="flex-row">
           <View style={{ width: 100, marginRight: 8 }}>
@@ -84,6 +114,39 @@ export default function CrowdfundingFields({
             />
           </View>
         </View>
+      </View>
+
+      <View>
+        <Text className='text-base font-medium'
+          style={{
+            color: Colors.primary[500],
+            marginBottom: 8,
+          }}
+        >
+          ¿Cuánto fue la rentabilidad del período? (en %)
+        </Text>
+        <Input
+          placeholder="0.0"
+          value={period_return_rate}
+          onChangeText={(value) => onInputChange('period_return_rate', value)}
+          keyboardType="numeric"
+        />
+      </View>
+
+      <View>
+        <Text className='text-base font-medium'
+          style={{
+            color: Colors.primary[500],
+            marginBottom: 8,
+          }}
+        >
+          ¿Cuándo es su fecha de vencimiento?
+        </Text>
+        <Input
+          placeholder="YYYY-MM-DD"
+          value={due_date}
+          onChangeText={(value) => onInputChange('due_date', value)}
+        />
       </View>
 
       <View>
