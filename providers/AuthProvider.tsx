@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { BackHandler, Platform } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
 import * as AuthSession from 'expo-auth-session';
 import { makeRedirectUri } from 'expo-auth-session';
@@ -207,6 +208,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         setUser(completeUser);
         await AsyncStorage.setItem('backend_user_data', JSON.stringify(backendUser));
+        try {
+          await AsyncStorage.setItem('splash_seen', 'true');
+        } catch {}
         return true;
       } catch (error) {
         await AsyncStorage.removeItem('auth_token');
@@ -284,6 +288,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await AsyncStorage.removeItem('auth_token');
       await AsyncStorage.removeItem('backend_user_data');
+      try {
+        await AsyncStorage.setItem('splash_seen', 'true');
+      } catch {}
       setUser(null);
       setAccessToken(null);
 
@@ -294,6 +301,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         await Purchases.logOut();
       } catch (error) {
         console.warn('RevenueCat logout failed:', error);
+      }
+
+      if (Platform.OS === 'android') {
+        BackHandler.exitApp();
       }
     } catch (error) {
       throw error;
@@ -481,6 +492,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         await Purchases.logOut();
       } catch (error) {
         console.warn('RevenueCat logout failed:', error);
+      }
+
+      try {
+        await AsyncStorage.setItem('splash_seen', 'true');
+      } catch {}
+
+      if (Platform.OS === 'android') {
+        BackHandler.exitApp();
       }
     } catch (error) {
       setUser(null);

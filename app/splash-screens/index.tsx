@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { View, Dimensions, ScrollView, StyleSheet, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useAuth } from '@/providers/AuthProvider';
 import { useOnboarding } from '@/hooks/common';
 import { Button, Container } from '@/components/ui';
 import Colors from '@/constants/Colors';
@@ -15,6 +16,7 @@ import SplashScreen3 from './splash-3';
 
 export default function SplashScreens() {
   const { t } = useTranslation();
+  const { login } = useAuth();
   const splashScreens = [
     {
       id: 1,
@@ -70,7 +72,11 @@ export default function SplashScreens() {
       await AsyncStorage.setItem('att_permission_shown', 'true');
     } finally {
       setIsRequestingATT(false);
-      router.replace('/auth/login');
+      await AsyncStorage.setItem('splash_seen', 'true');
+      const success = await login();
+      if (success) {
+        router.replace('/');
+      }
     }
   };
 
@@ -88,7 +94,11 @@ export default function SplashScreens() {
       if (!attSeen && Platform.OS === 'ios') {
         await requestATT();
       } else {
-        router.replace('/auth/login');
+        await AsyncStorage.setItem('splash_seen', 'true');
+        const success = await login();
+        if (success) {
+          router.replace('/');
+        }
       }
     }
   };
@@ -99,7 +109,11 @@ export default function SplashScreens() {
     if (!attSeen && Platform.OS === 'ios') {
       await requestATT();
     } else {
-      router.replace('/auth/login');
+      await AsyncStorage.setItem('splash_seen', 'true');
+      const success = await login();
+      if (success) {
+        router.replace('/');
+      }
     }
   };
 
