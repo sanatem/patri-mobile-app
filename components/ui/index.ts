@@ -1,6 +1,7 @@
 export { Input } from './Input';
 export { Button } from './Button';
 export { Card } from './Card';
+export { SearchableSelect } from './SearchableSelect';
 export { Container } from './Container';
 export { Badge } from './Badge';
 export { SearchBar } from './SearchBar';

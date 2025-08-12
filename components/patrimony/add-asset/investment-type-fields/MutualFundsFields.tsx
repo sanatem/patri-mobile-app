@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { View, Text, ActivityIndicator } from 'react-native';
-import { Input, Select } from '@/components/ui';
+import { Input, Select, SearchableSelect } from '@/components/ui';
 import Colors from '@/constants/Colors';
 import { getSavingInstrumentsFunds } from '@/services/investment/saving-instruments/get-saving-instruments-funds';
 import { useAuth } from '@/providers/AuthProvider';
@@ -209,7 +209,7 @@ export default function MutualFundsFields({
             </Text>
           </View>
         ) : (
-          <Select
+          <SearchableSelect
             options={fundOptions}
             value={fund}
             onSelect={(value) => {
@@ -228,6 +228,7 @@ export default function MutualFundsFields({
               }
             }}
             placeholder="Selecciona un fondo"
+            searchPlaceholder="Buscar fondo por nombre..."
           />
         )}
       </View>
@@ -246,7 +247,7 @@ export default function MutualFundsFields({
             <Select
               options={seriesOptions}
               value={series}
-              onSelect={(value) => {
+              onSelect={(value: string) => {
                 onSelectChange('series', value);
                 onSelectChange('fund_series_id', value);
               }}
@@ -269,7 +270,7 @@ export default function MutualFundsFields({
                 <Select
                   options={UNIT_OPTIONS}
                   value={unit}
-                  onSelect={(value) => onSelectChange('unit', value)}
+                  onSelect={(value: string) => onSelectChange('unit', value)}
                   placeholder="Moneda"
                 />
               </View>
