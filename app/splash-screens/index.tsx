@@ -82,7 +82,7 @@ export default function SplashScreens() {
   };
 
   const handleNext = async () => {
-    if (isProcessing) return; // Prevenir múltiples clics
+    if (isProcessing) return;
     
     if (currentIndex < splashScreens.length - 1) {
       const nextIndex = currentIndex + 1;

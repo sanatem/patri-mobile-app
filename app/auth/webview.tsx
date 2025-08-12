@@ -10,6 +10,8 @@ export default function AuthWebViewScreen() {
   const [attempted, setAttempted] = useState(false);
 
   useEffect(() => {
+    if (attempted) return;
+    
     const doLogin = async () => {
       setAttempted(true);
       const success = await login();
@@ -21,7 +23,7 @@ export default function AuthWebViewScreen() {
       }
     };
     doLogin();
-  }, [login]);
+  }, []);
 
   const handleBack = () => {
     router.back();
