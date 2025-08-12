@@ -144,12 +144,13 @@ export default function FormLayout({
               )}
 
               <View style={{ marginTop: 32, gap: 12 }}>
-                {onCancel && (
+                {onNext && (
                   <Button
-                    title={cancelButtonTitle}
-                    onPress={onCancel}
-                    disabled={isLoading}
-                    variant="outline"
+                    title={isLoading ? loadingText : nextButtonTitle}
+                    onPress={onNext}
+                    disabled={isLoading || isNextDisabled}
+                    loading={isLoading}
+                    variant="primary"
                     fullWidth
                   />
                 )}
@@ -159,18 +160,17 @@ export default function FormLayout({
                     title={previousButtonTitle}
                     onPress={onPrevious}
                     disabled={isLoading}
-                    variant="outline"
+                    variant="ghost"
                     fullWidth
                   />
                 )}
-                
-                {onNext && (
+
+                {onCancel && (
                   <Button
-                    title={isLoading ? loadingText : nextButtonTitle}
-                    onPress={onNext}
-                    disabled={isLoading || isNextDisabled}
-                    loading={isLoading}
-                    variant="primary"
+                    title={cancelButtonTitle}
+                    onPress={onCancel}
+                    disabled={isLoading}
+                    variant="ghost"
                     fullWidth
                   />
                 )}

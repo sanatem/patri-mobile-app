@@ -62,19 +62,6 @@ export default function OthersFields({
           </View>
         </View>
       </View>
-
-      <View>
-        <Textarea
-          label="Comentarios"
-          placeholder="Tus comentarios aquí"
-          value={comments}
-          onChangeText={(value) => onInputChange('comments', value)}
-          autoCapitalize="sentences"
-          numberOfLines={4}
-          showCharacterCount
-          maxLength={500}
-        />
-      </View>
     </>
   );
 }
