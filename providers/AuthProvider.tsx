@@ -102,6 +102,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [error, setError] = useState<string | null>(null);
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [authPromiseResolve, setAuthPromiseResolve] = useState<((value: boolean) => void) | null>(null);
+  const [isAuthenticating, setIsAuthenticating] = useState<boolean>(false);
 
   const [request, response, promptAsync] = AuthSession.useAuthRequest(
     {
@@ -167,10 +168,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           authPromiseResolve(success);
           setAuthPromiseResolve(null);
         }
+        setIsAuthenticating(false);
       });
     } else if (response?.type === 'error') {
       console.error('Auth response error:', response.error);
       setLoading(false);
+      setIsAuthenticating(false);
       if (authPromiseResolve) {
         authPromiseResolve(false);
         setAuthPromiseResolve(null);
@@ -255,8 +258,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const login = async (): Promise<boolean> => {
+    if (isAuthenticating) {
+      console.warn('Authentication already in progress, ignoring duplicate call');
+      return false;
+    }
+
+    setIsAuthenticating(true);
     setLoading(true);
     setError(null);
+    
     try {
       const authPromise = new Promise<boolean>((resolve) => {
         setAuthPromiseResolve(() => resolve);
@@ -275,11 +285,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return false;
       }
     } catch (error: any) {
+      console.error('Login error:', error);
       setError('Error al abrir el navegador de autenticación');
       setAuthPromiseResolve(null);
       return false;
     } finally {
       setLoading(false);
+      setIsAuthenticating(false);
     }
   };
 

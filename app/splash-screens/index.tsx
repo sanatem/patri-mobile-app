@@ -17,6 +17,7 @@ import SplashScreen3 from './splash-3';
 export default function SplashScreens() {
   const { t } = useTranslation();
   const { login } = useAuth();
+  const [isProcessing, setIsProcessing] = useState(false);
   const splashScreens = [
     {
       id: 1,
@@ -81,6 +82,8 @@ export default function SplashScreens() {
   };
 
   const handleNext = async () => {
+    if (isProcessing) return; // Prevenir múltiples clics
+    
     if (currentIndex < splashScreens.length - 1) {
       const nextIndex = currentIndex + 1;
       setCurrentIndex(nextIndex);
@@ -89,6 +92,30 @@ export default function SplashScreens() {
         animated: true,
       });
     } else {
+      setIsProcessing(true);
+      try {
+        const attSeen = await checkATTStatus();
+        
+        if (!attSeen && Platform.OS === 'ios') {
+          await requestATT();
+        } else {
+          await AsyncStorage.setItem('splash_seen', 'true');
+          const success = await login();
+          if (success) {
+            router.replace('/');
+          }
+        }
+      } finally {
+        setIsProcessing(false);
+      }
+    }
+  };
+
+  const handleSkip = async () => {
+    if (isProcessing) return; 
+    
+    setIsProcessing(true);
+    try {
       const attSeen = await checkATTStatus();
       
       if (!attSeen && Platform.OS === 'ios') {
@@ -100,20 +127,8 @@ export default function SplashScreens() {
           router.replace('/');
         }
       }
-    }
-  };
-
-  const handleSkip = async () => {
-    const attSeen = await checkATTStatus();
-    
-    if (!attSeen && Platform.OS === 'ios') {
-      await requestATT();
-    } else {
-      await AsyncStorage.setItem('splash_seen', 'true');
-      const success = await login();
-      if (success) {
-        router.replace('/');
-      }
+    } finally {
+      setIsProcessing(false);
     }
   };
 
