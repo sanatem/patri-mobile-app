@@ -36,6 +36,7 @@ export function CalendarSelect({
   const borderAnim = useRef(new Animated.Value(0)).current;
   const overlayAnim = useRef(new Animated.Value(0)).current;
   const sheetAnim = useRef(new Animated.Value(0)).current;
+  const yearScrollViewRef = useRef<ScrollView>(null);
 
   useEffect(() => {
     if (value && value.includes('/')) {
@@ -58,6 +59,25 @@ export function CalendarSelect({
       useNativeDriver: false,
     }).start();
   }, [isOpen]);
+
+  useEffect(() => {
+    if (showYearSelector && yearScrollViewRef.current) {
+      const currentYear = new Date().getFullYear();
+      const yearIndex = years.findIndex(year => year === currentYear);
+      if (yearIndex !== -1) {
+        const itemHeight = 48;
+        const scrollToY = yearIndex * itemHeight;
+        const offsetY = Math.max(0, scrollToY - 48);
+        
+        setTimeout(() => {
+          yearScrollViewRef.current?.scrollTo({
+            y: offsetY,
+            animated: false
+          });
+        }, 350);
+      }
+    }
+  }, [showYearSelector, years]);
 
   useEffect(() => {
     if (isOpen) {
@@ -178,6 +198,8 @@ export function CalendarSelect({
     setCurrentDate(new Date(year, currentDate.getMonth(), 1));
     setShowYearSelector(false);
   };
+
+
 
   const isToday = (day: number) => {
     const today = new Date();
@@ -374,7 +396,10 @@ export function CalendarSelect({
                   zIndex: 1000,
                   maxHeight: 200
                 }}>
-                  <ScrollView showsVerticalScrollIndicator={false}>
+                  <ScrollView 
+                    ref={yearScrollViewRef}
+                    showsVerticalScrollIndicator={false}
+                  >
                     {years.map((year) => (
                       <TouchableOpacity
                         key={year}

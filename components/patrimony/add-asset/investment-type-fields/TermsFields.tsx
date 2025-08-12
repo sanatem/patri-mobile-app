@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text } from 'react-native';
-import { Input, Select } from '@/components/ui';
+import { Input, Select, CalendarSelect } from '@/components/ui';
 import Colors from '@/constants/Colors';
 
 interface TermsFieldsProps {
@@ -137,36 +137,20 @@ export default function TermsFields({
       </View>
 
       <View>
-        <Text className='text-base font-medium'
-          style={{
-            color: Colors.primary[500],
-            marginBottom: 8,
-          }}
-        >
-          ¿Cuándo fue la fecha de apertura?
-        </Text>
-        <Input
-          placeholder="dd-mm-aaaa"
+        <CalendarSelect
+          label="¿Cuándo fue la fecha de apertura?"
+          placeholder="Selecciona la fecha de apertura"
           value={opening_date}
-          onChangeText={(value) => onInputChange('opening_date', value)}
-          keyboardType="numeric"
+          onSelect={(value) => onInputChange('opening_date', value)}
         />
       </View>
 
       <View>
-        <Text className='text-base font-medium'
-          style={{
-            color: Colors.primary[500],
-            marginBottom: 8,
-          }}
-        >
-          ¿Cuándo es la fecha de vencimiento?
-        </Text>
-        <Input
-          placeholder="dd-mm-aaaa"
+        <CalendarSelect
+          label="¿Cuándo es la fecha de vencimiento?"
+          placeholder="Selecciona la fecha de vencimiento"
           value={maturity_date}
-          onChangeText={(value) => onInputChange('maturity_date', value)}
-          keyboardType="numeric"
+          onSelect={(value) => onInputChange('maturity_date', value)}
         />
       </View>
 

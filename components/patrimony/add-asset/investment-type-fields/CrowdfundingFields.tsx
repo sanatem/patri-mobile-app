@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text } from 'react-native';
-import { Input, Select } from '@/components/ui';
+import { Input, Select, CalendarSelect } from '@/components/ui';
 import Colors from '@/constants/Colors';
 
 interface CrowdfundingFieldsProps {
@@ -119,18 +119,11 @@ export default function CrowdfundingFields({
         </View>
       </View>
       <View>
-        <Text className='text-base font-medium'
-          style={{
-            color: Colors.primary[500],
-            marginBottom: 8,
-          }}
-        >
-          ¿Cuándo es su fecha de vencimiento?
-        </Text>
-        <Input
-          placeholder="YYYY-MM-DD"
+        <CalendarSelect
+          label="¿Cuándo es su fecha de vencimiento?"
+          placeholder="Selecciona la fecha de vencimiento"
           value={due_date}
-          onChangeText={(value) => onInputChange('due_date', value)}
+          onSelect={(value) => onInputChange('due_date', value)}
         />
       </View>   
     </>

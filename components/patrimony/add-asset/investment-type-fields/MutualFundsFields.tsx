@@ -196,23 +196,6 @@ export default function MutualFundsFields({
             marginBottom: 8,
           }}
         >
-          ¿Cuál es la administradora?
-        </Text>
-        <Select
-          options={ADMINISTRATOR_OPTIONS}
-          value={institution}
-          onSelect={(value) => onSelectChange('institution', value)}
-          placeholder="Selecciona administradora"
-        />
-      </View>
-
-      <View>
-        <Text className='text-base font-medium'
-          style={{
-            color: Colors.primary[500],
-            marginBottom: 8,
-          }}
-        >
           ¿Cuál es el fondo?
         </Text>
         {loadingFunds ? (
