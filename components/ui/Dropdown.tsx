@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, TouchableOpacity, Text, FlatList, Modal } from 'react-native';
 import { ChevronDown } from 'lucide-react-native';
 import { cn } from '@/lib/utils';
+import { useTranslation } from 'react-i18next';
 
 interface DropdownOption {
   label: string;
@@ -15,15 +16,16 @@ interface DropdownProps {
   placeholder?: string;
   className?: string;
 }
-
 export function Dropdown({
   options,
   selectedValue,
   onSelect,
-  placeholder = 'Seleccionar...',
+  placeholder,
   className,
 }: DropdownProps) {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
+  const effectivePlaceholder = placeholder ?? t('common.select');
 
   const selectedOption = options.find(option => option.value === selectedValue);
 
@@ -40,7 +42,7 @@ export function Dropdown({
           onPress={() => setIsOpen(!isOpen)}
         >
           <Text className="text-base font-medium text-gray-800 mr-1">
-            {selectedOption?.label || placeholder}
+            {selectedOption?.label || effectivePlaceholder}
           </Text>
           <ChevronDown 
             size={16} 

@@ -3,10 +3,7 @@ import { View, Text, ScrollView, TouchableOpacity, Animated, Dimensions, Activit
 import { ChevronLeft, ChevronRight, Settings, Plus, RefreshCw } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import {
-  MONTHS,
-  LABELS,
-  BUDGET_CATEGORIES,
-  TAB_CONFIG,
+  BUDGET_CATEGORY_KEYS,
 } from '@/constants/AppConstants';
 import {
   Header,
@@ -29,85 +26,34 @@ import { calculateTransactionTotals } from '@/services/budget/get-floid-transact
 import Colors from '@/constants/Colors';
 import { listItemStyles } from '@/styles/ui/ListItem.styles';
 import { useSubscriptionStatus } from '@/hooks/common/useSubscriptionStatus';
+import { useTranslation } from 'react-i18next';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
-
-type MonthType = typeof MONTHS[number];
-
-const monthOptions = MONTHS.map(month => ({
-  label: month,
-  value: month
-}));
-
-const getCurrentMonth = (): MonthType => {
-  const currentDate = new Date();
-  const currentMonthIndex = currentDate.getMonth(); // 0-11
-  return MONTHS[currentMonthIndex] as MonthType;
-};
-
-const filterTransactionsByMonth = (transactions: any[], selectedMonth: MonthType) => {
-  if (!transactions || transactions.length === 0) return [];
-  
-  const monthIndex = MONTHS.indexOf(selectedMonth);
-  if (monthIndex === -1) return transactions;
-  
-  return transactions.filter(transaction => {
-    try {
-      const transactionDate = new Date(transaction.date);
-      const transactionMonth = transactionDate.getMonth();
-      return transactionMonth === monthIndex;
-    } catch (error) {
-      console.warn('Error parsing transaction date:', transaction.date);
-      return false;
-    }
-  });
-};
-  
-const calculateTotalsFromFloid = (transactions: any[] | undefined, selectedMonth: MonthType) => {
-  if (!transactions || transactions.length === 0) {
-    return {
-      totalIncome: 0,
-      totalExpenses: 0,
-      balance: 0,
-      incomeCount: 0,
-      expenseCount: 0,
-      filteredTransactions: [],
-      hasRealData: false
-    };
-  }
-
-  const filteredTransactions = filterTransactionsByMonth(transactions, selectedMonth as MonthType);
-  
-  if (filteredTransactions.length === 0) {
-    return {
-      totalIncome: 0,
-      totalExpenses: 0,
-      balance: 0,
-      incomeCount: 0,
-      expenseCount: 0,
-      filteredTransactions: [],
-      hasRealData: true
-    };
-  }
-
-  const totals = calculateTransactionTotals(filteredTransactions);
-  
-  return {
-    totalIncome: totals.totalIncome,
-    totalExpenses: totals.totalOutcome,
-    balance: totals.totalIncome - totals.totalOutcome,
-    incomeCount: filteredTransactions.filter(t => t.transaction_type === 'income').length,
-    expenseCount: filteredTransactions.filter(t => t.transaction_type === 'outcome').length,
-    filteredTransactions,
-    hasRealData: true
-  };
-};
 
 export default function BudgetScreen() {
   const { shouldBlockTab, loading: subscriptionLoading } = useSubscriptionStatus();
   const router = useRouter();
+  const { t } = useTranslation();
 
-  const [selectedMonth, setSelectedMonth] = useState<MonthType>(getCurrentMonth());
+  const months = useMemo(() => {
+    const translated = t('months', { returnObjects: true }) as string[] | undefined;
+    return Array.isArray(translated) && translated.length === 12
+      ? translated
+      : ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+  }, [t]);
+
+  const monthOptions = useMemo(() => months.map(month => ({
+    label: month,
+    value: month
+  })), [months]);
+
+  const getCurrentMonth = (): string => {
+    const currentDate = new Date();
+    const currentMonthIndex = currentDate.getMonth();
+    return months[currentMonthIndex] || 'Enero';
+  };
+
+  const [selectedMonth, setSelectedMonth] = useState<string>(getCurrentMonth());
   const [activeTab, setActiveTab] = useState<'income' | 'expenses'>('income');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -116,8 +62,8 @@ export default function BudgetScreen() {
   const overlayAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(0)).current;
 
-  const { accounts, loading: accountsLoading, error: accountsError } = useFloidAccounts();
-  
+  const { accounts, loading: accountsLoading } = useFloidAccounts();
+
   const firstAccountId = useMemo(() => {
     if (accounts && accounts.floid_accounts.length > 0) {
       return accounts.floid_accounts[0].id.toString();
@@ -125,22 +71,98 @@ export default function BudgetScreen() {
     return '';
   }, [accounts]);
 
-  const { transactions, loading: transactionsLoading, error: transactionsError } = useFloidTransactions({
+  const { transactions, loading: transactionsLoading } = useFloidTransactions({
     floidId: firstAccountId,
     per_page: 200,
     enabled: !!firstAccountId
   });
 
+  const filterTransactionsByMonth = (transactions: any[], selectedMonth: string) => {
+    if (!Array.isArray(transactions) || transactions.length === 0) return [];
+
+    const monthsValid = Array.isArray(months) && months.length === 12;
+    if (!monthsValid) {
+      console.warn('[Budget] Months array is invalid. Expected 12 entries.');
+    }
+
+    if (typeof selectedMonth !== 'string') {
+      console.warn('[Budget] Selected month is not a string:', selectedMonth);
+      return [];
+    }
+
+    let monthIndex = months.indexOf(selectedMonth);
+    if (monthIndex === -1) {
+      console.warn(`[Budget] Unexpected month value "${selectedMonth}". Falling back to current month index.`);
+      monthIndex = new Date().getMonth();
+    }
+
+    return transactions.filter((transaction) => {
+      try {
+        const rawDate = transaction?.date;
+        if (!rawDate) {
+          console.warn('[Budget] Transaction missing date field:', transaction);
+          return false;
+        }
+        const transactionDate = new Date(rawDate);
+        const time = transactionDate.getTime();
+        if (Number.isNaN(time)) {
+          console.warn('[Budget] Failed to parse transaction date:', rawDate, transaction);
+          return false;
+        }
+        return transactionDate.getMonth() === monthIndex;
+      } catch (err) {
+        console.error('[Budget] Error while filtering transaction by month:', err, transaction);
+        return false;
+      }
+    });
+  };
+
+  const calculateTotalsFromFloid = (transactions: any[] | undefined, selectedMonth: string) => {
+    if (!transactions || transactions.length === 0) {
+      return {
+        totalIncome: 0,
+        totalExpenses: 0,
+        balance: 0,
+        incomeCount: 0,
+        expenseCount: 0,
+        filteredTransactions: [],
+        hasRealData: false
+      };
+    }
+    const filteredTransactions = filterTransactionsByMonth(transactions, selectedMonth);
+    if (filteredTransactions.length === 0) {
+      return {
+        totalIncome: 0,
+        totalExpenses: 0,
+        balance: 0,
+        incomeCount: 0,
+        expenseCount: 0,
+        filteredTransactions: [],
+        hasRealData: true
+      };
+    }
+    const totals = calculateTransactionTotals(filteredTransactions);
+    return {
+      totalIncome: totals.totalIncome,
+      totalExpenses: totals.totalOutcome,
+      balance: totals.totalIncome - totals.totalOutcome,
+      incomeCount: filteredTransactions.filter(t => t.transaction_type === 'income').length,
+      expenseCount: filteredTransactions.filter(t => t.transaction_type === 'outcome').length,
+      filteredTransactions,
+      hasRealData: true
+    };
+  };
+
   const totalsData = useMemo(() => {
     return calculateTotalsFromFloid(transactions?.transactions, selectedMonth);
   }, [transactions, selectedMonth]);
 
-  const { 
-    totalIncome, 
-    totalExpenses, 
-    balance, 
-    incomeCount, 
-    expenseCount, 
+  const {
+    totalIncome,
+    totalExpenses,
+    balance,
+    incomeCount,
+    expenseCount,
     filteredTransactions,
     hasRealData
   } = totalsData;
@@ -187,44 +209,31 @@ export default function BudgetScreen() {
   }
 
   if (shouldBlockTab("Presupuesto")) {
-    return <LockedTabOverlay tabName="Presupuesto" />;
+    return <LockedTabOverlay tabName={t('tabs.budget')} />;
   }
 
-  const closeModal = () => {
-    setShowAddModal(false);
-  };
-  
-  const handleMonthSelect = (month: string) => {
-    setSelectedMonth(month as MonthType);
-  };
-
-  const handleIntegrarDatos = () => {
-    router.push('/budget/floid-screen' as any);
-  };
-
-  // const handleAddIngreso = () => {
-  //   console.log('Agregar ingreso');
-  // };
-
-  // const handleAddGasto = () => {
-  //   console.log('Agregar gasto');
-  // };
+  const closeModal = () => setShowAddModal(false);
+  const handleMonthSelect = (month: string) => setSelectedMonth(month);
+  const handleIntegrarDatos = () => router.push('/budget/floid-screen' as any);
 
   const tabs = [
-    { key: 'income', label: 'Ingresos', badge: incomeCount.toString() },
-    { key: 'expenses', label: 'Gastos', badge: expenseCount.toString() }
+    { key: 'income', label: t('budget.income'), badge: incomeCount.toString() },
+    { key: 'expenses', label: t('budget.expenses'), badge: expenseCount.toString() }
   ];
 
   const categoryOptions = [
-    { label: 'Todas', value: 'all' },
-    ...BUDGET_CATEGORIES.map(category => ({
-      label: category.label,
-      value: category.label.toLowerCase()
+    { label: t('budget.all_categories'), value: 'all' },
+    ...BUDGET_CATEGORY_KEYS.map(category => ({
+      label: t(`budget.categories.${category.key}.label`),
+      value: category.key
     }))
+
+    // ahora para usar esto en algun lado debemos hacer resto <Text>{t(`budget.categories.${category.key}.description`)}</Text>
+
   ];
 
+
   const hasDataForChart = hasRealData && (totalIncome > 0 || totalExpenses > 0);
-  
   const budgetChartProps = {
     selectedMonth,
     totalIncome,
@@ -234,11 +243,10 @@ export default function BudgetScreen() {
     isLoading: accountsLoading || transactionsLoading,
     hasRealData: hasDataForChart
   };
-
   return (
     <Container variant="secondaryPage">
       <Header
-        title={LABELS.BUDGET.TITLE}
+        title={t('budget.title')}
         rightAction={
           <View className="flex-row items-center">
             <TouchableOpacity 
@@ -294,7 +302,7 @@ export default function BudgetScreen() {
               />
             ) : (
               <SearchBar
-                placeholder={activeTab === 'income' ? LABELS.BUDGET.SEARCH_INCOME_PLACEHOLDER : LABELS.BUDGET.SEARCH_EXPENSES_PLACEHOLDER}
+                placeholder={activeTab === 'income' ? t('labels.budget.search_income_placeholder') : t('labels.budget.search_expenses_placeholder')}
                 value={searchQuery}
                 onChangeText={setSearchQuery}
               />
@@ -358,7 +366,7 @@ export default function BudgetScreen() {
                 />
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingBottom: 20, paddingTop: 12, borderBottomWidth: 1, borderBottomColor: Colors.gray[200] }}>
                   <Text style={{ color: Colors.gray[700], fontSize: 18, fontFamily: 'Poppins-medium' }}>
-                    {activeTab === 'income' ? LABELS.BUDGET.TOTAL_INCOME : LABELS.BUDGET.TOTAL_EXPENSES}
+                    {activeTab === 'income' ? t('budget.total_income') : t('budget.total_expenses')}
                   </Text>
                   <Text style={{ color: Colors.gray[700], fontSize: 18, fontFamily: 'Poppins-medium' }}>
                     {activeTab === 'income' ? '+' : '-'}${Math.round(activeTab === 'income' ? totalIncome : totalExpenses).toLocaleString('es-CL')}
@@ -436,7 +444,7 @@ export default function BudgetScreen() {
               <View style={{ width: 40, height: 4, backgroundColor: '#D1D5DB', borderRadius: 2 }} />
             </View>
             {[
-              { label: 'Integrar datos bancarios', value: 'integrar', icon: <RefreshCw size={20} color={Colors.gray[700]} /> },
+              { label: t('budget.integrate_data'), value: 'integrar', icon: <RefreshCw size={20} color={Colors.gray[700]} /> },
             ].map((option, index) => (
               <TouchableOpacity
                 key={option.value}

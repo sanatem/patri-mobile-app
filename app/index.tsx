@@ -34,6 +34,18 @@ export default function Index() {
     loadSplashSeen();
   }, []);
 
+  useEffect(() => {
+    const loadSplashSeen = async () => {
+      try {
+        const seen = await AsyncStorage.getItem('splash_seen');
+        setHasSeenSplash(seen === 'true');
+      } catch (e) {
+        setHasSeenSplash(false);
+      }
+    };
+    loadSplashSeen();
+  }, []);
+
   if (loading || !isReady || onboardingLoading || userDataLoading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
@@ -58,5 +70,8 @@ export default function Index() {
     );
   }
 
-  return <Redirect href={hasSeenSplash ? '/auth/login' : '/splash-screens'} />;
+  if (hasSeenSplash) {
+    return <Redirect href="/auth/webview" />;
+  }
+  return <Redirect href="/splash-screens" />;
 }

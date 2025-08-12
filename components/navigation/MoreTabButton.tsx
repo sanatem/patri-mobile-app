@@ -12,6 +12,7 @@ import {
 import { MoreHorizontal, Shield, Home, FileText } from 'lucide-react-native';
 import { router } from 'expo-router';
 import Colors from '@/constants/Colors';
+import { useTranslation } from 'react-i18next';
 
 interface MoreTabButtonProps {
   color: string;
@@ -26,6 +27,7 @@ interface MenuOption {
 }
 
 const MoreTabButton: React.FC<MoreTabButtonProps> = ({ color, size }) => {
+  const { t } = useTranslation();
   const [isMenuVisible, setIsMenuVisible] = useState(false);
   const [buttonLayout, setButtonLayout] = useState({
     x: 0,
@@ -39,7 +41,7 @@ const MoreTabButton: React.FC<MoreTabButtonProps> = ({ color, size }) => {
   const menuOptions: MenuOption[] = [
     {
       id: 'propiedades',
-      title: 'Propiedades',
+      title: t('more_menu.properties'),
       icon: <Home size={20} color={Colors.gray[600]} />,
       onPress: () => {
         router.push('/(tabs)/patrimony');
@@ -47,7 +49,7 @@ const MoreTabButton: React.FC<MoreTabButtonProps> = ({ color, size }) => {
     },
     {
       id: 'seguros',
-      title: 'Seguros',
+      title: t('more_menu.insurance'),
       icon: <Shield size={20} color={Colors.gray[600]} />,
       onPress: () => {
         router.push('/(tabs)/patrimony');
@@ -55,7 +57,7 @@ const MoreTabButton: React.FC<MoreTabButtonProps> = ({ color, size }) => {
     },
     {
       id: 'mi-plan',
-      title: 'Mi Plan',
+      title: t('more_menu.my_plan'),
       icon: <FileText size={20} color={Colors.gray[600]} />,
       onPress: () => {
         router.push('/(tabs)/planning');

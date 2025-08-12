@@ -1,0 +1,1063 @@
+{
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Configuration and additional tools",
+    "menu": {
+      "preferences": "User Preferences",
+      "preferencesSubtitle": "Language and other settings",
+      "terms": "Terms and Conditions",
+      "termsSubtitle": "Usage policies",
+      "privacy": "Privacy and Security",
+      "privacySubtitle": "Privacy settings",
+      "help": "Help and Support",
+      "helpSubtitle": "Help center and contact",
+      "logout": "Log Out",
+      "logoutSubtitle": "Exit the application"
+    },
+    "logout": {
+      "title": "Log Out",
+      "message": "Are you sure you want to log out?",
+      "action": "Log Out"
+    },
+    "delete": {
+      "title": "Delete Account",
+      "subtitle": "Permanently delete your account and all data.",
+      "confirm": "Delete Account",
+      "error": "Error deleting account"
+    },
+    "confirmation": {
+      "title": "Request Received",
+      "subtitle": "Your account deletion request will be processed within the next business days."
+    },
+    "loading": {
+      "loggingOut": "Logging out...",
+      "deleting": "Sending request..."
+    },
+    "links": {
+      "cannotOpen": "Cannot open link: {{title}}"
+    }
+  },
+  "common": {
+    "cancel": "Cancel",
+    "error": "Error",
+    "continue": "Continue",
+    "permissionsRequired": "Permissions required",
+    "understoodAndContinue": "Understood, let's continue",
+    "start": "Let's get started",
+    "back": "Back",
+    "create": "Create",
+    "finish": "Finish",
+    "backToPortfolio": "Back to portfolio",
+    "retry": "Try again",
+    "saving": "Saving...",
+    "loading": "Loading...",
+    "per_month": "/month",
+    "already_subscribed": "Already subscribed",
+    "active": "Active",
+    "from": "From",
+    "select": "Select...",
+    "search_placeholder": "Search...",
+    "select_option": "Select an option",
+    "next": "Next",
+    "viewMore": "View more",
+    "viewLess": "View less"
+  },
+  "budget": {
+    "income": "Incomes",
+    "expenses": "Expenses",
+    "all_categories": "All categories",
+    "integrate_data": "Sync bank data",
+    "tab_name": "Budget",
+    "title": "Budget",
+    "search_income_placeholder": "Search incomes...",
+    "search_expenses_placeholder": "Search expenses...",
+    "total_income": "Total incomes",
+    "total_expenses": "Total expenses"
+  },
+  "identityConfirm": {
+    "title": "Confirm your information",
+    "description": "Edit if there’s a mistake or something is missing.",
+    "firstName": "First name",
+    "lastName1": "Last name",
+    "lastName2": "Second last name",
+    "gender": "Gender",
+    "birthDate": "Date of birth",
+    "idExpiryDate": "ID expiration date"
+  },
+  "identityMethod": {
+    "title": "Identity verification",
+    "question": "Which document will you use to verify your identity?",
+    "description": "We need a valid, government-issued document from Chile that belongs to an adult.",
+    "option_id_card": "Chilean ID card",
+    "option_passport": "With Chilean passport",
+    "why": "Why do you need a document?"
+  },
+  "identityUploadBack": {
+    "title": "Identity verification",
+    "uploadTitle": "Upload your ID (back side)",
+    "uploadSubtitle": "Now we need the back of your ID card",
+    "uploadPrompt": "+ Upload photo of ID (back)",
+    "changeImage": "Change image",
+    "selectImage": "Choose image",
+    "selectMethod": "Choose how to upload your ID photo",
+    "gallery": "Gallery",
+    "camera": "Camera",
+    "galleryPermission": "We need access to your gallery to upload the photo",
+    "cameraPermission": "We need access to your camera to take the photo",
+    "errorGallery": "Could not open the gallery",
+    "errorCamera": "Could not open the camera",
+    "tips": {
+      "title": "💡 Tips for a good photo:",
+      "light": "Make sure it’s well-lit",
+      "legible": "All details must be clearly readable",
+      "noGlare": "Avoid glare or shadows"
+    }
+  },
+  "identityUpload": {
+    "title": "Identity verification",
+    "uploadTitle": "Upload your ID (front side)",
+    "uploadHintWeb": "Click the box to select an image",
+    "uploadHintMobile": "Tap the box to upload or take a photo",
+    "uploadPrompt": "+ Upload photo of ID (front)",
+    "changeImage": "Change image",
+    "selectImage": "Choose image",
+    "selectMethod": "Choose how you want to upload your ID photo",
+    "gallery": "Gallery",
+    "camera": "Camera",
+    "cancel": "Cancel",
+    "galleryPermission": "We need access to your gallery to upload the photo",
+    "cameraPermission": "We need access to your camera to take the photo",
+    "errorGallery": "Unable to open gallery",
+    "errorCamera": "Unable to open camera",
+    "explanation": "What data will be extracted from my ID?",
+    "tips": {
+      "title": "💡 Tips for a good photo:",
+      "light": "Make sure it's well-lit",
+      "legible": "All data must be clearly visible",
+      "noGlare": "Avoid glare or shadows"
+    }
+  },
+  "investmentSurvey": {
+    "loadingMessage": "Assessing your investor profile...",
+    "questions": [
+      {
+        "text": "What is your main investment goal?",
+        "options": [
+          "Save for my children’s education",
+          "Secure my retirement",
+          "Grow my wealth",
+          "Save for a trip"
+        ]
+      },
+      {
+        "text": "Which of the following best describes your investment time horizon?",
+        "options": [
+          "I might need the money at any moment",
+          "I’ll need part of the money this year",
+          "I might withdraw occasionally, but most will stay long term",
+          "I won’t use this money for at least 3 years"
+        ]
+      },
+      {
+        "text": "What is your level of financial knowledge?",
+        "options": [
+          "None",
+          "I understand the difference between stocks and fixed income",
+          "I’m familiar with different investment options and their risks",
+          "I have deep knowledge of investment products and strategies"
+        ]
+      },
+      {
+        "text": "What have you invested in before?",
+        "options": [
+          "Savings account, time deposits and/or fixed income instruments",
+          "Mutual funds",
+          "Stocks",
+          "Derivatives"
+        ]
+      },
+      {
+        "text": "Which of the following statements best represents you?",
+        "options": [
+          "I prefer stable growth and avoid losses",
+          "I accept short-term losses under 1 year",
+          "I care about long-term returns without big losses",
+          "I accept high volatility in exchange for long-term gains"
+        ]
+      },
+      {
+        "text": "If your investment gains 30% and then drops 20%, leaving a 10% profit, what would you do?",
+        "options": [
+          "Move to risk-free assets",
+          "Shift part of it to lower-risk investments",
+          "Feel worried but take no action",
+          "Invest more if fundamentals support it"
+        ]
+      },
+      {
+        "text": "What is your approximate monthly net income?",
+        "options": [
+          "Less than 1 million CLP",
+          "Between 1 and 3 million CLP",
+          "Between 3 and 5 million CLP",
+          "More than 5 million CLP"
+        ]
+      },
+      {
+        "text": "How much of your savings are you willing to invest?",
+        "options": [
+          "Less than 30%",
+          "Between 30% and 60%",
+          "More than 60%"
+        ]
+      },
+      {
+        "text": "Is your profession related to finance?",
+        "options": [
+          "Strongly related",
+          "Somewhat related",
+          "Slightly related",
+          "Not related"
+        ]
+      },
+      {
+        "text": "What is your estimated investable networth?",
+        "options": [
+          "Over CLP 200 million",
+          "Between CLP 50 and 200 million",
+          "Less than CLP 50 million"
+        ]
+      }
+    ]
+  },
+  "profileResult": {
+    "title": "Your profile is conservative",
+    "description1": "You primarily value stability, but you can tolerate some risk in your investments.",
+    "description2": "You can change it later if you wish."
+  },
+  "startProfile": {
+    "title": "Let’s find out what kind of investor you are",
+    "description": "We’ll ask you a few questions to determine your investor profile. You can change it later if needed.",
+    "timeEstimate": "⏱ approx. 4 minutes"
+  },
+  "completeProfile": {
+    "title": "Complete your profile",
+    "steps": {
+      "identity": {
+        "title": "Identity verification",
+        "description": "Upload your ID document"
+      },
+      "basic": {
+        "title": "Basic information",
+        "description": "Tell us a bit about yourself"
+      },
+      "contract": {
+        "title": "Contract and email verification",
+        "description": "Sign your contract and verify your account"
+      },
+      "start": {
+        "title": "Start investing",
+        "description": "Choose what you want to do with your money"
+      }
+    }
+  },
+  "summary": {
+    "title": "Your profile is almost ready",
+    "description": "We’re validating your information. Once it’s approved, you’ll be able to start investing 🚀",
+    "returnHome": "Return to home",
+    "steps": {
+      "identity": {
+        "title": "Identity verification",
+        "validated": "Document successfully validated"
+      },
+      "basic": {
+        "title": "Basic information",
+        "completed": "Profile successfully completed"
+      },
+      "contract": {
+        "title": "Contract and email verification",
+        "inProgress": "Validation in progress..."
+      },
+      "start": {
+        "title": "Start investing",
+        "description": "Choose what you want to do with your money"
+      }
+    }
+  },
+  "createGoal": {
+    "title": "Create goal",
+    "goalNameLabel": "Goal name",
+    "goalNamePlaceholder": "E.g. Buy a house",
+    "accountTypeLabel": "Account type",
+    "accountType": {
+      "investment": "Investment account",
+      "saving": "Savings account"
+    }
+  },
+  "amountStep": {
+    "title": "Enter amount",
+    "placeholder": "Enter the amount",
+    "rateNote": "(at ${{ rate }} per dollar)"
+  },
+  "investmentMovement": {
+    "header": {
+      "from": "Move from {{from}}",
+      "amount": "Enter amount"
+    }
+  },
+  "confirmationStep": {
+    "title": "Confirm the information is correct before completing the operation.",
+    "origin": "Origin",
+    "amount": "Amount to withdraw",
+    "destination": "Destination",
+    "bankAccount": "My bank account",
+    "wallet": "My wallet balance",
+    "note": "By clicking finish, your request will be sent to the brokerage. The funds will be transferred to your selected payment method two business days after the sale of the shares is completed."
+  },
+  "fromAssetStep": {
+    "assetQuestion": {
+      "part1": "From",
+      "part2": "which asset",
+      "part3": "do you want to sell shares?"
+    },
+    "assetPlaceholder": "Select an asset",
+    "accountQuestion": {
+      "part1": "To",
+      "part2": "which bank account",
+      "part3": "do you want the funds to go?"
+    },
+    "accountPlaceholder": "Select bank account"
+  },
+  "fromGoalStep": {
+    "from": {
+      "part1": "From",
+      "part2": "where",
+      "part3": "do you want to withdraw money?"
+    },
+    "to": {
+      "part1": "To",
+      "part2": "where",
+      "part3": "do you want to send it?"
+    },
+    "goalPlaceholder": "Select a goal",
+    "destinationPlaceholder": "Select destination"
+  },
+  "salesFlow": {
+    "header": "Withdrawal request",
+    "next": "Next",
+    "previous": "Previous",
+    "finish": "Finish",
+    "mockGoals": {
+      "newGoal": "New goal ($1,492,500.00)",
+      "cashBalance": "Cash balance ($7,560.00)"
+    },
+    "mockDestinos": {
+      "bankAccount": "My bank account",
+      "cashBalance": "My cash balance"
+    },
+    "mockActivos": {
+      "option1": "Singular Chile Short-Term Debt CFIETFCD\n$1,492,500 CLP as of 10/05/2023 · 14,925.0 shares",
+      "option2": "All my portfolio\n$1,492,500 CLP as of 06/26/2025",
+      "option3": "Proportional withdrawal\nMaintains portfolio structure"
+    },
+    "mockCuentas": {
+      "account1": "CA 6677 · Chile-Edwards"
+    }
+  },
+  "movements": {
+    "title": "Movements",
+    "emptyTitle": "No movements",
+    "emptySubtitle": "No transactions recorded for this goal yet"
+  },
+  "portfolioDetails": {
+    "title": "Goal details",
+    "summary": {
+      "strategy": "Strategy",
+      "riskLevel": "Risk level",
+      "invested": "Contributions",
+      "withdrawn": "Withdrawals",
+      "variation": "Variation"
+    },
+    "actions": {
+      "invest": "Invest",
+      "withdraw": "Withdraw"
+    },
+    "error": {
+      "noGoalId": "Goal ID not provided",
+      "noToken": "Authentication token not available",
+      "unknown": "Unknown error"
+    }
+  },
+  "portfolio": {
+    "title": "Portfolio",
+    "goalsTitle": "Goals",
+    "goalsError": "Error loading goals",
+    "noGoals": "You haven’t defined any goals yet.",
+    "goalPrefix": "Goal",
+    "actions": {
+      "invest": "Invest",
+      "withdraw": "Withdraw"
+    },
+    "view_summary": "View summary",
+    "view_assets": "View assets",
+    "cards": {
+      "reserva": {
+        "title": "Reserve",
+        "subtitle": ""
+      },
+      "emergencias": {
+        "title": "Emergencies",
+        "subtitle": "Short term"
+      },
+      "casa": {
+        "title": "Home",
+        "subtitle": "Long term"
+      },
+      "jubilacion": {
+        "title": "Improve my retirement",
+        "subtitle": "Retirement with APV-B"
+      }
+    }
+  },
+  "investments": {
+    "title": "Investment",
+    "needAccount": "You need an active investment account to access this section."
+  },
+  "floid": {
+    "title": "Sync bank data"
+  },
+  "patrimony": {
+    "loading": "Loading networth data...",
+    "integrateBankData": "Sync bank data",
+    "empty": {
+      "assets": {
+        "title": "No assets recorded",
+        "subtitle": "Add your assets to start managing your networth",
+        "cta": "Create asset"
+      },
+      "liabilities": {
+        "title": "No liabilities recorded",
+        "subtitle": "Add your liabilities to get a complete view of your finances",
+        "cta": "Create liability"
+      }
+    },
+    "createAsset": "Create asset",
+    "createLiability": "Create liability",
+    "net_worth": "Net Worth",
+    "cash_balance": "Cash balance",
+    "title": "Networth",
+    "netWorthTitle": "Networth",
+    "assets": "Assets",
+    "liabilities": "Liabilities",
+    "comparedToLastMonth": "vs last month"
+  },
+  "tabs": {
+    "networth": "Networth",
+    "budget": "Budget",
+    "investment": "Investment",
+    "planning": "Planning"
+  },
+  "planning": {
+    "title": "Planning",
+    "success": {
+      "title": "Subscription successful!",
+      "message": "You now have access to all premium features."
+    },
+    "error": {
+      "title": "Error",
+      "subscription": "There was an issue with the subscription. Please try again.",
+      "unexpected": "An unexpected error occurred. Please try again."
+    },
+    "cardTitles": {
+      "premiumMobile": "Premium Plan (Mobile)",
+      "plans": "Plans"
+    },
+    "top_title": "Start your financial planning",
+    "top_subtitle": "Access expert tools and advice to reach your financial goals"
+  },
+  "onboarding": {
+    "titleStep1": "Personal Information",
+    "titleStep2": "Additional Information",
+    "subtitleStep1": "Tell us about yourself",
+    "subtitleStep2": "Complete your profile to personalize your experience",
+    "firstNameLabel": "First name",
+    "firstNamePlaceholder": "Enter your first name",
+    "lastNameLabel": "Last name",
+    "lastNamePlaceholder": "Enter your last name",
+    "rutLabel": "RUT",
+    "rutPlaceholder": "12345678-9",
+    "countryLabel": "Country of residence",
+    "countryPlaceholder": "Select your country",
+    "birthLabel": "Date of birth",
+    "birthPlaceholder": "Select your birthdate",
+    "incomeLabel": "Monthly income",
+    "incomePlaceholder": "Select your income range",
+    "incomeNote": "This helps us tailor your recommendations",
+    "incomeOptions": {
+      "lessThan1M": "Less than $1,000,000",
+      "between1And5M": "$1,000,001 to $5,000,000",
+      "between5And10M": "$5,000,001 to $10,000,000",
+      "between10And25M": "$10,000,001 to $25,000,000",
+      "greaterThan25M": "More than $25,000,001"
+    },
+    "errors": {
+      "firstNameRequired": "First name is required",
+      "lastNameRequired": "Last name is required",
+      "rutRequired": "RUT is required",
+      "rutMinLength": "RUT must be at least 3 characters",
+      "countryRequired": "Country of residence is required",
+      "birthDateRequired": "Birth date is required",
+      "incomeRequired": "Monthly income is required"
+    },
+    "serviceError": {
+      "title": "Error sending data"
+    }
+  },
+  "countries": {
+    "chile": "Chile",
+    "argentina": "Argentina",
+    "brazil": "Brazil",
+    "colombia": "Colombia",
+    "mexico": "Mexico",
+    "peru": "Peru",
+    "uruguay": "Uruguay",
+    "usa": "United States",
+    "spain": "Spain",
+    "other": "Other"
+  },
+  "splash": {
+    "1": {
+      "title": "Your data, protected.",
+      "subtitle": "We secure your information with bank-level encryption. No ads, no data sharing."
+    },
+    "2": {
+      "title": "Turn your dreams into a plan.",
+      "subtitle": "Build your financial strategy and see how your decisions shape your future wealth."
+    },
+    "3": {
+      "title": "All your wealth in one place.",
+      "subtitle": "Connect your accounts and funds to track how your wealth grows over time from a single, clear dashboard."
+    },
+    "primaryButton": "Get Started",
+    "secondaryButton": "Log In"
+  },
+  "preferences": {
+    "loading": "Loading preferences...",
+    "title": "User Preferences",
+    "subtitle": "Customize your experience",
+    "language": {
+      "title": "App Language",
+      "subtitle": "Select your language"
+    }
+  },
+  "languages": {
+    "es": "Spanish (Latam)",
+    "es-CL": "Spanish (Chile)",
+    "en": "English"
+  },
+  "budget_chart": {
+    "no_data_title": "No data",
+    "no_data_subtitle": "No transactions for {{month}}",
+    "remaining_of": "${{amount}} remaining",
+    "no_data_this_month": "No data for this month",
+    "total_expenses": "Total Expenses"
+  },
+  "transactions_list": {
+    "no_income_title_with_month": "No income in {{month}}",
+    "no_income_title": "No income",
+    "no_income_desc_with_month": "No income transactions recorded for this month",
+    "no_income_desc_with_search": "No income matching \"{{query}}\" found",
+    "no_income_desc": "No income available",
+    "no_expenses_title_with_month": "No expenses in {{month}}",
+    "no_expenses_title": "No expenses",
+    "no_expenses_desc_with_month": "No expense transactions recorded for this month",
+    "no_expenses_desc_with_search": "No expenses matching \"{{query}}\" found",
+    "no_expenses_desc": "No expenses available",
+    "no_results_title": "No results"
+  },
+  "copilot": {
+    "chat_placeholder": "How can I help you today?",
+    "suggestions": {
+      "expenses": "What are my expenses this month?",
+      "budget": "How is my budget doing?",
+      "invested": "How much do I have invested?",
+      "summary": "What's my networth summary?",
+      "netWorth": "What's my networth summary?"
+    },
+    "welcomeTitle": "Hi {{name}}",
+    "welcomeSubtitle": "I'm your financial copilot. Ready to start planning your future?"
+  },
+  "goals": {
+    "goal_progress_title": "Goal Progress",
+    "projected": "Projected",
+    "date_unavailable": "Date unavailable",
+    "of": "of",
+    "by": "by",
+    "history_error_title": "Error loading history",
+    "created_on": "You created your goal on",
+    "reach_target": "You want to reach your goal"
+  },
+  "more_menu": {
+    "properties": "Properties",
+    "insurance": "Insurance",
+    "my_plan": "My Plan"
+  },
+  "plans": {
+    "premium": {
+      "title": "Premium Plan (mobile)",
+      "price": "$9.990",
+      "duration": "/month",
+      "description": "Access all premium features and advanced financial planning tools.",
+      "button": "Subscribe"
+    },
+    "general": {
+      "title": "Plans",
+      "description": "Discover our plans and start building a better financial future today",
+      "button": "View plans",
+      "min_price": "$99.000 /month",
+      "min_duration": "3 months"
+    },
+    "ver_planes": "View plans"
+  },
+  "advisor": {
+    "not_found": "Advisor information not found.",
+    "not_assigned": "You don’t have an assigned advisor at the moment.",
+    "certified_title": "Certified Investment Advisor",
+    "default_description": "{{name}} is a certified advisor specializing in comprehensive financial planning and long-term investment strategies.",
+    "next_meeting": "Next meeting",
+    "none_scheduled": "None scheduled",
+    "schedule": "Schedule"
+  },
+  "planningCarousel": {
+    "report1": {
+      "title": "Financial Report",
+      "description": "Comprehensive analysis of your financial situation",
+      "points": {
+        "balance": "Networth balance",
+        "cashflow": "Monthly cash flow",
+        "recommendations": "Personalized recommendations"
+      }
+    },
+    "report2": {
+      "title": "Investments",
+      "description": "Status and performance of your investments",
+      "points": {
+        "performance": "Performance analysis",
+        "allocation": "Asset allocation",
+        "benchmarks": "Comparison against benchmarks"
+      }
+    },
+    "report3": {
+      "title": "Mutual Funds Overview",
+      "description": "Detailed mutual funds performance",
+      "points": {
+        "evolution": "Monthly evolution",
+        "composition": "Portfolio composition",
+        "ranking": "Profitability ranking"
+      }
+    }
+  },
+  "lockedOverlay": {
+    "description": "Subscribe to a plan and access all premium features.",
+    "benefits_title": "With a premium subscription, you'll get full access to:",
+    "benefits": {
+      "asset_analysis": "Detailed asset analysis.",
+      "budget_management": "Advanced budget management.",
+      "investment_access": "Access to investment account if you have one."
+    }
+  },
+  "labels": {
+    "planning": {
+      "title": "Financial Planning",
+      "subtitle": "Your path to financial success",
+      "advisor_name": "Fernando Slebe",
+      "advisor_title": "Certified Investment Advisor",
+      "advisor_experience": "10+ years of experience",
+      "advisor_bio": "Fernando Slebe is a certified investment advisor specializing in comprehensive financial planning and long-term investment strategies.",
+      "next_meeting": "Next meeting",
+      "no_meeting": "None scheduled",
+      "inbox": "Inbox",
+      "no_messages": "No new messages",
+      "schedule": "Schedule",
+      "chat": "Chat"
+    },
+    "patrimony": {
+      "search_placeholder": "Search asset or liability",
+      "total_in": "Total in",
+      "total_assets": "Total assets",
+      "total_liabilities": "Total liabilities",
+      "last_month_comparison": "vs last month",
+      "title": "Networth"
+    },
+    "budget": {
+      "search_income_placeholder": "Search in income",
+      "search_expenses_placeholder": "Search in expenses",
+      "remaining": "remaining of",
+      "no_data": "No data for this month",
+      "categories": {
+        "housing": {
+          "label": "Housing",
+          "description": "Rent, mortgage, basic home services"
+        },
+        "transport": {
+          "label": "Transport",
+          "description": "Fuel, public transport, vehicle maintenance"
+        },
+        "leisure": {
+          "label": "Leisure",
+          "description": "Entertainment, dining, recreational shopping"
+        },
+        "health": {
+          "label": "Health",
+          "description": "Health insurance, medications, medical consultations"
+        },
+        "services": {
+          "label": "Services",
+          "description": "Internet, phone, streaming, financial services"
+        }
+      }
+    },
+    "investment": {
+      "portfolio": "Portfolio",
+      "patrimony_label": "Your networth",
+      "invest": "Invest",
+      "create": "Create",
+      "begin": "Start",
+      "continue_without_account": "Continue without an account",
+      "grow_patrimony": "One place to grow your networth.",
+      "personalized_options": "Personalized saving and investment options for every type of investor."
+    },
+    "benefits": {
+      "title": "Why choose our advisory service?",
+      "availability": "24/7 Availability",
+      "availability_desc": "Chat and support whenever you need it",
+      "certification": "Certified Advisors",
+      "certification_desc": "All our advisors are fully certified",
+      "personalized": "Tailored Plans",
+      "personalized_desc": "Strategies adapted to your goals"
+    },
+    "common": {
+      "save": "Save",
+      "delete": "Delete",
+      "edit": "Edit",
+      "view_all": "View all",
+      "load_more": "Load more",
+      "search": "Search",
+      "filter": "Filter",
+      "linkError": "The link could not be opened."
+    }
+  },
+  "foryouCards": {
+    "category": "Expenses",
+    "description": "Spent on basic services — find ways to save now",
+    "title": "${{amount}}/month"
+  },
+  "timeRanges": {
+    "options": {
+      "1m": "1 Month",
+      "6m": "6 Months",
+      "1y": "1 Year",
+      "all": "All"
+    }
+  },
+  "months": [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December"
+  ],
+  "tabConfig": {
+    "patrimony": {
+      "assets": "Assets",
+      "liabilities": "Liabilities"
+    },
+    "budget": {
+      "income": "Income",
+      "expenses": "Expenses"
+    }
+  },
+  "personalInfo": {
+    "questions": [
+      {
+        "id": "gender",
+        "type": "choice",
+        "text": "How should we address you?",
+        "options": [
+          {
+            "label": "Feminine",
+            "value": "femenino"
+          },
+          {
+            "label": "Masculine",
+            "value": "masculino"
+          }
+        ]
+      },
+      {
+        "id": "nationality",
+        "type": "choice",
+        "text": "Is your nationality Chilean?",
+        "options": [
+          {
+            "label": "Yes",
+            "value": "si"
+          },
+          {
+            "label": "No",
+            "value": "no"
+          }
+        ]
+      },
+      {
+        "id": "us_person",
+        "type": "choice",
+        "text": "Are you a US Person?",
+        "options": [
+          {
+            "label": "Yes",
+            "value": "si"
+          },
+          {
+            "label": "No",
+            "value": "no"
+          }
+        ]
+      },
+      {
+        "id": "foreign_tax",
+        "type": "choice",
+        "text": "Do you have tax residency in another country?",
+        "options": [
+          {
+            "label": "Yes",
+            "value": "si"
+          },
+          {
+            "label": "No",
+            "value": "no"
+          }
+        ]
+      },
+      {
+        "id": "pep",
+        "type": "choice",
+        "text": "Are you a Politically Exposed Person (PEP)?",
+        "options": [
+          {
+            "label": "Yes",
+            "value": "si"
+          },
+          {
+            "label": "No",
+            "value": "no"
+          }
+        ]
+      },
+      {
+        "id": "address",
+        "type": "form",
+        "text": "What is your address?",
+        "fields": [
+          {
+            "name": "address",
+            "type": "text",
+            "placeholder": "Address"
+          },
+          {
+            "name": "region",
+            "type": "select",
+            "placeholder": "Select a region",
+            "options": []
+          },
+          {
+            "name": "commune",
+            "type": "select",
+            "placeholder": "Select a commune",
+            "dependsOn": "region"
+          }
+        ]
+      },
+      {
+        "id": "phone",
+        "type": "input",
+        "text": "What is your phone number?",
+        "subtitle": "We ask for regulatory reasons",
+        "placeholder": "9 1234 5678"
+      },
+      {
+        "id": "income_source",
+        "type": "choice",
+        "text": "What is the source of the money you want to invest?",
+        "options": [
+          {
+            "label": "Salary/Freelance",
+            "value": "sueldo"
+          },
+          {
+            "label": "Investments",
+            "value": "inversiones"
+          },
+          {
+            "label": "Business income",
+            "value": "negocio"
+          },
+          {
+            "label": "Real estate",
+            "value": "bienes_raices"
+          },
+          {
+            "label": "Inheritance",
+            "value": "herencia"
+          },
+          {
+            "label": "Savings",
+            "value": "ahorros"
+          }
+        ]
+      },
+      {
+        "id": "occupation",
+        "type": "form",
+        "text": "What do you do?",
+        "fields": [
+          {
+            "name": "employment",
+            "type": "text",
+            "placeholder": "Employment status"
+          },
+          {
+            "name": "occupation",
+            "type": "text",
+            "placeholder": "Occupation or profession"
+          }
+        ]
+      },
+      {
+        "id": "monthly_income",
+        "type": "choice",
+        "text": "What is your monthly income?",
+        "subtitle": "An estimate is fine",
+        "options": [
+          {
+            "label": "Less than $500,000",
+            "value": "menos_500"
+          },
+          {
+            "label": "$500,000–$1,000,000",
+            "value": "500_1000"
+          },
+          {
+            "label": "$1,000,000–$2,000,000",
+            "value": "1000_2000"
+          },
+          {
+            "label": "More than $2,000,000",
+            "value": "mas_2000"
+          }
+        ]
+      }
+    ],
+    "placeholders": {
+      "address": "Address",
+      "region": "Select a region",
+      "commune": "Select a commune",
+      "employment": "Employment status",
+      "occupation": "Occupation or profession"
+    },
+    "regionLabel": "Region",
+    "communeLabel": "Commune"
+  },
+  "investmentPortfolio": {
+    "reserva": {
+      "title": "Reserve",
+      "subtitle": ""
+    },
+    "emergencias": {
+      "title": "Emergencies",
+      "subtitle": "Short term"
+    },
+    "casa": {
+      "title": "Home",
+      "subtitle": "Long term"
+    },
+    "jubilacion": {
+      "title": "Improve my retirement",
+      "subtitle": "Retirement with APV-B"
+    }
+  },
+  "investmentActions": {
+    "dolares": {
+      "title": "Dollars",
+      "subtitle": "Buy to invest or save"
+    },
+    "acciones": {
+      "title": "Stocks",
+      "subtitle": "Invest from US $1"
+    }
+  },
+  "investment": {
+    "riskLevels": {
+      "muy-conservador": "Very conservative",
+      "conservador": "Conservative",
+      "moderado": "Moderate",
+      "agresivo": "Aggressive",
+      "muy-agresivo": "Very aggressive"
+    },
+    "periods": {
+      "3-meses": "3 months",
+      "6-meses": "6 months",
+      "1-año": "1 year",
+      "2-años": "2 years",
+      "5-años": "5 years",
+      "largo-plazo": "Long term"
+    },
+    "accountTypes": {
+      "inversion": "Investment account",
+      "ahorro": "Savings account",
+      "apv": "APV-B"
+    },
+    "tips": {
+      "portfolioPerformance": "Your investment returned 19.55% in 28 months",
+      "apvRestriction": "Not applicable for APV goals",
+      "dollarRate": "(at $946 per dollar)",
+      "chartUpdate": "Updated at market close on Tuesday, May 27"
+    },
+    "messages": {
+      "welcomeTitle": "One place to grow your wealth.",
+      "welcomeSubtitle": "Personalized saving and investing options for every type of investor.",
+      "guestTitle": "Invest in Stocks or ETFs",
+      "guestSubtitle": "The easiest way to invest in the U.S. stock market",
+      "goalSelectionQuestion": "Which goal do you want to move your money to?",
+      "goalSelectionPlaceholder": "Select a goal",
+      "amountStepTitle": "Enter amount",
+      "amountCurrencyLabel": "Chilean pesos",
+      "sample": {
+        "riskLevel": "Risk level",
+        "period": "Investment period"
+      }
+    }
+  },
+  "auth": {
+    "cancelledTitle": "Authentication Cancelled",
+    "cancelledMessage": "Authentication process could not be completed.",
+    "errorTitle": "Authentication Error",
+    "errorMessage": "An error occurred during authentication. Please try again."
+  },
+  "login": {
+    "subtitle": "Sign in to manage your finances intelligently",
+    "connecting": "Connecting...",
+    "login": "Sign In",
+    "termsPrefix": "By continuing, you agree to our ",
+    "termsLink": "terms and conditions",
+    "privacyLink": "privacy policy",
+    "and": "and"
+  }
+}

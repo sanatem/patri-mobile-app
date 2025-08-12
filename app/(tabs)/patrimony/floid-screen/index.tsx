@@ -5,11 +5,13 @@ import { useRouter } from 'expo-router';
 import { Header } from '@/components/ui/Header';
 import { Container } from '@/components/ui/Container';
 import Colors from '@/constants/Colors';
+import { useTranslation } from 'react-i18next';
 
 const FLOID_URL = 'https://admin.floid.app/patrimore/widget/705aefc6776c78c49dec22b8006074ff';
 
 export default function FloidScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
 
   const renderContent = () => {
     if (Platform.OS === 'web') {
@@ -45,7 +47,7 @@ export default function FloidScreen() {
   return (
     <Container variant="secondaryPage">
       <Header 
-        title="Sincronizar datos bancarios"
+        title={t('floid.title')}
         leftAction={
           <TouchableOpacity
             onPress={() => router.back()}

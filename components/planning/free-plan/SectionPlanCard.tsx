@@ -3,6 +3,7 @@ import { View, Text } from 'react-native';
 import { Calendar, Coins, Clock } from 'lucide-react-native';
 import { Card, Button } from '@/components/ui';
 import Colors from '@/constants/Colors';
+import { useTranslation } from 'react-i18next';
 
 interface SectionPlanCardProps {
   title: string;
@@ -35,6 +36,7 @@ const SectionPlanCard: React.FC<SectionPlanCardProps> = ({
   onPress,
   disabled = false
 }) => {
+  const { t } = useTranslation();
   const renderIcon = () => {
     const iconProps = {
       size: 16,
@@ -117,7 +119,7 @@ const SectionPlanCard: React.FC<SectionPlanCardProps> = ({
                 {minPrice}
               </Text>
               <Text className="text-xs" style={{ color: Colors.gray[500] }}>
-                desde
+                {t('common.from')}
               </Text>
             </View>
           )}
@@ -127,7 +129,7 @@ const SectionPlanCard: React.FC<SectionPlanCardProps> = ({
                 {minDuration}
               </Text>
               <Text className="text-xs" style={{ color: Colors.gray[500] }}>
-                desde
+                {t('common.from')}
               </Text>
             </View>
           )}

@@ -1,14 +1,15 @@
 import { ScrollView } from 'react-native';
-import { LABELS } from '@/constants/AppConstants';
 import {
   Header,
   Container,
 } from '@/components/ui';
 import { PlanningCarousel } from '@/components/planning/paid-plan';
 import AdvisorSection from '@/components/planning/paid-plan/AdvisorSection';
+import { useTranslation } from 'react-i18next';
 
 
 export default function PaidPlan() {
+  const { t } = useTranslation();
 
   const handleSchedulePress = () => {
     console.log('Programar reunión');
@@ -29,8 +30,8 @@ export default function PaidPlan() {
   return (
     <Container variant="secondaryPage">
       <Header
-        title={LABELS.PLANNING.TITLE}
-        subtitle={LABELS.PLANNING.SUBTITLE}
+        title={t('labels.planning.title')}
+        subtitle={t('labels.planning.subtitle')}
         variant="transparent"
         titleClassName="text-white font-bold"
         subtitleClassName="text-white"

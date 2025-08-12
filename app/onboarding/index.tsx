@@ -21,31 +21,34 @@ import { PatrimoreIcon } from '@/components/icons';
 import { getUserData } from '@/services/user/get-user';
 import { useKeyboardHandler } from '@/hooks/common/useKeyboardHandler';
 import { useOnboarding as useOnboardingCommon } from '@/hooks/common/useOnboarding';
+import { useTranslation } from 'react-i18next';
 
 const { height } = Dimensions.get('window');
 
-const MONTHLY_INCOME_OPTIONS = [
-  { value: 'less_than_1_millon', label: 'Menos de $1.000.000' },
-  { value: 'between_1_and_5_millons', label: 'Entre $1.000.001 a $5.000.000' },
-  { value: 'between_5_and_10_millons', label: 'Entre $5.000.001 a $10.000.000' },
-  { value: 'between_10_and_25_millons', label: 'Entre $10.000.001 a $25.000.000' },
-  { value: 'greater_than_25_millons', label: 'Mayor de $25.000.001' },
-];
-
-const COUNTRY_OPTIONS = [
-  { label: 'Chile', value: 'Chile' },
-  { label: 'Argentina', value: 'Argentina' },
-  { label: 'Brasil', value: 'Brasil' },
-  { label: 'Colombia', value: 'Colombia' },
-  { label: 'México', value: 'México' },
-  { label: 'Perú', value: 'Perú' },
-  { label: 'Uruguay', value: 'Uruguay' },
-  { label: 'Estados Unidos', value: 'Estados Unidos' },
-  { label: 'España', value: 'España' },
-  { label: 'Otro', value: 'Otro' }
-];
 
 export default function OnboardingScreen() {
+  const { t } = useTranslation();
+
+ const MONTHLY_INCOME_OPTIONS = [
+    { value: 'less_than_1_millon', label: t('onboarding.incomeOptions.lessThan1M') },
+    { value: 'between_1_and_5_millons', label: t('onboarding.incomeOptions.between1And5M') },
+    { value: 'between_5_and_10_millons', label: t('onboarding.incomeOptions.between5And10M') },
+    { value: 'between_10_and_25_millons', label: t('onboarding.incomeOptions.between10And25M') },
+    { value: 'greater_than_25_millons', label: t('onboarding.incomeOptions.greaterThan25M') },
+  ];
+
+  const COUNTRY_OPTIONS = [
+    { value: 'Chile', label: t('countries.chile') },
+    { value: 'Argentina', label: t('countries.argentina') },
+    { value: 'Brasil', label: t('countries.brazil') },
+    { value: 'Colombia', label: t('countries.colombia') },
+    { value: 'México', label: t('countries.mexico') },
+    { value: 'Perú', label: t('countries.peru') },
+    { value: 'Uruguay', label: t('countries.uruguay') },
+    { value: 'Estados Unidos', label: t('countries.usa') },
+    { value: 'España', label: t('countries.spain') },
+    { value: 'Otro', label: t('countries.other') }
+  ];
   const { accessToken } = useAuth();
   const { userData, loading: isLoadingUserData } = useUserData();
   const { submitOnboardingData, loading: isSubmitting, error: serviceError, success } = useOnboarding();
@@ -402,23 +405,23 @@ export default function OnboardingScreen() {
                   </View>
                 </View>
 
-                {serviceError && (
-                  <View style={{ 
-                    backgroundColor: Colors.error[50], 
-                    borderWidth: 1, 
-                    borderColor: Colors.error[200],
-                    borderRadius: 8,
-                    padding: 12,
-                    marginBottom: 16
+              {serviceError && (
+                <View style={{ 
+                  backgroundColor: Colors.error[50], 
+                  borderWidth: 1, 
+                  borderColor: Colors.error[200], 
+                  borderRadius: 8, 
+                  padding: 12, 
+                  marginBottom: 16 
                   }}>
-                    <Text className="text-sm font-medium" style={{ color: Colors.error[700] }}>
-                      Error al enviar datos
-                    </Text>
-                    <Text className="text-sm font-regular" style={{ color: Colors.error[600], marginTop: 4 }}>
-                      {serviceError}
-                    </Text>
-                  </View>
-                )}
+                  <Text className="text-sm font-medium" style={{ color: Colors.error[700] }}>
+                    {t('onboarding.serviceError.title')}
+                  </Text>
+                  <Text className="text-sm font-regular" style={{ color: Colors.error[600], marginTop: 4 }}>
+                    {serviceError}
+                  </Text>
+                </View>
+              )}
 
                 <View style={{ marginTop: 32 }}>
                   <Button

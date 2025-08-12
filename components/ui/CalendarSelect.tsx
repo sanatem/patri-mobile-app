@@ -4,7 +4,7 @@ import { ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { cn } from '@/lib/utils';
 import { inputStyles } from '@/styles/ui/Input.styles';
 import { selectStyles, SCREEN_HEIGHT } from '@/styles/ui/Select.styles';
-import { Button } from '@/components/ui';
+import { Button } from './Button';
 import Colors from '@/constants/Colors';
 
 interface CalendarSelectProps {
@@ -17,7 +17,7 @@ interface CalendarSelectProps {
   className?: string;
 }
 
-export function CalendarSelect({
+export default function CalendarSelect({
   value,
   onSelect,
   placeholder = "Selecciona una fecha",

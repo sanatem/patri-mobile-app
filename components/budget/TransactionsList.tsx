@@ -5,6 +5,7 @@ import { budgetService } from '@/services/budget/get-budget';
 import { FloidTransaction } from '@/services/budget/get-floid-transactions';
 import Colors from '@/constants/Colors';
 import { SkeletonBase } from '@/components/ui/SkeletonBase';
+import { useTranslation } from 'react-i18next';
 
 interface TransactionsListProps {
   type: 'income' | 'expenses';
@@ -26,6 +27,7 @@ export default function TransactionsList({
   hasRealData = false // ✅ Por defecto false
 }: TransactionsListProps) {
 
+  const { t } = useTranslation();
   const transactionsData = useMemo(() => {
     // ✅ SOLO USAR DATOS FLOID SI HAY DATOS REALES
     const hasFloidData = hasRealData && 
@@ -140,10 +142,10 @@ export default function TransactionsList({
           marginBottom: 8,
         }}>
           {!hasRealData && !searchQuery
-            ? `Sin ${type === 'income' ? 'ingresos' : 'gastos'} en ${selectedMonth}`
+            ? t(`transactions_list.no_${type}_title_with_month`, { month: selectedMonth })
             : searchQuery 
-              ? 'Sin resultados'
-              : `Sin ${type === 'income' ? 'ingresos' : 'gastos'}`
+              ? t('transactions_list.no_results_title')
+              : t(`transactions_list.no_${type}_title`)
           }
         </Text>
         <Text style={{ 
@@ -154,10 +156,10 @@ export default function TransactionsList({
           lineHeight: 20,
         }}>
           {!hasRealData && !searchQuery
-            ? `No hay transacciones de ${type === 'income' ? 'ingresos' : 'gastos'} registradas para este mes`
+            ? t(`transactions_list.no_${type}_desc_with_month`)
             : searchQuery 
-              ? `No se encontraron ${type === 'income' ? 'ingresos' : 'gastos'} que coincidan con "${searchQuery}"`
-              : `No hay ${type === 'income' ? 'ingresos' : 'gastos'} disponibles`
+              ? t(`transactions_list.no_${type}_desc_with_search`, { query: searchQuery })
+              : t(`transactions_list.no_${type}_desc`)
           }
         </Text>
       </View>

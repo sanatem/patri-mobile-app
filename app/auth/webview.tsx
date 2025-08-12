@@ -1,13 +1,27 @@
-import React, { useEffect } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { router } from 'expo-router';
 import { ArrowLeft } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
+import { useAuth } from '@/providers/AuthProvider';
 
 export default function AuthWebViewScreen() {
+  const { login } = useAuth();
+  const [attempted, setAttempted] = useState(false);
+
   useEffect(() => {
-    router.replace('/auth/login');
-  }, []);
+    const doLogin = async () => {
+      setAttempted(true);
+      const success = await login();
+      if (success) {
+        router.replace('/');
+      } else {
+        Alert.alert('Autenticación cancelada', 'Puedes intentar nuevamente.');
+        router.replace('/');
+      }
+    };
+    doLogin();
+  }, [login]);
 
   const handleBack = () => {
     router.back();
@@ -26,7 +40,8 @@ export default function AuthWebViewScreen() {
       </View>
       
       <View className="flex-1 justify-center items-center p-6">
-        <Text className="text-center text-base mb-4" style={{ color: Colors.primary[500] }}>
+        <ActivityIndicator size="large" color={Colors.secondary[500]} />
+        <Text className="text-center text-base mt-4" style={{ color: Colors.primary[500] }}>
           Redirigiendo al proceso de autenticación...
         </Text>
       </View>

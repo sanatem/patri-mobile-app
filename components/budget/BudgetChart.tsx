@@ -4,6 +4,7 @@ import Svg, { Circle } from 'react-native-svg';
 import Colors from '@/constants/Colors';
 import { budgetService } from '@/services/budget/get-budget';
 import { SkeletonBase } from '@/components/ui/SkeletonBase';
+import { useTranslation } from 'react-i18next';
 
 interface BudgetChartProps {
   selectedMonth: string;
@@ -24,7 +25,7 @@ const BudgetChart: React.FC<BudgetChartProps> = ({
   isLoading = false,
   hasRealData = false
 }) => {
-  
+  const { t } = useTranslation();
   const { width: screenWidth } = Dimensions.get('window');
   const chartSize = Math.min(screenWidth - 80, 280);
   const center = chartSize / 2;
@@ -115,10 +116,10 @@ const BudgetChart: React.FC<BudgetChartProps> = ({
               />
             </Svg>
             <View style={styles.centerContent}>
-              <Text style={styles.emptyTitle}>Sin datos</Text>
-              <Text style={styles.emptySubtitle}>
-                No hay transacciones para {selectedMonth}
-              </Text>
+            <Text style={styles.emptyTitle}>{t('budget_chart.no_data_title')}</Text>
+            <Text style={styles.emptySubtitle}>
+              {t('budget_chart.no_data_subtitle', { month: selectedMonth })}
+            </Text>
             </View>
           </View>
         </View>
@@ -130,7 +131,7 @@ const BudgetChart: React.FC<BudgetChartProps> = ({
   const chartData = {
     budgetData: [
       {
-        label: 'Gastos Totales',
+        label: t('budget_chart.total_expenses'),
         value: totalExpenses,
         color: getGraphColor(), // ✅ Color dinámico según el balance
         percentage: remainingBudget > 0 ? (totalExpenses / remainingBudget) * 100 : 0
@@ -207,8 +208,8 @@ const BudgetChart: React.FC<BudgetChartProps> = ({
           </Text>
           <Text style={styles.centerSubtitle}>
             {totalBudget > 0 
-              ? `restante de $${formatCurrency(totalBudget)}`
-              : 'Sin datos para este mes'
+              ? t('budget_chart.remaining_of', { amount: formatCurrency(totalBudget) })
+              : t('budget_chart.no_data_this_month')
             }
           </Text>
         </View>

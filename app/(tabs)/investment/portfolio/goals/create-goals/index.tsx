@@ -11,9 +11,11 @@ import { useRouter } from 'expo-router';
 import { Picker } from '@react-native-picker/picker';
 import { ChevronLeft } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
+import { useTranslation } from 'react-i18next';
 
 export default function CreateGoalsScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const [goalName, setGoalName] = useState('');
   const [accountType, setAccountType] = useState('inversion');
 
@@ -28,29 +30,29 @@ export default function CreateGoalsScreen() {
         <TouchableOpacity onPress={() => router.back()}>
           <ChevronLeft size={24} color={Colors.secondary[500]} />
         </TouchableOpacity>
-        <Text style={styles.title}>Crear meta</Text>
+        <Text style={styles.title}>{t('createGoal.title')}</Text>
         <View style={{ width: 24 }} />
       </View>
 
       <View style={styles.form}>
-        <Text style={styles.label}>Nombre de la meta</Text>
+        <Text style={styles.label}>{t('createGoal.goalNameLabel')}</Text>
         <TextInput
           style={styles.input}
-          placeholder="Ej: Comprar casa"
+          placeholder={t('createGoal.goalNamePlaceholder')}
           placeholderTextColor="#9CA3AF"
           value={goalName}
           onChangeText={setGoalName}
         />
 
-        <Text style={styles.label}>Tipo de cuenta</Text>
+        <Text style={styles.label}>{t('createGoal.accountTypeLabel')}</Text>
         <View style={styles.pickerBox}>
           <Picker
             selectedValue={accountType}
             onValueChange={(itemValue) => setAccountType(itemValue)}
             style={styles.picker}
           >
-            <Picker.Item label="Cuenta de inversión" value="inversion" />
-            <Picker.Item label="Cuenta de ahorro" value="ahorro" />
+            <Picker.Item label={t('createGoal.accountType.investment')} value="inversion" />
+            <Picker.Item label={t('createGoal.accountType.saving')} value="ahorro" />
           </Picker>
         </View>
       </View>
@@ -67,7 +69,7 @@ export default function CreateGoalsScreen() {
               goalName ? styles.textEnabled : styles.textDisabled,
             ]}
           >
-            Crear
+            {t('common.create')}
           </Text>
         </TouchableOpacity>
       </View>

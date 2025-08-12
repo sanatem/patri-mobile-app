@@ -4,6 +4,7 @@ import { InteractiveChart } from '@/components/ui/InteractiveChart';
 import { useGoalHistory } from '@/hooks/investment/useGoalHistory';
 import Colors from '@/constants/Colors';
 import { SkeletonBase } from '@/components/ui/SkeletonBase';
+import { useTranslation } from 'react-i18next';
 
 interface GoalProgressChartProps {
   goalId: string;
@@ -22,7 +23,7 @@ export function GoalProgressChart({
   startDate,
   endDate
 }: GoalProgressChartProps) {
-  
+  const { t } = useTranslation();
   const { historyData, loading, error } = useGoalHistory({
     goalId,
     period: 'ALL', // Forzar a mostrar todo el histórico
@@ -131,7 +132,7 @@ export function GoalProgressChart({
       
       // Check if date is valid
       if (isNaN(date.getTime())) {
-        return 'Fecha no disponible';
+        return t('goals.date_unavailable');
       }
       
       return date.toLocaleDateString('es-CL', {
@@ -141,7 +142,7 @@ export function GoalProgressChart({
       });
     } catch (error) {
       console.warn('Error formatting date:', dateString, error);
-      return 'Fecha no disponible';
+      return t('goals.date_unavailable');
     }
   };
 
@@ -152,7 +153,7 @@ export function GoalProgressChart({
   const customFormatDate = (date: string) => {
     const originalData = chartData.find(item => item.x === date);
     const formattedDate = formatDate(date);
-    return originalData?.projected ? `${formattedDate} (Proyectado)` : formattedDate;
+    return originalData?.projected ? `${formattedDate} (${t('goals.projected')})` : formattedDate;
   };
 
   const getCurrentDate = () => {
@@ -183,7 +184,7 @@ export function GoalProgressChart({
       </View>
       
       <Text style={styles.progressDetailsText}>
-        {progressPercentage.toFixed(2)}% de ${Math.round(targetAmount).toLocaleString('es-CL')} al {getCurrentDate()}
+        {progressPercentage.toFixed(2)}% {t('goals.of')} ${Math.round(targetAmount).toLocaleString('es-CL')} {t('goals.by')} {getCurrentDate()}
       </Text>
     </View>
   );
@@ -247,7 +248,7 @@ export function GoalProgressChart({
   if (error) {
     return (
       <View style={[styles.card, styles.errorContainer]}>
-        <Text style={styles.errorText}>Error al cargar el historial</Text>
+        <Text style={styles.errorText}>{t('goals.history_error_title')}</Text>
         <Text style={styles.errorSubtext}>{error}</Text>
       </View>
     );
@@ -256,7 +257,7 @@ export function GoalProgressChart({
   return (
     <InteractiveChart
       data={chartData}
-      title="Evolución de la meta"
+      title={t('goals.goal_progress_title')}
       height={180}
       formatValue={formatValue}
       formatDate={customFormatDate}

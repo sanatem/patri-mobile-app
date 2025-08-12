@@ -2,15 +2,17 @@ import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { CircleCheck, Lock } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
-import { Button } from '@/components/ui';
+import { Button } from './Button';
 import Colors from '@/constants/Colors';
 import { Card } from './Card';
+import { useTranslation } from 'react-i18next';
 
 interface LockedTabOverlayProps {
   tabName: string;
 }
 
 export default function LockedTabOverlay({ tabName }: LockedTabOverlayProps) {
+  const { t } = useTranslation();
   const router = useRouter();
 
   const handleUpgrade = () => {
@@ -27,31 +29,31 @@ export default function LockedTabOverlay({ tabName }: LockedTabOverlayProps) {
           {tabName}
         </Text>
         <Text className="text-base font-regular text-center mb-8 leading-6" style={{ color: Colors.gray[600] }}>
-          Suscríbete a un plan y accede a todas las funcionalidades premium.
+          {t('lockedOverlay.description')}
         </Text>
 
         <Card className="mt-5 rounded-lg p-4 w-full">
           <Text className="text-sm font-regular text-gray-600 text-center">
-             Con una suscripción premium tendrás acceso completo a:
+            {t('lockedOverlay.benefits_title')}
           </Text>
           <View className="mt-3 space-y-2">
             <View className="flex-row items-center">
               <CircleCheck size={16} color={Colors.secondary[500]} />
-              <Text className="text-sm font-regular ml-2" style={{ color: Colors.gray[600] }}>Análisis detallado de patrimonio.</Text>
+              <Text className="text-sm font-regular ml-2" style={{ color: Colors.gray[600] }}>{t('lockedOverlay.benefits.asset_analysis')}</Text>
             </View>
             <View className="flex-row items-center">
               <CircleCheck size={16} color={Colors.secondary[500]} />
-              <Text className="text-sm font-regular ml-2" style={{ color: Colors.gray[600] }}>Gestión avanzada de presupuestos.</Text>
+              <Text className="text-sm font-regular ml-2" style={{ color: Colors.gray[600] }}>{t('lockedOverlay.benefits.budget_management')}</Text>
             </View>
             <View className="flex-row items-center">
               <CircleCheck size={16} color={Colors.secondary[500]} />
-              <Text className="text-sm font-regular ml-2" style={{ color: Colors.gray[600] }}>Acceder a Cuenta de inversion si posees una.</Text>
+              <Text className="text-sm font-regular ml-2" style={{ color: Colors.gray[600] }}>{t('lockedOverlay.benefits.investment_access')}</Text>
             </View>
           </View>
         </Card>
         <View className="mt-8 w-full">
         <Button
-            title="Suscribirme"
+            title={t('plans.premium.button')}
             onPress={handleUpgrade}
             variant="primary"
             size="large"

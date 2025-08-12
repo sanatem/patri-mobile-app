@@ -3,6 +3,7 @@ import { View, TextInput, TouchableOpacity, Animated, Keyboard } from 'react-nat
 import { Search, X } from 'lucide-react-native';
 import { inputStyles } from '@/styles/ui/Input.styles';
 import Colors from '@/constants/Colors';
+import { useTranslation } from 'react-i18next';
 
 interface SearchBarProps {
   placeholder?: string;
@@ -15,9 +16,8 @@ interface SearchBarProps {
   returnKeyType?: 'done' | 'go' | 'next' | 'search' | 'send';
   blurOnSubmit?: boolean;
 }
-
 export function SearchBar({
-  placeholder = 'Buscar...',
+  placeholder,
   value,
   onChangeText,
   onClear,
@@ -27,6 +27,8 @@ export function SearchBar({
   returnKeyType = 'search',
   blurOnSubmit = true,
 }: SearchBarProps) {
+  const { t } = useTranslation();
+  const defaultPlaceholder = placeholder || t('common.search_placeholder');
   const [internalValue, setInternalValue] = useState('');
   const [isFocused, setIsFocused] = useState(false);
   const borderAnim = useRef(new Animated.Value(0)).current;
@@ -77,7 +79,7 @@ export function SearchBar({
       />
       <TextInput
         style={inputStyles.textInput}
-        placeholder={placeholder}
+        placeholder={defaultPlaceholder}
         placeholderTextColor={Colors.gray[400]}
         value={currentValue}
         onChangeText={handleChangeText}

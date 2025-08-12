@@ -18,10 +18,6 @@ import { Container } from '@/components/ui/Container';
 import { PortfolioHeader } from '@/components/investment/portfolio';
 import { ListItem } from '@/components/ui/ListItem';
 import { SkeletonBase } from '@/components/ui/SkeletonBase';
-import { 
-  INVESTMENT_PORTFOLIO_DATA, 
-  INVESTMENT_SAMPLE_DATA 
-} from '@/constants/AppConstants';
 import Colors from '@/constants/Colors';
 import { listItemStyles } from '@/styles/ui/ListItem.styles';
 import { PortfolioActionsBar } from '@/components/investment/portfolio/PortfolioActionsBar';
@@ -30,9 +26,11 @@ import { useGoals } from '@/hooks/investment/useGoals';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { useFormatValue } from '@/hooks/common/useFormatValue';
 import { useTotalWalletValue } from '@/hooks/investment/useTotalWalletValue';
+import { useTranslation } from 'react-i18next';
 
 export default function InvestmentPortfolioScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const { goals, loading: goalsLoading, error: goalsError, refetch } = useGoals();
   const { formatValue } = useFormatValue();
   const { totalWalletValue, loading: walletLoading, error: walletError } = useTotalWalletValue();
@@ -46,26 +44,44 @@ export default function InvestmentPortfolioScreen() {
     BarChart: <BarChart size={24} color={Colors.gray[500]} />,
   };
 
-  const investmentData = INVESTMENT_PORTFOLIO_DATA.map(item => ({
-    id: item.id,
-    title: item.title,
-    subtitle: item.subtitle,
-    value: item.amount,
-    icon: {
-      component: iconMap[item.icon as keyof typeof iconMap],
-      backgroundColor: Colors.gray[50],
-      color: Colors.secondary[500],
-      text: item.title.charAt(0)
-    },
-    onPress: item.hasDetails ? () => router.push({
-      pathname: '/investment/portfolio/portfolio-details',
-      params: {
-        title: item.title,
-        subtitle: item.subtitle,
-        amount: item.amount,
+  interface Goal {
+    id: string;
+    name: string;
+    currentAmount: number;
+    targetAmount: number;
+  }
+  const staticInvestmentIds = ['reserva', 'emergencias', 'casa', 'jubilacion'];
+
+  const allGoals: Goal[] = [...goals.shortTerm, ...goals.mediumTerm, ...goals.longTerm];
+
+  const investmentData = staticInvestmentIds.map(id => {
+    const matchedGoal = allGoals.find((g: Goal) => g.id === id);
+    const value = matchedGoal
+      ? formatValue(matchedGoal.currentAmount.toString())
+      : '$0';
+    return {
+      id,
+      title: t(`portfolio.cards.${id}.title`),
+      subtitle: t(`portfolio.cards.${id}.subtitle`),
+      value,
+      icon: {
+        component: iconMap[id.charAt(0).toUpperCase() + id.slice(1) as keyof typeof iconMap] || <PiggyBank size={24} color={Colors.gray[500]} />,
+        backgroundColor: Colors.gray[50],
+        color: Colors.secondary[500],
+        text: id.charAt(0).toUpperCase()
       },
-    }) : undefined,
-  }));
+      onPress: matchedGoal
+        ? () =>
+            router.push({
+              pathname: '/investment/portfolio/portfolio-details',
+              params: {
+                goalId: id,
+                goalName: t(`portfolio.cards.${id}.title`)
+              }
+            })
+        : undefined
+    };
+  });
 
   const getFallbackPatrimonyValue = () => {
     if (walletLoading || goalsLoading) {
@@ -154,8 +170,10 @@ export default function InvestmentPortfolioScreen() {
     if (goalsError) {
       return (
         <View className="flex-1 justify-center items-center py-8">
-          <Text className="text-red-500 mb-4">Error al cargar metas</Text>
-          <Button title="Reintentar" onPress={refetch} />
+          <Text className="text-red-500 mb-4">
+            {t('portfolio.goalsError')}
+          </Text>
+          <Button title={t('common.retry')} onPress={refetch} />
         </View>
       );
     }
@@ -170,7 +188,7 @@ export default function InvestmentPortfolioScreen() {
             <TrendingUp size={32} color={Colors.gray[400]} />
           </View>
           <Text className="text-center font-medium" style={{ color: Colors.gray[400] }}>
-            Aún no tienes metas definidas.
+            {t('portfolio.noGoals')}
           </Text>
         </View>
       );
@@ -179,7 +197,7 @@ export default function InvestmentPortfolioScreen() {
     const goalsData = allGoals.map(goal => ({
       id: goal.id,
       title: goal.name,
-      subtitle: `Meta ${formatValue(goal.targetAmount.toString())}`,
+      subtitle: `${t('portfolio.goalPrefix')} ${formatValue(goal.targetAmount.toString())}`,
       value: formatValue(goal.currentAmount.toString()),
       icon: {
         component: <PiggyBank size={24} color={Colors.secondary[500]} />,
@@ -208,7 +226,7 @@ export default function InvestmentPortfolioScreen() {
   return (
     <Container variant="secondaryPage">
       <Header 
-        title="Portafolio" 
+        title={t('portfolio.title')} 
         rightAction={
           <TouchableOpacity
             className="w-10 h-10 rounded-full justify-center items-center"
@@ -228,13 +246,13 @@ export default function InvestmentPortfolioScreen() {
         <PortfolioActionsBar
           actions={[
             {
-              title: 'Invertir',
+              title: t('portfolio.actions.invest'),
               onPress: handleInvestPress,
               icon: <ArrowDown size={20} color="#fff" />,
               variant: 'primary'
             },
             {
-              title: 'Retirar',
+              title: t('portfolio.actions.withdraw'),
               onPress: handleWithdrawPress,
               icon: <ArrowUp size={20} color="#FF5603" />,
               variant: 'outline'
@@ -243,7 +261,7 @@ export default function InvestmentPortfolioScreen() {
         />
         )}
         <View className="px-6 py-2">
-          <Text className="text-lg font-medium text-gray-800">Metas</Text>
+          <Text className="text-lg font-medium text-gray-800">{t('portfolio.goalsTitle')}</Text>
         </View>
         
         <View style={listItemStyles.cardContainer}>
