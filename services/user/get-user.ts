@@ -28,6 +28,7 @@ export interface Advisor {
   email: string;
   phone: string;
   description: string;
+  profile_image?: string;
 }
 
 export interface User {

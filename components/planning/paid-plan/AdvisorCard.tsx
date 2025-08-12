@@ -1,4 +1,5 @@
-import { View, Text } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, Image } from 'react-native';
 import Colors from '@/constants/Colors';
 import { Card } from '@/components/ui';
 import { useUserData } from '@/hooks/user/useUserData';
@@ -13,7 +14,16 @@ interface AdvisorCardProps {
 export default function AdvisorCard({ onSchedule, onChat }: AdvisorCardProps) {
   const { t } = useTranslation();
   const { userData, loading, error } = useUserData();
-    const advisor = userData?.user?.advisor;
+  const [imageError, setImageError] = useState(false);
+  const [imageLoading, setImageLoading] = useState(false);
+  const advisor = userData?.user?.advisor;
+
+  React.useEffect(() => {
+    if (advisor?.profile_image) {
+      setImageError(false);
+      setImageLoading(true);
+    }
+  }, [advisor?.id, advisor?.profile_image]);
   
   if (loading) {
     return (
@@ -118,15 +128,56 @@ export default function AdvisorCard({ onSchedule, onChat }: AdvisorCardProps) {
             borderColor: Colors.primary[100],
             backgroundColor: Colors.primary[100],
             alignItems: 'center',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            overflow: 'hidden'
           }}>
-            <Text style={{
-              fontSize: 24,
-              fontWeight: 'bold',
-              color: Colors.primary[600]
-            }}>
-              {advisor.advisor_name.charAt(0).toUpperCase()}
-            </Text>
+            {advisor.profile_image && !imageError ? (
+              <>
+                <Image
+                  source={{ uri: advisor.profile_image }}
+                  style={{
+                    width: 58,
+                    height: 58,
+                    borderRadius: 29,
+                    opacity: imageLoading ? 0 : 1
+                  }}
+                  resizeMode="cover"
+                  onLoadStart={() => {
+                    setImageLoading(true);
+                  }}
+                  onError={() => {
+                    setImageError(true);
+                    setImageLoading(false);
+                  }}
+                  onLoad={() => {
+                    setImageLoading(false);
+                  }}
+                />
+                {imageLoading && (
+                  <View style={{
+                    position: 'absolute',
+                    width: 58,
+                    height: 58,
+                    borderRadius: 29,
+                    backgroundColor: Colors.secondary[200]
+                  }} />
+                )}
+              </>
+            ) : (
+              <Text style={{
+                fontSize: 20,
+                fontWeight: 'bold',
+                color: Colors.primary[600]
+              }}>
+                {advisor.advisor_name
+                  .split(' ')
+                  .map(name => name.charAt(0))
+                  .join('')
+                  .toUpperCase()
+                  .slice(0, 2)
+                }
+              </Text>
+            )}
           </View>
         </View>
         <View className="ml-4 flex-1 justify-center">
