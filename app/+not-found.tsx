@@ -2,8 +2,11 @@ import { Stack, useRouter } from 'expo-router';
 import { useEffect } from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import Colors from '@/constants/Colors';
+import { useTranslation } from 'react-i18next';
+
 
 export default function NotFoundScreen() {
+  const { t } = useTranslation();
   const router = useRouter();
 
   useEffect(() => {
@@ -16,7 +19,7 @@ export default function NotFoundScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ title: 'Cargando...' }} />
+      <Stack.Screen options={{ title: t('common.loading') }} />
       <View style={{
         flex: 1,
         alignItems: 'center',

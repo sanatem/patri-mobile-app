@@ -1,5 +1,7 @@
 import config from '@/config/constants';
 import mockData from '@/data/mock/mock-data.json';
+import { apiService } from '@/services/api';
+import { safeCurrencyToNumber } from '@/lib/utils';
 
 export interface MetaDetails {
   id: string;
@@ -111,13 +113,7 @@ const formatSafeDate = (dateString: string): string => {
 };
 
 const getSafeNumber = (value: any, defaultValue: number = 0): number => {
-  if (typeof value === 'number' && !isNaN(value)) {
-    return value;
-  }
-  if (typeof value === 'string' && !isNaN(Number(value))) {
-    return Number(value);
-  }
-  return defaultValue;
+  return safeCurrencyToNumber(value, defaultValue);
 };
 
 const formatPercentage = (value: any): string => {

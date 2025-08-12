@@ -93,11 +93,11 @@ export default function FormLayout({
           <View style={{ flex: 1, paddingHorizontal: 24, paddingTop: height * 0.1 }}>
             {showLogo && (
               <View style={{ alignItems: 'center', marginBottom: 10 }}>
-                <PatrimoreIcon width={160} height={80} color={Colors.secondary[500]} />
+                <PatrimoreIcon width={140} height={50} color={Colors.secondary[500]} />
               </View>
             )}
 
-            <Card style={{ padding: 24 }}>
+            <Card style={{ padding: 24, marginBottom: 24 }}>
               <View style={{ marginBottom: 24 }}>
                 <Text className='font-medium text-2xl'
                   style={{
@@ -131,7 +131,8 @@ export default function FormLayout({
                   borderColor: Colors.error[200],
                   borderRadius: 8,
                   padding: 12,
-                  marginBottom: 16
+                  marginBottom: 16,
+                  marginTop: 16
                 }}>
                   <Text className="text-sm font-medium" style={{ color: Colors.error[700] }}>
                     Error
@@ -143,12 +144,13 @@ export default function FormLayout({
               )}
 
               <View style={{ marginTop: 32, gap: 12 }}>
-                {onCancel && (
+                {onNext && (
                   <Button
-                    title={cancelButtonTitle}
-                    onPress={onCancel}
-                    disabled={isLoading}
-                    variant="outline"
+                    title={isLoading ? loadingText : nextButtonTitle}
+                    onPress={onNext}
+                    disabled={isLoading || isNextDisabled}
+                    loading={isLoading}
+                    variant="primary"
                     fullWidth
                   />
                 )}
@@ -158,18 +160,17 @@ export default function FormLayout({
                     title={previousButtonTitle}
                     onPress={onPrevious}
                     disabled={isLoading}
-                    variant="outline"
+                    variant="ghost"
                     fullWidth
                   />
                 )}
-                
-                {onNext && (
+
+                {onCancel && (
                   <Button
-                    title={isLoading ? loadingText : nextButtonTitle}
-                    onPress={onNext}
-                    disabled={isLoading || isNextDisabled}
-                    loading={isLoading}
-                    variant="primary"
+                    title={cancelButtonTitle}
+                    onPress={onCancel}
+                    disabled={isLoading}
+                    variant="ghost"
                     fullWidth
                   />
                 )}

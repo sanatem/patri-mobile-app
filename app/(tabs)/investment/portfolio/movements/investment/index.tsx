@@ -13,10 +13,12 @@ import { Container } from '@/components/ui/Container';
 import GoalSelectionStep from './goal-step';
 import AmountStep from './amount-step';
 import Colors from '@/constants/Colors';
+import { useTranslation } from 'react-i18next';
 
 type Step = 'goal-step' | 'amount-step';
 
 export default function InvestmentMovementFlow() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { from = 'Emergencias' } = useLocalSearchParams();
   const [currentStep, setCurrentStep] = useState<Step>('goal-step');
@@ -35,9 +37,9 @@ export default function InvestmentMovementFlow() {
   const getHeaderTitle = () => {
     switch (currentStep) {
       case 'goal-step':
-        return `Mover desde ${from}`;
+        return t('investmentMovement.header.from', { from });
       case 'amount-step':
-        return 'Ingresar monto';
+        return t('investmentMovement.header.amount');
       default:
         return '';
     }

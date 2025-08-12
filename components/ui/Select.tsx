@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { inputStyles } from '@/styles/ui/Input.styles';
 import { selectStyles, SCREEN_HEIGHT } from '@/styles/ui/Select.styles';
 import Colors from '@/constants/Colors';
+import { useTranslation } from 'react-i18next';
 
 interface SelectOption {
   label: string;
@@ -22,24 +23,25 @@ interface SelectProps {
   disabled?: boolean;
   className?: string;
 }
-
 export function Select({
   options,
   value,
   onSelect,
-  placeholder = "Selecciona una opción",
+  placeholder,
   label,
   error,
   disabled = false,
   className,
 }: SelectProps) {
+  const { t } = useTranslation();
+  const placeholderText = placeholder ?? t('common.select_option')
   const [isOpen, setIsOpen] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const borderAnim = useRef(new Animated.Value(0)).current;
   const overlayAnim = useRef(new Animated.Value(0)).current;
   const sheetAnim = useRef(new Animated.Value(0)).current;
 
-  const selectedOption = options.find(option => option.value === value);
+  const selectedOption = options.find(option => String(option.value) === String(value ?? ''));
 
   useEffect(() => {
     Animated.timing(borderAnim, {
@@ -122,25 +124,34 @@ export function Select({
     },
   ];
 
+  const isDisabled = disabled;
+  const borderColor = isDisabled ? Colors.gray[100] : (error ? '#DC2626' : animatedBorderColor);
+  const labelColor = isDisabled ? Colors.gray[400] : Colors.primary[500];
+  const textColor = isDisabled ? Colors.gray[400] : Colors.primary[500];
+  const placeholderColor = isDisabled ? Colors.gray[400] : Colors.primary[400];
+
   return (
     <View className={cn('mb-5 w-full', className)}>
       {label && (
-        <Text className="text-base font-medium mb-2" style={{ color: Colors.primary[500] }}>{label}</Text>
+        <Text className="text-base font-medium mb-2" style={{ color: labelColor }}>{label}</Text>
       )}
       <Animated.View
         style={[
           inputStyles.container,
           {
-            borderColor: error ? '#DC2626' : animatedBorderColor,
-            backgroundColor: disabled ? '#F3F4F6' : '#fff',
+            borderColor: borderColor,
+            backgroundColor: '#fff',
+            opacity: isDisabled ? 0.6 : 1,
           },
+          isDisabled && inputStyles.containerDisabled,
+          error && inputStyles.containerError,
         ]}
       >
         <TouchableOpacity
           className="flex-1 flex-row items-center"
           onPress={toggleDropdown}
           activeOpacity={0.7}
-          disabled={disabled}
+          disabled={isDisabled}
         >
           {selectedOption?.icon && (
             <View style={inputStyles.iconContainer}>{selectedOption.icon}</View>
@@ -148,22 +159,18 @@ export function Select({
           <Text
             className={cn(
               'text-base font-regular',
-              disabled && 'text-gray-400'
+              isDisabled && 'text-gray-400'
             )}
             style={{ 
               flex: 1,
-              color: disabled 
-                ? Colors.gray[400] 
-                : selectedOption 
-                  ? Colors.primary[500] 
-                  : Colors.primary[400]
+              color: selectedOption ? textColor : placeholderColor,
             }}
           >
-            {selectedOption ? selectedOption.label : placeholder}
+            {selectedOption ? selectedOption.label : placeholderText}
           </Text>
           <ChevronDown
             size={18}
-            color={disabled ? '#D1D5DB' : '#6B7280'}
+            color={isDisabled ? '#D1D5DB' : '#6B7280'}
             style={{ transform: [{ rotate: isOpen ? '180deg' : '0deg' }] }}
           />
         </TouchableOpacity>
@@ -208,10 +215,10 @@ export function Select({
                   <Text
                     className={cn(
                       'text-base',
-                      option.value === value ? 'font-medium' : 'font-regular'
+                      String(option.value) === String(value ?? '') ? 'font-medium' : 'font-regular'
                     )}
                     style={{
-                      color: option.value === value ? Colors.primary[500] : Colors.primary[700]
+                      color: String(option.value) === String(value ?? '') ? Colors.primary[500] : Colors.primary[700]
                     }}
                   >
                     {option.label}

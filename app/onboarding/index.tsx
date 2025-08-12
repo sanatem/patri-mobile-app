@@ -1,59 +1,59 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  View, 
-  Text, 
-  ScrollView, 
-  Dimensions, 
-  Alert, 
-  ActivityIndicator 
-} from 'react-native';
+import { View, Text, ScrollView, ActivityIndicator, Dimensions } from 'react-native';
 import { router } from 'expo-router';
-import { useKeyboardHandler } from '@/hooks/common/useKeyboardHandler';
-import { useOnboarding } from '@/hooks/common/useOnboarding';
 import { useAuth } from '@/providers/AuthProvider';
-import { 
-  Button, 
-  Input, 
-  Select, 
-  CalendarSelect, 
-  Container, 
-  Card, 
+import { useUserData } from '@/hooks/user/useUserData';
+import { useOnboarding } from '@/hooks/user/useOnboarding';
+import { submitOnboarding } from '@/services/user/onboarding';
+import { validateRut, cleanRutForBackend, formatRutWhileTyping } from '@/utils/rut-validation';
+import {
+  Container,
+  Input,
+  Select,
   KeyboardAwareContainer,
+  Button,
+  Card,
+  CalendarSelect,
   InfoTooltip
 } from '@/components/ui';
 import Colors from '@/constants/Colors';
 import { PatrimoreIcon } from '@/components/icons';
-import { submitOnboarding } from '@/services/user/onboarding';
 import { getUserData } from '@/services/user/get-user';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useKeyboardHandler } from '@/hooks/common/useKeyboardHandler';
+import { useOnboarding as useOnboardingCommon } from '@/hooks/common/useOnboarding';
+import { useTranslation } from 'react-i18next';
 
 const { height } = Dimensions.get('window');
 
-const MONTHLY_INCOME_OPTIONS = [
-  { value: 'less_than_1_millon', label: 'Menos de $1.000.000' },
-  { value: 'between_1_and_5_millons', label: 'Entre $1.000.001 a $5.000.000' },
-  { value: 'between_5_and_10_millons', label: 'Entre $5.000.001 a $10.000.000' },
-  { value: 'between_10_and_25_millons', label: 'Entre $10.000.001 a $25.000.000' },
-  { value: 'greater_than_25_millons', label: 'Mayor de $25.000.001' },
-];
-
-const COUNTRY_OPTIONS = [
-  { label: 'Chile', value: 'Chile' },
-  { label: 'Argentina', value: 'Argentina' },
-  { label: 'Brasil', value: 'Brasil' },
-  { label: 'Colombia', value: 'Colombia' },
-  { label: 'México', value: 'México' },
-  { label: 'Perú', value: 'Perú' },
-  { label: 'Uruguay', value: 'Uruguay' },
-  { label: 'Estados Unidos', value: 'Estados Unidos' },
-  { label: 'España', value: 'España' },
-  { label: 'Otro', value: 'Otro' }
-];
 
 export default function OnboardingScreen() {
-  const { markAsSeen } = useOnboarding();
-  const { keyboardHeight, isKeyboardVisible } = useKeyboardHandler();
+  const { t } = useTranslation();
+
+ const MONTHLY_INCOME_OPTIONS = [
+    { value: 'less_than_1_millon', label: t('onboarding.incomeOptions.lessThan1M') },
+    { value: 'between_1_and_5_millons', label: t('onboarding.incomeOptions.between1And5M') },
+    { value: 'between_5_and_10_millons', label: t('onboarding.incomeOptions.between5And10M') },
+    { value: 'between_10_and_25_millons', label: t('onboarding.incomeOptions.between10And25M') },
+    { value: 'greater_than_25_millons', label: t('onboarding.incomeOptions.greaterThan25M') },
+  ];
+
+  const COUNTRY_OPTIONS = [
+    { value: 'Chile', label: t('countries.chile') },
+    { value: 'Argentina', label: t('countries.argentina') },
+    { value: 'Brasil', label: t('countries.brazil') },
+    { value: 'Colombia', label: t('countries.colombia') },
+    { value: 'México', label: t('countries.mexico') },
+    { value: 'Perú', label: t('countries.peru') },
+    { value: 'Uruguay', label: t('countries.uruguay') },
+    { value: 'Estados Unidos', label: t('countries.usa') },
+    { value: 'España', label: t('countries.spain') },
+    { value: 'Otro', label: t('countries.other') }
+  ];
   const { accessToken } = useAuth();
+  const { userData, loading: isLoadingUserData } = useUserData();
+  const { submitOnboardingData, loading: isSubmitting, error: serviceError, success } = useOnboarding();
+  const { markAsCompleted } = useOnboardingCommon();
+  const { isKeyboardVisible, keyboardHeight } = useKeyboardHandler();
   
   const [formData, setFormData] = useState({
     rut: '',
@@ -62,11 +62,8 @@ export default function OnboardingScreen() {
     monthly_incomes: '',
   });
   const [loading, setLoading] = useState(false);
-  const [serviceLoading, setServiceLoading] = useState(false);
-  const [serviceError, setServiceError] = useState<string | null>(null);
-  const [isLoadingUserData, setIsLoadingUserData] = useState(true);
   const [isRutLocked, setIsRutLocked] = useState(false);
-  const isLoading = loading || serviceLoading;
+  const isLoading = loading || isSubmitting;
   const [errors, setErrors] = useState<string[]>([]);
   const allErrors = [...errors, ...(serviceError ? [serviceError] : [])];
 
@@ -76,7 +73,6 @@ export default function OnboardingScreen() {
 
   const loadUserData = async () => {
     if (!accessToken) {
-      setIsLoadingUserData(false);
       return;
     }
 
@@ -125,9 +121,6 @@ export default function OnboardingScreen() {
         setFormData(newFormData);
       }
     } catch (error) {
-      console.error('Error loading user data:', error);
-    } finally {
-      setIsLoadingUserData(false);
     }
   };
 
@@ -162,28 +155,12 @@ export default function OnboardingScreen() {
   };
 
   const handleRUTChange = (value: string) => {
-    if (value.trim() === '') {
-      setFormData(prev => ({
-        ...prev,
-        rut: '',
-      }));
-      return;
-    }
-    
-    const cleanValue = value.replace(/[^0-9kK-]/g, '');
-    
-    if (cleanValue.length === 0) {
-      return;
-    }
-    
-    if (cleanValue.length > 10) {
-      return;
-    }
+    const formattedValue = formatRutWhileTyping(value);
     
     setFormData(prev => {
       const newFormData = {
         ...prev,
-        rut: cleanValue.toUpperCase(),
+        rut: formattedValue,
       };
       
       setTimeout(() => {
@@ -195,24 +172,7 @@ export default function OnboardingScreen() {
   };
 
   const formatRUTForBackend = (rut: string): string => {
-    const cleanRut = rut.replace(/[^0-9kK]/g, '');
-    
-    if (cleanRut.length < 2) {
-      return cleanRut.toUpperCase();
-    }
-    
-    const body = cleanRut.slice(0, -1);
-    const digit = cleanRut.slice(-1);
-    
-    let formattedBody = '';
-    for (let i = body.length - 1, j = 0; i >= 0; i--, j++) {
-      if (j > 0 && j % 3 === 0) {
-        formattedBody = '.' + formattedBody;
-      }
-      formattedBody = body[i] + formattedBody;
-    }
-    
-    return formattedBody + '-' + digit.toUpperCase();
+    return cleanRutForBackend(rut);
   };
 
   const convertDateFormat = (dateString: string): string => {
@@ -236,8 +196,11 @@ export default function OnboardingScreen() {
     
     if (!data.rut.trim()) {
       newErrors.push('El RUT es requerido');
-    } else if (data.rut.length < 3) {
-      newErrors.push('El RUT debe tener al menos 3 caracteres');
+    } else {
+      const rutValidation = validateRut(data.rut);
+      if (!rutValidation.isValid) {
+        newErrors.push(rutValidation.error || 'El RUT ingresado no es válido');
+      }
     }
     
     if (!data.residence_country_name.trim()) {
@@ -270,7 +233,6 @@ export default function OnboardingScreen() {
 
   const handleComplete = async () => {
     setLoading(true);
-    setServiceError(null);
     
     try {
       const formErrors = validateForm();
@@ -292,16 +254,13 @@ export default function OnboardingScreen() {
         throw new Error('No hay token de autenticación disponible');
       }
 
-      const response = await submitOnboarding(accessToken, onboardingData);
+      const response = await submitOnboardingData(onboardingData);
       
       if (response) {
-        await AsyncStorage.setItem('onboarding_completed', 'true');
-        await markAsSeen();
+        await markAsCompleted();
         router.replace('/(tabs)/patrimony');
       }
     } catch (error) {
-      console.error('Error in handleComplete:', error);
-      setServiceError(error instanceof Error ? error.message : 'Error desconocido');
     } finally {
       setLoading(false);
     }
@@ -331,10 +290,10 @@ export default function OnboardingScreen() {
           ) : (
             <View style={{ flex: 1, paddingHorizontal: 24, paddingTop: height * 0.1 }}>
               <View style={{ alignItems: 'center', marginBottom: 10 }}>
-                <PatrimoreIcon width={160} height={80} color={Colors.secondary[500]} />
+                <PatrimoreIcon width={140} height={50} color={Colors.secondary[500]} />
               </View>
 
-              <Card style={{ padding: 24 }}>
+              <Card style={{ padding: 24, marginBottom: 24 }}>
                 <View style={{ marginBottom: 24 }}>
                   <Text className='font-medium text-2xl'
                     style={{
@@ -375,7 +334,7 @@ export default function OnboardingScreen() {
                       value={formData.rut}
                       onChangeText={handleRUTChange}
                       autoCapitalize="characters"
-                      maxLength={10}
+                      maxLength={12}
                       keyboardType="default"
                       returnKeyType="next"
                       clearButtonMode="while-editing"
@@ -446,23 +405,23 @@ export default function OnboardingScreen() {
                   </View>
                 </View>
 
-                {serviceError && (
-                  <View style={{ 
-                    backgroundColor: Colors.error[50], 
-                    borderWidth: 1, 
-                    borderColor: Colors.error[200],
-                    borderRadius: 8,
-                    padding: 12,
-                    marginBottom: 16
+              {serviceError && (
+                <View style={{ 
+                  backgroundColor: Colors.error[50], 
+                  borderWidth: 1, 
+                  borderColor: Colors.error[200], 
+                  borderRadius: 8, 
+                  padding: 12, 
+                  marginBottom: 16 
                   }}>
-                    <Text className="text-sm font-medium" style={{ color: Colors.error[700] }}>
-                      Error al enviar datos
-                    </Text>
-                    <Text className="text-sm font-regular" style={{ color: Colors.error[600], marginTop: 4 }}>
-                      {serviceError}
-                    </Text>
-                  </View>
-                )}
+                  <Text className="text-sm font-medium" style={{ color: Colors.error[700] }}>
+                    {t('onboarding.serviceError.title')}
+                  </Text>
+                  <Text className="text-sm font-regular" style={{ color: Colors.error[600], marginTop: 4 }}>
+                    {serviceError}
+                  </Text>
+                </View>
+              )}
 
                 <View style={{ marginTop: 32 }}>
                   <Button

@@ -4,15 +4,14 @@ import { Settings, Plus, RefreshCw } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
 import { 
-  LABELS, 
-  TIME_RANGES, 
+
   TAB_CONFIG 
 } from '@/constants/AppConstants';
 import { useAuth } from '@/providers/AuthProvider';
 import AreaChart from '@/components/patrimony/AreaChart';
 import { PatrimonySummary } from '@/components/patrimony/PatrimonySummary';
 import LiabilityCard from '@/components/patrimony/LiabilityCard';
-import { useChartRangeStore } from '@/store/chartRangeStore';
+import { useChartRangeStore, RangeSize } from '@/store/chartRangeStore';
 import { Asset, Liability } from '@/types';
 import { patrimonyService } from '@/services/patrimony/get-patrimony';
 import { useAssets, useDebts } from '@/hooks/patrimony';
@@ -26,6 +25,7 @@ import {
   SegmentedControl,
   KeyboardAwareContainer,
   LockedTabOverlay,
+  Button,
 } from '@/components/ui';
 import { SkeletonBase } from '@/components/ui/SkeletonBase';
 import { useUserData } from '@/hooks/user/useUserData';
@@ -35,6 +35,7 @@ import { Platform } from 'react-native';
 
 import assetsHistory from '@/data/static/assets-history.json';
 import { listItemStyles } from '@/styles/ui/ListItem.styles';
+import { useTranslation } from 'react-i18next';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
@@ -44,6 +45,7 @@ export default function PatrimonyScreen() {
   const { userData, loading: userLoading } = useUserData();
   const { rangeSize, setRangeSize } = useChartRangeStore();
   const router = useRouter();
+  const { t } = useTranslation();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'assets' | 'liabilities'>('assets');
@@ -67,45 +69,36 @@ export default function PatrimonyScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [showSkeletons, setShowSkeletons] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(5);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const overlayAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(0)).current;  
   const skeletonFadeAnim = useRef(new Animated.Value(1)).current;
 
-  const { assets: apiAssets, loading: assetsLoading, error: assetsError } = useAssets({
+  const { assets: apiAssets, loading: assetsLoading, error: assetsError, refetch: refetchAssets } = useAssets({
     page: 1,
-    per_page: 50
+    per_page: 100
   }, true);
 
-  const { debts: apiDebts, loading: debtsLoading, error: debtsError } = useDebts({
+  const { debts: apiDebts, loading: debtsLoading, error: debtsError, refetch: refetchDebts } = useDebts({
     page: 1,
-    per_page: 50
+    per_page: 100
   }, true);
 
   useEffect(() => {
-    console.log('🔍 Patrimony Debug Info:', {
-      apiAssets: apiAssets ? 'Loaded' : 'Not loaded',
-      apiDebts: apiDebts ? 'Loaded' : 'Not loaded',
-      assetsLoading,
-      debtsLoading,
-      assetsError,
-      debtsError,
-      totalAssets: apiAssets?.totals?.total_assets || 0,
-      totalDebts: apiDebts?.totals?.total_debts || 0,
-      assetsCount: apiAssets?.assets ? 
-        (apiAssets.assets.fixed_assets.length + 
-         apiAssets.assets.saving_instruments.length + 
-         apiAssets.assets.investment_properties.length + 
-         apiAssets.assets.main_homes.length) : 0,
-      debtsCount: apiDebts?.debts?.length || 0
-    });
+    setVisibleCount(5);
+    setIsExpanded(false);
+  }, [activeTab]);
+
+  useEffect(() => {
+
   }, [apiAssets, apiDebts, assetsLoading, debtsLoading, assetsError, debtsError]);
 
   useEffect(() => {
     const setupRevenueCat = async () => {
       try {
         if (!user?.backendUserId) {
-          console.warn('RevenueCat: No backend user ID available');
           return;
         }
 
@@ -134,7 +127,6 @@ export default function PatrimonyScreen() {
           await Purchases.setEmail(user.email);
         }
 
-        console.log('RevenueCat configured successfully');
       } catch (error) {
         console.error('Error inicializando RevenueCat:', error);
       }
@@ -198,16 +190,19 @@ export default function PatrimonyScreen() {
 
   const mapSavingInstrumentType = (type: string): string => {
     const typeMapping: Record<string, string> = {
-      'SavingInstruments::CashAccount': 'Caja',
-      'SavingInstruments::FixedTermDeposit': 'Depósito a Plazo',
-      'SavingInstruments::SavingsAccount': 'Cuenta de Ahorro',
+      'SavingInstruments::Crowdfunding': 'Crowdfunding',
+      'SavingInstruments::MutualFundInstrument': 'Fondo Mutuo o de Inversión',
+      'SavingInstruments::Cryptocurrency': 'Criptomonedas',
+      'SavingInstruments::AfpAccountTwo': 'Cuenta 2 AFP',
+      'SavingInstruments::ApvAccount': 'Cuenta APV',
+      'SavingInstruments::CashAccount': 'Cuenta Caja',
       'SavingInstruments::CheckingAccount': 'Cuenta Corriente',
-      'SavingInstruments::MutualFund': 'Fondo Mutuo',
-      'SavingInstruments::Stock': 'Acciones',
-      'SavingInstruments::Bond': 'Bonos',
-      'SavingInstruments::TimeDeposit': 'Depósito a Tiempo',
+      'SavingInstruments::SavingAccount': 'Cuenta de Ahorros',
+      'SavingInstruments::FixedTermDeposit': 'Depósito a Plazo',
+      'SavingInstruments::Share': 'Acciones',
+      'SavingInstruments::Other': 'Otros',
+      'SavingInstruments::SavingsAccount': 'Cuenta de Ahorros',
       'SavingInstruments::InvestmentFund': 'Fondo de Inversión',
-      'SavingInstruments::Pension': 'AFP/Pensión',
     };
 
     return typeMapping[type] || type.replace('SavingInstruments::', '');
@@ -221,6 +216,15 @@ export default function PatrimonyScreen() {
       'SavingInstruments::CheckingAccount': { backgroundColor: '#F59E0B', text: 'C' },
       'SavingInstruments::MutualFund': { backgroundColor: '#EF4444', text: 'F' },
       'SavingInstruments::Stock': { backgroundColor: '#06B6D4', text: 'S' },
+      'SavingInstruments::InvestmentFund': { backgroundColor: '#06B6D4', text: 'I' },
+      'SavingInstruments::Crowdfunding': { backgroundColor: '#F97316', text: 'C' },
+      'SavingInstruments::MutualFundInstrument': { backgroundColor: '#EF4444', text: 'M' },
+      'SavingInstruments::Cryptocurrency': { backgroundColor: '#FBBF24', text: '₿' },
+      'SavingInstruments::AfpAccountTwo': { backgroundColor: '#6366F1', text: '2' },
+      'SavingInstruments::ApvAccount': { backgroundColor: '#8B5CF6', text: 'A' },
+      'SavingInstruments::SavingAccount': { backgroundColor: '#10B981', text: 'S' },
+      'SavingInstruments::Shares': { backgroundColor: '#06B6D4', text: '$' },
+      'SavingInstruments::Other': { backgroundColor: '#6B7280', text: '?' },
     };
 
     return iconMapping[type] || { 
@@ -396,10 +400,12 @@ export default function PatrimonyScreen() {
       }))
     ];
 
-    return allAssets.filter(asset => 
+    const filteredAssets = allAssets.filter(asset => 
       asset.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
       asset.subtitle.toLowerCase().includes(searchQuery.toLowerCase())
     );
+
+    return filteredAssets;
   };
 
   const transformApiDebts = () => {
@@ -427,6 +433,38 @@ export default function PatrimonyScreen() {
   const apiAssetsData = transformApiAssets();
   const apiDebtsData = transformApiDebts();
 
+  const getPaginatedData = (data: any[]) => {
+    return data.slice(0, visibleCount);
+  };
+
+  const hasMoreData = (data: any[]) => {
+    return data.length > visibleCount;
+  };
+
+  const handleLoadMore = () => {
+    const nextCount = Math.min(visibleCount + 5, currentData.length);
+    setVisibleCount(nextCount);
+    setIsExpanded(nextCount === currentData.length);
+  };
+
+  const handleLoadLess = () => {
+    setVisibleCount(5);
+    setIsExpanded(false);
+  };
+
+  const handleToggleExpand = () => {
+    if (isExpanded) {
+      handleLoadLess();
+    } else {
+      handleLoadMore();
+    }
+  };
+
+  const handleTabChange = (key: string) => {
+    setActiveTab(key as 'assets' | 'liabilities');
+    setIsExpanded(false);
+  };
+
   const hasApiAssets = apiAssets !== null && apiAssets !== undefined;
   const hasApiDebts = apiDebts !== null && apiDebts !== undefined;
 
@@ -440,7 +478,7 @@ export default function PatrimonyScreen() {
     return {
       id: asset.id,
       title: asset.name,
-      subtitle: asset.type,
+      subtitle: mapSavingInstrumentType(asset.type),
       value: asset.value,
       icon: {
         backgroundColor: asset.color,
@@ -472,25 +510,27 @@ export default function PatrimonyScreen() {
   const totalLiabilities = apiDebts ? Math.round(apiDebts.totals.total_debts) : 0;
   const netWorth = totalAssets - totalLiabilities;
 
-  const currentTimeRangeLabel = Object.keys(TIME_RANGES.MAPPING).find((key) => 
-    TIME_RANGES.MAPPING[key as keyof typeof TIME_RANGES.MAPPING] === rangeSize
-  ) || '6 Meses';
+  const currentTimeRangeLabel = t(`timeRanges.options.${rangeSize}`);
 
   const handleUserViewChange = (view: 'mine' | 'partner' | 'both') => {
     setOwnerView(view);
     setShowSelector(false);
   };
 
-  const handleTimeRangeChange = (range: keyof typeof TIME_RANGES.MAPPING) => {
-    setRangeSize(TIME_RANGES.MAPPING[range]);
-  };
 
   const tabs = TAB_CONFIG.PATRIMONY.map(tab => ({
-    ...tab,
-    badge: (tab.key === 'assets' ? (apiAssets ? apiAssetsData.length : 0) : (apiDebts ? apiDebtsData.length : 0)).toString()
+    key: tab.key,
+    label: t(`tabConfig.patrimony.${tab.key}`),
+    badge: (tab.key === 'assets'
+      ? (apiAssets ? apiAssetsData.length : 0)
+      : (apiDebts ? apiDebtsData.length : 0)
+    ).toString()
   }));
+  
 
   const currentData = activeTab === 'assets' ? assetsData : liabilitiesData;
+  const paginatedData = getPaginatedData(currentData);
+  const canShowMore = hasMoreData(currentData);
   const isLoadingData = (activeTab === 'assets' && assetsLoading) || (activeTab === 'liabilities' && debtsLoading);
   const currentError = activeTab === 'assets' ? assetsError : debtsError;
 
@@ -513,19 +553,19 @@ export default function PatrimonyScreen() {
   }
 
   if (shouldBlockTab("Patrimonio")) {
-    return <LockedTabOverlay tabName="Patrimonio" />;
-  }
+    return <LockedTabOverlay tabName={t('tabs.networth')} />;
+  } 
 
   if (isLoading) {
     return (
       <Container variant="secondaryPage" style={{ padding: 20 }}>
         <Header
-          title={LABELS.PATRIMONY.TITLE}
+          title={t('labels.patrimony.title')}
           className="border-b border-gray-100"
         />
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color="#007AFF" />
-          <Text className="mt-4 text-gray-600">Cargando datos del patrimonio...</Text>
+          <Text className="mt-4 text-gray-600">{t('patrimony.loading')}</Text>
         </View>
       </Container>
     );
@@ -535,7 +575,7 @@ export default function PatrimonyScreen() {
     return (
       <Container variant="secondaryPage" style={{ padding: 20 }}>
         <Header
-          title={LABELS.PATRIMONY.TITLE}
+          title={t('labels.patrimony.title')}
           className="border-b border-gray-100"
         />
         <View className="flex-1 items-center justify-center">
@@ -548,17 +588,19 @@ export default function PatrimonyScreen() {
               loadPatrimonyData();
             }}
           >
-            <Text className="text-white">Reintentar</Text>
+            <Text className="text-white">{t('common.retry')}</Text>
           </TouchableOpacity>
         </View>
       </Container>
     );
   }
 
+  const TIME_RANGE_KEYS = ['1m', '6m', '1y', 'all'];
+
   return (
     <Container variant="secondaryPage">
       <Header
-        title={LABELS.PATRIMONY.TITLE}
+        title={t('labels.patrimony.title')}
         leftAction={
           <UserSelector
             selectedView={ownerView}
@@ -621,10 +663,14 @@ export default function PatrimonyScreen() {
               </Animated.View>
             ) : (
               <SegmentedControl
-                options={TIME_RANGES.LABELS.map(label => ({ label, value: label }))}
-                value={currentTimeRangeLabel}
-                onChange={val => handleTimeRangeChange(val as keyof typeof TIME_RANGES.MAPPING)}
+                options={TIME_RANGE_KEYS.map(key => ({
+                  label: t(`timeRanges.options.${key}`),
+                  value: key,
+                }))}
+                value={rangeSize}
+                onChange={(val) => setRangeSize(val as RangeSize)}
               />
+
             )}
           </Container>
           <AreaChart />
@@ -644,7 +690,7 @@ export default function PatrimonyScreen() {
                 </Animated.View>
               ) : (
                 <SearchBar
-                  placeholder={LABELS.PATRIMONY.SEARCH_PLACEHOLDER}
+                  placeholder={t('labels.patrimony.search_placeholder')}
                   value={searchQuery}
                   onChangeText={setSearchQuery}
                 />
@@ -652,14 +698,14 @@ export default function PatrimonyScreen() {
             </Container>
           <Container variant="content">
             <View style={listItemStyles.cardContainer}>
-              <Tabs
-                tabs={tabs}
-                activeTab={activeTab}
-                onTabChange={(key) => setActiveTab(key as 'assets' | 'liabilities')}
-              />
+                             <Tabs
+                 tabs={tabs}
+                 activeTab={activeTab}
+                 onTabChange={handleTabChange}
+               />
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingBottom: 20, paddingTop: 12, borderBottomWidth: 1, borderBottomColor: Colors.gray[200] }}>
                 <Text style={{ color: Colors.gray[700], fontSize: 18, fontFamily: 'Poppins-medium' }}>
-                  {activeTab === 'assets' ? LABELS.PATRIMONY.TOTAL_ASSETS : LABELS.PATRIMONY.TOTAL_LIABILITIES}
+                  {activeTab === 'assets' ? t('labels.patrimony.total_assets') : t('labels.patrimony.total_liabilities')}
                 </Text>
                 <Text style={{ color: Colors.gray[700], fontSize: 18, fontFamily: 'Poppins-medium' }}>
                   {activeTab === 'assets' ? '+' : '-'}${currentTabTotal.toLocaleString('es-CL')}
@@ -744,7 +790,7 @@ export default function PatrimonyScreen() {
                     textAlign: 'center',
                     marginBottom: 8
                   }}>
-                    {activeTab === 'assets' ? 'No hay activos registrados' : 'No hay pasivos registrados'}
+                    {t(`patrimony.empty.${activeTab}.title`)}
                   </Text>
                   <Text style={{ 
                     color: Colors.gray[400], 
@@ -752,11 +798,20 @@ export default function PatrimonyScreen() {
                     fontFamily: 'Poppins-regular',
                     textAlign: 'center'
                   }}>
-                    {activeTab === 'assets' 
-                      ? 'Agrega tus activos para comenzar a gestionar tu patrimonio' 
-                      : 'Agrega tus pasivos para tener una visión completa de tu patrimonio'
-                    }
+                    {t(`patrimony.empty.${activeTab}.subtitle`)}
                   </Text>
+                  <Button
+                     variant="primary"
+                     onPress={() => {
+                       if (activeTab === 'assets') {
+                         router.push('/patrimony/add-asset');
+                       } else {
+                         router.push('/patrimony/add-liability');
+                       }
+                     }}
+                     title={activeTab === 'assets' ? t('patrimony.createAsset') : t('patrimony.createLiability')}
+                     icon={<Plus size={20} color="white" />}
+                   />
                 </View>
               ) : showSkeletons ? (
                 <Animated.View style={{ padding: 20, opacity: skeletonFadeAnim }}>
@@ -806,11 +861,23 @@ export default function PatrimonyScreen() {
                   ))}
                 </Animated.View>
               ) : (
-                <ListItem
-                  data={currentData}
-                  showLoadMore={false}
-                  showContainer={false}
-                />
+                                 <>
+                   <ListItem
+                     data={paginatedData}
+                     showLoadMore={false}
+                     showContainer={false}
+                   />
+                   
+                    {(hasMoreData(currentData) && !isExpanded) && (
+                      <View style={{ padding: 20, alignItems: 'center' }}>
+                        <Button
+                          variant="ghost"
+                          onPress={handleToggleExpand}
+                          title={isExpanded ? t('common.viewLess') : t('common.viewMore')}
+                        />
+                      </View>
+                    )}
+                 </>
               )}
             </View>
           </Container>
@@ -869,9 +936,9 @@ export default function PatrimonyScreen() {
               <View style={{ width: 40, height: 4, backgroundColor: '#D1D5DB', borderRadius: 2 }} />
             </View>
             {[
-              { label: 'Integrar datos bancarios', value: 'integrar', icon: <RefreshCw size={20} color={Colors.gray[700]} /> },
-              // { label: 'Añadir activo', value: 'activo' },
-              // { label: 'Añadir pasivo', value: 'pasivo' }
+              { label: t('patrimony.integrateBankData'), value: 'integrar', icon: <RefreshCw size={20} color={Colors.gray[700]} /> },
+              { label: 'Añadir activo', value: 'activo' },
+              { label: 'Añadir pasivo', value: 'pasivo' }
             ].map((option, index) => (
               <TouchableOpacity
                 key={option.value}
@@ -886,8 +953,8 @@ export default function PatrimonyScreen() {
                   closeModal();
                   switch(option.value) {
                     case 'integrar': handleIntegrarDatos(); break;
-                    // case 'activo': handleAddActivo(); break;
-                    // case 'pasivo': handleAddPasivo(); break;
+                    case 'activo': router.push('/patrimony/add-asset'); break;
+                    case 'pasivo': router.push('/patrimony/add-liability'); break;
                   }
                 }}
                 activeOpacity={0.7}

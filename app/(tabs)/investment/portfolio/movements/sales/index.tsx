@@ -9,25 +9,29 @@ import FromGoalStep from './from-goal-step';
 import FromAssetStep from './from-asset-step';
 import ConfirmationStep from './confirmation-step';
 import { PortfolioActionsBar } from '@/components/investment/portfolio/PortfolioActionsBar';
+import { useTranslation } from 'react-i18next';
 
-const mockGoals = [
-  { label: 'Nueva meta ($1.492.500,00)', value: 'nueva-meta' },
-  { label: 'Saldo en caja ($7.560,00)', value: 'saldo-caja' },
-];
-const mockDestinos = [
-  { label: 'Mi cuenta bancaria', value: 'cuenta-bancaria' },
-  { label: 'Mi saldo en caja', value: 'saldo-caja' },
-];
-const mockActivos = [
-  { label: 'Singular Chile Deuda Corta Duración CFIETFCD\n$1.492.500 CLP al 10/05/2023 · 14.925,0 cuotas', value: 'activo-1' },
-  { label: 'Todo mi portafolio\n$1.492.500 CLP al 26/06/2025', value: 'todo-portafolio' },
-  { label: 'Retiro proporcional\nMantiene la estructura del portafolio', value: 'proporcional' },
-];
-const mockCuentas = [
-  { label: 'CA 6677 · Chile-Edwards', value: 'ca-6677' },
-];
+
 
 export default function SalesFlow() {
+  const { t } = useTranslation();
+  const mockGoals = [
+    { label: t('salesFlow.mockGoals.newGoal'), value: 'nueva-meta' },
+    { label: t('salesFlow.mockGoals.cashBalance'), value: 'saldo-caja' },
+  ];
+  const mockDestinos = [
+    { label: t('salesFlow.mockDestinos.bankAccount'), value: 'cuenta-bancaria' },
+    { label: t('salesFlow.mockDestinos.cashBalance'), value: 'saldo-caja' },
+  ];
+
+  const mockActivos = [
+    { label: t('salesFlow.mockActivos.option1'), value: 'activo-1' },
+    { label: t('salesFlow.mockActivos.option2'), value: 'todo-portafolio' },
+    { label: t('salesFlow.mockActivos.option3'), value: 'proporcional' },
+  ];
+  const mockCuentas = [
+    { label: t('salesFlow.mockCuentas.account1'), value: 'ca-6677' },
+  ];
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [goal, setGoal] = useState<string | undefined>();
@@ -47,7 +51,7 @@ export default function SalesFlow() {
     if (step === 1) {
       return [
         {
-          title: 'Siguiente',
+          title: t('salesFlow.next'),
           variant: 'primary' as const,
           onPress: () => setStep(2),
           disabled: !goal || !destino,
@@ -58,12 +62,12 @@ export default function SalesFlow() {
     if (step === 2) {
       return [
         {
-          title: 'Anterior',
+          title: t('salesFlow.previous'),
           variant: 'outline' as const,
           onPress: () => setStep(1),
         },
         {
-          title: 'Siguiente',
+          title: t('salesFlow.next'),
           variant: 'primary' as const,
           onPress: () => setStep(3),
           disabled: !activo || (destino === 'cuenta-bancaria' && !cuenta),
@@ -73,12 +77,12 @@ export default function SalesFlow() {
     if (step === 3) {
       return [
         {
-          title: 'Anterior',
+          title: t('salesFlow.previous'),
           variant: 'outline' as const,
           onPress: () => setStep(2),
         },
         {
-          title: 'Finalizar',
+          title: t('salesFlow.finish'),
           variant: 'primary' as const,
           onPress: () => router.push('/investment/portfolio'),
         },
@@ -90,7 +94,7 @@ export default function SalesFlow() {
   return (
     <Container variant="secondaryPage" className="px-1 flex-1">
       <Header
-        title="Solicitud de retiro"
+        title={t('salesFlow.header')}
         leftAction={
           <TouchableOpacity onPress={handleBack} className="p-1">
             <ChevronLeft size={24} color={Colors.primary[500]} />
@@ -135,12 +139,10 @@ export default function SalesFlow() {
             )}
           </ScrollView>
           <View className="px-3">
-            <PortfolioActionsBar
-              actions={getActionsForStep()}
-            />
+            <PortfolioActionsBar actions={getActionsForStep()} />
           </View>
         </View>
       </KeyboardAvoidingView>
     </Container>
   );
-} 
+}

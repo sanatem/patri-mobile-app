@@ -5,8 +5,10 @@ import { Header } from '@/components/ui/Header';
 import { Button } from '@/components/ui';
 import { useState } from 'react';
 import * as ImagePicker from 'expo-image-picker';
+import { useTranslation } from 'react-i18next';
 
 export default function IdentityUploadBack() {
+  const { t } = useTranslation();
   const [backImage, setBackImage] = useState<string | null>(null);
 
   const pickImageWeb = () => {
@@ -32,8 +34,11 @@ export default function IdentityUploadBack() {
     try {
       const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
       
-      if (permissionResult.granted === false) {
-        Alert.alert('Permisos requeridos', 'Necesitamos acceso a tu galería para subir la foto');
+      if (!permissionResult.granted) {
+        Alert.alert(
+          t('common.permissionsRequired'),
+          t('identityUploadBack.galleryPermission')
+        );
         return;
       }
 
@@ -49,16 +54,19 @@ export default function IdentityUploadBack() {
       }
     } catch (error) {
       console.error('Error picking image:', error);
-      Alert.alert('Error', 'No se pudo abrir la galería');
+      Alert.alert(t('common.error'), t('identityUploadBack.errorGallery'));
     }
   };
 
   const takePhotoMobile = async () => {
     try {
       const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
-      
-      if (permissionResult.granted === false) {
-        Alert.alert('Permisos requeridos', 'Necesitamos acceso a tu cámara para tomar la foto');
+
+      if (!permissionResult.granted) {
+        Alert.alert(
+          t('common.permissionsRequired'),
+          t('identityUploadBack.cameraPermission')
+        );
         return;
       }
 
@@ -73,7 +81,7 @@ export default function IdentityUploadBack() {
       }
     } catch (error) {
       console.error('Error taking photo:', error);
-      Alert.alert('Error', 'No se pudo abrir la cámara');
+      Alert.alert(t('common.error'), t('identityUploadBack.errorCamera'));
     }
   };
 
@@ -82,12 +90,12 @@ export default function IdentityUploadBack() {
       pickImageWeb();
     } else {
       Alert.alert(
-        'Seleccionar imagen',
-        'Elige cómo quieres subir la foto de tu carnet',
+        t('identityUploadBack.selectImage'),
+        t('identityUploadBack.selectMethod'),
         [
-          { text: 'Galería', onPress: pickImageMobile },
-          { text: 'Cámara', onPress: takePhotoMobile },
-          { text: 'Cancelar', style: 'cancel' }
+          { text: t('identityUploadBack.gallery'), onPress: pickImageMobile },
+          { text: t('identityUploadBack.camera'), onPress: takePhotoMobile },
+          { text: t('common.cancel'), style: 'cancel' }
         ]
       );
     }
@@ -103,11 +111,13 @@ export default function IdentityUploadBack() {
 
   return (
     <Container variant="secondaryPage" style={{ padding: 20 }}>
-      <Header title="Verificación de identidad" showBackButton />
+      <Header title={t('identityUploadBack.title')} showBackButton />
       <ScrollView className="flex-1 bg-white px-6" showsVerticalScrollIndicator={false}>
-        <Text className="text-xl font-bold mb-2">Sube tu carnet (Reverso)</Text>
+        <Text className="text-xl font-bold mb-2">
+          {t('identityUploadBack.uploadTitle')}
+        </Text>
         <Text className="text-base text-gray-500 mb-6">
-          Ahora necesitamos la parte trasera de tu carnet de identidad
+          {t('identityUploadBack.uploadSubtitle')}
         </Text>
 
         <TouchableOpacity
@@ -133,7 +143,9 @@ export default function IdentityUploadBack() {
               </TouchableOpacity>
             </View>
           ) : (
-            <Text className="text-primary-500 text-base font-medium">+ Subir foto del carnet (Reverso)</Text>
+            <Text className="text-primary-500 text-base font-medium">
+              {t('identityUploadBack.uploadPrompt')}
+            </Text>
           )}
         </TouchableOpacity>
 
@@ -142,20 +154,24 @@ export default function IdentityUploadBack() {
             className="mb-4 items-center"
             onPress={showImageOptions}
           >
-            <Text className="text-primary-500 text-base font-medium">Cambiar imagen</Text>
+            <Text className="text-primary-500 text-base font-medium">
+              {t('identityUploadBack.changeImage')}
+            </Text>
           </TouchableOpacity>
         )}
 
         <View className="bg-blue-50 p-4 rounded-xl mb-6">
-          <Text className="text-sm text-blue-800 font-medium mb-2">💡 Consejos para una buena foto:</Text>
-          <Text className="text-sm text-blue-700">• Asegúrate de que esté bien iluminada</Text>
-          <Text className="text-sm text-blue-700">• Todos los datos deben ser legibles</Text>
-          <Text className="text-sm text-blue-700">• Evita reflejos o sombras</Text>
+          <Text className="text-sm text-blue-800 font-medium mb-2">
+            {t('identityUploadBack.tips.title')}
+          </Text>
+          <Text className="text-sm text-blue-700">• {t('identityUploadBack.tips.light')}</Text>
+          <Text className="text-sm text-blue-700">• {t('identityUploadBack.tips.legible')}</Text>
+          <Text className="text-sm text-blue-700">• {t('identityUploadBack.tips.noGlare')}</Text>
         </View>
 
         <View className="mb-6">
           <Button
-            title="Continuar"
+            title={t('common.continue')}
             onPress={handleContinue}
             variant="primary"
             fullWidth

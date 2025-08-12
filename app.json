@@ -2,7 +2,7 @@
   "expo": {
     "name": "Patrimore",
     "slug": "patrimore",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "com.patrimore.patrimore",
@@ -47,7 +47,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/icon.png",
+          "image": "./assets/images/adaptive-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ff6501"
@@ -66,7 +66,8 @@
         {
           "domain": "auth.patrimore.com"
         }
-      ]
+      ],
+      "expo-localization"
     ],
     "experiments": {
       "typedRoutes": true

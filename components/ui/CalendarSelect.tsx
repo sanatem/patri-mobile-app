@@ -1,10 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { View, Text, TouchableOpacity, Animated, Modal, Pressable, Dimensions, ScrollView } from 'react-native';
 import { ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { cn } from '@/lib/utils';
 import { inputStyles } from '@/styles/ui/Input.styles';
 import { selectStyles, SCREEN_HEIGHT } from '@/styles/ui/Select.styles';
-import { Button } from '@/components/ui';
+import { Button } from './Button';
 import Colors from '@/constants/Colors';
 
 interface CalendarSelectProps {
@@ -17,7 +17,7 @@ interface CalendarSelectProps {
   className?: string;
 }
 
-export function CalendarSelect({
+export default function CalendarSelect({
   value,
   onSelect,
   placeholder = "Selecciona una fecha",
@@ -36,6 +36,7 @@ export function CalendarSelect({
   const borderAnim = useRef(new Animated.Value(0)).current;
   const overlayAnim = useRef(new Animated.Value(0)).current;
   const sheetAnim = useRef(new Animated.Value(0)).current;
+  const yearScrollViewRef = useRef<ScrollView>(null);
 
   useEffect(() => {
     if (value && value.includes('/')) {
@@ -58,6 +59,25 @@ export function CalendarSelect({
       useNativeDriver: false,
     }).start();
   }, [isOpen]);
+
+  useEffect(() => {
+    if (showYearSelector && yearScrollViewRef.current) {
+      const currentYear = new Date().getFullYear();
+      const yearIndex = currentYear - 1925;
+      if (yearIndex >= 0) {
+        const itemHeight = 48;
+        const scrollToY = yearIndex * itemHeight;
+        const offsetY = Math.max(0, scrollToY - 48);
+        
+        setTimeout(() => {
+          yearScrollViewRef.current?.scrollTo({
+            y: offsetY,
+            animated: false
+          });
+        }, 350);
+      }
+    }
+  }, [showYearSelector]);
 
   useEffect(() => {
     if (isOpen) {
@@ -179,6 +199,15 @@ export function CalendarSelect({
     setShowYearSelector(false);
   };
 
+  const years = useMemo(() => {
+    const currentYear = new Date().getFullYear();
+    const yearArray: number[] = [];
+    for (let year = 1925; year <= currentYear + 100; year++) {
+      yearArray.push(year);
+    }
+    return yearArray;
+  }, []);
+
   const isToday = (day: number) => {
     const today = new Date();
     return day === today.getDate() && 
@@ -202,12 +231,6 @@ export function CalendarSelect({
   const dayNames = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 
   const calendarDays = generateCalendarDays(currentDate);
-
-  const currentYear = new Date().getFullYear();
-  const years: number[] = [];
-  for (let year = 1925; year <= currentYear + 100; year++) {
-    years.push(year);
-  }
 
   return (
     <View className={cn('mb-5 w-full', className)}>
@@ -374,7 +397,10 @@ export function CalendarSelect({
                   zIndex: 1000,
                   maxHeight: 200
                 }}>
-                  <ScrollView showsVerticalScrollIndicator={false}>
+                  <ScrollView 
+                    ref={yearScrollViewRef}
+                    showsVerticalScrollIndicator={false}
+                  >
                     {years.map((year) => (
                       <TouchableOpacity
                         key={year}

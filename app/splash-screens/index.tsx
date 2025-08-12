@@ -1,10 +1,12 @@
 import React, { useState, useRef } from 'react';
 import { View, Dimensions, ScrollView, StyleSheet, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useAuth } from '@/providers/AuthProvider';
 import { useOnboarding } from '@/hooks/common';
 import { Button, Container } from '@/components/ui';
 import Colors from '@/constants/Colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useTranslation } from 'react-i18next';
 
 const { width } = Dimensions.get('window');
 
@@ -12,42 +14,43 @@ import SplashScreen1 from './splash-1';
 import SplashScreen2 from './splash-2';
 import SplashScreen3 from './splash-3';
 
-const splashScreens = [
-  {
-    id: 1,
-    component: SplashScreen1,
-    title: 'Tus datos, blindados.',
-    subtitle: 'Protegemos tu información con seguridad de nivel bancario. Sin publicidad, sin compartir tus datos.',
-    primaryButton: 'Comenzar',
-    secondaryButton: 'Iniciar sesión',
-  },
-  {
-    id: 2,
-    component: SplashScreen2,
-    title: 'Convierte tus sueños en un plan.',
-    subtitle: 'Diseña tu estrategia financiera y descubre cómo tus decisiones impactan tu patrimonio con el tiempo.',
-    primaryButton: 'Comenzar',
-    secondaryButton: 'Iniciar sesión',
-  },
-  {
-    id: 3,
-    component: SplashScreen3,
-    title: 'Todo tu patrimonio, en un solo lugar.',
-    subtitle: 'Integra tus cuentas y fondos para ver cómo crece tu patrimonio en el tiempo desde un dashboard claro y completo.',
-    primaryButton: 'Comenzar',
-    secondaryButton: 'Iniciar sesión',
-  },
-];
-
 export default function SplashScreens() {
+  const { t } = useTranslation();
+  const { login } = useAuth();
+  const [isProcessing, setIsProcessing] = useState(false);
+  const splashScreens = [
+    {
+      id: 1,
+      component: SplashScreen1,
+      title: t('splash.1.title'),
+      subtitle: t('splash.1.subtitle'),
+      primaryButton: t('splash.primaryButton'),
+      secondaryButton: t('splash.secondaryButton'),
+    },
+    {
+      id: 2,
+      component: SplashScreen2,
+      title: t('splash.2.title'),
+      subtitle: t('splash.2.subtitle'),
+      primaryButton: t('splash.primaryButton'),
+      secondaryButton: t('splash.secondaryButton'),
+    },
+    {
+      id: 3,
+      component: SplashScreen3,
+      title: t('splash.3.title'),
+      subtitle: t('splash.3.subtitle'),
+      primaryButton: t('splash.primaryButton'),
+      secondaryButton: t('splash.secondaryButton'),
+    },
+  ];
+
   const router = useRouter();
   const { hasSeenOnboarding } = useOnboarding();
   const [currentIndex, setCurrentIndex] = useState(0);
   const scrollViewRef = useRef<ScrollView>(null);
   const [isRequestingATT, setIsRequestingATT] = useState(false);
   
-
-
   const checkATTStatus = async () => {
     try {
       const attSeen = await AsyncStorage.getItem('att_permission_shown');
@@ -70,11 +73,17 @@ export default function SplashScreens() {
       await AsyncStorage.setItem('att_permission_shown', 'true');
     } finally {
       setIsRequestingATT(false);
-      router.replace('/auth/login');
+      await AsyncStorage.setItem('splash_seen', 'true');
+      const success = await login();
+      if (success) {
+        router.replace('/');
+      }
     }
   };
 
   const handleNext = async () => {
+    if (isProcessing) return;
+    
     if (currentIndex < splashScreens.length - 1) {
       const nextIndex = currentIndex + 1;
       setCurrentIndex(nextIndex);
@@ -83,23 +92,43 @@ export default function SplashScreens() {
         animated: true,
       });
     } else {
-      const attSeen = await checkATTStatus();
-      
-      if (!attSeen && Platform.OS === 'ios') {
-        await requestATT();
-      } else {
-        router.replace('/auth/login');
+      setIsProcessing(true);
+      try {
+        const attSeen = await checkATTStatus();
+        
+        if (!attSeen && Platform.OS === 'ios') {
+          await requestATT();
+        } else {
+          await AsyncStorage.setItem('splash_seen', 'true');
+          const success = await login();
+          if (success) {
+            router.replace('/');
+          }
+        }
+      } finally {
+        setIsProcessing(false);
       }
     }
   };
 
   const handleSkip = async () => {
-    const attSeen = await checkATTStatus();
+    if (isProcessing) return; 
     
-    if (!attSeen && Platform.OS === 'ios') {
-      await requestATT();
-    } else {
-      router.replace('/auth/login');
+    setIsProcessing(true);
+    try {
+      const attSeen = await checkATTStatus();
+      
+      if (!attSeen && Platform.OS === 'ios') {
+        await requestATT();
+      } else {
+        await AsyncStorage.setItem('splash_seen', 'true');
+        const success = await login();
+        if (success) {
+          router.replace('/');
+        }
+      }
+    } finally {
+      setIsProcessing(false);
     }
   };
 

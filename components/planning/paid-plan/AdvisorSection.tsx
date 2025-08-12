@@ -4,6 +4,7 @@ import AdvisorCard from './AdvisorCard';
 import { Card, Button } from '@/components/ui';
 import { Calendar } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
+import { useTranslation } from 'react-i18next';
 
 export interface AdvisorSectionProps {
   onSchedule?: () => void;
@@ -11,6 +12,7 @@ export interface AdvisorSectionProps {
 }
 
 export default function AdvisorSection({ onSchedule, onChat }: AdvisorSectionProps) {
+  const { t } = useTranslation();
   return (
     <View style={{ padding: 10 }}>
       <AdvisorCard onSchedule={onSchedule} onChat={onChat} />
@@ -24,12 +26,12 @@ export default function AdvisorSection({ onSchedule, onChat }: AdvisorSectionPro
               <Calendar size={18} color={Colors.primary[500]} />
             </View>
             <View className="ml-3">
-              <Text className="text-sm font-medium" style={{ color: Colors.primary[500] }}>Próxima reunión</Text>
-              <Text className="text-xs font-regular" style={{ color: Colors.gray[500] }}>Ninguna programada</Text>
+              <Text className="text-sm font-medium" style={{ color: Colors.primary[500] }}>{t('advisor.next_meeting')}</Text>
+              <Text className="text-xs font-regular" style={{ color: Colors.gray[500] }}>{t('advisor.none_scheduled')}</Text>
             </View>
           </View>
           <Button 
-            title="Programar" 
+            title={t('advisor.schedule')}
             onPress={onSchedule || (() => {})} 
             size="small"
             variant="primary"

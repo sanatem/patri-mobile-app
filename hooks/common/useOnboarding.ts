@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
 
 export const useOnboarding = () => {
-  const [hasSeenOnboarding, setHasSeenOnboarding] = useState<boolean | null>(null);
+  const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -19,34 +19,31 @@ export const useOnboarding = () => {
       const onboardingCompleted = await AsyncStorage.getItem('onboarding_completed');
       
       if (onboardingCompleted === null) {
-        setHasSeenOnboarding(false);
+        setHasCompletedOnboarding(false);
       } else {
-        const hasSeen = onboardingCompleted === 'true';
-        setHasSeenOnboarding(hasSeen);
+        const hasCompleted = onboardingCompleted === 'true';
+        setHasCompletedOnboarding(hasCompleted);
       }
     } catch (error) {
-      console.error('useOnboarding - Error checking status:', error);
-      setHasSeenOnboarding(false);
+      setHasCompletedOnboarding(false);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const markAsSeen = async () => {
+  const markAsCompleted = async () => {
     try {
       await AsyncStorage.setItem('onboarding_completed', 'true');
-      setHasSeenOnboarding(true);
+      setHasCompletedOnboarding(true);
     } catch (error) {
-      console.error('useOnboarding - Error marking as seen:', error);
     }
   };
 
   const resetOnboarding = async () => {
     try {
       await AsyncStorage.removeItem('onboarding_completed');
-      setHasSeenOnboarding(false);
+      setHasCompletedOnboarding(false);
     } catch (error) {
-      console.error('useOnboarding - Error resetting onboarding:', error);
     }
   };
 
@@ -56,9 +53,11 @@ export const useOnboarding = () => {
   };
 
   return {
-    hasSeenOnboarding,
+    hasSeenOnboarding: hasCompletedOnboarding,
+    hasCompletedOnboarding,
     isLoading,
-    markAsSeen,
+    markAsSeen: markAsCompleted,
+    markAsCompleted,
     resetOnboarding,
     refreshOnboardingStatus,
   };
