@@ -251,6 +251,35 @@ export interface ApiSavingInstrument {
   updated_at: string;
 }
 
+export interface ApiSavingInstrumentFundSeries {
+  id: number;
+  name: string;
+  initial_quote?: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ApiSavingInstrumentFund {
+  id: number;
+  name: string;
+  kind?: 'investment' | 'mutual';
+  type?: string;
+  description?: string;
+  series?: ApiSavingInstrumentFundSeries[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ApiSavingInstrumentsFundsData {
+  investment_funds: ApiSavingInstrumentFund[];
+  mutual_funds: ApiSavingInstrumentFund[];
+}
+
+export interface ApiSavingInstrumentsFundsResponse {
+  success: boolean;
+  data: ApiSavingInstrumentsFundsData;
+}
+
 export interface ApiInvestmentProperty {
   id: number;
   location: string;
@@ -328,4 +357,57 @@ export interface ApiDebtsResponse {
     has_next_page: boolean;
     has_prev_page: boolean;
   };
+}
+
+export interface ApiProperty {
+  id: number;
+  property_type: 'main_home' | 'investment';
+  kind: 'own' | 'rent';
+  location: string;
+  commercial_value: number;
+  square_mts: number;
+  apartment_number?: number;
+  number_of_bedrooms?: number;
+  number_of_bathrooms?: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ApiPropertiesResponse {
+  properties: ApiProperty[];
+  totals: {
+    total_properties: number;
+    main_homes_total: number;
+    investment_properties_total: number;
+  };
+  pagination: {
+    current_page: number;
+    per_page: number;
+    total_count: number;
+    total_pages: number;
+    has_next_page: boolean;
+    has_prev_page: boolean;
+  };
+}
+
+export interface CreatePropertyRequest {
+  property_type: 'main_home' | 'investment';
+  property: {
+    kind?: 'own' | '';
+    property_attributes: {
+      location: string;
+      commercial_value: string;
+      unit: string;
+      square_mts: number;
+      apartment_number?: number;
+      number_of_bedrooms?: number;
+      number_of_bathrooms?: number;
+    };
+  };
+}
+
+export interface CreatePropertyResponse {
+  success: boolean;
+  data?: ApiProperty;
+  error?: string;
 }

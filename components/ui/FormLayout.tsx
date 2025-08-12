@@ -131,7 +131,8 @@ export default function FormLayout({
                   borderColor: Colors.error[200],
                   borderRadius: 8,
                   padding: 12,
-                  marginBottom: 16
+                  marginBottom: 16,
+                  marginTop: 16
                 }}>
                   <Text className="text-sm font-medium" style={{ color: Colors.error[700] }}>
                     Error

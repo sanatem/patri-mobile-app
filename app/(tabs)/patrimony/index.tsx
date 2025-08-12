@@ -69,7 +69,7 @@ export default function PatrimonyScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [showSkeletons, setShowSkeletons] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [itemsPerPage] = useState(5);
+  const [visibleCount, setVisibleCount] = useState(5);
   const [isExpanded, setIsExpanded] = useState(false);
 
   const overlayAnim = useRef(new Animated.Value(0)).current;
@@ -78,31 +78,20 @@ export default function PatrimonyScreen() {
 
   const { assets: apiAssets, loading: assetsLoading, error: assetsError, refetch: refetchAssets } = useAssets({
     page: 1,
-    per_page: 50
+    per_page: 100
   }, true);
 
   const { debts: apiDebts, loading: debtsLoading, error: debtsError, refetch: refetchDebts } = useDebts({
     page: 1,
-    per_page: 50
+    per_page: 100
   }, true);
 
   useEffect(() => {
-    console.log('🔍 Patrimony Debug Info:', {
-      apiAssets: apiAssets ? 'Loaded' : 'Not loaded',
-      apiDebts: apiDebts ? 'Loaded' : 'Not loaded',
-      assetsLoading,
-      debtsLoading,
-      assetsError,
-      debtsError,
-      totalAssets: apiAssets?.totals?.total_assets || 0,
-      totalDebts: apiDebts?.totals?.total_debts || 0,
-      assetsCount: apiAssets?.assets ? 
-        (apiAssets.assets.fixed_assets.length + 
-         apiAssets.assets.saving_instruments.length + 
-         apiAssets.assets.investment_properties.length + 
-         apiAssets.assets.main_homes.length) : 0,
-      debtsCount: apiDebts?.debts?.length || 0
-    });
+    setVisibleCount(5);
+    setIsExpanded(false);
+  }, [activeTab]);
+
+  useEffect(() => {
 
   }, [apiAssets, apiDebts, assetsLoading, debtsLoading, assetsError, debtsError]);
 
@@ -110,7 +99,6 @@ export default function PatrimonyScreen() {
     const setupRevenueCat = async () => {
       try {
         if (!user?.backendUserId) {
-          console.warn('RevenueCat: No backend user ID available');
           return;
         }
 
@@ -139,7 +127,6 @@ export default function PatrimonyScreen() {
           await Purchases.setEmail(user.email);
         }
 
-        console.log('RevenueCat configured successfully');
       } catch (error) {
         console.error('Error inicializando RevenueCat:', error);
       }
@@ -153,8 +140,6 @@ export default function PatrimonyScreen() {
   useEffect(() => {
     loadPatrimonyData();
   }, []);
-
-
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -205,16 +190,19 @@ export default function PatrimonyScreen() {
 
   const mapSavingInstrumentType = (type: string): string => {
     const typeMapping: Record<string, string> = {
-      'SavingInstruments::CashAccount': 'Caja',
-      'SavingInstruments::FixedTermDeposit': 'Depósito a Plazo',
-      'SavingInstruments::SavingsAccount': 'Cuenta de Ahorro',
+      'SavingInstruments::Crowdfunding': 'Crowdfunding',
+      'SavingInstruments::MutualFundInstrument': 'Fondo Mutuo o de Inversión',
+      'SavingInstruments::Cryptocurrency': 'Criptomonedas',
+      'SavingInstruments::AfpAccountTwo': 'Cuenta 2 AFP',
+      'SavingInstruments::ApvAccount': 'Cuenta APV',
+      'SavingInstruments::CashAccount': 'Cuenta Caja',
       'SavingInstruments::CheckingAccount': 'Cuenta Corriente',
-      'SavingInstruments::MutualFund': 'Fondo Mutuo',
-      'SavingInstruments::Stock': 'Acciones',
-      'SavingInstruments::Bond': 'Bonos',
-      'SavingInstruments::TimeDeposit': 'Depósito a Tiempo',
+      'SavingInstruments::SavingAccount': 'Cuenta de Ahorros',
+      'SavingInstruments::FixedTermDeposit': 'Depósito a Plazo',
+      'SavingInstruments::Share': 'Acciones',
+      'SavingInstruments::Other': 'Otros',
+      'SavingInstruments::SavingsAccount': 'Cuenta de Ahorros',
       'SavingInstruments::InvestmentFund': 'Fondo de Inversión',
-      'SavingInstruments::Pension': 'AFP/Pensión',
     };
 
     return typeMapping[type] || type.replace('SavingInstruments::', '');
@@ -228,6 +216,15 @@ export default function PatrimonyScreen() {
       'SavingInstruments::CheckingAccount': { backgroundColor: '#F59E0B', text: 'C' },
       'SavingInstruments::MutualFund': { backgroundColor: '#EF4444', text: 'F' },
       'SavingInstruments::Stock': { backgroundColor: '#06B6D4', text: 'S' },
+      'SavingInstruments::InvestmentFund': { backgroundColor: '#06B6D4', text: 'I' },
+      'SavingInstruments::Crowdfunding': { backgroundColor: '#F97316', text: 'C' },
+      'SavingInstruments::MutualFundInstrument': { backgroundColor: '#EF4444', text: 'M' },
+      'SavingInstruments::Cryptocurrency': { backgroundColor: '#FBBF24', text: '₿' },
+      'SavingInstruments::AfpAccountTwo': { backgroundColor: '#6366F1', text: '2' },
+      'SavingInstruments::ApvAccount': { backgroundColor: '#8B5CF6', text: 'A' },
+      'SavingInstruments::SavingAccount': { backgroundColor: '#10B981', text: 'S' },
+      'SavingInstruments::Shares': { backgroundColor: '#06B6D4', text: '$' },
+      'SavingInstruments::Other': { backgroundColor: '#6B7280', text: '?' },
     };
 
     return iconMapping[type] || { 
@@ -403,10 +400,12 @@ export default function PatrimonyScreen() {
       }))
     ];
 
-    return allAssets.filter(asset => 
+    const filteredAssets = allAssets.filter(asset => 
       asset.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
       asset.subtitle.toLowerCase().includes(searchQuery.toLowerCase())
     );
+
+    return filteredAssets;
   };
 
   const transformApiDebts = () => {
@@ -435,17 +434,30 @@ export default function PatrimonyScreen() {
   const apiDebtsData = transformApiDebts();
 
   const getPaginatedData = (data: any[]) => {
-    const startIndex = 0;
-    const endIndex = isExpanded ? data.length : Math.min(itemsPerPage, data.length);
-    return data.slice(startIndex, endIndex);
+    return data.slice(0, visibleCount);
   };
 
   const hasMoreData = (data: any[]) => {
-    return data.length > itemsPerPage;
+    return data.length > visibleCount;
+  };
+
+  const handleLoadMore = () => {
+    const nextCount = Math.min(visibleCount + 5, currentData.length);
+    setVisibleCount(nextCount);
+    setIsExpanded(nextCount === currentData.length);
+  };
+
+  const handleLoadLess = () => {
+    setVisibleCount(5);
+    setIsExpanded(false);
   };
 
   const handleToggleExpand = () => {
-    setIsExpanded(!isExpanded);
+    if (isExpanded) {
+      handleLoadLess();
+    } else {
+      handleLoadMore();
+    }
   };
 
   const handleTabChange = (key: string) => {
@@ -466,7 +478,7 @@ export default function PatrimonyScreen() {
     return {
       id: asset.id,
       title: asset.name,
-      subtitle: asset.type,
+      subtitle: mapSavingInstrumentType(asset.type),
       value: asset.value,
       icon: {
         backgroundColor: asset.color,
@@ -856,7 +868,7 @@ export default function PatrimonyScreen() {
                      showContainer={false}
                    />
                    
-                    {canShowMore && (
+                    {(hasMoreData(currentData) && !isExpanded) && (
                       <View style={{ padding: 20, alignItems: 'center' }}>
                         <Button
                           variant="ghost"

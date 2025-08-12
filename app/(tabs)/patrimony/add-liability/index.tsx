@@ -1,16 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text } from 'react-native';
 import { router } from 'expo-router';
 import {
   FormLayout,
   Input,
   Select,
-  RadioButton,
 } from '@/components/ui';
+import { HypothecaryFields } from '@/components/patrimony/add-liability';
 import Colors from '@/constants/Colors';
 import { createDebt } from '@/services/patrimony/create-debt';
+import { getProperties  } from '@/services/properties/get-properties';
 import { useAuth } from '@/providers/AuthProvider';
 import { useFormatValue } from '@/hooks/common/useFormatValue';
+import { ApiProperty } from '@/types/api';
 
 const DEBT_CATEGORY_OPTIONS = [
   { label: 'Automotriz', value: '1' },
@@ -32,11 +34,6 @@ const UNIT_OPTIONS = [
 
 const cleanIntegerValue = (value: string) => value.replace(/[^\d]/g, '');
 
-const PROPERTY_ASSOCIATION_OPTIONS = [
-  { label: 'Sí', value: 'yes' },
-  { label: 'No', value: 'no' },
-];
-
 export default function AddLiabilityScreen() {
   const { accessToken } = useAuth();
   const { formatValue } = useFormatValue();
@@ -47,16 +44,28 @@ export default function AddLiabilityScreen() {
     unit: 'clp',
     installments_quantity: '',
     installment_amount: '',
-    property_associated: 'no',
+    property_associated: 'yes',
+    property_id: '',
+    create_property: 'no',
+    property_location: '',
+    property_commercial_value: '',
+    property_unit: 'clp',
+    property_square_mts: '',
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
+  const [serverError, setServerError] = useState<string | null>(null);
+  const [properties, setProperties] = useState<ApiProperty[]>([]);
+  const [loadingProperties, setLoadingProperties] = useState(false);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
     }));
+    if (serverError) {
+      setServerError(null);
+    }
   };
 
   const handleNumericInputChange = (field: string, value: string) => {
@@ -65,6 +74,9 @@ export default function AddLiabilityScreen() {
       ...prev,
       [field]: cleanValue
     }));
+    if (serverError) {
+      setServerError(null);
+    }
   };
 
   const handleSelectChange = (field: string, value: string) => {
@@ -72,7 +84,36 @@ export default function AddLiabilityScreen() {
       ...prev,
       [field]: value
     }));
+    if (serverError) {
+      setServerError(null);
+    }
   };
+
+  const loadProperties = async () => {
+    if (!accessToken) return;
+    
+    setLoadingProperties(true);
+    try {
+      const response = await getProperties(accessToken, { page: 1, per_page: 100 });
+      if (response && response.properties) {
+        setProperties(response.properties);
+      }
+    } catch (error) {
+      console.error('Error loading properties:', error);
+    } finally {
+      setLoadingProperties(false);
+    }
+  };
+
+  useEffect(() => {
+    if (
+      accessToken &&
+      formData.property_associated === 'yes' &&
+      properties.length === 0
+    ) {
+      loadProperties();
+    }
+  }, [formData.property_associated, accessToken]);
 
   const validateForm = () => {
     const newErrors: string[] = [];
@@ -108,6 +149,34 @@ export default function AddLiabilityScreen() {
       }
     }
 
+    if (formData.debt_category_id === '5' || formData.debt_category_id === '6') {
+      if (formData.property_associated === 'yes') {
+        if (!formData.property_id) {
+          newErrors.push('Debes seleccionar una propiedad');
+        }
+      } else if (formData.create_property === 'yes') {
+        if (!formData.property_location.trim()) {
+          newErrors.push('La ubicación de la propiedad es requerida');
+        }
+        if (!formData.property_commercial_value.trim()) {
+          newErrors.push('El valor comercial de la propiedad es requerido');
+        } else {
+          const commercialValue = parseFloat(cleanIntegerValue(formData.property_commercial_value));
+          if (isNaN(commercialValue) || commercialValue <= 0) {
+            newErrors.push('El valor comercial debe ser un número válido mayor a 0');
+          }
+        }
+        if (!formData.property_square_mts.trim()) {
+          newErrors.push('Los metros cuadrados de la propiedad son requeridos');
+        } else {
+          const squareMts = parseFloat(cleanIntegerValue(formData.property_square_mts));
+          if (isNaN(squareMts) || squareMts <= 0) {
+            newErrors.push('Los metros cuadrados deben ser un número válido mayor a 0');
+          }
+        }
+      }
+    }
+
     setErrors(newErrors);
     return newErrors.length === 0;
   };
@@ -124,38 +193,53 @@ export default function AddLiabilityScreen() {
 
   const handleComplete = async () => {
     if (!accessToken) {
-      setErrors(['No hay token de autenticación disponible']);
+      setServerError('No hay token de autenticación disponible');
       return;
     }
 
     setLoading(true);
+    setServerError(null);
     try {
-      const debtData = {
+      const debtData: any = {
         debt: {
           name: formData.name,
           debt_category_id: parseInt(formData.debt_category_id),
-          amount: parseInt(cleanIntegerValue(formData.amount)),
+          amount: cleanIntegerValue(formData.amount), // Enviar como string
           unit: formData.unit,
           installments_quantity: parseInt(cleanIntegerValue(formData.installments_quantity)),
-          installment_amount: parseInt(cleanIntegerValue(formData.installment_amount)),
-          property_associated: formData.property_associated === 'yes',
+          installment_amount: cleanIntegerValue(formData.installment_amount), // Enviar como string
         }
       };
+      if (formData.debt_category_id === '5' || formData.debt_category_id === '6') {
+        if (formData.property_associated === 'yes') {
+          debtData.debt.property_id = parseInt(formData.property_id);
+        } else if (formData.create_property === 'yes') {
+          const cleanCommercialValue = cleanIntegerValue(formData.property_commercial_value);
+          const formattedCommercialValue = cleanCommercialValue.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+          debtData.debt.property_attributes = {
+            commercial_value: String(formattedCommercialValue),
+            unit: formData.property_unit,
+            location: formData.property_location.trim(),
+            square_mts: parseInt(cleanIntegerValue(formData.property_square_mts))
+          };
+        }
+      }
 
       const response = await createDebt(debtData, accessToken);
 
       if (response.success) {
-        router.back();
+        router.push('/(tabs)/patrimony');
       } else {
-        setErrors([response.error || 'Error al crear el pasivo']);
+        setServerError(response.error || 'Error al crear el pasivo');
       }
     } catch (error) {
-      console.error('Error al guardar pasivo:', error);
-      setErrors(['Error inesperado al crear el pasivo']);
+      setServerError('Error inesperado al crear el pasivo');
     } finally {
       setLoading(false);
     }
   };
+
+  const isHypothecaryDebt = formData.debt_category_id === '5' || formData.debt_category_id === '6';
 
   return (
     <FormLayout
@@ -168,7 +252,7 @@ export default function AddLiabilityScreen() {
       nextButtonTitle="Crear Pasivo"
       isLoading={loading}
       isNextDisabled={errors.length > 0}
-      error={errors.length > 0 ? errors[0] : null}
+      error={serverError || (errors.length > 0 ? errors[0] : null)}
     >
       <View>
         <Text className='text-base font-medium'
@@ -260,14 +344,23 @@ export default function AddLiabilityScreen() {
         />
       </View>
 
-      <View>
-        <RadioButton
-          label="¿La deuda está asociada a alguna propiedad?"
-          options={PROPERTY_ASSOCIATION_OPTIONS}
-          selectedValue={formData.property_associated}
-          onSelect={(value) => handleSelectChange('property_associated', value)}
+      {isHypothecaryDebt && (
+        <HypothecaryFields
+          propertyAssociated={formData.property_associated}
+          propertyId={formData.property_id}
+          createProperty={formData.create_property}
+          propertyLocation={formData.property_location}
+          propertyCommercialValue={formData.property_commercial_value}
+          propertyUnit={formData.property_unit}
+          propertySquareMts={formData.property_square_mts}
+          properties={properties}
+          loadingProperties={loadingProperties}
+          onInputChange={handleInputChange}
+          onSelectChange={handleSelectChange}
+          onNumericInputChange={handleNumericInputChange}
+          formatValue={formatValue}
         />
-      </View>
+      )}
     </FormLayout>
   );
 } 

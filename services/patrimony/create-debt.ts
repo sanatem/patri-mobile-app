@@ -4,11 +4,18 @@ export interface CreateDebtRequest {
   debt: {
     name: string;
     debt_category_id: number;
-    amount: number;
+    amount: string;
     unit: string;
     installments_quantity: number;
-    installment_amount: number;
+    installment_amount: string;
     comments?: string;
+    property_id?: number;
+    property_attributes?: {
+      commercial_value: string;
+      unit: string;
+      location: string;
+      square_mts: number;
+    };
   };
 }
 

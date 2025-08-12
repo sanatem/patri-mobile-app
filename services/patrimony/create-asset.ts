@@ -4,7 +4,7 @@ export interface CreateAssetRequest {
   asset: {
     name: string;
     asset_category_id: number;
-    commercial_value: number;
+    commercial_value: string;
     unit: string;
     kind: string;
     comments?: string;

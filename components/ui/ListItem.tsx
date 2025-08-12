@@ -4,6 +4,7 @@ import { ChevronRight } from 'lucide-react-native';
 import { cn } from '@/lib/utils';
 import { listItemStyles } from '@/styles/ui/ListItem.styles';
 import Colors from '@/constants/Colors';
+import { Button } from '@/components/ui/Button';
 
 interface ListItem {
   id: string;
@@ -48,14 +49,27 @@ export function ListItem({
   showSeparators = true,
   showContainer = true,
 }: ListProps) {
-  const [visibleCount, setVisibleCount] = useState(initialItemCount);
   const showPercentageBadges = false;
   
-  const visibleData = data.slice(0, visibleCount);
-  const hasMore = visibleCount < data.length;
+  // Only use pagination state when showLoadMore is true
+  const [visibleCount, setVisibleCount] = useState(showLoadMore ? initialItemCount : data.length);
+  const [isExpanded, setIsExpanded] = useState(false);
+  
+  // If showLoadMore is false, show all data without pagination
+  const visibleData = showLoadMore ? data.slice(0, visibleCount) : data;
+  const hasMore = showLoadMore ? visibleCount < data.length : false;
+  const canShowLess = showLoadMore ? visibleCount > initialItemCount : false;
 
   const loadMore = () => {
+    if (!showLoadMore) return;
     setVisibleCount(prev => Math.min(prev + loadMoreStep, data.length));
+    setIsExpanded(true);
+  };
+
+  const loadLess = () => {
+    if (!showLoadMore) return;
+    setVisibleCount(initialItemCount);
+    setIsExpanded(false);
   };
 
 
@@ -201,33 +215,38 @@ export function ListItem({
     />
   );
 
+  const renderPaginationButtons = () => {
+    if (!showLoadMore) return null;
+    
+    return (
+      <>
+        {hasMore && !isExpanded && (
+          <Button 
+            variant="ghost"
+            title="Ver más"
+            onPress={loadMore}
+          />
+        )}
+        {isExpanded && canShowLess && (
+          <Button 
+            variant="ghost"
+            title="Ver menos"
+            onPress={loadLess}
+          />
+        )}
+      </>
+    );
+  };
+
   return showContainer ? (
     <View style={[listItemStyles.container, className ? { marginBottom: 0 } : {}]}>
       {content}
-      {showLoadMore && hasMore && (
-        <TouchableOpacity 
-          className="items-center py-4 mt-2"
-          onPress={loadMore}
-        >
-          <Text className="text-base font-medium text-primary-500">
-            Ver más ({data.length - visibleCount} restantes)
-          </Text>
-        </TouchableOpacity>
-      )}
+      {renderPaginationButtons()}
     </View>
   ) : (
     <>
       {content}
-      {showLoadMore && hasMore && (
-        <TouchableOpacity 
-          className="items-center py-4 mt-2"
-          onPress={loadMore}
-        >
-          <Text className="text-base font-medium text-primary-500">
-            Ver más ({data.length - visibleCount} restantes)
-          </Text>
-        </TouchableOpacity>
-      )}
+      {renderPaginationButtons()}
     </>
   );
 } 
