@@ -189,16 +189,19 @@ export default function PatrimonyScreen() {
 
   const mapSavingInstrumentType = (type: string): string => {
     const typeMapping: Record<string, string> = {
-      'SavingInstruments::CashAccount': 'Caja',
-      'SavingInstruments::FixedTermDeposit': 'Depósito a Plazo',
-      'SavingInstruments::SavingsAccount': 'Cuenta de Ahorro',
+      'SavingInstruments::Crowdfunding': 'Crowdfunding',
+      'SavingInstruments::MutualFundInstrument': 'Fondo Mutuo o de Inversión',
+      'SavingInstruments::Cryptocurrency': 'Criptomonedas',
+      'SavingInstruments::AfpAccountTwo': 'Cuenta 2 AFP',
+      'SavingInstruments::ApvAccount': 'Cuenta APV',
+      'SavingInstruments::CashAccount': 'Cuenta Caja',
       'SavingInstruments::CheckingAccount': 'Cuenta Corriente',
-      'SavingInstruments::MutualFund': 'Fondo Mutuo',
-      'SavingInstruments::Stock': 'Acciones',
-      'SavingInstruments::Bond': 'Bonos',
-      'SavingInstruments::TimeDeposit': 'Depósito a Tiempo',
+      'SavingInstruments::SavingAccount': 'Cuenta de Ahorros',
+      'SavingInstruments::FixedTermDeposit': 'Depósito a Plazo',
+      'SavingInstruments::Share': 'Acciones',
+      'SavingInstruments::Other': 'Otros',
+      'SavingInstruments::SavingsAccount': 'Cuenta de Ahorros',
       'SavingInstruments::InvestmentFund': 'Fondo de Inversión',
-      'SavingInstruments::Pension': 'AFP/Pensión',
     };
 
     return typeMapping[type] || type.replace('SavingInstruments::', '');
@@ -212,6 +215,15 @@ export default function PatrimonyScreen() {
       'SavingInstruments::CheckingAccount': { backgroundColor: '#F59E0B', text: 'C' },
       'SavingInstruments::MutualFund': { backgroundColor: '#EF4444', text: 'F' },
       'SavingInstruments::Stock': { backgroundColor: '#06B6D4', text: 'S' },
+      'SavingInstruments::InvestmentFund': { backgroundColor: '#06B6D4', text: 'I' },
+      'SavingInstruments::Crowdfunding': { backgroundColor: '#F97316', text: 'C' },
+      'SavingInstruments::MutualFundInstrument': { backgroundColor: '#EF4444', text: 'M' },
+      'SavingInstruments::Cryptocurrency': { backgroundColor: '#FBBF24', text: '₿' },
+      'SavingInstruments::AfpAccountTwo': { backgroundColor: '#6366F1', text: '2' },
+      'SavingInstruments::ApvAccount': { backgroundColor: '#8B5CF6', text: 'A' },
+      'SavingInstruments::SavingAccount': { backgroundColor: '#10B981', text: 'S' },
+      'SavingInstruments::Shares': { backgroundColor: '#06B6D4', text: '$' },
+      'SavingInstruments::Other': { backgroundColor: '#6B7280', text: '?' },
     };
 
     return iconMapping[type] || { 
@@ -465,7 +477,7 @@ export default function PatrimonyScreen() {
     return {
       id: asset.id,
       title: asset.name,
-      subtitle: asset.type,
+      subtitle: mapSavingInstrumentType(asset.type),
       value: asset.value,
       icon: {
         backgroundColor: asset.color,

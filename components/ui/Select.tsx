@@ -39,7 +39,7 @@ export function Select({
   const overlayAnim = useRef(new Animated.Value(0)).current;
   const sheetAnim = useRef(new Animated.Value(0)).current;
 
-  const selectedOption = options.find(option => option.value === value);
+  const selectedOption = options.find(option => String(option.value) === String(value ?? ''));
 
   useEffect(() => {
     Animated.timing(borderAnim, {
@@ -213,10 +213,10 @@ export function Select({
                   <Text
                     className={cn(
                       'text-base',
-                      option.value === value ? 'font-medium' : 'font-regular'
+                      String(option.value) === String(value ?? '') ? 'font-medium' : 'font-regular'
                     )}
                     style={{
-                      color: option.value === value ? Colors.primary[500] : Colors.primary[700]
+                      color: String(option.value) === String(value ?? '') ? Colors.primary[500] : Colors.primary[700]
                     }}
                   >
                     {option.label}

@@ -61,7 +61,9 @@ export default function CrowdfundingFields({
         >
           ¿En qué institución está?
         </Text>
+
         <Select
+          key={`cf-inst-${crowdfunding_institution}`}
           options={INSTITUTION_OPTIONS}
           value={(crowdfunding_institution ?? '').toString()}
           onSelect={(value) => onSelectChange('crowdfunding_institution', value)}
@@ -78,7 +80,9 @@ export default function CrowdfundingFields({
         >
           ¿Qué tipo de crédito es?
         </Text>
+
         <Select
+          key={`cf-credit-${crowdfunding_credit_id}`}
           options={CREDIT_TYPE_OPTIONS}
           value={(crowdfunding_credit_id ?? '').toString()}
           onSelect={(value) => onSelectChange('crowdfunding_credit_id', value)}

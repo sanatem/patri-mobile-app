@@ -249,8 +249,8 @@ export default function AddAssetScreen() {
                 name: formData.name,
                 total_amount: totalAmount,
                 unit: formData.unit,
-                crowdfunding_institution_id: formData.crowdfunding_institution as any,
-                crowdfunding_credit_id: Number(formData.crowdfunding_credit_id),
+                crowdfunding_institution_id: Number(formData.crowdfunding_institution),
+                crowdfunding_credit_id: String(formData.crowdfunding_credit_id),
                 period_return_rate: formData.period_return_rate ? Number(formData.period_return_rate) : undefined,
                 due_date: formData.due_date,
               },
@@ -562,6 +562,10 @@ export default function AddAssetScreen() {
           bank={formData.bank}
           platform={formData.platform}
           description={formData.description}
+          crowdfunding_institution={formData.crowdfunding_institution}
+          crowdfunding_credit_id={formData.crowdfunding_credit_id}
+          period_return_rate={formData.period_return_rate}
+          due_date={formData.due_date}
           deposit_type={formData.deposit_type}
           opening_date={formData.opening_date}
           maturity_date={formData.maturity_date}
