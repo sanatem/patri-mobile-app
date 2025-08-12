@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { View, Text, TouchableOpacity, Animated, Modal, Pressable, Dimensions, ScrollView } from 'react-native';
 import { ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { cn } from '@/lib/utils';
@@ -63,8 +63,8 @@ export function CalendarSelect({
   useEffect(() => {
     if (showYearSelector && yearScrollViewRef.current) {
       const currentYear = new Date().getFullYear();
-      const yearIndex = years.findIndex(year => year === currentYear);
-      if (yearIndex !== -1) {
+      const yearIndex = currentYear - 1925;
+      if (yearIndex >= 0) {
         const itemHeight = 48;
         const scrollToY = yearIndex * itemHeight;
         const offsetY = Math.max(0, scrollToY - 48);
@@ -77,7 +77,7 @@ export function CalendarSelect({
         }, 350);
       }
     }
-  }, [showYearSelector, years]);
+  }, [showYearSelector]);
 
   useEffect(() => {
     if (isOpen) {
@@ -199,7 +199,14 @@ export function CalendarSelect({
     setShowYearSelector(false);
   };
 
-
+  const years = useMemo(() => {
+    const currentYear = new Date().getFullYear();
+    const yearArray: number[] = [];
+    for (let year = 1925; year <= currentYear + 100; year++) {
+      yearArray.push(year);
+    }
+    return yearArray;
+  }, []);
 
   const isToday = (day: number) => {
     const today = new Date();
@@ -224,12 +231,6 @@ export function CalendarSelect({
   const dayNames = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 
   const calendarDays = generateCalendarDays(currentDate);
-
-  const currentYear = new Date().getFullYear();
-  const years: number[] = [];
-  for (let year = 1925; year <= currentYear + 100; year++) {
-    years.push(year);
-  }
 
   return (
     <View className={cn('mb-5 w-full', className)}>
