@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { View, Dimensions, ScrollView, StyleSheet, Platform } from 'react-native';
+import { View, Dimensions, ScrollView, StyleSheet, Platform, AppState, InteractionManager } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/providers/AuthProvider';
 import { useOnboarding } from '@/hooks/common';
@@ -17,7 +17,14 @@ import SplashScreen3 from './splash-3';
 export default function SplashScreens() {
   const { t } = useTranslation();
   const { login } = useAuth();
-  const [isProcessing, setIsProcessing] = useState(false);
+  const router = useRouter();
+  const { hasSeenOnboarding } = useOnboarding();
+
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const scrollViewRef = useRef<ScrollView>(null);
+
+  const [pending, setPending] = useState(false);
+
   const splashScreens = [
     {
       id: 1,
@@ -45,45 +52,47 @@ export default function SplashScreens() {
     },
   ];
 
-  const router = useRouter();
-  const { hasSeenOnboarding } = useOnboarding();
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const scrollViewRef = useRef<ScrollView>(null);
-  const [isRequestingATT, setIsRequestingATT] = useState(false);
-  
   const checkATTStatus = async () => {
     try {
       const attSeen = await AsyncStorage.getItem('att_permission_shown');
       return attSeen === 'true';
-    } catch (error) {
+    } catch {
       return false;
     }
   };
 
   const requestATT = async () => {
-    setIsRequestingATT(true);
     try {
-      const { requestTrackingPermissionsAsync } = await import('expo-tracking-transparency');
-      const { status } = await requestTrackingPermissionsAsync();
-      
+      const { getTrackingPermissionsAsync, requestTrackingPermissionsAsync } = await import('expo-tracking-transparency');
 
-      
-      await AsyncStorage.setItem('att_permission_shown', 'true');
-    } catch (error) {
-      await AsyncStorage.setItem('att_permission_shown', 'true');
-    } finally {
-      setIsRequestingATT(false);
-      await AsyncStorage.setItem('splash_seen', 'true');
-      const success = await login();
-      if (success) {
-        router.replace('/');
+      await new Promise<void>((resolve) => InteractionManager.runAfterInteractions(() => resolve()));
+
+      if (AppState.currentState !== 'active') {
+        await new Promise<void>((resolve) => {
+          const sub = AppState.addEventListener('change', (s) => {
+            if (s === 'active') {
+              sub.remove();
+              resolve();
+            }
+          });
+        });
       }
+
+      const { status, canAskAgain } = await getTrackingPermissionsAsync();
+      if (Platform.OS === 'ios' && status === 'undetermined' && canAskAgain) {
+        await new Promise((r) => setTimeout(r, 200));
+        await requestTrackingPermissionsAsync();
+      }
+
+      await AsyncStorage.setItem('att_permission_shown', 'true');
+    } catch {
+      await AsyncStorage.setItem('att_permission_shown', 'true');
     }
   };
 
   const handleNext = async () => {
-    if (isProcessing) return;
-    
+    if (pending) return;
+
     if (currentIndex < splashScreens.length - 1) {
       const nextIndex = currentIndex + 1;
       setCurrentIndex(nextIndex);
@@ -92,43 +101,39 @@ export default function SplashScreens() {
         animated: true,
       });
     } else {
-      setIsProcessing(true);
+      setPending(true);
       try {
         const attSeen = await checkATTStatus();
-        
+
         if (!attSeen && Platform.OS === 'ios') {
           await requestATT();
         } else {
           await AsyncStorage.setItem('splash_seen', 'true');
           const success = await login();
-          if (success) {
-            router.replace('/');
-          }
+          if (success) router.replace('/');
         }
       } finally {
-        setIsProcessing(false);
+        setPending(false);
       }
     }
   };
 
   const handleSkip = async () => {
-    if (isProcessing) return; 
-    
-    setIsProcessing(true);
+    if (pending) return;
+
+    setPending(true);
     try {
       const attSeen = await checkATTStatus();
-      
+
       if (!attSeen && Platform.OS === 'ios') {
         await requestATT();
       } else {
         await AsyncStorage.setItem('splash_seen', 'true');
         const success = await login();
-        if (success) {
-          router.replace('/');
-        }
+        if (success) router.replace('/');
       }
     } finally {
-      setIsProcessing(false);
+      setPending(false);
     }
   };
 
@@ -150,11 +155,11 @@ export default function SplashScreens() {
         scrollEventThrottle={16}
         style={styles.scrollView}
       >
-        {splashScreens.map((screen, index) => {
+        {splashScreens.map((screen) => {
           const SplashComponent = screen.component;
           return (
             <View key={screen.id} style={styles.slide}>
-              <SplashComponent 
+              <SplashComponent
                 title={screen.title}
                 subtitle={screen.subtitle}
               />
@@ -176,24 +181,26 @@ export default function SplashScreens() {
         ))}
       </View>
 
-             <View style={styles.footer}>
-         <Button
-           title={splashScreens[currentIndex].primaryButton}
-           onPress={handleNext}
-           variant="primary"
-           fullWidth
-         />
-         
-         <Button
-           title={splashScreens[currentIndex].secondaryButton}
-           onPress={handleSkip}
-           variant="outline"
-           fullWidth
-         />
-       </View>
-     </Container>
-   );
- }
+      <View style={styles.footer}>
+        <Button
+          title={splashScreens[currentIndex].primaryButton}
+          onPress={handleNext}
+          variant="primary"
+          fullWidth
+          disabled={pending}
+        />
+
+        <Button
+          title={splashScreens[currentIndex].secondaryButton}
+          onPress={handleSkip}
+          variant="outline"
+          fullWidth
+          disabled={pending}
+        />
+      </View>
+    </Container>
+  );
+}
 
 const styles = StyleSheet.create({
   container: {
