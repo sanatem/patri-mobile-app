@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/providers/AuthProvider';
 import config from '@/config/constants';
+import { getCash } from '@/services/cash/get-cash';
 
 interface UseTotalWalletValueReturn {
   totalWalletValue: number;
@@ -26,6 +27,13 @@ export function useTotalWalletValue(): UseTotalWalletValueReturn {
       setLoading(true);
       setError(null);
       
+      const cashData = await getCash(accessToken);
+      
+      if (cashData?.cash?.total_amount) {
+        setTotalWalletValue(Math.round(cashData.cash.total_amount));
+        return;
+      }
+      console.log('⚠️ No cash.total_amount found, falling back to goals sum');
       const url = `${config.apiBaseUrl}/api/v2/goals`;
       const response = await fetch(url, {
         headers: {
@@ -34,28 +42,20 @@ export function useTotalWalletValue(): UseTotalWalletValueReturn {
         },
       });
 
-      if (!response.ok) {
-        if (response.status === 401) {
-          throw new Error('Token de autenticación inválido');
-        }
-        if (response.status === 404) {
-          setTotalWalletValue(0);
-          return;
-        }
-        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      if (response.ok) {
+        const data = await response.json();
+        const goals = data.goals || [];
+        let total = 0;
+        
+        goals.forEach((goal: any) => {
+          const walletValue = Math.round(Number(goal.wallet_value) || 0);
+          total += walletValue;
+        });
+
+        setTotalWalletValue(Math.round(total));
+      } else {
+        setTotalWalletValue(0);
       }
-
-      const data = await response.json();
-      
-      const goals = data.goals || [];
-      let total = 0;
-      
-      goals.forEach((goal: any) => {
-        const walletValue = Number(goal.wallet_value) || 0;
-        total += walletValue;
-      });
-
-      setTotalWalletValue(total);
 
     } catch (err) {
       console.error('❌ Error in fetchTotalWalletValue:', err);
