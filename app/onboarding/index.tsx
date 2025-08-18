@@ -113,7 +113,7 @@ export default function OnboardingScreen() {
         
         const newFormData = {
           rut: personalInfo.rut || '',
-          residence_country_name: personalInfo.residence_country_name || '',
+          residence_country_name: personalInfo.residence_country || '',
           birth_date: birthDate || '',
           monthly_incomes: monthlyIncomesValue || '',
         };
