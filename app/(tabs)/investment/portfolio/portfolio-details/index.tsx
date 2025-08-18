@@ -102,7 +102,7 @@ export default function PortfolioDetailsScreen() {
   const transformedAssets = metaDetails.assets.map(asset => ({
     name: asset.title,
     percentage: Math.round((asset.value / metaDetails.current) * 100),
-    value: `$${Math.trunc(asset.value).toLocaleString('es-CO')}`,
+    value: `$${Math.round(asset.value).toLocaleString('es-CO')}`,
     allocation: asset.subtitle,
   }));
 
