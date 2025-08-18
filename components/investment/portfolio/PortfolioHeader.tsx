@@ -66,7 +66,7 @@ export function PortfolioHeader({ patrimony, isLoading }: PortfolioHeaderProps) 
     if (error || !cashData) {
       return '$0';
     }
-    return `${Math.floor(cashData.cash.total_amount).toLocaleString('es-CL')}`;
+    return `${Math.round(cashData.cash.user_cash).toLocaleString('es-CL')}`;
   };
 
   const cashDisplayValue = getCashDisplayValue();

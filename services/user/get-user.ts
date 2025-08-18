@@ -13,6 +13,7 @@ export interface PersonalInformation {
   employment_situation: string;
   monthly_incomes: number;
   residence_country_name: string;
+  residence_country: string;
 }
 
 export interface ContactInformation {

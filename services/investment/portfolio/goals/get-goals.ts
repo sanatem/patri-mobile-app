@@ -29,7 +29,7 @@ const transformApiGoalToAppGoal = (apiGoal: ApiGoal): Goal => {
     targetDate: apiGoal.target_date,
     unit: apiGoal.unit,
     createdAt: apiGoal.created_at,
-    currentAmount: apiGoal.wallet_value,
+    currentAmount: Math.round(apiGoal.wallet_value),
     investmentAccountId: apiGoal.investment_account_id,
     progress: apiGoal.target_amount > 0 
       ? Math.round((apiGoal.wallet_value / apiGoal.target_amount) * 100) 

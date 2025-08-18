@@ -93,7 +93,7 @@ export default function InvestmentPortfolioScreen() {
     }
   
     if (totalWalletValue && totalWalletValue > 0) {
-      return `${Math.floor(totalWalletValue).toLocaleString('es-CL')}`;
+      return `${Math.round(totalWalletValue).toLocaleString('es-CL')}`;
     }
     
     const allGoals = [...goals.shortTerm, ...goals.mediumTerm, ...goals.longTerm];
@@ -103,7 +103,7 @@ export default function InvestmentPortfolioScreen() {
       }, 0);
       
       if (manualTotal > 0) {
-        return `${Math.floor(manualTotal).toLocaleString('es-CL')}`;
+        return `${Math.round(manualTotal).toLocaleString('es-CL')}`;
       }
     }
     

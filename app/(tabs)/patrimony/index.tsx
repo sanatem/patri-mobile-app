@@ -203,6 +203,7 @@ export default function PatrimonyScreen() {
       'SavingInstruments::Other': 'Otros',
       'SavingInstruments::SavingsAccount': 'Cuenta de Ahorros',
       'SavingInstruments::InvestmentFund': 'Fondo de Inversión',
+      'SavingInstruments::OtherSavingInstrument': 'Otros',
     };
 
     return typeMapping[type] || type.replace('SavingInstruments::', '');

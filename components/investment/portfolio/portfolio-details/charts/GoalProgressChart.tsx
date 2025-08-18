@@ -147,7 +147,7 @@ export function GoalProgressChart({
   };
 
   const formatValue = (value: number) => {
-    return `$${value.toLocaleString('es-CL')}`;
+    return `$${Math.round(value).toLocaleString('es-CL')}`;
   };
 
   const customFormatDate = (date: string) => {

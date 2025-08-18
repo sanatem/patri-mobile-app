@@ -4,6 +4,7 @@ import * as WebBrowser from 'expo-web-browser';
 import * as AuthSession from 'expo-auth-session';
 import { makeRedirectUri } from 'expo-auth-session';
 import { auth0Config } from '@/config/auth0.config';
+import config from '@/config/constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Purchases from 'react-native-purchases';
 
@@ -74,7 +75,8 @@ const discovery = {
 
 const validateWithBackend = async (token: string): Promise<BackendUserResponse> => {
   try {
-    const response = await fetch('https://staging.patrimore.com/api/v2/auth/validate', {
+    const baseUrl = config.apiBaseUrl;
+    const response = await fetch(`${baseUrl}/api/v2/auth/validate`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
