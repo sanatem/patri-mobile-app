@@ -2,16 +2,16 @@
 import config from '@/config/constants';
 
 export interface Cash {
-  total_amount: number;
-  user_cash: number;
-  available_amount: number;
-  valued_balance: number;
-  pending_rebalancing_amount: number;
-  pending_deposits_amount: number;
-  pending_purchase_orders_amount: number;
-  pending_retirements_amount: number;
-  pending_sale_orders_amount: number;
-  user_cash_without_pending_movements: number;
+  total_amount: number | string;
+  user_cash: number | string;
+  available_amount: number | string;
+  valued_balance: number | string;
+  pending_rebalancing_amount: number | string;
+  pending_deposits_amount: number | string;
+  pending_purchase_orders_amount: number | string;
+  pending_retirements_amount: number | string;
+  pending_sale_orders_amount: number | string;
+  user_cash_without_pending_movements: number | string;
   last_cash_update: string;
 }
 

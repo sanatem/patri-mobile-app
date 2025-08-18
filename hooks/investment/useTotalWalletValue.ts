@@ -29,11 +29,16 @@ export function useTotalWalletValue(): UseTotalWalletValueReturn {
       
       const cashData = await getCash(accessToken);
       
-      if (cashData?.cash?.total_amount) {
-        setTotalWalletValue(Math.round(cashData.cash.total_amount));
-        return;
+      const totalAmount = cashData?.cash?.total_amount;
+      
+      if (totalAmount !== undefined && totalAmount !== null) {
+        const numericValue = typeof totalAmount === 'string' ? parseFloat(totalAmount) : totalAmount;
+        if (!isNaN(numericValue)) {
+          setTotalWalletValue(Math.round(numericValue));
+          return;
+        }
       }
-      console.log('⚠️ No cash.total_amount found, falling back to goals sum');
+      
       const url = `${config.apiBaseUrl}/api/v2/goals`;
       const response = await fetch(url, {
         headers: {
