@@ -797,7 +797,8 @@ export default function PatrimonyScreen() {
                     color: Colors.gray[400], 
                     fontSize: 14, 
                     fontFamily: 'Poppins-regular',
-                    textAlign: 'center'
+                    textAlign: 'center',
+                    marginBottom: 12
                   }}>
                     {t(`patrimony.empty.${activeTab}.subtitle`)}
                   </Text>
