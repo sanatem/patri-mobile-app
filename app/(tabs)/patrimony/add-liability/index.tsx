@@ -13,28 +13,30 @@ import { getProperties  } from '@/services/properties/get-properties';
 import { useAuth } from '@/providers/AuthProvider';
 import { useFormatValue } from '@/hooks/common/useFormatValue';
 import { ApiProperty } from '@/types/api';
-
-const DEBT_CATEGORY_OPTIONS = [
-  { label: 'Automotriz', value: '1' },
-  { label: 'Caja de compensación', value: '2' },
-  { label: 'Consumo', value: '3' },
-  { label: 'Crédito Universitario', value: '4' },
-  { label: 'Hipotecario de uso', value: '5' },
-  { label: 'Hipotecario de inversión', value: '6' },
-  { label: 'Línea de Crédito', value: '7' },
-  { label: 'Préstamos familiares o amic', value: '8' },
-  { label: 'Tarjeta de Crédito', value: '9' },
-];
-
-const UNIT_OPTIONS = [
-  { label: 'CLP', value: 'clp' },
-  { label: 'USD', value: 'usd' },
-  { label: 'UF', value: 'uf' },
-];
+import { useTranslation } from 'react-i18next';
 
 const cleanIntegerValue = (value: string) => value.replace(/[^\d]/g, '');
 
 export default function AddLiabilityScreen() {
+  const { t } = useTranslation();
+
+  const DEBT_CATEGORY_OPTIONS = [
+    { label: t('addLiabilityScreen.debtCategoryOptions.1'), value: '1' },
+    { label: t('addLiabilityScreen.debtCategoryOptions.2'), value: '2' },
+    { label: t('addLiabilityScreen.debtCategoryOptions.3'), value: '3' },
+    { label: t('addLiabilityScreen.debtCategoryOptions.4'), value: '4' },
+    { label: t('addLiabilityScreen.debtCategoryOptions.5'), value: '5' },
+    { label: t('addLiabilityScreen.debtCategoryOptions.6'), value: '6' },
+    { label: t('addLiabilityScreen.debtCategoryOptions.7'), value: '7' },
+    { label: t('addLiabilityScreen.debtCategoryOptions.8'), value: '8' },
+    { label: t('addLiabilityScreen.debtCategoryOptions.9'), value: '9' },
+  ];
+  
+  const UNIT_OPTIONS = [
+    { label: t('addLiabilityScreen.unitOptions.clp'), value: 'clp' },
+    { label: t('addLiabilityScreen.unitOptions.usd'), value: 'usd' },
+    { label: t('addLiabilityScreen.unitOptions.uf'), value: 'uf' },
+  ];
   const { accessToken } = useAuth();
   const { formatValue } = useFormatValue();
   const [formData, setFormData] = useState({
@@ -119,59 +121,59 @@ export default function AddLiabilityScreen() {
     const newErrors: string[] = [];
 
     if (!formData.name.trim()) {
-      newErrors.push('El nombre del pasivo es requerido');
+      newErrors.push(t('addLiabilityScreen.errors.nameRequired'));
     }
     if (!formData.debt_category_id) {
-      newErrors.push('Debes seleccionar una categoría de pasivo');
+      newErrors.push(t('addLiabilityScreen.errors.categoryRequired'));
     }
     if (!formData.amount.trim()) {
-      newErrors.push('El monto del pasivo es requerido');
+      newErrors.push(t('addLiabilityScreen.errors.amountRequired'));
     } else {
       const amount = parseFloat(cleanIntegerValue(formData.amount));
       if (isNaN(amount) || amount <= 0) {
-        newErrors.push('El monto debe ser un número válido mayor a 0');
+        newErrors.push(t('addLiabilityScreen.errors.amountInvalid'));
       }
     }
     if (!formData.installments_quantity.trim()) {
-      newErrors.push('El número de cuotas es requerido');
+      newErrors.push(t('addLiabilityScreen.errors.installmentsQuantityRequired'));
     } else {
       const installments = parseInt(cleanIntegerValue(formData.installments_quantity));
       if (isNaN(installments) || installments <= 0) {
-        newErrors.push('El número de cuotas debe ser un número válido mayor a 0');
+        newErrors.push(t('addLiabilityScreen.errors.installmentsQuantityInvalid'));
       }
     }
     if (!formData.installment_amount.trim()) {
-      newErrors.push('El monto de la cuota es requerido');
+      newErrors.push(t('addLiabilityScreen.errors.installmentAmountRequired'));
     } else {
       const installment = parseFloat(cleanIntegerValue(formData.installment_amount));
       if (isNaN(installment) || installment <= 0) {
-        newErrors.push('El monto de la cuota debe ser un número válido mayor a 0');
+        newErrors.push(t('addLiabilityScreen.errors.installmentAmountInvalid'));
       }
     }
 
     if (formData.debt_category_id === '5' || formData.debt_category_id === '6') {
       if (formData.property_associated === 'yes') {
         if (!formData.property_id) {
-          newErrors.push('Debes seleccionar una propiedad');
+          newErrors.push(t('addLiabilityScreen.errors.propertyRequired'));
         }
       } else if (formData.create_property === 'yes') {
         if (!formData.property_location.trim()) {
-          newErrors.push('La ubicación de la propiedad es requerida');
+          newErrors.push(t('addLiabilityScreen.errors.propertyLocationRequired'));
         }
         if (!formData.property_commercial_value.trim()) {
-          newErrors.push('El valor comercial de la propiedad es requerido');
+          newErrors.push(t('addLiabilityScreen.errors.propertyValueRequired'));
         } else {
           const commercialValue = parseFloat(cleanIntegerValue(formData.property_commercial_value));
           if (isNaN(commercialValue) || commercialValue <= 0) {
-            newErrors.push('El valor comercial debe ser un número válido mayor a 0');
+            newErrors.push(t('addLiabilityScreen.errors.propertyValueInvalid'));
           }
         }
         if (!formData.property_square_mts.trim()) {
-          newErrors.push('Los metros cuadrados de la propiedad son requeridos');
+          newErrors.push(t('addLiabilityScreen.errors.propertySquareMtsRequired'));
         } else {
           const squareMts = parseFloat(cleanIntegerValue(formData.property_square_mts));
           if (isNaN(squareMts) || squareMts <= 0) {
-            newErrors.push('Los metros cuadrados deben ser un número válido mayor a 0');
+            newErrors.push(t('addLiabilityScreen.errors.propertySquareMtsInvalid'));
           }
         }
       }
@@ -193,7 +195,7 @@ export default function AddLiabilityScreen() {
 
   const handleComplete = async () => {
     if (!accessToken) {
-      setServerError('No hay token de autenticación disponible');
+      setServerError(t('addLiabilityScreen.errors.authTokenMissing'));
       return;
     }
 
@@ -230,10 +232,10 @@ export default function AddLiabilityScreen() {
       if (response.success) {
         router.push('/(tabs)/patrimony');
       } else {
-        setServerError(response.error || 'Error al crear el pasivo');
+        setServerError(response.error || t('addLiabilityScreen.errors.creationError'));
       }
     } catch (error) {
-      setServerError('Error inesperado al crear el pasivo');
+      setServerError(t('addLiabilityScreen.errors.unexpectedError'));
     } finally {
       setLoading(false);
     }
@@ -243,13 +245,13 @@ export default function AddLiabilityScreen() {
 
   return (
     <FormLayout
-      title="Añadir un nuevo Pasivo"
-      subtitle="Cuéntanos sobre tu pasivo para incluirlo en tu patrimonio 💳"
+      title={t('addLiabilityScreen.title')}
+      subtitle={t('addLiabilityScreen.subtitle')}
       currentStep={1}
       totalSteps={1}
       onNext={handleSubmit}
       onCancel={handleCancel}
-      nextButtonTitle="Crear Pasivo"
+      nextButtonTitle={t('addLiabilityScreen.nextButton')}
       isLoading={loading}
       isNextDisabled={errors.length > 0}
       error={serverError || (errors.length > 0 ? errors[0] : null)}
@@ -261,10 +263,10 @@ export default function AddLiabilityScreen() {
             marginBottom: 8,
           }}
         >
-          Nombre
+          {t('addLiabilityScreen.fields.nameLabel')}
         </Text>
         <Input
-          placeholder="Ej: Crédito hipotecario"
+          placeholder={t('addLiabilityScreen.fields.namePlaceholder')}
           value={formData.name}
           onChangeText={(value) => handleInputChange('name', value)}
           autoCapitalize="words"
@@ -273,11 +275,11 @@ export default function AddLiabilityScreen() {
 
       <View>
         <Select
-          label="¿Qué tipo de deuda tienes?"
+          label={t('addLiabilityScreen.fields.debtCategoryLabel')}
           options={DEBT_CATEGORY_OPTIONS}
           value={formData.debt_category_id}
           onSelect={(value) => handleSelectChange('debt_category_id', value)}
-          placeholder="Selecciona la categoría"
+          placeholder={t('addLiabilityScreen.fields.debtCategoryPlaceholder')}
         />
       </View>
 
@@ -296,12 +298,12 @@ export default function AddLiabilityScreen() {
               options={UNIT_OPTIONS}
               value={formData.unit}
               onSelect={(value) => handleSelectChange('unit', value)}
-              placeholder="Moneda"
+              placeholder={t('addLiabilityScreen.fields.unitPlaceholder')}
             />
           </View>
           <View style={{ flex: 1 }}>
             <Input
-              placeholder="$80.000.000"
+              placeholder={t('addLiabilityScreen.fields.amountPlaceholder')}
               value={formData.amount ? formatValue(formData.amount) : ''}
               onChangeText={(value) => handleNumericInputChange('amount', value)}
               keyboardType="numeric"
@@ -320,7 +322,7 @@ export default function AddLiabilityScreen() {
           ¿Cuántas cuotas te faltan por pagar?
         </Text>
         <Input
-          placeholder="240"
+          placeholder={t('addLiabilityScreen.fields.installmentsQuantityPlaceholder')}
           value={formData.installments_quantity}
           onChangeText={(value) => handleNumericInputChange('installments_quantity', value)}
           keyboardType="numeric"
@@ -337,7 +339,7 @@ export default function AddLiabilityScreen() {
           ¿Cuál es el valor de cada cuota?
         </Text>
         <Input
-          placeholder="$500.000"
+          placeholder={t('addLiabilityScreen.fields.installmentAmountPlaceholder')}
           value={formData.installment_amount ? formatValue(formData.installment_amount) : ''}
           onChangeText={(value) => handleNumericInputChange('installment_amount', value)}
           keyboardType="numeric"
