@@ -12,14 +12,15 @@ import { createProperty } from '@/services/properties/create-property';
 import { useAuth } from '@/providers/AuthProvider';
 import { useFormatValue } from '@/hooks/common/useFormatValue';
 import { FixedAssetFields, PropertyFields, SavingInstrumentFields } from '@/components/patrimony/add-asset';
-
-const ASSET_KIND_OPTIONS = [
-  { label: 'Activo fijo', value: 'fixed_asset' },
-  { label: 'Inversión o Ahorro', value: 'investment' },
-  { label: 'Propiedad', value: 'property' },
-];
+import { useTranslation } from 'react-i18next';
 
 export default function AddAssetScreen() {
+  const { t } = useTranslation();
+  const ASSET_KIND_OPTIONS = [
+    { label: t('addAssetScreen.asset_kind_options.fixed_asset'), value: 'fixed_asset' },
+    { label: t('addAssetScreen.asset_kind_options.investment'), value: 'investment' },
+    { label: t('addAssetScreen.asset_kind_options.property'), value: 'property' },
+  ];
   const { accessToken } = useAuth();
   const { formatValue, cleanNumericValue } = useFormatValue();
   const [formData, setFormData] = useState({
@@ -101,46 +102,46 @@ export default function AddAssetScreen() {
     const newErrors: string[] = [];
 
     if (!formData.name.trim()) {
-      newErrors.push('El nombre del activo es requerido');
+      newErrors.push(t('addAssetScreen.errors.nameRequired'));
     }
     if (!formData.kind) {
-      newErrors.push('Debes seleccionar un tipo de activo');
+      newErrors.push(t('addAssetScreen.errors.kindRequired'));
     }
     
     if (formData.kind === 'property') {
       if (!formData.location.trim()) {
-        newErrors.push('La ubicación es requerida para propiedades');
+        newErrors.push(t('addAssetScreen.errors.locationRequired'));
       }
       if (!formData.square_mts.trim()) {
-        newErrors.push('Los metros cuadrados son requeridos');
+        newErrors.push(t('addAssetScreen.errors.squareMtsRequired'));
       } else {
         const mts = parseFloat(formData.square_mts);
         if (isNaN(mts) || mts <= 0) {
-          newErrors.push('Los metros cuadrados deben ser un número válido mayor a 0');
+          newErrors.push(t('addAssetScreen.errors.squareMtsInvalid'));
         }
       }
     } else if (formData.kind === 'fixed_asset') {
       if (!formData.asset_category_id) {
-        newErrors.push('Debes seleccionar una categoría de activo');
+        newErrors.push(t('addAssetScreen.errors.assetCategoryRequired'));
       }
       if (!formData.commercial_value.trim()) {
-        newErrors.push('El valor comercial es requerido');
+        newErrors.push(t('addAssetScreen.errors.commercialValueRequired'));
       } else {
         const value = parseFloat(formData.commercial_value);
         if (isNaN(value) || value <= 0) {
-          newErrors.push('El valor comercial debe ser un número válido mayor a 0');
+          newErrors.push(t('addAssetScreen.errors.commercialValueInvalid'));
         }
       }
     } else if (formData.kind === 'investment') {
       if (!formData.investment_type) {
-        newErrors.push('Debes seleccionar un tipo de inversión');
+        newErrors.push(t('addAssetScreen.errors.investmentTypeRequired'));
       }
       if (!formData.commercial_value.trim()) {
-        newErrors.push('El valor es requerido');
+        newErrors.push(t('addAssetScreen.errors.valueRequired'));
       } else {
         const value = parseFloat(formData.commercial_value);
         if (isNaN(value) || value <= 0) {
-          newErrors.push('El valor debe ser un número válido mayor a 0');
+          newErrors.push(t('addAssetScreen.errors.valueInvalid'));
         }
       }
     }
@@ -161,7 +162,7 @@ export default function AddAssetScreen() {
 
   const handleComplete = async () => {
     if (!accessToken) {
-      setErrors(['No hay token de autenticación disponible']);
+      setErrors([t('addAssetScreen.errors.authTokenMissing')]);
       return;
     }
 
@@ -201,12 +202,12 @@ export default function AddAssetScreen() {
             router.push('/(tabs)/patrimony');
           } else {
             console.error('Asset creation failed:', response.error);
-            setErrors([response.error || 'Error al crear el activo']);
+            setErrors([response.error || t('addAssetScreen.errors.assetCreationError')]);
             setLoading(false);
           }
         } else {
           console.error('Property creation failed:', propertyResponse.error);
-          setErrors([propertyResponse.error || 'Error al crear la propiedad']);
+          setErrors([propertyResponse.error || t('addAssetScreen.errors.propertyCreationError')]);
           setLoading(false);
         }
       } else if (formData.kind === 'fixed_asset') {
@@ -227,7 +228,7 @@ export default function AddAssetScreen() {
           router.push('/(tabs)/patrimony');
         } else {
           console.error('Asset creation failed:', response.error);
-          setErrors([response.error || 'Error al crear el activo']);
+          setErrors([response.error || t('addAssetScreen.errors.assetCreationError')]);
           setLoading(false);
         }
       } else if (formData.kind === 'investment') {
@@ -240,7 +241,7 @@ export default function AddAssetScreen() {
         switch (formData.investment_type) {
           case 'crowdfunding': {
             if (!formData.crowdfunding_institution || !formData.crowdfunding_credit_id || !formData.due_date) {
-              validationError = 'Completa institución, tipo de crédito y fecha de vencimiento';
+              validationError = t('addAssetScreen.errors.crowdfundingValidation');
               break;
             }
             payload = {
@@ -259,7 +260,7 @@ export default function AddAssetScreen() {
           }
           case 'mutual_fund_instrument': {
             if (!formData.fund) {
-              validationError = 'Debes seleccionar un fondo';
+              validationError = t('addAssetScreen.errors.mutualFundRequired');
               break;
             }
             const [fk, fid] = formData.fund.split('@');
@@ -316,7 +317,7 @@ export default function AddAssetScreen() {
           }
           case 'cash_account': {
             if (!formData.brokerage) {
-              validationError = 'Debes seleccionar la corredora';
+              validationError = t('addAssetScreen.errors.brokerageRequired');
               break;
             }
             payload = {
@@ -332,7 +333,7 @@ export default function AddAssetScreen() {
           }
           case 'checking_account': {
             if (!formData.bank) {
-              validationError = 'Debes seleccionar el banco';
+              validationError = t('addAssetScreen.errors.bankRequired');
               break;
             }
             payload = {
@@ -348,7 +349,7 @@ export default function AddAssetScreen() {
           }
           case 'saving_account': {
             if (!formData.bank) {
-              validationError = 'Debes seleccionar el banco';
+              validationError = t('addAssetScreen.errors.bankRequired');
               break;
             }
             payload = {
@@ -364,7 +365,7 @@ export default function AddAssetScreen() {
           }
           case 'fixed_term_deposit': {
             if (!formData.bank || !formData.deposit_type) {
-              validationError = 'Debes seleccionar banco y tipo de depósito';
+              validationError = t('addAssetScreen.errors.depositRequired');
               break;
             }
             payload = {
@@ -383,7 +384,7 @@ export default function AddAssetScreen() {
           }
           case 'afp_account_two': {
             if (!formData.institution) {
-              validationError = 'Debes seleccionar la AFP';
+              validationError = t('addAssetScreen.errors.afpRequired');
               break;
             }
             const mapFundCode = (code: string) => {
@@ -420,7 +421,7 @@ export default function AddAssetScreen() {
           }
           case 'apv_account': {
             if (!formData.institution) {
-              validationError = 'Debes seleccionar la institución APV';
+              validationError = t('addAssetScreen.errors.apvRequired');
               break;
             }
             const mapFundCode = (code: string) => {
@@ -456,7 +457,7 @@ export default function AddAssetScreen() {
             break;
           }
           default: {
-            validationError = 'Tipo de inversión no soportado aún';
+            validationError = t('addAssetScreen.errors.unsupportedInvestment');
           }
         }
 
@@ -473,12 +474,12 @@ export default function AddAssetScreen() {
           router.push('/(tabs)/patrimony');
         } else {
           console.error('Saving instrument creation failed:', response.error);
-          setErrors([response.error || 'Error al crear la inversión/ahorro']);
+          setErrors([response.error || t('addAssetScreen.errors.savingCreationError')]);
           setLoading(false);
         }
       }
     } catch (error) {
-      setErrors(['Error inesperado al crear el activo']);
+      setErrors([t('addAssetScreen.errors.unexpectedError')]);
       setLoading(false);
     } finally {
       setLoading(false);
@@ -487,13 +488,13 @@ export default function AddAssetScreen() {
 
   return (
     <FormLayout
-      title="Añadir un nuevo Activo"
-      subtitle="Cuéntanos sobre tu activo para incluirlo en tu patrimonio 💼"
+      title={t('addAssetScreen.title')}
+      subtitle={t('addAssetScreen.subtitle')}
       currentStep={1}
       totalSteps={1}
       onNext={handleSubmit}
       onCancel={handleCancel}
-      nextButtonTitle="Crear Activo"
+      nextButtonTitle={t('addAssetScreen.next_button')}
       isLoading={loading}
       isNextDisabled={errors.length > 0}
       error={errors.length > 0 ? errors[0] : null}
@@ -505,10 +506,10 @@ export default function AddAssetScreen() {
             marginBottom: 8,
           }}
         >
-          Nombre
+          {t('addAssetScreen.fields.name_label')}
         </Text>
         <Input
-          placeholder="Ej: Casa principal"
+          placeholder={t('addAssetScreen.fields.name_placeholder')}
           value={formData.name}
           onChangeText={(value) => handleInputChange('name', value)}
           autoCapitalize="words"
@@ -517,11 +518,11 @@ export default function AddAssetScreen() {
 
       <View>
         <Select
-          label="¿Qué tipo de activo tienes?"
+          label={t('addAssetScreen.fields.asset_kind_label')}
           options={ASSET_KIND_OPTIONS}
           value={formData.kind}
           onSelect={(value) => handleSelectChange('kind', value)}
-          placeholder="Selecciona el tipo de activo"
+          placeholder={t('addAssetScreen.fields.asset_kind_placeholder')}
         />
       </View>
 
