@@ -340,7 +340,12 @@
             "part3": "quieres destinarlo?"
         },
         "goalPlaceholder": "Selecciona una meta",
-        "destinationPlaceholder": "Selecciona destino"
+        "destinationPlaceholder": "Selecciona destino",
+        "metaTo": {
+            "part1": "¿A qué ",
+            "part2": "meta",
+            "part3": "quieres invertir?"
+        }
     },
     "salesFlow": {
         "header": "Solicitud de retiro",
@@ -476,41 +481,48 @@
         "top_subtitle": "Accede a herramientas profesionales y asesoría experta para alcanzar tus metas financieras"
     },
     "onboarding": {
-        "titleStep1": "Información Personal",
-        "titleStep2": "Información Adicional",
-        "subtitleStep1": "Cuéntanos sobre ti",
-        "subtitleStep2": "Completa tu perfil para personalizar tu experiencia",
-        "firstNameLabel": "Nombre",
-        "firstNamePlaceholder": "Ingresa tu nombre",
-        "lastNameLabel": "Apellido",
-        "lastNamePlaceholder": "Ingresa tu apellido",
-        "rutLabel": "RUT",
-        "rutPlaceholder": "12345678-9",
-        "countryLabel": "País de residencia",
-        "countryPlaceholder": "Selecciona tu país",
-        "birthLabel": "Fecha de nacimiento",
-        "birthPlaceholder": "Selecciona tu fecha de nacimiento",
-        "incomeLabel": "Ingresos mensuales",
-        "incomePlaceholder": "Selecciona tu rango de ingresos",
-        "incomeNote": "Esta información nos ayuda a personalizar tus recomendaciones",
+        "title": "Información Personal",
+        "subtitle": "Ayúdanos a personalizar tu experiencia 😎",
+        "fields": {
+            "rutLabel": "RUT",
+            "rutPlaceholder": "12345678-9",
+            "countryLabel": "País de residencia",
+            "countryPlaceholder": "Selecciona tu país",
+            "birthLabel": "Fecha de nacimiento",
+            "birthPlaceholder": "Selecciona tu fecha de nacimiento",
+            "incomeLabel": "Ingresos mensuales",
+            "incomePlaceholder": "Selecciona tu rango de ingresos"
+        },
+        "tooltips": {
+            "rut": "El RUT es tu identificación única en Chile. Lo necesitamos para verificar tu identidad y ofrecerte servicios personalizados.",
+            "country": "Necesitamos conocer tu país de residencia para adaptar nuestros servicios y recomendaciones a tu ubicación geográfica.",
+            "birth": "Tu fecha de nacimiento nos ayuda a calcular tu edad y ofrecerte recomendaciones financieras apropiadas para tu etapa de vida.",
+            "income": "Conocer tu rango de ingresos nos permite ofrecerte recomendaciones financieras más precisas y productos adecuados a tu capacidad económica."
+        },
         "incomeOptions": {
-            "lessThan1M": "Menos de $1.000.000",
-            "between1And5M": "Entre $1.000.001 a $5.000.000",
-            "between5And10M": "Entre $5.000.001 a $10.000.000",
-            "between10And25M": "Entre $10.000.001 a $25.000.000",
-            "greaterThan25M": "Más de $25.000.001"
+            "lessThan1M": "Menos de 1 millón",
+            "between1And5M": "Entre 1 y 5 millones",
+            "between5And10M": "Entre 5 y 10 millones",
+            "between10And25M": "Entre 10 y 25 millones",
+            "greaterThan25M": "Más de 25 millones"
         },
         "errors": {
-            "firstNameRequired": "El nombre es requerido",
-            "lastNameRequired": "El apellido es requerido",
             "rutRequired": "El RUT es requerido",
-            "rutMinLength": "El RUT debe tener al menos 3 caracteres",
+            "rutInvalid": "El RUT no es válido",
             "countryRequired": "El país de residencia es requerido",
-            "birthDateRequired": "La fecha de nacimiento es requerida",
-            "incomeRequired": "Los ingresos mensuales son requeridos"
+            "birthRequired": "La fecha de nacimiento es requerida",
+            "incomeRequired": "El ingreso mensual es requerido",
+            "tokenError": "No hay token de autenticación disponible",
+            "serviceError": {
+                "title": "Ocurrió un error al guardar la información"
+            }
         },
-        "serviceError": {
-            "title": "Error al enviar datos"
+        "loading": {
+            "userData": "Cargando datos del usuario..."
+        },
+        "actions": {
+            "complete": "Completar",
+            "saving": "Guardando..."
         }
     },
     "countries": {
@@ -1060,5 +1072,110 @@
         "termsLink": "términos y condiciones",
         "privacyLink": "política de privacidad",
         "and": "y"
+    },
+    "addAssetScreen": {
+        "title": "Añadir un nuevo Activo",
+        "subtitle": "Cuéntanos sobre tu activo para incluirlo en tu patrimonio 💼",
+        "next_button": "Crear Activo",
+        "cancel_button": "Cancelar",
+        "fields": {
+            "name_label": "Nombre",
+            "name_placeholder": "Ej: Casa principal",
+            "asset_kind_label": "¿Qué tipo de activo tienes?",
+            "asset_kind_placeholder": "Selecciona el tipo de activo"
+        },
+        "asset_kind_options": {
+            "fixed_asset": "Activo fijo",
+            "investment": "Inversión o Ahorro",
+            "property": "Propiedad"
+        },
+        "errors": {
+            "nameRequired": "El nombre del activo es requerido",
+            "kindRequired": "Debes seleccionar un tipo de activo",
+            "locationRequired": "La ubicación es requerida para propiedades",
+            "squareMtsRequired": "Los metros cuadrados son requeridos",
+            "squareMtsInvalid": "Los metros cuadrados deben ser un número válido mayor a 0",
+            "assetCategoryRequired": "Debes seleccionar una categoría de activo",
+            "commercialValueRequired": "El valor comercial es requerido",
+            "commercialValueInvalid": "El valor comercial debe ser un número válido mayor a 0",
+            "investmentTypeRequired": "Debes seleccionar un tipo de inversión",
+            "valueRequired": "El valor es requerido",
+            "valueInvalid": "El valor debe ser un número válido mayor a 0",
+            "authTokenMissing": "No hay token de autenticación disponible",
+            "assetCreationError": "Error al crear el activo",
+            "propertyCreationError": "Error al crear la propiedad",
+            "savingCreationError": "Error al crear la inversión/ahorro",
+            "unexpectedError": "Error inesperado al crear el activo",
+            "crowdfundingValidation": "Completa institución, tipo de crédito y fecha de vencimiento",
+            "mutualFundRequired": "Debes seleccionar un fondo",
+            "brokerageRequired": "Debes seleccionar la corredora",
+            "bankRequired": "Debes seleccionar el banco",
+            "depositRequired": "Debes seleccionar banco y tipo de depósito",
+            "afpRequired": "Debes seleccionar la AFP",
+            "apvRequired": "Debes seleccionar la institución APV",
+            "unsupportedInvestment": "Tipo de inversión no soportado aún"
+        }
+    },
+    "addLiabilityScreen": {
+        "title": "Añadir un nuevo Pasivo",
+        "subtitle": "Cuéntanos sobre tu pasivo para incluirlo en tu patrimonio 💳",
+        "nextButton": "Crear Pasivo",
+        "cancelButton": "Cancelar",
+        "fields": {
+            "nameLabel": "Nombre",
+            "namePlaceholder": "Ej: Crédito hipotecario",
+            "debtCategoryLabel": "¿Qué tipo de deuda tienes?",
+            "debtCategoryPlaceholder": "Selecciona la categoría",
+            "amountLabel": "¿Cuál es el saldo a pagar?",
+            "amountPlaceholder": "$80.000.000",
+            "unitPlaceholder": "Moneda",
+            "installmentsQuantityLabel": "¿Cuántas cuotas te faltan por pagar?",
+            "installmentsQuantityPlaceholder": "240",
+            "installmentAmountLabel": "¿Cuál es el valor de cada cuota?",
+            "installmentAmountPlaceholder": "$500.000"
+        },
+        "debtCategoryOptions": {
+            "1": "Automotriz",
+            "2": "Caja de compensación",
+            "3": "Consumo",
+            "4": "Crédito Universitario",
+            "5": "Hipotecario de uso",
+            "6": "Hipotecario de inversión",
+            "7": "Línea de Crédito",
+            "8": "Préstamos familiares o amic",
+            "9": "Tarjeta de Crédito"
+        },
+        "unitOptions": {
+            "clp": "CLP",
+            "usd": "USD",
+            "uf": "UF"
+        },
+        "errors": {
+            "nameRequired": "El nombre del pasivo es requerido",
+            "categoryRequired": "Debes seleccionar una categoría de pasivo",
+            "amountRequired": "El monto del pasivo es requerido",
+            "amountInvalid": "El monto debe ser un número válido mayor a 0",
+            "installmentsQuantityRequired": "El número de cuotas es requerido",
+            "installmentsQuantityInvalid": "El número de cuotas debe ser un número válido mayor a 0",
+            "installmentAmountRequired": "El monto de la cuota es requerido",
+            "installmentAmountInvalid": "El monto de la cuota debe ser un número válido mayor a 0",
+            "propertyRequired": "Debes seleccionar una propiedad",
+            "propertyLocationRequired": "La ubicación de la propiedad es requerida",
+            "propertyValueRequired": "El valor comercial de la propiedad es requerido",
+            "propertyValueInvalid": "El valor comercial debe ser un número válido mayor a 0",
+            "propertySquareMtsRequired": "Los metros cuadrados de la propiedad son requeridos",
+            "propertySquareMtsInvalid": "Los metros cuadrados deben ser un número válido mayor a 0",
+            "authTokenMissing": "No hay token de autenticación disponible",
+            "creationError": "Error al crear el pasivo",
+            "unexpectedError": "Error inesperado al crear el pasivo"
+        }
+    },
+    "authWebViewScreen": {
+        "title": "Autenticación",
+        "alert": {
+            "cancelledTitle": "Autenticación cancelada",
+            "cancelledMessage": "Puedes intentar nuevamente."
+        },
+        "loadingMessage": "Redirigiendo al proceso de autenticación..."
     }
 }
