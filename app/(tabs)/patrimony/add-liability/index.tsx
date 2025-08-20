@@ -319,7 +319,7 @@ export default function AddLiabilityScreen() {
             marginBottom: 8,
           }}
         >
-          ¿Cuántas cuotas te faltan por pagar?
+          {t('addLiabilityScreen.fields.installmentsQuantityLabel')}
         </Text>
         <Input
           placeholder={t('addLiabilityScreen.fields.installmentsQuantityPlaceholder')}
@@ -336,7 +336,7 @@ export default function AddLiabilityScreen() {
             marginBottom: 8,
           }}
         >
-          ¿Cuál es el valor de cada cuota?
+          {t('addLiabilityScreen.fields.installmentAmountLabel')}
         </Text>
         <Input
           placeholder={t('addLiabilityScreen.fields.installmentAmountPlaceholder')}
