@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text } from 'react-native';
 import { Select, Input } from '@/components/ui';
 import Colors from '@/constants/Colors';
+import { useTranslation } from 'react-i18next';
 
 interface FixedAssetFieldsProps {
   asset_category_id: string;
@@ -12,18 +13,6 @@ interface FixedAssetFieldsProps {
   formatValue: (value: string) => string;
 }
 
-const ASSET_CATEGORY_OPTIONS = [
-  { label: 'Auto o moto', value: '1' },
-  { label: 'Terreno', value: '2' },
-  { label: 'Otros', value: '3' },
-];
-
-const UNIT_OPTIONS = [
-  { label: 'CLP', value: 'clp' },
-  { label: 'USD', value: 'usd' },
-  { label: 'UF', value: 'uf' },
-];
-
 export default function FixedAssetFields({ 
   asset_category_id, 
   commercial_value, 
@@ -32,15 +21,27 @@ export default function FixedAssetFields({
   onNumericInputChange, 
   formatValue 
 }: FixedAssetFieldsProps) {
+  const { t } = useTranslation();
+  const ASSET_CATEGORY_OPTIONS = [
+    { label: t('fixedAssetFields.assetCategoryOptions.1'), value: '1' },
+    { label: t('fixedAssetFields.assetCategoryOptions.2'), value: '2' },
+    { label: t('fixedAssetFields.assetCategoryOptions.3'), value: '3' },
+  ];
+
+  const UNIT_OPTIONS = [
+    { label: t('fixedAssetFields.unitOptions.clp'), value: 'clp' },
+    { label: t('fixedAssetFields.unitOptions.usd'), value: 'usd' },
+    { label: t('fixedAssetFields.unitOptions.uf'), value: 'uf' },
+  ];
   return (
     <>
       <View>
         <Select
-          label="¿Qué activo tienes?"
+          label={t('fixedAssetFields.assetCategoryLabel')}
           options={ASSET_CATEGORY_OPTIONS}
           value={asset_category_id}
           onSelect={(value) => onSelectChange('asset_category_id', value)}
-          placeholder="Selecciona la categoría"
+          placeholder={t('fixedAssetFields.assetCategoryPlaceholder')}
         />
       </View>
 
@@ -51,7 +52,7 @@ export default function FixedAssetFields({
             marginBottom: 8,
           }}
         >
-          ¿Qué valor tiene?
+          {t('fixedAssetFields.valueLabel')}
         </Text>
         <View className="flex-row">
           <View style={{ width: 100, marginRight: 8 }}>
@@ -59,12 +60,12 @@ export default function FixedAssetFields({
               options={UNIT_OPTIONS}
               value={unit}
               onSelect={(value) => onSelectChange('unit', value)}
-              placeholder="Moneda"
+              placeholder={t('fixedAssetFields.unitPlaceholder')}
             />
           </View>
           <View style={{ flex: 1 }}>
              <Input
-               placeholder="$150.000.000"
+               placeholder={t('fixedAssetFields.valuePlaceholder')}
                value={commercial_value ? formatValue(commercial_value) : ''}
                onChangeText={(value) => onNumericInputChange('commercial_value', value)}
                keyboardType="numeric"

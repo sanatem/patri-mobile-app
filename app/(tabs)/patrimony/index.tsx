@@ -938,8 +938,8 @@ export default function PatrimonyScreen() {
             </View>
             {[
               { label: t('patrimony.integrateBankData'), value: 'integrar', icon: <RefreshCw size={20} color={Colors.gray[700]} /> },
-              { label: 'Añadir activo', value: 'activo' },
-              { label: 'Añadir pasivo', value: 'pasivo' }
+              { label: t('patrimony.addAsset'), value: 'activo' },
+              { label: t('patrimony.addLiability'), value: 'pasivo' }
             ].map((option, index) => (
               <TouchableOpacity
                 key={option.value}
