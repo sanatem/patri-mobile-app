@@ -4,6 +4,7 @@ import { Container } from '@/components/ui/Container';
 import { Button } from '@/components/ui/Button';
 import { Select } from '@/components/ui/Select';
 import Colors from '@/constants/Colors';
+import { useTranslation } from 'react-i18next';
 
 interface GoalSelectionStepProps {
   selectedGoal?: string;
@@ -18,10 +19,11 @@ export default function GoalSelectionStep({
 }: GoalSelectionStepProps) {
   const [selectedGoal, setSelectedGoal] = useState(initialGoal);
 
+  const { t } = useTranslation();
   const goalOptions = [
-    { label: 'Reserva', value: 'Reserva' },
-    { label: 'Casa', value: 'Casa' },
-    { label: 'Mejorar mi jubilación', value: 'Mejorar mi jubilación' },
+    { label: t('portfolio.cards.reserva.title'), value: 'Reserva' },
+    { label: t('portfolio.cards.casa.title'), value: 'Casa' },
+    { label: t('portfolio.cards.jubilacion.title'), value: 'Mejorar mi jubilación' },
   ];
 
   const handleGoalSelect = (goal: string) => {
@@ -45,21 +47,21 @@ export default function GoalSelectionStep({
         showsVerticalScrollIndicator={false}
       >
         <Text className="text-base font-regular mb-6" style={{ color: Colors.primary[500] }}>
-          ¿A qué <Text className="font-semibold">meta</Text> quieres invertir?
+          {t('fromGoalStep.metaTo.part1')} <Text className="font-semibold">{t('fromGoalStep.metaTo.part2')}</Text> {t('fromGoalStep.metaTo.part3')}
         </Text>
 
         <Select
           options={goalOptions}
           value={selectedGoal}
           onSelect={handleGoalSelect}
-          placeholder="Selecciona una meta"
+          placeholder={t('fromGoalStep.goalPlaceholder')}
           className="mb-4"
         />
       </ScrollView>
 
       <View className="mb-4 mt-4 px-3">
         <Button
-          title="Continuar"
+          title={t('common.continue')}
           variant="primary"
           onPress={handleContinue}
           fullWidth
