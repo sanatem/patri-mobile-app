@@ -195,24 +195,24 @@ export default function OnboardingScreen() {
     const newErrors = [];
     
     if (!data.rut.trim()) {
-      newErrors.push('El RUT es requerido');
+      newErrors.push(t('onboarding.errors.rutRequired'));
     } else {
       const rutValidation = validateRut(data.rut);
       if (!rutValidation.isValid) {
-        newErrors.push(rutValidation.error || 'El RUT ingresado no es válido');
+        newErrors.push(rutValidation.error || t('onboarding.errors.rutInvalid'));
       }
     }
     
     if (!data.residence_country_name.trim()) {
-      newErrors.push('El país de residencia es requerido');
+      newErrors.push(t('onboarding.errors.countryRequired'));
     }
     
     if (!data.birth_date.trim()) {
-      newErrors.push('La fecha de nacimiento es requerida');
+      newErrors.push(t('onboarding.errors.birthRequired'));
     }
     
     if (!data.monthly_incomes.trim()) {
-      newErrors.push('Los ingresos mensuales son requeridos');
+      newErrors.push(t('onboarding.errors.incomeRequired'));
     }
     
     setErrors(newErrors);
@@ -251,7 +251,7 @@ export default function OnboardingScreen() {
       };
 
       if (!accessToken) {
-        throw new Error('No hay token de autenticación disponible');
+        throw new Error(t('onboarding.errors.tokenError'));
       }
 
       const response = await submitOnboardingData(onboardingData);
@@ -284,7 +284,7 @@ export default function OnboardingScreen() {
                 className="text-base font-medium mt-4"
                 style={{ color: Colors.primary[500] }}
               >
-                Cargando datos del usuario...
+                {t('onboarding.loading.userData')}
               </Text>
             </View>
           ) : (
@@ -302,7 +302,7 @@ export default function OnboardingScreen() {
                       marginBottom: 8,
                     }}
                   >
-                    Información Personal
+                    {t('onboarding.title')}
                   </Text>
                   <Text className='text-base font-regular text-center'
                     style={{
@@ -310,7 +310,7 @@ export default function OnboardingScreen() {
                       textAlign: 'center',
                     }}
                   >
-                    Ayúdanos a personalizar tu experiencia 😎
+                    {t('onboarding.subtitle')}
                   </Text>
                 </View>
 
@@ -322,15 +322,15 @@ export default function OnboardingScreen() {
                           color: isRutLocked ? Colors.gray[400] : Colors.primary[500],
                         }}
                       >
-                        RUT
+                        {t('onboarding.fields.rutLabel')}
                       </Text>
                         <InfoTooltip 
-                         info="El RUT es tu identificación única en Chile. Lo necesitamos para verificar tu identidad y ofrecerte servicios personalizados."
+                         info={t('onboarding.tooltips.rut')}
                          disabled={isRutLocked}
                        />
                     </View>
                     <Input
-                      placeholder="12345678-9"
+                      placeholder={t('onboarding.fields.rutPlaceholder')}
                       value={formData.rut}
                       onChangeText={handleRUTChange}
                       autoCapitalize="characters"
@@ -349,17 +349,17 @@ export default function OnboardingScreen() {
                           color: Colors.primary[500],
                         }}
                       >
-                        País de residencia
+                        {t('onboarding.fields.countryLabel')}
                       </Text>
                       <InfoTooltip 
-                        info="Necesitamos conocer tu país de residencia para adaptar nuestros servicios y recomendaciones a tu ubicación geográfica."
+                        info={t('onboarding.tooltips.country')}
                       />
                     </View>
                     <Select
                       options={COUNTRY_OPTIONS}
                       value={formData.residence_country_name}
                       onSelect={(value) => handleSelectChange('residence_country_name', value)}
-                      placeholder="Selecciona tu país"
+                      placeholder={t('onboarding.fields.countryPlaceholder')}
                     />
                   </View>
 
@@ -370,16 +370,16 @@ export default function OnboardingScreen() {
                           color: Colors.primary[500],
                         }}
                       >
-                        Fecha de nacimiento
+                        {t('onboarding.fields.birthLabel')}
                       </Text>
                       <InfoTooltip 
-                        info="Tu fecha de nacimiento nos ayuda a calcular tu edad y ofrecerte recomendaciones financieras apropiadas para tu etapa de vida."
+                        info={t('onboarding.tooltips.birth')}
                       />
                     </View>
                     <CalendarSelect
                       value={formData.birth_date}
                       onSelect={(value: string) => handleInputChange('birth_date', value)}
-                      placeholder="Selecciona tu fecha de nacimiento"
+                      placeholder={t('onboarding.fields.birthPlaceholder')}
                     />
                   </View>
 
@@ -390,17 +390,17 @@ export default function OnboardingScreen() {
                           color: Colors.primary[500],
                         }}
                       >
-                        Ingresos mensuales
+                        {t('onboarding.fields.incomeLabel')}
                       </Text>
                       <InfoTooltip 
-                        info="Conocer tu rango de ingresos nos permite ofrecerte recomendaciones financieras más precisas y productos adecuados a tu capacidad económica."
+                        info={t('onboarding.tooltips.income')}
                       />
                     </View>
                     <Select
                       options={MONTHLY_INCOME_OPTIONS}
                       value={formData.monthly_incomes}
                       onSelect={(value) => handleSelectChange('monthly_incomes', value)}
-                      placeholder="Selecciona tu rango de ingresos"
+                      placeholder={t('onboarding.fields.incomePlaceholder')}
                     />
                   </View>
                 </View>
