@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Animated, Dimensions, ActivityIndicator, RefreshControl } from 'react-native';
-import { Settings, Plus, RefreshCw } from 'lucide-react-native';
+import { Settings, Plus } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
 import { 
@@ -541,9 +541,7 @@ export default function PatrimonyScreen() {
 
   const currentTabTotal = activeTab === 'assets' ? totalAssets : totalLiabilities;
 
-  const handleIntegrarDatos = () => {
-    router.push('/patrimony/floid-screen' as any);
-  };
+
 
   if (subscriptionLoading) {
     return (
@@ -937,9 +935,8 @@ export default function PatrimonyScreen() {
               <View style={{ width: 40, height: 4, backgroundColor: '#D1D5DB', borderRadius: 2 }} />
             </View>
             {[
-              { label: t('patrimony.integrateBankData'), value: 'integrar', icon: <RefreshCw size={20} color={Colors.gray[700]} /> },
-              { label: 'Añadir activo', value: 'activo' },
-              { label: 'Añadir pasivo', value: 'pasivo' }
+              { label: 'Añadir activo', value: 'activo', icon: undefined },
+              { label: 'Añadir pasivo', value: 'pasivo', icon: undefined }
             ].map((option, index) => (
               <TouchableOpacity
                 key={option.value}
@@ -953,15 +950,16 @@ export default function PatrimonyScreen() {
                 onPress={() => {
                   closeModal();
                   switch(option.value) {
-                    case 'integrar': handleIntegrarDatos(); break;
                     case 'activo': router.push('/patrimony/add-asset'); break;
                     case 'pasivo': router.push('/patrimony/add-liability'); break;
                   }
                 }}
                 activeOpacity={0.7}
               >
-                {option.icon && (
+                {option.icon ? (
                   <View style={{ marginRight: 12 }}>{option.icon}</View>
+                ) : (
+                  <View style={{ marginRight: 12, width: 20, height: 20 }} />
                 )}
                 <Text className="text-base font-regular" style={{ color: Colors.gray[700] }}>
                   {option.label}
