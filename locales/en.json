@@ -434,6 +434,8 @@
   "patrimony": {
     "loading": "Loading networth data...",
     "integrateBankData": "Sync bank data",
+    "addAsset": "Add asset",
+    "addLiability": "Add liability",
     "empty": {
       "assets": {
         "title": "No assets recorded",
@@ -1176,5 +1178,22 @@
       "cancelledMessage": "You can try again."
     },
     "loadingMessage": "Redirecting to authentication process..."
+  },
+  "fixedAssetFields": {
+    "assetCategoryLabel": "What asset do you have?",
+    "assetCategoryPlaceholder": "Select category",
+    "assetCategoryOptions": {
+      "1": "Car or motorcycle",
+      "2": "Land",
+      "3": "Others"
+    },
+    "valueLabel": "What is its value?",
+    "unitPlaceholder": "Currency",
+    "valuePlaceholder": "$150,000,000",
+    "unitOptions": {
+      "clp": "CLP",
+      "usd": "USD",
+      "uf": "UF"
+    }
   }
 }

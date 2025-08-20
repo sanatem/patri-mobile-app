@@ -434,6 +434,8 @@
     "patrimony": {
         "loading": "Cargando datos del patrimonio...",
         "integrateBankData": "Integrar datos bancarios",
+        "addAsset": "Añadir activo",
+        "addLiability": "Añadir pasivo",
         "empty": {
             "assets": {
                 "title": "No hay activos registrados",
@@ -1177,5 +1179,22 @@
             "cancelledMessage": "Puedes intentar nuevamente."
         },
         "loadingMessage": "Redirigiendo al proceso de autenticación..."
+    },
+    "fixedAssetFields": {
+        "assetCategoryLabel": "¿Qué activo tienes?",
+        "assetCategoryPlaceholder": "Selecciona la categoría",
+        "assetCategoryOptions": {
+            "1": "Auto o moto",
+            "2": "Terreno",
+            "3": "Otros"
+        },
+        "valueLabel": "¿Qué valor tiene?",
+        "unitPlaceholder": "Moneda",
+        "valuePlaceholder": "$150.000.000",
+        "unitOptions": {
+            "clp": "CLP",
+            "usd": "USD",
+            "uf": "UF"
+        }
     }
 }
