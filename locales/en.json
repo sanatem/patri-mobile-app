@@ -1195,5 +1195,51 @@
       "usd": "USD",
       "uf": "UF"
     }
+  },
+  "propertyFields": {
+    "locationLabel": "Location",
+    "locationPlaceholder": "E.g.: Providencia, Santiago",
+    "squareMetersLabel": "Square meters",
+    "squareMetersPlaceholder": "E.g.: 105",
+    "valueLabel": "What is its value?",
+    "unitPlaceholder": "Currency",
+    "valuePlaceholder": "$150,000,000",
+    "mainHomeLabel": "Is this your main home?",
+    "ownershipOptions": {
+      "own": "Yes",
+      "rent": "No"
+    },
+    "unitOptions": {
+      "clp": "CLP",
+      "usd": "USD",
+      "uf": "UF"
+    }
+  },
+  "hypothecaryFields": {
+    "associationLabel": "Is the debt associated with a property?",
+    "associationOptions": {
+      "yes": "Yes",
+      "no": "No"
+    },
+    "loadingProperties": "Loading properties...",
+    "selectPropertyLabel": "Select the property",
+    "selectPropertyPlaceholder": "Select a property",
+    "createPropertyLabel": "Do you want to create a new property?",
+    "createPropertyOptions": {
+      "yes": "Yes",
+      "no": "No"
+    },
+    "locationLabel": "Property location",
+    "locationPlaceholder": "E.g.: Las Condes, Santiago",
+    "valueLabel": "Property commercial value",
+    "unitPlaceholder": "Currency",
+    "valuePlaceholder": "$550,000,000",
+    "squareMetersLabel": "Square meters",
+    "squareMetersPlaceholder": "65",
+    "unitOptions": {
+      "clp": "CLP",
+      "usd": "USD",
+      "uf": "UF"
+    }
   }
 }

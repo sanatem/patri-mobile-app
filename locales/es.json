@@ -567,7 +567,7 @@
   "languages": {
     "es": "Español (Latinoamérica)",
     "es-CL": "Español (Chile)",
-    "en": "English"
+    "en": "Ingles"
   },
   "budget_chart": {
     "no_data_title": "Sin datos",
@@ -1191,6 +1191,52 @@
     "valueLabel": "¿Qué valor tiene?",
     "unitPlaceholder": "Moneda",
     "valuePlaceholder": "$150.000.000",
+    "unitOptions": {
+      "clp": "CLP",
+      "usd": "USD",
+      "uf": "UF"
+    }
+  },
+  "propertyFields": {
+    "locationLabel": "Ubicación",
+    "locationPlaceholder": "Ej: Providencia, Santiago",
+    "squareMetersLabel": "Metros cuadrados",
+    "squareMetersPlaceholder": "Ej: 105",
+    "valueLabel": "¿Qué valor tiene?",
+    "unitPlaceholder": "Moneda",
+    "valuePlaceholder": "$150.000.000",
+    "mainHomeLabel": "¿Es ésta tu vivienda principal?",
+    "ownershipOptions": {
+      "own": "Sí",
+      "rent": "No"
+    },
+    "unitOptions": {
+      "clp": "CLP",
+      "usd": "USD",
+      "uf": "UF"
+    }
+  },
+  "hypothecaryFields": {
+    "associationLabel": "¿La deuda está asociada a alguna propiedad?",
+    "associationOptions": {
+      "yes": "Sí",
+      "no": "No"
+    },
+    "loadingProperties": "Cargando propiedades...",
+    "selectPropertyLabel": "Selecciona la propiedad",
+    "selectPropertyPlaceholder": "Selecciona una propiedad",
+    "createPropertyLabel": "¿Deseas crear una nueva propiedad?",
+    "createPropertyOptions": {
+      "yes": "Sí",
+      "no": "No"
+    },
+    "locationLabel": "Ubicación de la propiedad",
+    "locationPlaceholder": "Ej: Las Condes, Santiago",
+    "valueLabel": "Valor comercial de la propiedad",
+    "unitPlaceholder": "Moneda",
+    "valuePlaceholder": "$550.000.000",
+    "squareMetersLabel": "Metros cuadrados",
+    "squareMetersPlaceholder": "65",
     "unitOptions": {
       "clp": "CLP",
       "usd": "USD",
