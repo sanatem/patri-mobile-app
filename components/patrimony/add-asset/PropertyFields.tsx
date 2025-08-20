@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text } from 'react-native';
 import { Input, RadioButton, Select } from '@/components/ui';
 import Colors from '@/constants/Colors';
+import { useTranslation } from 'react-i18next';
 
 interface PropertyFieldsProps {
   location: string;
@@ -15,16 +16,6 @@ interface PropertyFieldsProps {
   formatValue: (value: string) => string;
 }
 
-const PROPERTY_OWNERSHIP_OPTIONS = [
-  { label: 'Sí', value: 'own' },
-  { label: 'No', value: 'rent' },
-];
-
-const UNIT_OPTIONS = [
-  { label: 'CLP', value: 'clp' },
-  { label: 'USD', value: 'usd' },
-  { label: 'UF', value: 'uf' },
-];
 
 export default function PropertyFields({ 
   location, 
@@ -37,6 +28,17 @@ export default function PropertyFields({
   onNumericInputChange,
   formatValue
 }: PropertyFieldsProps) {
+  const { t } = useTranslation();
+  const PROPERTY_OWNERSHIP_OPTIONS = [
+    { label: t('propertyFields.ownershipOptions.own'), value: 'own' },
+    { label: t('propertyFields.ownershipOptions.rent'), value: 'rent' },
+  ];
+  
+  const UNIT_OPTIONS = [
+    { label: t('propertyFields.unitOptions.clp'), value: 'clp' },
+    { label: t('propertyFields.unitOptions.usd'), value: 'usd' },
+    { label: t('propertyFields.unitOptions.uf'), value: 'uf' },
+  ];
   return (
     <>
       <View>
@@ -46,10 +48,10 @@ export default function PropertyFields({
             marginBottom: 8,
           }}
         >
-          Ubicación
+          {t('propertyFields.locationLabel')}
         </Text>
         <Input
-          placeholder="Ej: Providencia, Santiago"
+          placeholder={t('propertyFields.locationPlaceholder')}
           value={location}
           onChangeText={(value) => onInputChange('location', value)}
           autoCapitalize="words"
@@ -63,10 +65,10 @@ export default function PropertyFields({
             marginBottom: 8,
           }}
         >
-          Metros cuadrados
+          {t('propertyFields.squareMetersLabel')}
         </Text>
         <Input
-          placeholder="Ej: 105"
+          placeholder={t('propertyFields.squareMetersPlaceholder')}
           value={square_mts}
           onChangeText={(value) => onInputChange('square_mts', value)}
           keyboardType="numeric"
@@ -80,7 +82,7 @@ export default function PropertyFields({
             marginBottom: 8,
           }}
         >
-          ¿Qué valor tiene?
+          {t('propertyFields.valueLabel')}
         </Text>
         <View className="flex-row">
           <View style={{ width: 100, marginRight: 8 }}>
@@ -88,12 +90,12 @@ export default function PropertyFields({
               options={UNIT_OPTIONS}
               value={unit}
               onSelect={(value) => onSelectChange('unit', value)}
-              placeholder="Moneda"
+              placeholder={t('propertyFields.unitPlaceholder')}
             />
           </View>
           <View style={{ flex: 1 }}>
              <Input
-               placeholder="$150.000.000"
+               placeholder={t('propertyFields.valuePlaceholder')}
                value={commercial_value ? formatValue(commercial_value) : ''}
                onChangeText={(value) => onNumericInputChange('commercial_value', value)}
                keyboardType="numeric"
@@ -109,7 +111,7 @@ export default function PropertyFields({
             marginBottom: 8,
           }}
         >
-          ¿Es ésta tu vivienda principal?
+          {t('propertyFields.mainHomeLabel')}
         </Text>
         <RadioButton
           options={PROPERTY_OWNERSHIP_OPTIONS}
