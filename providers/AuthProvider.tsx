@@ -302,11 +302,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await AsyncStorage.removeItem('auth_token');
       await AsyncStorage.removeItem('backend_user_data');
-      try {
-        await AsyncStorage.setItem('splash_seen', 'true');
-      } catch {}
+      
       setUser(null);
       setAccessToken(null);
+      setError(null);
 
       const logoutUrl = `${auth0Domain}/v2/logout?client_id=${auth0ClientId}&returnTo=${encodeURIComponent(redirectUri)}`;
       await WebBrowser.openAuthSessionAsync(logoutUrl, redirectUri);
@@ -319,6 +318,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (Platform.OS === 'android') {
         BackHandler.exitApp();
+      } else {
       }
     } catch (error) {
       throw error;
@@ -330,6 +330,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const loginWithGoogle = async (): Promise<boolean> => {
     setLoading(true);
     setError(null);
+    
+    const authTimeout = setTimeout(() => {
+      setLoading(false);
+      setError('Timeout: La autenticación tardó demasiado. Por favor, intenta de nuevo.');
+    }, 120000);
+    
     try {
       const authUrl = new URL(`${auth0Domain}/authorize`);
       const params: Record<string, string | undefined> = {
@@ -366,31 +372,43 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           createTask: false,
           showTitle: false,
           showInRecents: false,
-          enableBarCollapsing: true,
-          windowFeatures: {
-            'viewport': 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no',
-            'mobile-web-app-capable': 'yes',
-            'apple-mobile-web-app-capable': 'yes',
-            'apple-mobile-web-app-status-bar-style': 'default',
-            'format-detection': 'telephone=no',
-            'msapplication-tap-highlight': 'no',
-            'user-scalable': 'no',
-            'shrink-to-fit': 'no'
-          }
+          enableBarCollapsing: true
         }
       );
 
       if (result.type === 'success' && 'url' in result) {
-        const url = new URL(result.url);
-        const params = new URLSearchParams(url.hash.substring(1));
-        const access_token = params.get('access_token');
-        if (access_token) {
+        try {
+          const url = new URL(result.url);
+          if (!url.hash || url.hash.length < 2) {
+            throw new Error('URL de respuesta inválida');
+          }
+          
+          const params = new URLSearchParams(url.hash.substring(1));
+          const access_token = params.get('access_token');
+          
+          if (!access_token || access_token.trim() === '') {
+            throw new Error('Token de acceso no encontrado en la respuesta');
+          }
+          
+          clearTimeout(authTimeout);
           return await handleAuthResponse(access_token);
+        } catch (error) {
+          clearTimeout(authTimeout);
+          console.error('Error procesando respuesta de autenticación Google:', error);
+          setError('Error al procesar la respuesta de autenticación. Por favor, intenta de nuevo.');
+          return false;
         }
+      } else if (result.type === 'cancel') {
+        clearTimeout(authTimeout);
+        setError('Autenticación cancelada por el usuario');
+        return false;
+      } else {
+        clearTimeout(authTimeout);
+        setError('Error al iniciar sesión con Google. Por favor, intenta de nuevo.');
+        return false;
       }
-      setError('Error al iniciar sesión con Google. Por favor, intenta de nuevo.');
-      return false;
     } catch (error) {
+      clearTimeout(authTimeout);
       console.error('Google login error:', error);
       setError('Error al iniciar sesión con Google. Por favor, intenta de nuevo.');
       return false;
@@ -402,6 +420,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const loginWithApple = async (): Promise<boolean> => {
     setLoading(true);
     setError(null);
+    
+    const authTimeout = setTimeout(() => {
+      setLoading(false);
+      setError('Timeout: La autenticación tardó demasiado. Por favor, intenta de nuevo.');
+    }, 120000);
+    
     try {
       const authUrl = new URL(`${auth0Domain}/authorize`);
       const params: Record<string, string | undefined> = {
@@ -440,31 +464,43 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           createTask: false,
           showTitle: false,
           showInRecents: false,
-          enableBarCollapsing: true,
-          windowFeatures: {
-            'viewport': 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no',
-            'mobile-web-app-capable': 'yes',
-            'apple-mobile-web-app-capable': 'yes',
-            'apple-mobile-web-app-status-bar-style': 'default',
-            'format-detection': 'telephone=no',
-            'msapplication-tap-highlight': 'no',
-            'user-scalable': 'no',
-            'shrink-to-fit': 'no'
-          }
+          enableBarCollapsing: true
         }
       );
 
       if (result.type === 'success' && 'url' in result) {
-        const url = new URL(result.url);
-        const params = new URLSearchParams(url.hash.substring(1));
-        const access_token = params.get('access_token');
-        if (access_token) {
+        try {
+          const url = new URL(result.url);
+          if (!url.hash || url.hash.length < 2) {
+            throw new Error('URL de respuesta inválida');
+          }
+          
+          const params = new URLSearchParams(url.hash.substring(1));
+          const access_token = params.get('access_token');
+          
+          if (!access_token || access_token.trim() === '') {
+            throw new Error('Token de acceso no encontrado en la respuesta');
+          }
+          
+          clearTimeout(authTimeout);
           return await handleAuthResponse(access_token);
+        } catch (error) {
+          clearTimeout(authTimeout);
+          console.error('Error procesando respuesta de autenticación Apple:', error);
+          setError('Error al procesar la respuesta de autenticación. Por favor, intenta de nuevo.');
+          return false;
         }
+      } else if (result.type === 'cancel') {
+        clearTimeout(authTimeout);
+        setError('Autenticación cancelada por el usuario');
+        return false;
+      } else {
+        clearTimeout(authTimeout);
+        setError('Error al iniciar sesión con Apple. Por favor, intenta de nuevo.');
+        return false;
       }
-      setError('Error al iniciar sesión con Apple. Por favor, intenta de nuevo.');
-      return false;
     } catch (error) {
+      clearTimeout(authTimeout);
       console.error('Apple login error:', error);
       setError('Error al iniciar sesión con Apple. Por favor, intenta de nuevo.');
       return false;
@@ -485,9 +521,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await AsyncStorage.removeItem('auth_token');
       await AsyncStorage.removeItem('backend_user_data');
       
-      await AsyncStorage.removeItem('auth_token');
-      await AsyncStorage.removeItem('backend_user_data');
-      
       const tokenCheck = await AsyncStorage.getItem('auth_token');
       const userDataCheck = await AsyncStorage.getItem('backend_user_data');
       
@@ -501,6 +534,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         );
         await AsyncStorage.multiRemove(authKeys);
       }
+      
       // Logout de RevenueCat
       try {
         await Purchases.logOut();
@@ -508,12 +542,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.warn('RevenueCat logout failed:', error);
       }
 
-      try {
-        await AsyncStorage.setItem('splash_seen', 'true');
-      } catch {}
-
       if (Platform.OS === 'android') {
         BackHandler.exitApp();
+      } else {
       }
     } catch (error) {
       setUser(null);

@@ -8,7 +8,8 @@ import {
   Alert,
   Modal,
   ActivityIndicator,
-  Linking
+  Linking,
+  Platform
 } from 'react-native';
 import { Button } from '@/components/ui';
 import { 
@@ -41,9 +42,13 @@ export default function MoreScreen() {
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
 
   const handleLogout = () => {
+    const logoutMessage = Platform.OS === 'ios' 
+      ? `${t('settings.logout.message')}\n\nNota: En iOS, la aplicación permanecerá abierta después del logout por políticas de la plataforma.`
+      : t('settings.logout.message');
+      
     Alert.alert(
       t('settings.logout.title'),
-      t('settings.logout.message'),
+      logoutMessage,
       [
         { text: t('common.cancel'), style: 'cancel' },
         {
@@ -54,15 +59,24 @@ export default function MoreScreen() {
             
             try {
               await logout();
-              router.dismissAll();
+
+              if (Platform.OS === 'android') {
+              } else {
+                router.dismissAll();
+              }
             } catch (error) {
               console.error('Error durante logout:', error);
               try {
                 await forceLogout();
+                
+                if (Platform.OS === 'android') {
+                } else {
+                  router.dismissAll();
+                }
               } catch (forceError) {
                 console.error('Error durante logout forzado:', forceError);
+                router.dismissAll();
               }
-              router.dismissAll();
             } finally {
               setIsLoggingOut(false);
             }
