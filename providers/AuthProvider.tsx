@@ -3,6 +3,7 @@ import { BackHandler, Platform } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
 import * as AuthSession from 'expo-auth-session';
 import { makeRedirectUri } from 'expo-auth-session';
+import { router } from 'expo-router';
 import { auth0Config } from '@/config/auth0.config';
 import config from '@/config/constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -319,6 +320,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (Platform.OS === 'android') {
         BackHandler.exitApp();
       } else {
+        router.replace('/auth/webview');
       }
     } catch (error) {
       throw error;
@@ -535,7 +537,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         await AsyncStorage.multiRemove(authKeys);
       }
       
-      // Logout de RevenueCat
       try {
         await Purchases.logOut();
       } catch (error) {
@@ -545,6 +546,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (Platform.OS === 'android') {
         BackHandler.exitApp();
       } else {
+        router.replace('/auth/webview');
       }
     } catch (error) {
       setUser(null);
