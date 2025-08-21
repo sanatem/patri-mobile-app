@@ -60,7 +60,7 @@ export default function FormLayout({
   const { keyboardHeight, isKeyboardVisible } = useKeyboardHandler();
 
   const _nextTitle = nextButtonTitle ?? t('common.next');
-  const _prevTitle = previousButtonTitle ?? t('common.previous');
+  const _prevTitle = previousButtonTitle ?? t('common.back');
   const _cancelTitle = cancelButtonTitle ?? t('common.cancel');
   const _loadingText = loadingText ?? t('common.saving');
 

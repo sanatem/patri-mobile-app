@@ -290,7 +290,7 @@ export default function AddLiabilityScreen() {
             marginBottom: 8,
           }}
         >
-          ¿Cuál es el saldo a pagar?
+          {t('addLiabilityScreen.fields.amountLabel')}
         </Text>
         <View className="flex-row">
           <View style={{ width: 100, marginRight: 8 }}>
