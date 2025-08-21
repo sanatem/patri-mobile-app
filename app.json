@@ -61,12 +61,7 @@
       ],
       "expo-font",
       "expo-web-browser",
-      [
-        "react-native-auth0",
-        {
-          "domain": "auth.patrimore.com"
-        }
-      ],
+      "./app.plugin.js",
       "expo-localization"
     ],
     "experiments": {
