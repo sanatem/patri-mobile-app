@@ -51,6 +51,19 @@ export async function getAssets(token: string, params: GetAssetsParams = {}): Pr
     }
 
     const data: ApiAssetsResponse = await response.json();
+    
+    if (data && data.assets && data.assets.main_homes) {
+      const leasedHomes = data.assets.main_homes.filter(mainHome => mainHome.kind === 'leased');
+      const leasedHomesValue = leasedHomes.reduce((total, home) => total + (home.commercial_value || 0), 0);
+      
+      data.assets.main_homes = data.assets.main_homes.filter(mainHome => mainHome.kind !== 'leased');
+      
+      if (data.totals) {
+        data.totals.main_homes_total = Math.max(0, data.totals.main_homes_total - leasedHomesValue);
+        data.totals.total_assets = Math.max(0, data.totals.total_assets - leasedHomesValue);
+      }
+    }
+    
     return data;
 
   } catch (error) {
