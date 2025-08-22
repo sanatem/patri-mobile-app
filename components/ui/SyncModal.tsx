@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Modal, View, Text, ActivityIndicator, Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
 import { X } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
@@ -14,6 +14,14 @@ export const SyncModal: React.FC<SyncModalProps> = ({ visible, onClose, onSyncCo
   const modalWidth = Math.min(screenWidth - 40, 320);
   const [timeLeft, setTimeLeft] = useState(60);
 
+  const handleSyncComplete = useCallback(() => {
+    if (onSyncComplete) {
+      setTimeout(() => {
+        onSyncComplete();
+      }, 0);
+    }
+  }, [onSyncComplete]);
+
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
     
@@ -23,8 +31,12 @@ export const SyncModal: React.FC<SyncModalProps> = ({ visible, onClose, onSyncCo
       interval = setInterval(() => {
         setTimeLeft((prev) => {
           if (prev <= 1) {
-            if (onClose) onClose();
-            if (onSyncComplete) onSyncComplete();
+            if (onClose) {
+              setTimeout(() => {
+                onClose();
+              }, 0);
+            }
+            handleSyncComplete();
             return 0;
           }
           return prev - 1;
@@ -35,11 +47,19 @@ export const SyncModal: React.FC<SyncModalProps> = ({ visible, onClose, onSyncCo
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [visible, onClose, onSyncComplete]);
+  }, [visible, onClose, handleSyncComplete]);
 
-  const handleClose = () => {
-    if (onClose) onClose();
-    if (onSyncComplete) onSyncComplete();
+  const handleClose = useCallback(() => {
+    if (onClose) {
+      onClose();
+    }
+    handleSyncComplete();
+  }, [onClose, handleSyncComplete]);
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
   return (
@@ -56,6 +76,7 @@ export const SyncModal: React.FC<SyncModalProps> = ({ visible, onClose, onSyncCo
           <TouchableOpacity 
             style={styles.closeButton}
             onPress={handleClose}
+            activeOpacity={0.7}
           >
             <X size={24} color={Colors.gray[500]} />
           </TouchableOpacity>
@@ -69,6 +90,10 @@ export const SyncModal: React.FC<SyncModalProps> = ({ visible, onClose, onSyncCo
             
             <Text className='font-regular' style={styles.modalSubtitle}>
               Se están sincronizando sus datos con Floid. Esto podría tardar unos minutos.
+            </Text>
+            
+            <Text className='font-regular' style={styles.timerText}>
+              Tiempo restante: {formatTime(timeLeft)}
             </Text>
           </View>
         </View>
@@ -122,5 +147,11 @@ const styles = StyleSheet.create({
     color: Colors.primary[500],
     textAlign: 'center',
     lineHeight: 22,
+  },
+  timerText: {
+    fontSize: 14,
+    color: Colors.primary[500],
+    textAlign: 'center',
+    marginTop: 16,
   },
 });

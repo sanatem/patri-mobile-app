@@ -33,7 +33,7 @@ const SCREEN_HEIGHT = Dimensions.get('window').height;
 
 export default function BudgetScreen() {
   const { shouldBlockTab, loading: subscriptionLoading } = useSubscriptionStatus();
-  const { isSyncing } = useFloidSync();
+  const { isSyncing, stopSync } = useFloidSync();
   const router = useRouter();
   const { t } = useTranslation();
 
@@ -289,32 +289,21 @@ export default function BudgetScreen() {
                 )}
               </View>
             </View>
-             {(() => {
-               const shouldShowSkeletons = (transactionsLoading || isSyncing || showBudgetSkeletons);
-               return shouldShowSkeletons;
-             })() ? (
-               <View style={{ 
-                 backgroundColor: 'white', 
-                 borderRadius: 16, 
-                 padding: 20,
-                 shadowColor: '#000',
-                 shadowOffset: { width: 0, height: 2 },
-                 shadowOpacity: 0.1,
-                 shadowRadius: 4,
-                 elevation: 3
-               }}>
-                <SkeletonBase
-                  width={120}
-                  height={20}
-                  x={0}
-                  y={0}
-                  rows={1}
-                  rowHeight={20}
-                  rowWidth={120}
-                  borderRadius={4}
-                  style={{ marginBottom: 16 }}
-                />
-                <View style={{ alignItems: 'center', marginBottom: 16 }}>
+                           {(() => {
+                const shouldShowSkeletons = (transactionsLoading || isSyncing || showBudgetSkeletons);
+                return shouldShowSkeletons;
+              })() ? (
+                <View style={{ 
+                  backgroundColor: 'white', 
+                  borderRadius: 16, 
+                  padding: 20,
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.1,
+                  shadowRadius: 4,
+                  elevation: 3,
+                  alignItems: 'center'
+                }}>
                   <SkeletonBase
                     width={chartSize}
                     height={chartSize}
@@ -326,76 +315,8 @@ export default function BudgetScreen() {
                     borderRadius={chartSize / 2}
                     style={{ borderRadius: chartSize / 2 }}
                   />
-                  <View style={{
-                    position: 'absolute',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: chartSize * 0.6,
-                    height: chartSize * 0.6
-                  }}>
-                    <SkeletonBase
-                      width={140}
-                      height={60}
-                      x={0}
-                      y={0}
-                      rows={2}
-                      rowHeight={26}
-                      rowWidth={140}
-                      rowSpacing={4}
-                      borderRadius={4}
-                    />
-                  </View>
-                </View>  
-                <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
-                  <View style={{ alignItems: 'center' }}>
-                    <SkeletonBase
-                      width={16}
-                      height={16}
-                      x={0}
-                      y={0}
-                      rows={1}
-                      rowHeight={16}
-                      rowWidth={16}
-                      borderRadius={8}
-                      style={{ marginBottom: 8 }}
-                    />
-                    <SkeletonBase
-                      width={80}
-                      height={14}
-                      x={0}
-                      y={0}
-                      rows={1}
-                      rowHeight={14}
-                      rowWidth={80}
-                      borderRadius={4}
-                    />
-                  </View>
-                  <View style={{ alignItems: 'center' }}>
-                    <SkeletonBase
-                      width={16}
-                      height={16}
-                      x={0}
-                      y={0}
-                      rows={1}
-                      rowHeight={16}
-                      rowWidth={16}
-                      borderRadius={8}
-                      style={{ marginBottom: 8 }}
-                    />
-                    <SkeletonBase
-                      width={80}
-                      height={14}
-                      x={0}
-                      y={0}
-                      rows={1}
-                      rowHeight={14}
-                      rowWidth={80}
-                      borderRadius={4}
-                    />
-                  </View>
                 </View>
-              </View>
-            ) : (
+              ) : (
               <BudgetChart {...budgetChartProps} />
             )}
           </Container>
@@ -678,25 +599,31 @@ export default function BudgetScreen() {
         </View>
       )}
       
-      <SyncModal 
-        visible={isSyncing} 
-        onClose={() => {}}
-        onSyncComplete={() => {
-          setShowBudgetSkeletons(true);
-          setTimeout(async () => {
-            setShowBudgetSkeletons(false);
-
-            try {
-              await Promise.all([
-                refetchAccounts(),
-                refetchTransactions()
-              ]);
-            } catch (error) {
-              console.error('Error refreshing data after sync:', error);
-            }
-          }, 60000); // 1 minuto
-        }}
-      />
+             <SyncModal 
+          visible={isSyncing} 
+          onClose={() => {
+            // Cerrar el modal manualmente
+            stopSync();
+          }}
+          onSyncComplete={() => {
+            setShowBudgetSkeletons(true);
+            
+            const skeletonTimer = setTimeout(async () => {
+              setShowBudgetSkeletons(false);
+              
+              try {
+                await Promise.all([
+                  refetchAccounts(),
+                  refetchTransactions()
+                ]);
+              } catch (error) {
+                console.error('Error refreshing data after sync:', error);
+              }
+            }, 60000);
+            
+            return () => clearTimeout(skeletonTimer);
+          }}
+        />
     </Container>
   );
 }
