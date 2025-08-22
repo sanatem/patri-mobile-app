@@ -51,11 +51,9 @@ export function ListItem({
 }: ListProps) {
   const showPercentageBadges = false;
   
-  // Only use pagination state when showLoadMore is true
   const [visibleCount, setVisibleCount] = useState(showLoadMore ? initialItemCount : data.length);
   const [isExpanded, setIsExpanded] = useState(false);
   
-  // If showLoadMore is false, show all data without pagination
   const visibleData = showLoadMore ? data.slice(0, visibleCount) : data;
   const hasMore = showLoadMore ? visibleCount < data.length : false;
   const canShowLess = showLoadMore ? visibleCount > initialItemCount : false;
@@ -71,7 +69,6 @@ export function ListItem({
     setVisibleCount(initialItemCount);
     setIsExpanded(false);
   };
-
 
   const renderItem = ({ item, index }: { item: ListItem; index: number }) => (
     <>

@@ -27,6 +27,7 @@ import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { useFormatValue } from '@/hooks/common/useFormatValue';
 import { useTotalWalletValue } from '@/hooks/investment/useTotalWalletValue';
 import { useTranslation } from 'react-i18next';
+import type { Goal } from '@/types/api';
 
 export default function InvestmentPortfolioScreen() {
   const router = useRouter();
@@ -44,39 +45,45 @@ export default function InvestmentPortfolioScreen() {
     BarChart: <BarChart size={24} color={Colors.gray[500]} />,
   };
 
-  interface Goal {
-    id: string;
-    name: string;
-    currentAmount: number;
-    targetAmount: number;
-  }
-  const staticInvestmentIds = ['reserva', 'emergencias', 'casa', 'jubilacion'];
+  const staticInvestmentCategories = [
+    { id: 'reserva', keywords: ['reserva', 'emergencia', 'fondo'] },
+    { id: 'emergencias', keywords: ['emergencia', 'urgencia', 'imprevisto'] },
+    { id: 'casa', keywords: ['casa', 'vivienda', 'propiedad', 'hogar'] },
+    { id: 'jubilacion', keywords: ['jubilación', 'jubilacion', 'retiro', 'apv', 'pension'] }
+  ];
 
   const allGoals: Goal[] = [...goals.shortTerm, ...goals.mediumTerm, ...goals.longTerm];
 
-  const investmentData = staticInvestmentIds.map(id => {
-    const matchedGoal = allGoals.find((g: Goal) => g.id === id);
+  const investmentData = staticInvestmentCategories.map(category => {
+    const matchedGoal = allGoals.find(goal => 
+      category.keywords.some(keyword => 
+        goal.name.toLowerCase().includes(keyword.toLowerCase()) ||
+        goal.kindName.toLowerCase().includes(keyword.toLowerCase())
+      )
+    );
+    
     const value = matchedGoal
       ? formatValue(matchedGoal.currentAmount.toString())
       : '$0';
+      
     return {
-      id,
-      title: t(`portfolio.cards.${id}.title`),
-      subtitle: t(`portfolio.cards.${id}.subtitle`),
+      id: category.id,
+      title: t(`portfolio.cards.${category.id}.title`),
+      subtitle: t(`portfolio.cards.${category.id}.subtitle`),
       value,
       icon: {
-        component: iconMap[id.charAt(0).toUpperCase() + id.slice(1) as keyof typeof iconMap] || <PiggyBank size={24} color={Colors.gray[500]} />,
+        component: iconMap[category.id.charAt(0).toUpperCase() + category.id.slice(1) as keyof typeof iconMap] || <PiggyBank size={24} color={Colors.gray[500]} />,
         backgroundColor: Colors.gray[50],
         color: Colors.secondary[500],
-        text: id.charAt(0).toUpperCase()
+        text: category.id.charAt(0).toUpperCase()
       },
       onPress: matchedGoal
         ? () =>
             router.push({
               pathname: '/investment/portfolio/portfolio-details',
               params: {
-                goalId: id,
-                goalName: t(`portfolio.cards.${id}.title`)
+                goalId: matchedGoal.id,
+                goalName: matchedGoal.name
               }
             })
         : undefined
@@ -178,7 +185,6 @@ export default function InvestmentPortfolioScreen() {
       );
     }
 
-    // Solo calcular allGoals y goalsData cuando no está cargando
     const allGoals = [...goals.shortTerm, ...goals.mediumTerm, ...goals.longTerm];
     
     if (allGoals.length === 0) {
@@ -197,7 +203,7 @@ export default function InvestmentPortfolioScreen() {
     const goalsData = allGoals.map(goal => ({
       id: goal.id,
       title: goal.name,
-      subtitle: `${t('portfolio.goalPrefix')} ${formatValue(goal.targetAmount.toString())}`,
+      subtitle: `${t('portfolio.goalPrefix')} ${formatValue(goal.targetAmount.toString())} - ${goal.targetDate}`,
       value: formatValue(goal.currentAmount.toString()),
       icon: {
         component: <PiggyBank size={24} color={Colors.secondary[500]} />,
@@ -228,16 +234,17 @@ export default function InvestmentPortfolioScreen() {
       <Header 
         title={t('portfolio.title')} 
         rightAction={
-          <TouchableOpacity
-            className="w-10 h-10 rounded-full justify-center items-center"
-            onPress={() => router.push('/settings')}
-          >
-            <Settings size={24} color={Colors.gray[700]} />
-          </TouchableOpacity>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <TouchableOpacity
+              className="w-10 h-10 rounded-full justify-center items-center"
+              onPress={() => router.push('/settings')}
+            >
+              <Settings size={24} color={Colors.gray[700]} />
+            </TouchableOpacity>
+          </View>
         }
       />
       <ScrollView className="flex-1 px-5 pb-[120px] mt-16" showsVerticalScrollIndicator={false}>
-        {/* ✅ MANTENER PATRIMONIO NETO + AGREGAR SALDO EN CAJA */}
         <PortfolioHeader
           patrimony={getFallbackPatrimonyValue()}
           isLoading={walletLoading}

@@ -40,7 +40,7 @@ export function useGoals(): UseGoalsReturn {
       const goalsData = await goalsService.getGoals(accessToken);
       setGoals(goalsData);
     } catch (err) {
-      console.error('Error loading goals:', err);
+      console.error('useGoals: Error loading goals:', err);
       setError(err instanceof Error ? err.message : 'Error desconocido');
     } finally {
       setLoading(false);
