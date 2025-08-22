@@ -800,7 +800,7 @@ export default function PatrimonyScreen() {
                   }}>
                     {t(`patrimony.empty.${activeTab}.subtitle`)}
                   </Text>
-                  <Button
+                  <Button className="mt-4"
                      variant="primary"
                      onPress={() => {
                        if (activeTab === 'assets') {

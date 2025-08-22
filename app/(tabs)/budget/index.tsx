@@ -11,9 +11,9 @@ import {
   Container,
   Tabs,
   Select,
-  InfiniteCarousel,
   KeyboardAwareContainer,
   LockedTabOverlay,
+  SyncModal,
 } from '@/components/ui';
 import { SkeletonBase } from '@/components/ui/SkeletonBase';
 
@@ -26,15 +26,20 @@ import { calculateTransactionTotals } from '@/services/budget/get-floid-transact
 import Colors from '@/constants/Colors';
 import { listItemStyles } from '@/styles/ui/ListItem.styles';
 import { useSubscriptionStatus } from '@/hooks/common/useSubscriptionStatus';
+import { useFloidSync } from '@/providers/FloidSyncProvider';
 import { useTranslation } from 'react-i18next';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
 export default function BudgetScreen() {
   const { shouldBlockTab, loading: subscriptionLoading } = useSubscriptionStatus();
+  const { isSyncing } = useFloidSync();
   const router = useRouter();
   const { t } = useTranslation();
 
+  const { width: screenWidth } = Dimensions.get('window');
+  const chartSize = Math.min(screenWidth - 80, 280);
+  const contentWidth = Math.min(screenWidth - 40, 320);
   const months = useMemo(() => {
     const translated = t('months', { returnObjects: true }) as string[] | undefined;
     return Array.isArray(translated) && translated.length === 12
@@ -59,10 +64,11 @@ export default function BudgetScreen() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [showAddModal, setShowAddModal] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [showBudgetSkeletons, setShowBudgetSkeletons] = useState(false);
   const overlayAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(0)).current;
 
-  const { accounts, loading: accountsLoading } = useFloidAccounts();
+  const { accounts, loading: accountsLoading, refetch: refetchAccounts } = useFloidAccounts();
 
   const firstAccountId = useMemo(() => {
     if (accounts && accounts.floid_accounts.length > 0) {
@@ -71,7 +77,7 @@ export default function BudgetScreen() {
     return '';
   }, [accounts]);
 
-  const { transactions, loading: transactionsLoading } = useFloidTransactions({
+  const { transactions, loading: transactionsLoading, refetch: refetchTransactions } = useFloidTransactions({
     floidId: firstAccountId,
     per_page: 200,
     enabled: !!firstAccountId
@@ -116,7 +122,6 @@ export default function BudgetScreen() {
       }
     });
   };
-
   const calculateTotalsFromFloid = (transactions: any[] | undefined, selectedMonth: string) => {
     if (!transactions || transactions.length === 0) {
       return {
@@ -227,12 +232,7 @@ export default function BudgetScreen() {
       label: t(`budget.categories.${category.key}.label`),
       value: category.key
     }))
-
-    // ahora para usar esto en algun lado debemos hacer resto <Text>{t(`budget.categories.${category.key}.description`)}</Text>
-
   ];
-
-
   const hasDataForChart = hasRealData && (totalIncome > 0 || totalExpenses > 0);
   const budgetChartProps = {
     selectedMonth,
@@ -247,34 +247,37 @@ export default function BudgetScreen() {
     <Container variant="secondaryPage">
       <Header
         title={t('budget.title')}
-        rightAction={
-          <View className="flex-row items-center">
-            <TouchableOpacity 
-              onPress={() => setShowAddModal(true)}
-              className="mr-3"
-            >
-              <Plus size={24} color={Colors.primary[500]} />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => router.push('/settings')}>
-              <Settings size={24} color={Colors.primary[500]} />
-            </TouchableOpacity>
-          </View>
-        }
-      />
-      <KeyboardAwareContainer>
-        <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-          <Container variant="content" className="py-4">
+          rightAction={
+           <View className="flex-row items-center">
+             <TouchableOpacity 
+               onPress={() => setShowAddModal(true)}
+               className="mr-3"
+             >
+               <Plus size={24} color={Colors.primary[500]} />
+             </TouchableOpacity>
+             <TouchableOpacity 
+               onPress={() => router.push('/settings')}
+               className="mr-3"
+             >
+               <Settings size={24} color={Colors.primary[500]} />
+             </TouchableOpacity> 
+           </View>
+         }
+        />
+        <KeyboardAwareContainer>
+         <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>   
+           <Container variant="content" className="py-4">
             <View className="flex-row justify-between items-center mb-2">
               <View className="flex-1 items-center text-center">
                 {accountsLoading ? (
                   <SkeletonBase
-                    width={280}
+                    width={chartSize}
                     height={56}
                     x={0}
                     y={0}
                     rows={1}
                     rowHeight={56}
-                    rowWidth={280}
+                    rowWidth={chartSize}
                     borderRadius={16}
                   />
                 ) : (
@@ -286,18 +289,126 @@ export default function BudgetScreen() {
                 )}
               </View>
             </View>
-            <BudgetChart {...budgetChartProps} />
+             {(() => {
+               const shouldShowSkeletons = (transactionsLoading || isSyncing || showBudgetSkeletons);
+               return shouldShowSkeletons;
+             })() ? (
+               <View style={{ 
+                 backgroundColor: 'white', 
+                 borderRadius: 16, 
+                 padding: 20,
+                 shadowColor: '#000',
+                 shadowOffset: { width: 0, height: 2 },
+                 shadowOpacity: 0.1,
+                 shadowRadius: 4,
+                 elevation: 3
+               }}>
+                <SkeletonBase
+                  width={120}
+                  height={20}
+                  x={0}
+                  y={0}
+                  rows={1}
+                  rowHeight={20}
+                  rowWidth={120}
+                  borderRadius={4}
+                  style={{ marginBottom: 16 }}
+                />
+                <View style={{ alignItems: 'center', marginBottom: 16 }}>
+                  <SkeletonBase
+                    width={chartSize}
+                    height={chartSize}
+                    x={0}
+                    y={0}
+                    rows={1}
+                    rowHeight={chartSize}
+                    rowWidth={chartSize}
+                    borderRadius={chartSize / 2}
+                    style={{ borderRadius: chartSize / 2 }}
+                  />
+                  <View style={{
+                    position: 'absolute',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: chartSize * 0.6,
+                    height: chartSize * 0.6
+                  }}>
+                    <SkeletonBase
+                      width={140}
+                      height={60}
+                      x={0}
+                      y={0}
+                      rows={2}
+                      rowHeight={26}
+                      rowWidth={140}
+                      rowSpacing={4}
+                      borderRadius={4}
+                    />
+                  </View>
+                </View>  
+                <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
+                  <View style={{ alignItems: 'center' }}>
+                    <SkeletonBase
+                      width={16}
+                      height={16}
+                      x={0}
+                      y={0}
+                      rows={1}
+                      rowHeight={16}
+                      rowWidth={16}
+                      borderRadius={8}
+                      style={{ marginBottom: 8 }}
+                    />
+                    <SkeletonBase
+                      width={80}
+                      height={14}
+                      x={0}
+                      y={0}
+                      rows={1}
+                      rowHeight={14}
+                      rowWidth={80}
+                      borderRadius={4}
+                    />
+                  </View>
+                  <View style={{ alignItems: 'center' }}>
+                    <SkeletonBase
+                      width={16}
+                      height={16}
+                      x={0}
+                      y={0}
+                      rows={1}
+                      rowHeight={16}
+                      rowWidth={16}
+                      borderRadius={8}
+                      style={{ marginBottom: 8 }}
+                    />
+                    <SkeletonBase
+                      width={80}
+                      height={14}
+                      x={0}
+                      y={0}
+                      rows={1}
+                      rowHeight={14}
+                      rowWidth={80}
+                      borderRadius={4}
+                    />
+                  </View>
+                </View>
+              </View>
+            ) : (
+              <BudgetChart {...budgetChartProps} />
+            )}
           </Container>
           <Container variant="content" className="mt-4 mb-4">
-            {transactionsLoading ? (
+            {(transactionsLoading || isSyncing || showBudgetSkeletons) ? (
               <SkeletonBase
-                width={280}
+                width={380}
                 height={56}
                 x={0}
                 y={0}
                 rows={1}
                 rowHeight={56}
-                rowWidth={280}
+                rowWidth={380}
                 borderRadius={16}
               />
             ) : (
@@ -309,53 +420,145 @@ export default function BudgetScreen() {
             )}
           </Container>
           <Container variant="content" className="mb-4">
-            {transactionsLoading ? (
+            {(transactionsLoading || isSyncing || showBudgetSkeletons) ? (
               <View style={listItemStyles.cardContainer}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 20, paddingHorizontal: 20 }}>
+                <View style={{ 
+                  flexDirection: 'row', 
+                  alignItems: 'center', 
+                  paddingVertical: 20, 
+                  paddingHorizontal: 20,
+                  backgroundColor: 'white',
+                  borderRadius: 16,
+                  padding: 4,
+                  marginHorizontal: 0,
+                  marginBottom: 10
+                }}>
                   <SkeletonBase
-                    width={80}
-                    height={20}
+                    width={contentWidth * 0.4}
+                    height={18}
                     x={0}
                     y={0}
                     rows={1}
-                    rowHeight={20}
-                    rowWidth={80}
+                    rowHeight={18}
+                    rowWidth={contentWidth * 0.4}
                     borderRadius={4}
                     style={{ marginRight: 20 }}
                   />
                   <SkeletonBase
-                    width={80}
-                    height={20}
+                    width={contentWidth * 0.4}
+                    height={18}
                     x={0}
                     y={0}
                     rows={1}
-                    rowHeight={20}
-                    rowWidth={80}
+                    rowHeight={18}
+                    rowWidth={contentWidth * 0.4}
                     borderRadius={4}
                   />
                 </View>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingBottom: 20, paddingTop: 12, borderBottomWidth: 1, borderBottomColor: Colors.gray[200] }}>
+                
+                <View style={{ 
+                  flexDirection: 'row', 
+                  justifyContent: 'space-between', 
+                  alignItems: 'center', 
+                  paddingHorizontal: 20, 
+                  paddingBottom: 20, 
+                  paddingTop: 12, 
+                  borderBottomWidth: 1, 
+                  borderBottomColor: Colors.gray[200] 
+                }}>
                   <SkeletonBase
-                    width={120}
-                    height={20}
+                    width={contentWidth * 0.35}
+                    height={18}
                     x={0}
                     y={0}
                     rows={1}
-                    rowHeight={20}
-                    rowWidth={120}
+                    rowHeight={18}
+                    rowWidth={contentWidth * 0.35}
                     borderRadius={4}
                   />
                   <SkeletonBase
-                    width={100}
-                    height={20}
+                    width={contentWidth * 0.3}
+                    height={18}
                     x={0}
                     y={0}
                     rows={1}
-                    rowHeight={20}
-                    rowWidth={100}
+                    rowHeight={18}
+                    rowWidth={contentWidth * 0.3}
                     borderRadius={4}
                   />
                 </View>
+                
+                {Array.from({ length: 5 }).map((_, index) => (
+                  <View key={index} style={{ 
+                    flexDirection: 'row', 
+                    alignItems: 'center', 
+                    justifyContent: 'space-between',
+                    paddingVertical: 18,
+                    paddingHorizontal: 20,
+                    borderBottomWidth: index < 4 ? 1 : 0,
+                    borderBottomColor: Colors.gray[200]
+                  }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+                      <SkeletonBase
+                        width={48}
+                        height={48}
+                        x={0}
+                        y={0}
+                        rows={1}
+                        rowHeight={48}
+                        rowWidth={48}
+                        borderRadius={12}
+                        style={{ marginRight: 18 }}
+                      />
+                      <View style={{ flex: 1 }}>
+                        <SkeletonBase
+                          width={contentWidth * 0.45}
+                          height={16}
+                          x={0}
+                          y={0}
+                          rows={1}
+                          rowHeight={16}
+                          rowWidth={contentWidth * 0.45}
+                          borderRadius={4}
+                          style={{ marginBottom: 4 }}
+                        />
+                        <SkeletonBase
+                          width={contentWidth * 0.35}
+                          height={13}
+                          x={0}
+                          y={0}
+                          rows={1}
+                          rowHeight={13}
+                          rowWidth={contentWidth * 0.35}
+                          borderRadius={4}
+                        />
+                      </View>
+                    </View>
+                    <View style={{ alignItems: 'flex-end', minWidth: 90 }}>
+                      <SkeletonBase
+                        width={contentWidth * 0.25}
+                        height={16}
+                        x={0}
+                        y={0}
+                        rows={1}
+                        rowHeight={16}
+                        rowWidth={contentWidth * 0.25}
+                        borderRadius={4}
+                        style={{ marginBottom: 4 }}
+                      />
+                      <SkeletonBase
+                        width={contentWidth * 0.2}
+                        height={14}
+                        x={0}
+                        y={0}
+                        rows={1}
+                        rowHeight={14}
+                        rowWidth={contentWidth * 0.2}
+                        borderRadius={4}
+                      />
+                    </View>
+                  </View>
+                ))}
               </View>
             ) : (
               <View style={listItemStyles.cardContainer}>
@@ -474,6 +677,26 @@ export default function BudgetScreen() {
           </Animated.View>
         </View>
       )}
+      
+      <SyncModal 
+        visible={isSyncing} 
+        onClose={() => {}}
+        onSyncComplete={() => {
+          setShowBudgetSkeletons(true);
+          setTimeout(async () => {
+            setShowBudgetSkeletons(false);
+
+            try {
+              await Promise.all([
+                refetchAccounts(),
+                refetchTransactions()
+              ]);
+            } catch (error) {
+              console.error('Error refreshing data after sync:', error);
+            }
+          }, 60000); // 1 minuto
+        }}
+      />
     </Container>
   );
 }
