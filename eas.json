@@ -14,32 +14,20 @@
     "development": {
       "developmentClient": true,
       "ios": {
-        "simulator": false,
-        "env": {
-          "EXPO_AUTH0_ENABLED": "false"
-        }
+        "simulator": false
       },
       "android": {
-        "buildType": "apk",
-        "env": {
-          "EXPO_AUTH0_ENABLED": "true"
-        }
+        "buildType": "apk"
       },
       "channel": "development"
     },
     "production": {
       "autoIncrement": true,
       "android": {
-        "credentialsSource": "remote",
-        "env": {
-          "EXPO_AUTH0_ENABLED": "true"
-        }
+        "credentialsSource": "remote"
       },
       "ios": {
-        "distribution": "store",
-        "env": {
-          "EXPO_AUTH0_ENABLED": "false"
-        }
+        "distribution": "store"
       },
       "channel": "production"
     }

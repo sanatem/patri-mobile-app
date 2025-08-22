@@ -15,7 +15,9 @@
     "test:coverage": "jest --coverage",
     "test:e2e": "detox test -c ios.sim.debug",
     "test:e2e:android": "detox test -c android.emu.debug",
-    "test:browserstack": "node e2e/browserstack/run-tests.js"
+    "test:browserstack": "node e2e/browserstack/run-tests.js",
+    "build:android": "node scripts/toggle-auth0.js enable && eas build -p android --profile production",
+    "build:ios": "node scripts/toggle-auth0.js disable && eas build -p ios --profile production"
   },
   "dependencies": {
     "@ant-design/icons-react-native": "^2.3.2",
