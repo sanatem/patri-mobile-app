@@ -1,7 +1,9 @@
 const fs = require("fs");
+const path = require("path");
 
-const appJson = JSON.parse(fs.readFileSync("app.json", "utf8"));
-const mode = process.argv[2]; // "enable" o "disable"
+const appJsonPath = path.resolve(__dirname, "..", "app.json");
+const appJson = JSON.parse(fs.readFileSync(appJsonPath, "utf8"));
+const mode = process.argv[2];
 
 if (!appJson.expo.plugins) appJson.expo.plugins = [];
 
