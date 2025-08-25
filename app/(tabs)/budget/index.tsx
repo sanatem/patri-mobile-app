@@ -58,7 +58,17 @@ export default function BudgetScreen() {
     return months[currentMonthIndex] || 'Enero';
   };
 
+  const getCurrentYear = (): number => {
+    return new Date().getFullYear();
+  };
+
+  const yearOptions = useMemo(() => [
+    { label: '2024', value: '2024' },
+    { label: '2025', value: '2025' }
+  ], []);
+
   const [selectedMonth, setSelectedMonth] = useState<string>(getCurrentMonth());
+  const [selectedYear, setSelectedYear] = useState<string>(getCurrentYear().toString());
   const [activeTab, setActiveTab] = useState<'income' | 'expenses'>('income');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -83,7 +93,7 @@ export default function BudgetScreen() {
     enabled: !!firstAccountId
   });
 
-  const filterTransactionsByMonth = (transactions: any[], selectedMonth: string) => {
+  const filterTransactionsByMonth = (transactions: any[], selectedMonth: string, selectedYear: number) => {
     if (!Array.isArray(transactions) || transactions.length === 0) return [];
 
     const monthsValid = Array.isArray(months) && months.length === 12;
@@ -101,7 +111,6 @@ export default function BudgetScreen() {
       console.warn(`[Budget] Unexpected month value "${selectedMonth}". Falling back to current month index.`);
       monthIndex = new Date().getMonth();
     }
-
     return transactions.filter((transaction) => {
       try {
         const rawDate = transaction?.date;
@@ -115,14 +124,15 @@ export default function BudgetScreen() {
           console.warn('[Budget] Failed to parse transaction date:', rawDate, transaction);
           return false;
         }
-        return transactionDate.getMonth() === monthIndex;
+        // Filtrar por mes Y año seleccionado
+        return transactionDate.getMonth() === monthIndex && transactionDate.getFullYear() === selectedYear;
       } catch (err) {
         console.error('[Budget] Error while filtering transaction by month:', err, transaction);
         return false;
       }
     });
   };
-  const calculateTotalsFromFloid = (transactions: any[] | undefined, selectedMonth: string) => {
+  const calculateTotalsFromFloid = (transactions: any[] | undefined, selectedMonth: string, selectedYear: number) => {
     if (!transactions || transactions.length === 0) {
       return {
         totalIncome: 0,
@@ -134,7 +144,7 @@ export default function BudgetScreen() {
         hasRealData: false
       };
     }
-    const filteredTransactions = filterTransactionsByMonth(transactions, selectedMonth);
+    const filteredTransactions = filterTransactionsByMonth(transactions, selectedMonth, selectedYear);
     if (filteredTransactions.length === 0) {
       return {
         totalIncome: 0,
@@ -159,8 +169,8 @@ export default function BudgetScreen() {
   };
 
   const totalsData = useMemo(() => {
-    return calculateTotalsFromFloid(transactions?.transactions, selectedMonth);
-  }, [transactions, selectedMonth]);
+    return calculateTotalsFromFloid(transactions?.transactions, selectedMonth, parseInt(selectedYear));
+  }, [transactions, selectedMonth, selectedYear]);
 
   const {
     totalIncome,
@@ -268,16 +278,16 @@ export default function BudgetScreen() {
          <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>   
            <Container variant="content" className="py-4">
             <View className="flex-row justify-between items-center mb-2">
-              <View className="flex-1 items-center text-center">
+              <View className="flex-1 mr-2">
                 {accountsLoading ? (
                   <SkeletonBase
-                    width={chartSize}
+                    width={(chartSize / 2) - 8}
                     height={56}
                     x={0}
                     y={0}
                     rows={1}
                     rowHeight={56}
-                    rowWidth={chartSize}
+                    rowWidth={(chartSize / 2) - 8}
                     borderRadius={16}
                   />
                 ) : (
@@ -285,6 +295,26 @@ export default function BudgetScreen() {
                     options={monthOptions}
                     value={selectedMonth}
                     onSelect={handleMonthSelect}
+                  />
+                )}
+              </View>
+              <View className="flex-1 ml-2">
+                {accountsLoading ? (
+                  <SkeletonBase
+                    width={(chartSize / 2) - 8}
+                    height={56}
+                    x={0}
+                    y={0}
+                    rows={1}
+                    rowHeight={56}
+                    rowWidth={(chartSize / 2) - 8}
+                    borderRadius={16}
+                  />
+                ) : (
+                  <Select
+                    options={yearOptions}
+                    value={selectedYear}
+                    onSelect={setSelectedYear}
                   />
                 )}
               </View>
