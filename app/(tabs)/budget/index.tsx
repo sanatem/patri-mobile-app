@@ -124,7 +124,6 @@ export default function BudgetScreen() {
           console.warn('[Budget] Failed to parse transaction date:', rawDate, transaction);
           return false;
         }
-        // Filtrar por mes Y año seleccionado
         return transactionDate.getMonth() === monthIndex && transactionDate.getFullYear() === selectedYear;
       } catch (err) {
         console.error('[Budget] Error while filtering transaction by month:', err, transaction);
