@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Animated, Dimensions, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Animated, Dimensions, ActivityIndicator } from 'react-native';
 import { ChevronLeft, ChevronRight, Settings, Plus, RefreshCw } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import {
@@ -281,27 +281,6 @@ export default function BudgetScreen() {
       });
     }
   }, [showAddModal]);
-
-  useEffect(() => {
-    if ((incomeTransactions || expenseTransactions) && !transactionsLoading) {
-      Alert.alert(
-        'Información de Transacciones',
-        `Respuesta del endpoint:\n\n` +
-        `INGRESOS:\n` +
-        `Total: ${incomeTransactions?.transactions?.length || 0}\n` +
-        `Páginas: ${incomeTransactions?.pagination?.current_page || 0}/${incomeTransactions?.pagination?.total_pages || 0}\n` +
-        `Total registros: ${incomeTransactions?.pagination?.total_count || 0}\n\n` +
-        `GASTOS:\n` +
-        `Total: ${expenseTransactions?.transactions?.length || 0}\n` +
-        `Páginas: ${expenseTransactions?.pagination?.current_page || 0}/${expenseTransactions?.pagination?.total_pages || 0}\n` +
-        `Total registros: ${expenseTransactions?.pagination?.total_count || 0}\n\n` +
-        `JSON completo disponible en consola`,
-        [{ text: 'OK' }]
-      );
-      console.log('Respuesta completa - Ingresos:', JSON.stringify(incomeTransactions, null, 2));
-      console.log('Respuesta completa - Gastos:', JSON.stringify(expenseTransactions, null, 2));
-    }
-  }, [incomeTransactions, expenseTransactions, transactionsLoading]);
 
   if (subscriptionLoading) {
     return (
