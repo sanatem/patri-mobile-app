@@ -14,7 +14,11 @@ interface TransactionsListProps {
   floidTransactions?: FloidTransaction[];
   searchQuery?: string;
   loading?: boolean;
-  hasRealData?: boolean; // ✅ Nueva prop para indicar si hay datos reales
+  hasRealData?: boolean;
+  onLoadMore?: () => void;
+  hasMore?: boolean;
+  loadingMore?: boolean;
+  onCollapse?: () => void;
 }
 
 export default function TransactionsList({ 
@@ -24,31 +28,29 @@ export default function TransactionsList({
   floidTransactions,
   searchQuery = '',
   loading = false,
-  hasRealData = false // ✅ Por defecto false
+  hasRealData = false,
+  onLoadMore,
+  hasMore = false,
+  loadingMore = false,
+  onCollapse
 }: TransactionsListProps) {
 
   const { t } = useTranslation();
   const transactionsData = useMemo(() => {
-    // ✅ SOLO USAR DATOS FLOID SI HAY DATOS REALES
     const hasFloidData = hasRealData && 
                         floidTransactions && 
                         Array.isArray(floidTransactions) && 
                         floidTransactions.length > 0;
     
     if (hasFloidData) {
-      const targetTransactionType = type === 'income' ? 'income' : 'outcome';
-      
-      const filteredByType = floidTransactions!.filter(transaction => {
-        return transaction.transaction_type === targetTransactionType;
-      });
-
+      // Ya no filtramos por tipo aquí porque debe venir filtrado del servidor
       const filteredBySearch = searchQuery 
-        ? filteredByType.filter(transaction =>
+        ? floidTransactions!.filter(transaction =>
             transaction.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
             transaction.bank.toLowerCase().includes(searchQuery.toLowerCase()) ||
             transaction.account_number.includes(searchQuery)
           )
-        : filteredByType;
+        : floidTransactions;
 
       return filteredBySearch.map(transaction => {
         const isIncome = transaction.transaction_type === 'income';
@@ -70,12 +72,10 @@ export default function TransactionsList({
       });
       
     } else {
-      // ✅ NO USAR DATOS MOCK - Devolver array vacío
       return [];
     }
   }, [floidTransactions, type, searchQuery, hasRealData]);
 
-  // ✅ ESTADO DE CARGA
   if (loading) {
     return (
       <View style={{ padding: 20 }}>
@@ -130,7 +130,6 @@ export default function TransactionsList({
     );
   }
 
-  // ✅ ESTADO VACÍO - Mejorado para distinguir entre sin datos del mes y búsqueda sin resultados
   if (transactionsData.length === 0) {
     return (
       <View style={{ padding: 40, alignItems: 'center' }}>
@@ -166,12 +165,16 @@ export default function TransactionsList({
     );
   }
 
-  // ✅ LISTA DE TRANSACCIONES REALES
   return (
     <ListItem
       data={transactionsData}
-      showLoadMore={false}
+      showLoadMore={hasMore}
+      onLoadMore={onLoadMore}
+      loadingMore={loadingMore}
       showContainer={showContainer}
+      useExternalPagination={true}
+      hasMore={hasMore}
+      onCollapse={onCollapse}
     />
   );
 }

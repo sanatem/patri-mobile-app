@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, FlatList } from 'react-native';
 import { ChevronRight } from 'lucide-react-native';
 import { cn } from '@/lib/utils';
@@ -36,6 +36,11 @@ interface ListProps {
   itemClassName?: string;
   showSeparators?: boolean;
   showContainer?: boolean;
+  onLoadMore?: () => void;
+  hasMore?: boolean;
+  loadingMore?: boolean;
+  useExternalPagination?: boolean;
+  onCollapse?: () => void;
 }
 
 export function ListItem({
@@ -48,20 +53,42 @@ export function ListItem({
   itemClassName,
   showSeparators = true,
   showContainer = true,
+  onLoadMore,
+  hasMore = false,
+  loadingMore = false,
+  useExternalPagination = false,
+  onCollapse,
 }: ListProps) {
   const showPercentageBadges = false;
   
   const [visibleCount, setVisibleCount] = useState(showLoadMore ? initialItemCount : data.length);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [hasReachedEnd, setHasReachedEnd] = useState(false);
   
-  const visibleData = showLoadMore ? data.slice(0, visibleCount) : data;
-  const hasMore = showLoadMore ? visibleCount < data.length : false;
-  const canShowLess = showLoadMore ? visibleCount > initialItemCount : false;
+  const visibleData = useExternalPagination ? data : (showLoadMore ? data.slice(0, visibleCount) : data);
+  
+  const hasMoreData = useExternalPagination ? hasMore : (showLoadMore ? visibleCount < data.length : false);
+  const canShowLess = showLoadMore && !useExternalPagination ? visibleCount > initialItemCount : false;
+  
+  const canCollapseExternal = useExternalPagination && hasReachedEnd && data.length > initialItemCount;
+
+  useEffect(() => {
+    if (useExternalPagination && !hasMore && data.length > 0) {
+      setHasReachedEnd(true);
+    } else if (useExternalPagination && hasMore) {
+      setHasReachedEnd(false);
+    }
+  }, [useExternalPagination, hasMore, data.length]);
 
   const loadMore = () => {
     if (!showLoadMore) return;
-    setVisibleCount(prev => Math.min(prev + loadMoreStep, data.length));
-    setIsExpanded(true);
+    
+    if (useExternalPagination) {
+      onLoadMore?.();
+    } else {
+      setVisibleCount(prev => Math.min(prev + loadMoreStep, data.length));
+      setIsExpanded(true);
+    }
   };
 
   const loadLess = () => {
@@ -217,18 +244,26 @@ export function ListItem({
     
     return (
       <>
-        {hasMore && !isExpanded && (
+        {hasMoreData && (useExternalPagination || !isExpanded) && (
           <Button 
             variant="ghost"
-            title="Ver más"
+            title={loadingMore ? "Cargando..." : "Ver más"}
             onPress={loadMore}
+            disabled={loadingMore}
           />
         )}
-        {isExpanded && canShowLess && (
+        {!useExternalPagination && isExpanded && canShowLess && (
           <Button 
             variant="ghost"
             title="Ver menos"
             onPress={loadLess}
+          />
+        )}
+        {canCollapseExternal && onCollapse && (
+          <Button 
+            variant="ghost"
+            title="Ver menos"
+            onPress={onCollapse}
           />
         )}
       </>
