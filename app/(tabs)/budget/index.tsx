@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Animated, Dimensions, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Animated, Dimensions, ActivityIndicator, Alert } from 'react-native';
 import { ChevronLeft, ChevronRight, Settings, Plus, RefreshCw } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import {
@@ -19,10 +19,8 @@ import { SkeletonBase } from '@/components/ui/SkeletonBase';
 
 import { BudgetChart, TransactionsList } from '@/components/budget';
 import ForYouCarousel from '@/components/common/ForYouCarousel';
-import { budgetService } from '@/services/budget/get-budget';
 import { useFloidAccounts } from '@/hooks/budget/useFloidAccounts';
 import { useFloidTransactions } from '@/hooks/budget/useFloidTransactions';
-import { calculateTransactionTotals } from '@/services/budget/get-floid-transactions';
 import Colors from '@/constants/Colors';
 import { listItemStyles } from '@/styles/ui/ListItem.styles';
 import { useSubscriptionStatus } from '@/hooks/common/useSubscriptionStatus';
@@ -58,7 +56,17 @@ export default function BudgetScreen() {
     return months[currentMonthIndex] || 'Enero';
   };
 
+  const getCurrentYear = (): number => {
+    return new Date().getFullYear();
+  };
+
+  const yearOptions = useMemo(() => [
+    { label: '2024', value: '2024' },
+    { label: '2025', value: '2025' }
+  ], []);
+
   const [selectedMonth, setSelectedMonth] = useState<string>(getCurrentMonth());
+  const [selectedYear, setSelectedYear] = useState<string>(getCurrentYear().toString());
   const [activeTab, setActiveTab] = useState<'income' | 'expenses'>('income');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -77,13 +85,92 @@ export default function BudgetScreen() {
     return '';
   }, [accounts]);
 
-  const { transactions, loading: transactionsLoading, refetch: refetchTransactions } = useFloidTransactions({
+  const getDateRangeForMonth = (monthName: string, year: number) => {
+    const monthIndex = months.indexOf(monthName);
+    if (monthIndex === -1) return null;
+    
+    const startDate = new Date(year, monthIndex, 1);
+    const endDate = new Date(year, monthIndex + 1, 0);
+    
+    return {
+      start_date: startDate.toISOString().split('T')[0],
+      end_date: endDate.toISOString().split('T')[0]
+    };
+  };
+
+  const dateRange = useMemo(() => 
+    getDateRangeForMonth(selectedMonth, parseInt(selectedYear)), 
+    [selectedMonth, selectedYear, months]
+  );
+
+  const { 
+    transactions: incomeTransactions, 
+    loading: incomeLoading, 
+    refetch: refetchIncome,
+    loadMore: loadMoreIncome,
+    hasMore: hasMoreIncome
+  } = useFloidTransactions({
     floidId: firstAccountId,
-    per_page: 200,
-    enabled: !!firstAccountId
+    per_page: 10,
+    enabled: !!firstAccountId,
+    start_date: dateRange?.start_date,
+    end_date: dateRange?.end_date,
+    transaction_type: 'income'
   });
 
-  const filterTransactionsByMonth = (transactions: any[], selectedMonth: string) => {
+  const { 
+    transactions: expenseTransactions, 
+    loading: expenseLoading, 
+    refetch: refetchExpenses,
+    loadMore: loadMoreExpenses,
+    hasMore: hasMoreExpenses
+  } = useFloidTransactions({
+    floidId: firstAccountId,
+    per_page: 10,
+    enabled: !!firstAccountId,
+    start_date: dateRange?.start_date,
+    end_date: dateRange?.end_date,
+    transaction_type: 'outcome'
+  });
+
+  const { 
+    transactions: allIncomeTransactions, 
+    loading: allIncomeLoading,
+    refetch: refetchAllIncome
+  } = useFloidTransactions({
+    floidId: firstAccountId,
+    per_page: 1000,
+    enabled: !!firstAccountId,
+    start_date: dateRange?.start_date,
+    end_date: dateRange?.end_date,
+    transaction_type: 'income'
+  });
+
+  const { 
+    transactions: allExpenseTransactions, 
+    loading: allExpenseLoading,
+    refetch: refetchAllExpenses
+  } = useFloidTransactions({
+    floidId: firstAccountId,
+    per_page: 1000,
+    enabled: !!firstAccountId,
+    start_date: dateRange?.start_date,
+    end_date: dateRange?.end_date,
+    transaction_type: 'outcome'
+  });
+
+  const transactionsLoading = incomeLoading || expenseLoading;
+  const totalsLoading = allIncomeLoading || allExpenseLoading;
+
+  const handleCollapseIncome = () => {
+    refetchIncome();
+  };
+
+  const handleCollapseExpenses = () => {
+    refetchExpenses();
+  };
+
+  const filterTransactionsByMonth = (transactions: any[], selectedMonth: string, selectedYear: number) => {
     if (!Array.isArray(transactions) || transactions.length === 0) return [];
 
     const monthsValid = Array.isArray(months) && months.length === 12;
@@ -101,7 +188,6 @@ export default function BudgetScreen() {
       console.warn(`[Budget] Unexpected month value "${selectedMonth}". Falling back to current month index.`);
       monthIndex = new Date().getMonth();
     }
-
     return transactions.filter((transaction) => {
       try {
         const rawDate = transaction?.date;
@@ -115,52 +201,44 @@ export default function BudgetScreen() {
           console.warn('[Budget] Failed to parse transaction date:', rawDate, transaction);
           return false;
         }
-        return transactionDate.getMonth() === monthIndex;
+        return transactionDate.getMonth() === monthIndex && transactionDate.getFullYear() === selectedYear;
       } catch (err) {
         console.error('[Budget] Error while filtering transaction by month:', err, transaction);
         return false;
       }
     });
   };
-  const calculateTotalsFromFloid = (transactions: any[] | undefined, selectedMonth: string) => {
-    if (!transactions || transactions.length === 0) {
+  const calculateTotalsFromFloid = (allIncomeData: any, allExpenseData: any) => {
+    const incomes = allIncomeData?.transactions || [];
+    const expenses = allExpenseData?.transactions || [];
+    
+    if (incomes.length === 0 && expenses.length === 0) {
       return {
         totalIncome: 0,
         totalExpenses: 0,
         balance: 0,
         incomeCount: 0,
         expenseCount: 0,
-        filteredTransactions: [],
         hasRealData: false
       };
     }
-    const filteredTransactions = filterTransactionsByMonth(transactions, selectedMonth);
-    if (filteredTransactions.length === 0) {
-      return {
-        totalIncome: 0,
-        totalExpenses: 0,
-        balance: 0,
-        incomeCount: 0,
-        expenseCount: 0,
-        filteredTransactions: [],
-        hasRealData: true
-      };
-    }
-    const totals = calculateTransactionTotals(filteredTransactions);
+    
+    const totalIncome = incomes.reduce((sum: number, t: any) => sum + parseFloat(t.amount || 0), 0);
+    const totalExpenses = expenses.reduce((sum: number, t: any) => sum + parseFloat(t.amount || 0), 0);
+    
     return {
-      totalIncome: totals.totalIncome,
-      totalExpenses: totals.totalOutcome,
-      balance: totals.totalIncome - totals.totalOutcome,
-      incomeCount: filteredTransactions.filter(t => t.transaction_type === 'income').length,
-      expenseCount: filteredTransactions.filter(t => t.transaction_type === 'outcome').length,
-      filteredTransactions,
+      totalIncome,
+      totalExpenses,
+      balance: totalIncome - totalExpenses,
+      incomeCount: incomes.length,
+      expenseCount: expenses.length,
       hasRealData: true
     };
   };
 
   const totalsData = useMemo(() => {
-    return calculateTotalsFromFloid(transactions?.transactions, selectedMonth);
-  }, [transactions, selectedMonth]);
+    return calculateTotalsFromFloid(allIncomeTransactions, allExpenseTransactions);
+  }, [allIncomeTransactions, allExpenseTransactions]);
 
   const {
     totalIncome,
@@ -168,7 +246,6 @@ export default function BudgetScreen() {
     balance,
     incomeCount,
     expenseCount,
-    filteredTransactions,
     hasRealData
   } = totalsData;
 
@@ -205,6 +282,27 @@ export default function BudgetScreen() {
     }
   }, [showAddModal]);
 
+  useEffect(() => {
+    if ((incomeTransactions || expenseTransactions) && !transactionsLoading) {
+      Alert.alert(
+        'Información de Transacciones',
+        `Respuesta del endpoint:\n\n` +
+        `INGRESOS:\n` +
+        `Total: ${incomeTransactions?.transactions?.length || 0}\n` +
+        `Páginas: ${incomeTransactions?.pagination?.current_page || 0}/${incomeTransactions?.pagination?.total_pages || 0}\n` +
+        `Total registros: ${incomeTransactions?.pagination?.total_count || 0}\n\n` +
+        `GASTOS:\n` +
+        `Total: ${expenseTransactions?.transactions?.length || 0}\n` +
+        `Páginas: ${expenseTransactions?.pagination?.current_page || 0}/${expenseTransactions?.pagination?.total_pages || 0}\n` +
+        `Total registros: ${expenseTransactions?.pagination?.total_count || 0}\n\n` +
+        `JSON completo disponible en consola`,
+        [{ text: 'OK' }]
+      );
+      console.log('Respuesta completa - Ingresos:', JSON.stringify(incomeTransactions, null, 2));
+      console.log('Respuesta completa - Gastos:', JSON.stringify(expenseTransactions, null, 2));
+    }
+  }, [incomeTransactions, expenseTransactions, transactionsLoading]);
+
   if (subscriptionLoading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
@@ -240,7 +338,7 @@ export default function BudgetScreen() {
     totalExpenses,
     balance,
     remainingBudget: totalIncome,
-    isLoading: accountsLoading || transactionsLoading,
+    isLoading: accountsLoading || totalsLoading,
     hasRealData: hasDataForChart
   };
   return (
@@ -268,16 +366,16 @@ export default function BudgetScreen() {
          <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>   
            <Container variant="content" className="py-4">
             <View className="flex-row justify-between items-center mb-2">
-              <View className="flex-1 items-center text-center">
+              <View className="flex-1 mr-2">
                 {accountsLoading ? (
                   <SkeletonBase
-                    width={chartSize}
+                    width={(chartSize / 2) - 8}
                     height={56}
                     x={0}
                     y={0}
                     rows={1}
                     rowHeight={56}
-                    rowWidth={chartSize}
+                    rowWidth={(chartSize / 2) - 8}
                     borderRadius={16}
                   />
                 ) : (
@@ -288,9 +386,29 @@ export default function BudgetScreen() {
                   />
                 )}
               </View>
+              <View className="flex-1 ml-2">
+                {accountsLoading ? (
+                  <SkeletonBase
+                    width={(chartSize / 2) - 8}
+                    height={56}
+                    x={0}
+                    y={0}
+                    rows={1}
+                    rowHeight={56}
+                    rowWidth={(chartSize / 2) - 8}
+                    borderRadius={16}
+                  />
+                ) : (
+                  <Select
+                    options={yearOptions}
+                    value={selectedYear}
+                    onSelect={setSelectedYear}
+                  />
+                )}
+              </View>
             </View>
                            {(() => {
-                const shouldShowSkeletons = (transactionsLoading || isSyncing || showBudgetSkeletons);
+                const shouldShowSkeletons = (totalsLoading || isSyncing || showBudgetSkeletons);
                 return shouldShowSkeletons;
               })() ? (
                 <View style={{ 
@@ -501,10 +619,17 @@ export default function BudgetScreen() {
                   type={activeTab} 
                   selectedMonth={selectedMonth} 
                   showContainer={false}
-                  floidTransactions={filteredTransactions.length > 0 ? filteredTransactions : undefined}
+                  floidTransactions={activeTab === 'income' 
+                    ? incomeTransactions?.transactions 
+                    : expenseTransactions?.transactions
+                  }
                   searchQuery={searchQuery}
-                  loading={transactionsLoading}
-                  hasRealData={hasRealData && filteredTransactions.length > 0}
+                  loading={activeTab === 'income' ? incomeLoading : expenseLoading}
+                  hasRealData={hasRealData}
+                  onLoadMore={activeTab === 'income' ? loadMoreIncome : loadMoreExpenses}
+                  hasMore={activeTab === 'income' ? hasMoreIncome : hasMoreExpenses}
+                  loadingMore={activeTab === 'income' ? incomeLoading : expenseLoading}
+                  onCollapse={activeTab === 'income' ? handleCollapseIncome : handleCollapseExpenses}
                 />
               </View>
             )}
@@ -599,10 +724,9 @@ export default function BudgetScreen() {
         </View>
       )}
       
-             <SyncModal 
+        <SyncModal 
           visible={isSyncing} 
           onClose={() => {
-            // Cerrar el modal manualmente
             stopSync();
           }}
           onSyncComplete={() => {
@@ -614,7 +738,10 @@ export default function BudgetScreen() {
               try {
                 await Promise.all([
                   refetchAccounts(),
-                  refetchTransactions()
+                  refetchIncome(),
+                  refetchExpenses(),
+                  refetchAllIncome(),
+                  refetchAllExpenses()
                 ]);
               } catch (error) {
                 console.error('Error refreshing data after sync:', error);
