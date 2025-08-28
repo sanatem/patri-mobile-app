@@ -469,7 +469,7 @@
       "unexpected": "An unexpected error occurred. Please try again."
     },
     "cardTitles": {
-      "premiumMobile": "Premium Plan (Mobile)",
+      "premiumMobile": "Premium Subscription",
       "plans": "Plans"
     },
     "top_title": "Start your financial planning",
@@ -604,7 +604,7 @@
   },
   "plans": {
     "premium": {
-      "title": "Premium Plan (mobile)",
+      "title": "Premium Subscription",
       "price": "$9.990",
       "duration": "/month",
       "description": "Access all premium features and advanced financial planning tools.",
@@ -658,7 +658,7 @@
     }
   },
   "lockedOverlay": {
-    "description": "Subscribe to a plan and access all premium features.",
+    "description": "Subscribe and access all premium features.",
     "benefits_title": "With a premium subscription, you'll get full access to:",
     "benefits": {
       "asset_analysis": "Detailed asset analysis.",
