@@ -61,13 +61,13 @@
       ],
       "expo-font",
       "expo-web-browser",
+      "expo-localization",
       [
         "react-native-auth0",
         {
           "domain": "auth.patrimore.com"
         }
-      ],
-      "expo-localization"
+      ]
     ],
     "experiments": {
       "typedRoutes": true
