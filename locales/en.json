@@ -340,7 +340,12 @@
       "part3": "do you want to send it?"
     },
     "goalPlaceholder": "Select a goal",
-    "destinationPlaceholder": "Select destination"
+    "destinationPlaceholder": "Select destination",
+    "metaTo": {
+      "part1": "Which ",
+      "part2": "goal",
+      "part3": "do you want to invest in?"
+    }
   },
   "salesFlow": {
     "header": "Withdrawal request",
@@ -429,6 +434,8 @@
   "patrimony": {
     "loading": "Loading networth data...",
     "integrateBankData": "Sync bank data",
+    "addAsset": "Add asset",
+    "addLiability": "Add liability",
     "empty": {
       "assets": {
         "title": "No assets recorded",
@@ -469,30 +476,31 @@
       "unexpected": "An unexpected error occurred. Please try again."
     },
     "cardTitles": {
-      "premiumMobile": "Premium Plan (Mobile)",
+      "premiumMobile": "Premium Subscription",
       "plans": "Plans"
     },
     "top_title": "Start your financial planning",
     "top_subtitle": "Access expert tools and advice to reach your financial goals"
   },
   "onboarding": {
-    "titleStep1": "Personal Information",
-    "titleStep2": "Additional Information",
-    "subtitleStep1": "Tell us about yourself",
-    "subtitleStep2": "Complete your profile to personalize your experience",
-    "firstNameLabel": "First name",
-    "firstNamePlaceholder": "Enter your first name",
-    "lastNameLabel": "Last name",
-    "lastNamePlaceholder": "Enter your last name",
-    "rutLabel": "RUT",
-    "rutPlaceholder": "12345678-9",
-    "countryLabel": "Country of residence",
-    "countryPlaceholder": "Select your country",
-    "birthLabel": "Date of birth",
-    "birthPlaceholder": "Select your birthdate",
-    "incomeLabel": "Monthly income",
-    "incomePlaceholder": "Select your income range",
-    "incomeNote": "This helps us tailor your recommendations",
+    "title": "Personal Information",
+    "subtitle": "Help us personalize your experience 😎",
+    "fields": {
+      "rutLabel": "RUT",
+      "rutPlaceholder": "12345678-9",
+      "countryLabel": "Country of residence",
+      "countryPlaceholder": "Select your country",
+      "birthLabel": "Date of birth",
+      "birthPlaceholder": "Select your date of birth",
+      "incomeLabel": "Monthly income",
+      "incomePlaceholder": "Select your income range"
+    },
+    "tooltips": {
+      "rut": "The RUT is your unique identification in Chile. We need it to verify your identity and provide you with personalized services.",
+      "country": "We need to know your country of residence to adapt our services and recommendations to your location.",
+      "birth": "Your date of birth helps us calculate your age and provide financial recommendations appropriate for your life stage.",
+      "income": "Knowing your income range allows us to offer you more accurate financial recommendations and products suited to your economic capacity."
+    },
     "incomeOptions": {
       "lessThan1M": "Less than $1,000,000",
       "between1And5M": "$1,000,001 to $5,000,000",
@@ -501,16 +509,22 @@
       "greaterThan25M": "More than $25,000,001"
     },
     "errors": {
-      "firstNameRequired": "First name is required",
-      "lastNameRequired": "Last name is required",
       "rutRequired": "RUT is required",
-      "rutMinLength": "RUT must be at least 3 characters",
+      "rutInvalid": "RUT is not valid",
       "countryRequired": "Country of residence is required",
-      "birthDateRequired": "Birth date is required",
-      "incomeRequired": "Monthly income is required"
+      "birthRequired": "Date of birth is required",
+      "incomeRequired": "Monthly income is required",
+      "tokenError": "No authentication token available",
+      "serviceError": {
+        "title": "An error occurred while saving the information"
+      }
     },
-    "serviceError": {
-      "title": "Error sending data"
+    "loading": {
+      "userData": "Loading user data..."
+    },
+    "actions": {
+      "complete": "Complete",
+      "saving": "Saving..."
     }
   },
   "countries": {
@@ -604,7 +618,7 @@
   },
   "plans": {
     "premium": {
-      "title": "Premium Plan (mobile)",
+      "title": "Premium Subscription",
       "price": "$9.990",
       "duration": "/month",
       "description": "Access all premium features and advanced financial planning tools.",
@@ -658,7 +672,7 @@
     }
   },
   "lockedOverlay": {
-    "description": "Subscribe to a plan and access all premium features.",
+    "description": "Subscribe and access all premium features.",
     "benefits_title": "With a premium subscription, you'll get full access to:",
     "benefits": {
       "asset_analysis": "Detailed asset analysis.",
@@ -1059,5 +1073,173 @@
     "termsLink": "terms and conditions",
     "privacyLink": "privacy policy",
     "and": "and"
+  },
+  "addAssetScreen": {
+    "title": "Add a new Asset",
+    "subtitle": "Tell us about your asset to include it in your patrimony 💼",
+    "next_button": "Create Asset",
+    "cancel_button": "Cancel",
+    "fields": {
+      "name_label": "Name",
+      "name_placeholder": "E.g.: Main house",
+      "asset_kind_label": "What type of asset do you have?",
+      "asset_kind_placeholder": "Select the type of asset"
+    },
+    "asset_kind_options": {
+      "fixed_asset": "Fixed Asset",
+      "investment": "Investment or Savings",
+      "property": "Property"
+    },
+    "errors": {
+      "nameRequired": "Asset name is required",
+      "kindRequired": "You must select an asset type",
+      "locationRequired": "Location is required for properties",
+      "squareMtsRequired": "Square meters are required",
+      "squareMtsInvalid": "Square meters must be a valid number greater than 0",
+      "assetCategoryRequired": "You must select an asset category",
+      "commercialValueRequired": "Commercial value is required",
+      "commercialValueInvalid": "Commercial value must be a valid number greater than 0",
+      "investmentTypeRequired": "You must select an investment type",
+      "valueRequired": "Value is required",
+      "valueInvalid": "Value must be a valid number greater than 0",
+      "authTokenMissing": "No authentication token available",
+      "assetCreationError": "Error creating asset",
+      "propertyCreationError": "Error creating property",
+      "savingCreationError": "Error creating investment/savings",
+      "unexpectedError": "Unexpected error while creating asset",
+      "crowdfundingValidation": "Please complete institution, credit type, and due date",
+      "mutualFundRequired": "You must select a fund",
+      "brokerageRequired": "You must select a brokerage",
+      "bankRequired": "You must select a bank",
+      "depositRequired": "You must select bank and deposit type",
+      "afpRequired": "You must select an AFP",
+      "apvRequired": "You must select an APV institution",
+      "unsupportedInvestment": "Investment type not supported yet"
+    }
+  },
+  "addLiabilityScreen": {
+    "title": "Add a new Liability",
+    "subtitle": "Tell us about your liability to include it in your patrimony 💳",
+    "nextButton": "Create Liability",
+    "cancelButton": "Cancel",
+    "fields": {
+      "nameLabel": "Name",
+      "namePlaceholder": "E.g.: Mortgage loan",
+      "debtCategoryLabel": "What type of debt do you have?",
+      "debtCategoryPlaceholder": "Select category",
+      "amountLabel": "What is the outstanding balance?",
+      "amountPlaceholder": "$80,000,000",
+      "unitPlaceholder": "Currency",
+      "installmentsQuantityLabel": "How many installments do you have left?",
+      "installmentsQuantityPlaceholder": "240",
+      "installmentAmountLabel": "What is the value of each installment?",
+      "installmentAmountPlaceholder": "$500,000"
+    },
+    "debtCategoryOptions": {
+      "1": "Automotive",
+      "2": "Compensation fund",
+      "3": "Consumer",
+      "4": "University loan",
+      "5": "Residential mortgage",
+      "6": "Investment mortgage",
+      "7": "Credit line",
+      "8": "Family or friend loans",
+      "9": "Credit card"
+    },
+    "unitOptions": {
+      "clp": "CLP",
+      "usd": "USD",
+      "uf": "UF"
+    },
+    "errors": {
+      "nameRequired": "Liability name is required",
+      "categoryRequired": "You must select a liability category",
+      "amountRequired": "Liability amount is required",
+      "amountInvalid": "Amount must be a valid number greater than 0",
+      "installmentsQuantityRequired": "Number of installments is required",
+      "installmentsQuantityInvalid": "Number of installments must be a valid number greater than 0",
+      "installmentAmountRequired": "Installment amount is required",
+      "installmentAmountInvalid": "Installment amount must be a valid number greater than 0",
+      "propertyRequired": "You must select a property",
+      "propertyLocationRequired": "Property location is required",
+      "propertyValueRequired": "Property commercial value is required",
+      "propertyValueInvalid": "Commercial value must be a valid number greater than 0",
+      "propertySquareMtsRequired": "Property square meters are required",
+      "propertySquareMtsInvalid": "Square meters must be a valid number greater than 0",
+      "authTokenMissing": "No authentication token available",
+      "creationError": "Error creating liability",
+      "unexpectedError": "Unexpected error while creating liability"
+    }
+  },
+  "authWebViewScreen": {
+    "title": "Authentication",
+    "alert": {
+      "cancelledTitle": "Authentication cancelled",
+      "cancelledMessage": "You can try again."
+    },
+    "loadingMessage": "Redirecting to authentication process..."
+  },
+  "fixedAssetFields": {
+    "assetCategoryLabel": "What asset do you have?",
+    "assetCategoryPlaceholder": "Select category",
+    "assetCategoryOptions": {
+      "1": "Car or motorcycle",
+      "2": "Land",
+      "3": "Others"
+    },
+    "valueLabel": "What is its value?",
+    "unitPlaceholder": "Currency",
+    "valuePlaceholder": "$150,000,000",
+    "unitOptions": {
+      "clp": "CLP",
+      "usd": "USD",
+      "uf": "UF"
+    }
+  },
+  "propertyFields": {
+    "locationLabel": "Location",
+    "locationPlaceholder": "E.g.: Providencia, Santiago",
+    "squareMetersLabel": "Square meters",
+    "squareMetersPlaceholder": "E.g.: 105",
+    "valueLabel": "What is its value?",
+    "unitPlaceholder": "Currency",
+    "valuePlaceholder": "$150,000,000",
+    "mainHomeLabel": "Is this your main home?",
+    "ownershipOptions": {
+      "own": "Yes",
+      "rent": "No"
+    },
+    "unitOptions": {
+      "clp": "CLP",
+      "usd": "USD",
+      "uf": "UF"
+    }
+  },
+  "hypothecaryFields": {
+    "associationLabel": "Is the debt associated with a property?",
+    "associationOptions": {
+      "yes": "Yes",
+      "no": "No"
+    },
+    "loadingProperties": "Loading properties...",
+    "selectPropertyLabel": "Select the property",
+    "selectPropertyPlaceholder": "Select a property",
+    "createPropertyLabel": "Do you want to create a new property?",
+    "createPropertyOptions": {
+      "yes": "Yes",
+      "no": "No"
+    },
+    "locationLabel": "Property location",
+    "locationPlaceholder": "E.g.: Las Condes, Santiago",
+    "valueLabel": "Property commercial value",
+    "unitPlaceholder": "Currency",
+    "valuePlaceholder": "$550,000,000",
+    "squareMetersLabel": "Square meters",
+    "squareMetersPlaceholder": "65",
+    "unitOptions": {
+      "clp": "CLP",
+      "usd": "USD",
+      "uf": "UF"
+    }
   }
 }

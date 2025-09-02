@@ -795,11 +795,12 @@ export default function PatrimonyScreen() {
                     color: Colors.gray[400], 
                     fontSize: 14, 
                     fontFamily: 'Poppins-regular',
-                    textAlign: 'center'
+                    textAlign: 'center',
+                    marginBottom: 12
                   }}>
                     {t(`patrimony.empty.${activeTab}.subtitle`)}
                   </Text>
-                  <Button
+                  <Button className="mt-4"
                      variant="primary"
                      onPress={() => {
                        if (activeTab === 'assets') {
@@ -935,8 +936,8 @@ export default function PatrimonyScreen() {
               <View style={{ width: 40, height: 4, backgroundColor: '#D1D5DB', borderRadius: 2 }} />
             </View>
             {[
-              { label: 'Añadir activo', value: 'activo', icon: undefined },
-              { label: 'Añadir pasivo', value: 'pasivo', icon: undefined }
+              { label: t('patrimony.addAsset'), value: 'activo', icon: undefined },
+              { label: t('patrimony.addLiability'), value: 'pasivo', icon: undefined }
             ].map((option, index) => (
               <TouchableOpacity
                 key={option.value}

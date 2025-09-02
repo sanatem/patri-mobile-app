@@ -61,13 +61,18 @@ export function categorizeGoalsByTimeframe(goals: Goal[]): {
   const longTerm: Goal[] = [];
 
   goals.forEach(goal => {
-    const daysRemaining = getGoalTimeRemaining(goal.targetDate);
-    
-    if (daysRemaining <= 365) {
-      shortTerm.push(goal);
-    } else if (daysRemaining <= 1095) {
-      mediumTerm.push(goal);
-    } else {
+    try {
+      const daysRemaining = getGoalTimeRemaining(goal.targetDate);
+      
+      if (daysRemaining <= 365) {
+        shortTerm.push(goal);
+      } else if (daysRemaining <= 1095) {
+        mediumTerm.push(goal);
+      } else {
+        longTerm.push(goal);
+      }
+    } catch (error) {
+      console.warn('Error categorizing goal by timeframe:', goal.id, goal.targetDate, error);
       longTerm.push(goal);
     }
   });

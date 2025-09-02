@@ -11,30 +11,33 @@ import {
   Container,
   Tabs,
   Select,
-  InfiniteCarousel,
   KeyboardAwareContainer,
   LockedTabOverlay,
+  SyncModal,
 } from '@/components/ui';
 import { SkeletonBase } from '@/components/ui/SkeletonBase';
 
 import { BudgetChart, TransactionsList } from '@/components/budget';
 import ForYouCarousel from '@/components/common/ForYouCarousel';
-import { budgetService } from '@/services/budget/get-budget';
 import { useFloidAccounts } from '@/hooks/budget/useFloidAccounts';
 import { useFloidTransactions } from '@/hooks/budget/useFloidTransactions';
-import { calculateTransactionTotals } from '@/services/budget/get-floid-transactions';
 import Colors from '@/constants/Colors';
 import { listItemStyles } from '@/styles/ui/ListItem.styles';
 import { useSubscriptionStatus } from '@/hooks/common/useSubscriptionStatus';
+import { useFloidSync } from '@/providers/FloidSyncProvider';
 import { useTranslation } from 'react-i18next';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
 export default function BudgetScreen() {
   const { shouldBlockTab, loading: subscriptionLoading } = useSubscriptionStatus();
+  const { isSyncing, stopSync } = useFloidSync();
   const router = useRouter();
   const { t } = useTranslation();
 
+  const { width: screenWidth } = Dimensions.get('window');
+  const chartSize = Math.min(screenWidth - 80, 280);
+  const contentWidth = Math.min(screenWidth - 40, 320);
   const months = useMemo(() => {
     const translated = t('months', { returnObjects: true }) as string[] | undefined;
     return Array.isArray(translated) && translated.length === 12
@@ -53,16 +56,27 @@ export default function BudgetScreen() {
     return months[currentMonthIndex] || 'Enero';
   };
 
+  const getCurrentYear = (): number => {
+    return new Date().getFullYear();
+  };
+
+  const yearOptions = useMemo(() => [
+    { label: '2024', value: '2024' },
+    { label: '2025', value: '2025' }
+  ], []);
+
   const [selectedMonth, setSelectedMonth] = useState<string>(getCurrentMonth());
+  const [selectedYear, setSelectedYear] = useState<string>(getCurrentYear().toString());
   const [activeTab, setActiveTab] = useState<'income' | 'expenses'>('income');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [showAddModal, setShowAddModal] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [showBudgetSkeletons, setShowBudgetSkeletons] = useState(false);
   const overlayAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(0)).current;
 
-  const { accounts, loading: accountsLoading } = useFloidAccounts();
+  const { accounts, loading: accountsLoading, refetch: refetchAccounts } = useFloidAccounts();
 
   const firstAccountId = useMemo(() => {
     if (accounts && accounts.floid_accounts.length > 0) {
@@ -71,13 +85,92 @@ export default function BudgetScreen() {
     return '';
   }, [accounts]);
 
-  const { transactions, loading: transactionsLoading } = useFloidTransactions({
+  const getDateRangeForMonth = (monthName: string, year: number) => {
+    const monthIndex = months.indexOf(monthName);
+    if (monthIndex === -1) return null;
+    
+    const startDate = new Date(year, monthIndex, 1);
+    const endDate = new Date(year, monthIndex + 1, 0);
+    
+    return {
+      start_date: startDate.toISOString().split('T')[0],
+      end_date: endDate.toISOString().split('T')[0]
+    };
+  };
+
+  const dateRange = useMemo(() => 
+    getDateRangeForMonth(selectedMonth, parseInt(selectedYear)), 
+    [selectedMonth, selectedYear, months]
+  );
+
+  const { 
+    transactions: incomeTransactions, 
+    loading: incomeLoading, 
+    refetch: refetchIncome,
+    loadMore: loadMoreIncome,
+    hasMore: hasMoreIncome
+  } = useFloidTransactions({
     floidId: firstAccountId,
-    per_page: 200,
-    enabled: !!firstAccountId
+    per_page: 10,
+    enabled: !!firstAccountId,
+    start_date: dateRange?.start_date,
+    end_date: dateRange?.end_date,
+    transaction_type: 'income'
   });
 
-  const filterTransactionsByMonth = (transactions: any[], selectedMonth: string) => {
+  const { 
+    transactions: expenseTransactions, 
+    loading: expenseLoading, 
+    refetch: refetchExpenses,
+    loadMore: loadMoreExpenses,
+    hasMore: hasMoreExpenses
+  } = useFloidTransactions({
+    floidId: firstAccountId,
+    per_page: 10,
+    enabled: !!firstAccountId,
+    start_date: dateRange?.start_date,
+    end_date: dateRange?.end_date,
+    transaction_type: 'outcome'
+  });
+
+  const { 
+    transactions: allIncomeTransactions, 
+    loading: allIncomeLoading,
+    refetch: refetchAllIncome
+  } = useFloidTransactions({
+    floidId: firstAccountId,
+    per_page: 1000,
+    enabled: !!firstAccountId,
+    start_date: dateRange?.start_date,
+    end_date: dateRange?.end_date,
+    transaction_type: 'income'
+  });
+
+  const { 
+    transactions: allExpenseTransactions, 
+    loading: allExpenseLoading,
+    refetch: refetchAllExpenses
+  } = useFloidTransactions({
+    floidId: firstAccountId,
+    per_page: 1000,
+    enabled: !!firstAccountId,
+    start_date: dateRange?.start_date,
+    end_date: dateRange?.end_date,
+    transaction_type: 'outcome'
+  });
+
+  const transactionsLoading = incomeLoading || expenseLoading;
+  const totalsLoading = allIncomeLoading || allExpenseLoading;
+
+  const handleCollapseIncome = () => {
+    refetchIncome();
+  };
+
+  const handleCollapseExpenses = () => {
+    refetchExpenses();
+  };
+
+  const filterTransactionsByMonth = (transactions: any[], selectedMonth: string, selectedYear: number) => {
     if (!Array.isArray(transactions) || transactions.length === 0) return [];
 
     const monthsValid = Array.isArray(months) && months.length === 12;
@@ -95,7 +188,6 @@ export default function BudgetScreen() {
       console.warn(`[Budget] Unexpected month value "${selectedMonth}". Falling back to current month index.`);
       monthIndex = new Date().getMonth();
     }
-
     return transactions.filter((transaction) => {
       try {
         const rawDate = transaction?.date;
@@ -109,53 +201,44 @@ export default function BudgetScreen() {
           console.warn('[Budget] Failed to parse transaction date:', rawDate, transaction);
           return false;
         }
-        return transactionDate.getMonth() === monthIndex;
+        return transactionDate.getMonth() === monthIndex && transactionDate.getFullYear() === selectedYear;
       } catch (err) {
         console.error('[Budget] Error while filtering transaction by month:', err, transaction);
         return false;
       }
     });
   };
-
-  const calculateTotalsFromFloid = (transactions: any[] | undefined, selectedMonth: string) => {
-    if (!transactions || transactions.length === 0) {
+  const calculateTotalsFromFloid = (allIncomeData: any, allExpenseData: any) => {
+    const incomes = allIncomeData?.transactions || [];
+    const expenses = allExpenseData?.transactions || [];
+    
+    if (incomes.length === 0 && expenses.length === 0) {
       return {
         totalIncome: 0,
         totalExpenses: 0,
         balance: 0,
         incomeCount: 0,
         expenseCount: 0,
-        filteredTransactions: [],
         hasRealData: false
       };
     }
-    const filteredTransactions = filterTransactionsByMonth(transactions, selectedMonth);
-    if (filteredTransactions.length === 0) {
-      return {
-        totalIncome: 0,
-        totalExpenses: 0,
-        balance: 0,
-        incomeCount: 0,
-        expenseCount: 0,
-        filteredTransactions: [],
-        hasRealData: true
-      };
-    }
-    const totals = calculateTransactionTotals(filteredTransactions);
+    
+    const totalIncome = incomes.reduce((sum: number, t: any) => sum + parseFloat(t.amount || 0), 0);
+    const totalExpenses = expenses.reduce((sum: number, t: any) => sum + parseFloat(t.amount || 0), 0);
+    
     return {
-      totalIncome: totals.totalIncome,
-      totalExpenses: totals.totalOutcome,
-      balance: totals.totalIncome - totals.totalOutcome,
-      incomeCount: filteredTransactions.filter(t => t.transaction_type === 'income').length,
-      expenseCount: filteredTransactions.filter(t => t.transaction_type === 'outcome').length,
-      filteredTransactions,
+      totalIncome,
+      totalExpenses,
+      balance: totalIncome - totalExpenses,
+      incomeCount: incomes.length,
+      expenseCount: expenses.length,
       hasRealData: true
     };
   };
 
   const totalsData = useMemo(() => {
-    return calculateTotalsFromFloid(transactions?.transactions, selectedMonth);
-  }, [transactions, selectedMonth]);
+    return calculateTotalsFromFloid(allIncomeTransactions, allExpenseTransactions);
+  }, [allIncomeTransactions, allExpenseTransactions]);
 
   const {
     totalIncome,
@@ -163,7 +246,6 @@ export default function BudgetScreen() {
     balance,
     incomeCount,
     expenseCount,
-    filteredTransactions,
     hasRealData
   } = totalsData;
 
@@ -227,12 +309,7 @@ export default function BudgetScreen() {
       label: t(`budget.categories.${category.key}.label`),
       value: category.key
     }))
-
-    // ahora para usar esto en algun lado debemos hacer resto <Text>{t(`budget.categories.${category.key}.description`)}</Text>
-
   ];
-
-
   const hasDataForChart = hasRealData && (totalIncome > 0 || totalExpenses > 0);
   const budgetChartProps = {
     selectedMonth,
@@ -240,41 +317,44 @@ export default function BudgetScreen() {
     totalExpenses,
     balance,
     remainingBudget: totalIncome,
-    isLoading: accountsLoading || transactionsLoading,
+    isLoading: accountsLoading || totalsLoading,
     hasRealData: hasDataForChart
   };
   return (
     <Container variant="secondaryPage">
       <Header
         title={t('budget.title')}
-        rightAction={
-          <View className="flex-row items-center">
-            <TouchableOpacity 
-              onPress={() => setShowAddModal(true)}
-              className="mr-3"
-            >
-              <Plus size={24} color={Colors.primary[500]} />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => router.push('/settings')}>
-              <Settings size={24} color={Colors.primary[500]} />
-            </TouchableOpacity>
-          </View>
-        }
-      />
-      <KeyboardAwareContainer>
-        <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-          <Container variant="content" className="py-4">
+          rightAction={
+           <View className="flex-row items-center">
+             <TouchableOpacity 
+               onPress={() => setShowAddModal(true)}
+               className="mr-3"
+             >
+               <Plus size={24} color={Colors.primary[500]} />
+             </TouchableOpacity>
+             <TouchableOpacity 
+               onPress={() => router.push('/settings')}
+               className="mr-3"
+             >
+               <Settings size={24} color={Colors.primary[500]} />
+             </TouchableOpacity> 
+           </View>
+         }
+        />
+        <KeyboardAwareContainer>
+         <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>   
+           <Container variant="content" className="py-4">
             <View className="flex-row justify-between items-center mb-2">
-              <View className="flex-1 items-center text-center">
+              <View className="flex-1 mr-2">
                 {accountsLoading ? (
                   <SkeletonBase
-                    width={280}
+                    width={(chartSize / 2) - 8}
                     height={56}
                     x={0}
                     y={0}
                     rows={1}
                     rowHeight={56}
-                    rowWidth={280}
+                    rowWidth={(chartSize / 2) - 8}
                     borderRadius={16}
                   />
                 ) : (
@@ -285,19 +365,68 @@ export default function BudgetScreen() {
                   />
                 )}
               </View>
+              <View className="flex-1 ml-2">
+                {accountsLoading ? (
+                  <SkeletonBase
+                    width={(chartSize / 2) - 8}
+                    height={56}
+                    x={0}
+                    y={0}
+                    rows={1}
+                    rowHeight={56}
+                    rowWidth={(chartSize / 2) - 8}
+                    borderRadius={16}
+                  />
+                ) : (
+                  <Select
+                    options={yearOptions}
+                    value={selectedYear}
+                    onSelect={setSelectedYear}
+                  />
+                )}
+              </View>
             </View>
-            <BudgetChart {...budgetChartProps} />
+                           {(() => {
+                const shouldShowSkeletons = (totalsLoading || isSyncing || showBudgetSkeletons);
+                return shouldShowSkeletons;
+              })() ? (
+                <View style={{ 
+                  backgroundColor: 'white', 
+                  borderRadius: 16, 
+                  padding: 20,
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.1,
+                  shadowRadius: 4,
+                  elevation: 3,
+                  alignItems: 'center'
+                }}>
+                  <SkeletonBase
+                    width={chartSize}
+                    height={chartSize}
+                    x={0}
+                    y={0}
+                    rows={1}
+                    rowHeight={chartSize}
+                    rowWidth={chartSize}
+                    borderRadius={chartSize / 2}
+                    style={{ borderRadius: chartSize / 2 }}
+                  />
+                </View>
+              ) : (
+              <BudgetChart {...budgetChartProps} />
+            )}
           </Container>
           <Container variant="content" className="mt-4 mb-4">
-            {transactionsLoading ? (
+            {(transactionsLoading || isSyncing || showBudgetSkeletons) ? (
               <SkeletonBase
-                width={280}
+                width={380}
                 height={56}
                 x={0}
                 y={0}
                 rows={1}
                 rowHeight={56}
-                rowWidth={280}
+                rowWidth={380}
                 borderRadius={16}
               />
             ) : (
@@ -309,53 +438,145 @@ export default function BudgetScreen() {
             )}
           </Container>
           <Container variant="content" className="mb-4">
-            {transactionsLoading ? (
+            {(transactionsLoading || isSyncing || showBudgetSkeletons) ? (
               <View style={listItemStyles.cardContainer}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 20, paddingHorizontal: 20 }}>
+                <View style={{ 
+                  flexDirection: 'row', 
+                  alignItems: 'center', 
+                  paddingVertical: 20, 
+                  paddingHorizontal: 20,
+                  backgroundColor: 'white',
+                  borderRadius: 16,
+                  padding: 4,
+                  marginHorizontal: 0,
+                  marginBottom: 10
+                }}>
                   <SkeletonBase
-                    width={80}
-                    height={20}
+                    width={contentWidth * 0.4}
+                    height={18}
                     x={0}
                     y={0}
                     rows={1}
-                    rowHeight={20}
-                    rowWidth={80}
+                    rowHeight={18}
+                    rowWidth={contentWidth * 0.4}
                     borderRadius={4}
                     style={{ marginRight: 20 }}
                   />
                   <SkeletonBase
-                    width={80}
-                    height={20}
+                    width={contentWidth * 0.4}
+                    height={18}
                     x={0}
                     y={0}
                     rows={1}
-                    rowHeight={20}
-                    rowWidth={80}
+                    rowHeight={18}
+                    rowWidth={contentWidth * 0.4}
                     borderRadius={4}
                   />
                 </View>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingBottom: 20, paddingTop: 12, borderBottomWidth: 1, borderBottomColor: Colors.gray[200] }}>
+                
+                <View style={{ 
+                  flexDirection: 'row', 
+                  justifyContent: 'space-between', 
+                  alignItems: 'center', 
+                  paddingHorizontal: 20, 
+                  paddingBottom: 20, 
+                  paddingTop: 12, 
+                  borderBottomWidth: 1, 
+                  borderBottomColor: Colors.gray[200] 
+                }}>
                   <SkeletonBase
-                    width={120}
-                    height={20}
+                    width={contentWidth * 0.35}
+                    height={18}
                     x={0}
                     y={0}
                     rows={1}
-                    rowHeight={20}
-                    rowWidth={120}
+                    rowHeight={18}
+                    rowWidth={contentWidth * 0.35}
                     borderRadius={4}
                   />
                   <SkeletonBase
-                    width={100}
-                    height={20}
+                    width={contentWidth * 0.3}
+                    height={18}
                     x={0}
                     y={0}
                     rows={1}
-                    rowHeight={20}
-                    rowWidth={100}
+                    rowHeight={18}
+                    rowWidth={contentWidth * 0.3}
                     borderRadius={4}
                   />
                 </View>
+                
+                {Array.from({ length: 5 }).map((_, index) => (
+                  <View key={index} style={{ 
+                    flexDirection: 'row', 
+                    alignItems: 'center', 
+                    justifyContent: 'space-between',
+                    paddingVertical: 18,
+                    paddingHorizontal: 20,
+                    borderBottomWidth: index < 4 ? 1 : 0,
+                    borderBottomColor: Colors.gray[200]
+                  }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+                      <SkeletonBase
+                        width={48}
+                        height={48}
+                        x={0}
+                        y={0}
+                        rows={1}
+                        rowHeight={48}
+                        rowWidth={48}
+                        borderRadius={12}
+                        style={{ marginRight: 18 }}
+                      />
+                      <View style={{ flex: 1 }}>
+                        <SkeletonBase
+                          width={contentWidth * 0.45}
+                          height={16}
+                          x={0}
+                          y={0}
+                          rows={1}
+                          rowHeight={16}
+                          rowWidth={contentWidth * 0.45}
+                          borderRadius={4}
+                          style={{ marginBottom: 4 }}
+                        />
+                        <SkeletonBase
+                          width={contentWidth * 0.35}
+                          height={13}
+                          x={0}
+                          y={0}
+                          rows={1}
+                          rowHeight={13}
+                          rowWidth={contentWidth * 0.35}
+                          borderRadius={4}
+                        />
+                      </View>
+                    </View>
+                    <View style={{ alignItems: 'flex-end', minWidth: 90 }}>
+                      <SkeletonBase
+                        width={contentWidth * 0.25}
+                        height={16}
+                        x={0}
+                        y={0}
+                        rows={1}
+                        rowHeight={16}
+                        rowWidth={contentWidth * 0.25}
+                        borderRadius={4}
+                        style={{ marginBottom: 4 }}
+                      />
+                      <SkeletonBase
+                        width={contentWidth * 0.2}
+                        height={14}
+                        x={0}
+                        y={0}
+                        rows={1}
+                        rowHeight={14}
+                        rowWidth={contentWidth * 0.2}
+                        borderRadius={4}
+                      />
+                    </View>
+                  </View>
+                ))}
               </View>
             ) : (
               <View style={listItemStyles.cardContainer}>
@@ -377,10 +598,17 @@ export default function BudgetScreen() {
                   type={activeTab} 
                   selectedMonth={selectedMonth} 
                   showContainer={false}
-                  floidTransactions={filteredTransactions.length > 0 ? filteredTransactions : undefined}
+                  floidTransactions={activeTab === 'income' 
+                    ? incomeTransactions?.transactions 
+                    : expenseTransactions?.transactions
+                  }
                   searchQuery={searchQuery}
-                  loading={transactionsLoading}
-                  hasRealData={hasRealData && filteredTransactions.length > 0}
+                  loading={activeTab === 'income' ? incomeLoading : expenseLoading}
+                  hasRealData={hasRealData}
+                  onLoadMore={activeTab === 'income' ? loadMoreIncome : loadMoreExpenses}
+                  hasMore={activeTab === 'income' ? hasMoreIncome : hasMoreExpenses}
+                  loadingMore={activeTab === 'income' ? incomeLoading : expenseLoading}
+                  onCollapse={activeTab === 'income' ? handleCollapseIncome : handleCollapseExpenses}
                 />
               </View>
             )}
@@ -474,6 +702,34 @@ export default function BudgetScreen() {
           </Animated.View>
         </View>
       )}
+      
+        <SyncModal 
+          visible={isSyncing} 
+          onClose={() => {
+            stopSync();
+          }}
+          onSyncComplete={() => {
+            setShowBudgetSkeletons(true);
+            
+            const skeletonTimer = setTimeout(async () => {
+              setShowBudgetSkeletons(false);
+              
+              try {
+                await Promise.all([
+                  refetchAccounts(),
+                  refetchIncome(),
+                  refetchExpenses(),
+                  refetchAllIncome(),
+                  refetchAllExpenses()
+                ]);
+              } catch (error) {
+                console.error('Error refreshing data after sync:', error);
+              }
+            }, 60000);
+            
+            return () => clearTimeout(skeletonTimer);
+          }}
+        />
     </Container>
   );
 }

@@ -3,7 +3,7 @@ import { View, Text, ActivityIndicator } from 'react-native';
 import { Input, RadioButton, Select } from '@/components/ui';
 import Colors from '@/constants/Colors';
 import { ApiProperty } from '@/types/api';
-
+import { useTranslation } from 'react-i18next';
 interface HypothecaryFieldsProps {
   propertyAssociated: string;
   propertyId: string;
@@ -20,22 +20,6 @@ interface HypothecaryFieldsProps {
   formatValue: (value: string) => string;
 }
 
-const PROPERTY_ASSOCIATION_OPTIONS = [
-  { label: 'Sí', value: 'yes' },
-  { label: 'No', value: 'no' },
-];
-
-const CREATE_PROPERTY_OPTIONS = [
-  { label: 'Sí', value: 'yes' },
-  { label: 'No', value: 'no' },
-];
-
-const UNIT_OPTIONS = [
-  { label: 'CLP', value: 'clp' },
-  { label: 'USD', value: 'usd' },
-  { label: 'UF', value: 'uf' },
-];
-
 export default function HypothecaryFields({
   propertyAssociated,
   propertyId,
@@ -51,11 +35,27 @@ export default function HypothecaryFields({
   onNumericInputChange,
   formatValue
 }: HypothecaryFieldsProps) {
+  const { t } = useTranslation();
+  const PROPERTY_ASSOCIATION_OPTIONS = [
+    { label: t('hypothecaryFields.associationOptions.yes'), value: 'yes' },
+    { label: t('hypothecaryFields.associationOptions.no'), value: 'no' },
+  ];
+  
+  const CREATE_PROPERTY_OPTIONS = [
+    { label: t('hypothecaryFields.createPropertyOptions.yes'), value: 'yes' },
+    { label: t('hypothecaryFields.createPropertyOptions.no'), value: 'no' },
+  ];
+  
+  const UNIT_OPTIONS = [
+    { label: t('hypothecaryFields.unitOptions.clp'), value: 'clp' },
+    { label: t('hypothecaryFields.unitOptions.usd'), value: 'usd' },
+    { label: t('hypothecaryFields.unitOptions.uf'), value: 'uf' },
+  ];
   return (
     <>
       <View>
         <RadioButton
-          label="¿La deuda está asociada a alguna propiedad?"
+          label={t('hypothecaryFields.associationLabel')}
           options={PROPERTY_ASSOCIATION_OPTIONS}
           selectedValue={propertyAssociated}
           onSelect={(value) => onSelectChange('property_associated', value)}
@@ -68,19 +68,19 @@ export default function HypothecaryFields({
             <View style={{ padding: 16, alignItems: 'center' }}>
               <ActivityIndicator size="small" color={Colors.secondary[500]} />
               <Text style={{ marginTop: 8, color: Colors.gray[500] }}>
-                Cargando propiedades...
+                {t('hypothecaryFields.loadingProperties')}
               </Text>
             </View>
           ) : (
             <Select
-              label="Selecciona la propiedad"
+              label={t('hypothecaryFields.selectPropertyLabel')}
               options={properties.map(property => ({
                 label: `${property.location} - $${property.commercial_value.toLocaleString('es-CL')}`,
                 value: property.id.toString()
               }))}
               value={propertyId}
               onSelect={(value) => onSelectChange('property_id', value)}
-              placeholder="Selecciona una propiedad"
+              placeholder={t('hypothecaryFields.selectPropertyPlaceholder')}
             />
           )}
         </View>
@@ -89,7 +89,7 @@ export default function HypothecaryFields({
       {propertyAssociated === 'no' && (
         <View>
           <RadioButton
-            label="¿Deseas crear una nueva propiedad?"
+            label={t('hypothecaryFields.createPropertyLabel')}
             options={CREATE_PROPERTY_OPTIONS}
             selectedValue={createProperty}
             onSelect={(value) => onSelectChange('create_property', value)}
@@ -106,10 +106,10 @@ export default function HypothecaryFields({
                 marginBottom: 8,
               }}
             >
-              Ubicación de la propiedad
+              {t('hypothecaryFields.locationLabel')}
             </Text>
             <Input
-              placeholder="Ej: Las Condes, Santiago"
+              placeholder={t('hypothecaryFields.locationPlaceholder')}
               value={propertyLocation}
               onChangeText={(value) => onInputChange('property_location', value)}
               autoCapitalize="words"
@@ -123,7 +123,7 @@ export default function HypothecaryFields({
                 marginBottom: 8,
               }}
             >
-              Valor comercial de la propiedad
+              {t('hypothecaryFields.valueLabel')}
             </Text>
             <View className="flex-row">
               <View style={{ width: 100, marginRight: 8 }}>
@@ -131,7 +131,7 @@ export default function HypothecaryFields({
                   options={UNIT_OPTIONS}
                   value={propertyUnit}
                   onSelect={(value) => onSelectChange('property_unit', value)}
-                  placeholder="Moneda"
+                  placeholder={t('hypothecaryFields.unitPlaceholder')}
                 />
               </View>
               <View style={{ flex: 1 }}>
@@ -152,10 +152,10 @@ export default function HypothecaryFields({
                 marginBottom: 8,
               }}
             >
-              Metros cuadrados
+              {t('hypothecaryFields.squareMetersLabel')}
             </Text>
             <Input
-              placeholder="65"
+              placeholder={t('hypothecaryFields.squareMetersPlaceholder')}
               value={propertySquareMts}
               onChangeText={(value) => onNumericInputChange('property_square_mts', value)}
               keyboardType="numeric"
