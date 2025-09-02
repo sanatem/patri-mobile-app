@@ -238,7 +238,7 @@ export default function MoreScreen() {
             <View style={styles.modalButtons}>
               <View style={{ flex: 1 }}>
                 <Button
-                  title="Cancelar"
+                  title={t('common.cancel')}
                   variant="outline"
                   fullWidth
                   onPress={() => setShowDeleteModal(false)}

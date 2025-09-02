@@ -4,8 +4,10 @@ import { router } from 'expo-router';
 import { ArrowLeft } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import { useAuth } from '@/providers/AuthProvider';
+import { useTranslation } from 'react-i18next';
 
 export default function AuthWebViewScreen() {
+  const { t } = useTranslation();
   const { login } = useAuth();
   const [attempted, setAttempted] = useState(false);
 
@@ -18,7 +20,7 @@ export default function AuthWebViewScreen() {
       if (success) {
         router.replace('/');
       } else {
-        Alert.alert('Autenticación cancelada', 'Puedes intentar nuevamente.');
+        Alert.alert(t('authWebViewScreen.alert.cancelledTitle'), t('authWebViewScreen.alert.cancelledMessage'));
         router.replace('/');
       }
     };
@@ -36,7 +38,7 @@ export default function AuthWebViewScreen() {
           <ArrowLeft size={24} color={Colors.primary[500]} />
         </TouchableOpacity>
         <Text className="text-lg font-semibold" style={{ color: Colors.primary[500] }}>
-          Autenticación
+          {t('authWebViewScreen.title')}
         </Text>
         <View style={{ width: 40 }} />
       </View>
@@ -44,7 +46,7 @@ export default function AuthWebViewScreen() {
       <View className="flex-1 justify-center items-center p-6">
         <ActivityIndicator size="large" color={Colors.secondary[500]} />
         <Text className="text-center text-base mt-4" style={{ color: Colors.primary[500] }}>
-          Redirigiendo al proceso de autenticación...
+          {t('authWebViewScreen.loadingMessage')}
         </Text>
       </View>
     </View>

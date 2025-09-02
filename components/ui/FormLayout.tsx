@@ -15,6 +15,7 @@ import {
 import Colors from '@/constants/Colors';
 import { PatrimoreIcon } from '@/components/icons';
 import { useKeyboardHandler } from '@/hooks/common/useKeyboardHandler';
+import { useTranslation } from 'react-i18next';
 
 const { height } = Dimensions.get('window');
 
@@ -46,16 +47,22 @@ export default function FormLayout({
   onNext,
   onPrevious,
   onCancel,
-  nextButtonTitle = "Siguiente",
-  previousButtonTitle = "Atrás",
-  cancelButtonTitle = "Cancelar",
+  nextButtonTitle,
+  previousButtonTitle,
+  cancelButtonTitle,
   isLoading = false,
   isNextDisabled = false,
   error = null,
   showLogo = true,
-  loadingText = "Guardando..."
+  loadingText
 }: FormLayoutProps) {
+  const { t } = useTranslation();
   const { keyboardHeight, isKeyboardVisible } = useKeyboardHandler();
+
+  const _nextTitle = nextButtonTitle ?? t('common.next');
+  const _prevTitle = previousButtonTitle ?? t('common.back');
+  const _cancelTitle = cancelButtonTitle ?? t('common.cancel');
+  const _loadingText = loadingText ?? t('common.saving');
 
   const renderProgressIndicators = () => {
     return (
@@ -146,7 +153,7 @@ export default function FormLayout({
               <View style={{ marginTop: 32, gap: 12 }}>
                 {onNext && (
                   <Button
-                    title={isLoading ? loadingText : nextButtonTitle}
+                    title={isLoading ? _loadingText : _nextTitle}
                     onPress={onNext}
                     disabled={isLoading || isNextDisabled}
                     loading={isLoading}
@@ -157,7 +164,7 @@ export default function FormLayout({
                 
                 {onPrevious && currentStep > 1 && (
                   <Button
-                    title={previousButtonTitle}
+                    title={_prevTitle}
                     onPress={onPrevious}
                     disabled={isLoading}
                     variant="ghost"
@@ -167,7 +174,7 @@ export default function FormLayout({
 
                 {onCancel && (
                   <Button
-                    title={cancelButtonTitle}
+                    title={_cancelTitle}
                     onPress={onCancel}
                     disabled={isLoading}
                     variant="ghost"
