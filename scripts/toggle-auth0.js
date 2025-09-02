@@ -15,9 +15,7 @@ appJson.expo.plugins = appJson.expo.plugins.filter((p) => !isAuth0(p));
 
 if (mode === "enable") {
   appJson.expo.plugins.push(["react-native-auth0", { domain: "auth.patrimore.com" }]);
-  console.log("✔ Añadido react-native-auth0");
 } else {
-  console.log("✔ Eliminado react-native-auth0");
 }
 
 fs.writeFileSync("app.json", JSON.stringify(appJson, null, 2));
