@@ -476,7 +476,7 @@
             "unexpected": "Hubo un problema inesperado. Intenta nuevamente."
         },
         "cardTitles": {
-            "premiumMobile": "Plan Premium (móvil)",
+            "premiumMobile": "Suscripción Premium",
             "plans": "Planes"
         },
         "top_title": "Comienza tu planificación financiera",
@@ -619,7 +619,7 @@
     },
     "plans": {
         "premium": {
-            "title": "Plan Premium (móvil)",
+            "title": "Suscripción Premium",
             "price": "$9.990",
             "duration": "/mes",
             "description": "Accede a todas las funcionalidades premium y herramientas avanzadas de planificación financiera.",
@@ -673,7 +673,7 @@
         }
     },
     "lockedOverlay": {
-        "description": "Suscríbete a un plan y accede a todas las funcionalidades premium.",
+        "description": "Suscríbete y accede a todas las funcionalidades premium.",
         "benefits_title": "Con una suscripción premium tendrás acceso completo a:",
         "benefits": {
             "asset_analysis": "Análisis detallado de patrimonio.",

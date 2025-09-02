@@ -25,3 +25,4 @@ export { default as FormLayout } from './FormLayout';
 export { default as InfoTooltip } from './InfoTooltip';
 export { Textarea } from './Textarea';
 export { default as RadioButton } from './RadioButton';
+export { SyncModal } from './SyncModal';

@@ -8,42 +8,49 @@ import {
   Alert,
   Modal,
   ActivityIndicator,
-  Linking
+  Linking,
+  Platform,
 } from 'react-native';
 import { Button } from '@/components/ui';
-import { 
-  HelpCircle, 
-  FileText, 
-  Shield, 
+import {
+  HelpCircle,
+  FileText,
+  Shield,
   ChevronRight,
   ArrowLeft,
   LogOut,
   Trash2,
   X,
-  Settings
+  Settings,
 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
 import { useAuth } from '@/providers/AuthProvider';
 import { deleteUserAccount } from '@/services/user/delete-user';
-
 import Constants from 'expo-constants';
 import { useTranslation } from 'react-i18next';
-
 
 export default function MoreScreen() {
   const router = useRouter();
   const { t } = useTranslation();
-  const { logout, forceLogout, user, accessToken, isAuthenticated, loading } = useAuth();
+  const { logout, forceLogout, user, accessToken } = useAuth();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
 
-  const handleLogout = () => {
+  const redirectToLogin = () => {
+    router.replace('/auth/webview');
+  };
+
+  const handleLogout = async () => {
+    const logoutMessage = Platform.OS === 'ios'
+      ? `${t('settings.logout.message')}\n\nNota: En iOS, la aplicación permanecerá abierta después del logout por políticas de la plataforma.`
+      : t('settings.logout.message');
+
     Alert.alert(
       t('settings.logout.title'),
-      t('settings.logout.message'),
+      logoutMessage,
       [
         { text: t('common.cancel'), style: 'cancel' },
         {
@@ -51,18 +58,22 @@ export default function MoreScreen() {
           style: 'destructive',
           onPress: async () => {
             setIsLoggingOut(true);
-            
             try {
               await logout();
-              router.dismissAll();
+              setTimeout(() => {
+                redirectToLogin();
+              }, 500);
             } catch (error) {
               console.error('Error durante logout:', error);
               try {
                 await forceLogout();
+                setTimeout(() => {
+                  redirectToLogin();
+                }, 500);
               } catch (forceError) {
                 console.error('Error durante logout forzado:', forceError);
+                redirectToLogin();
               }
-              router.dismissAll();
             } finally {
               setIsLoggingOut(false);
             }
@@ -79,23 +90,13 @@ export default function MoreScreen() {
   const handleConfirmDelete = async () => {
     setShowDeleteModal(false);
     setIsDeletingAccount(true);
-    
     try {
-      if (!accessToken) {
-        throw new Error('No hay token de acceso disponible');
-      }
-
-      const result = await deleteUserAccount(accessToken);
-      
+      if (!accessToken) throw new Error('No hay token de acceso disponible');
+      await deleteUserAccount(accessToken);
       setShowConfirmationModal(true);
-      
     } catch (error) {
-      console.error('Error durante solicitud de eliminación de la cuenta:', error);
-      Alert.alert(
-        t('common.error'),
-        error instanceof Error ? error.message : t('settings.delete.error'),
-        [{ text: 'OK' }]
-      );
+      console.error('Error al eliminar cuenta:', error);
+      Alert.alert(t('common.error'), error instanceof Error ? error.message : t('settings.delete.error'));
     } finally {
       setIsDeletingAccount(false);
     }
@@ -103,29 +104,22 @@ export default function MoreScreen() {
 
   const handleCloseConfirmationModal = async () => {
     setShowConfirmationModal(false);
-    
     try {
       await logout();
-    } catch (logoutError) {
-      console.error('Error durante logout después de solicitar eliminación:', logoutError);
+    } catch (err) {
+      console.error('Error durante logout después de eliminar:', err);
       await forceLogout();
     }
-    
-    router.dismissAll();
+    redirectToLogin();
   };
 
   const handleOpenLink = async (url: string, title: string) => {
     try {
       const supported = await Linking.canOpenURL(url);
-      
-      if (supported) {
-        await Linking.openURL(url);
-      } else {
-        Alert.alert(t('common.error'), t('settings.links.cannotOpen', { title }), [{ text: 'OK' }]);
-      }
+      supported ? await Linking.openURL(url) : Alert.alert(t('common.error'), t('settings.links.cannotOpen', { title }));
     } catch (error) {
       console.error('Open link error:', error);
-      Alert.alert(t('common.error'), t('settings.links.cannotOpen', { title }), [{ text: 'OK' }]);
+      Alert.alert(t('common.error'), t('settings.links.cannotOpen', { title }));
     }
   };
 

@@ -1,5 +1,6 @@
 import config from '@/config/constants';
 import type { Goal } from '@/types/api';
+import { categorizeGoalsByTimeframe } from '@/lib/portfolio/utils';
 
 interface ApiGoal {
   id: number;
@@ -37,35 +38,6 @@ const transformApiGoalToAppGoal = (apiGoal: ApiGoal): Goal => {
   };
 };
 
-const categorizeGoalsByTime = (goals: Goal[]): {
-  shortTerm: Goal[];
-  mediumTerm: Goal[];
-  longTerm: Goal[];
-} => {
-  const result = {
-    shortTerm: goals.filter(goal => {
-      const targetDate = goal.targetDate.toLowerCase();
-      return targetDate.includes('1') && targetDate.includes('3');
-    }),
-    mediumTerm: goals.filter(goal => {
-      const targetDate = goal.targetDate.toLowerCase();
-      return (targetDate.includes('3') && targetDate.includes('5')) ||
-             (targetDate.includes('2') && targetDate.includes('4'));
-    }),
-    longTerm: goals.filter(goal => {
-      const targetDate = goal.targetDate.toLowerCase();
-      return (targetDate.includes('5') && targetDate.includes('9')) ||
-             (targetDate.includes('6')) ||
-             (targetDate.includes('7')) ||
-             (targetDate.includes('8')) ||
-             (targetDate.includes('9')) ||
-             (targetDate.includes('10'));
-    })
-  };
-
-  return result;
-};
-
 export const goalsService = {
   async getGoals(token: string): Promise<{
     shortTerm: Goal[];
@@ -99,7 +71,7 @@ export const goalsService = {
 
       const transformedGoals = data.goals.map(transformApiGoalToAppGoal);
 
-      const categorizedGoals = categorizeGoalsByTime(transformedGoals);
+      const categorizedGoals = categorizeGoalsByTimeframe(transformedGoals);
 
       return categorizedGoals;
 
