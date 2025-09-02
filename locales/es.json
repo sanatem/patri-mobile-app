@@ -502,11 +502,11 @@
       "income": "Conocer tu rango de ingresos nos permite ofrecerte recomendaciones financieras más precisas y productos adecuados a tu capacidad económica."
     },
     "incomeOptions": {
-      "lessThan1M": "Menos de 1 millón",
-      "between1And5M": "Entre 1 y 5 millones",
-      "between5And10M": "Entre 5 y 10 millones",
-      "between10And25M": "Entre 10 y 25 millones",
-      "greaterThan25M": "Más de 25 millones"
+      "lessThan1M": "Menos de $1.000.000",
+      "between1And5M": "Entre $1.000.001 a $5.000.000",
+      "between5And10M": "Entre $5.000.001 a $10.000.000",
+      "between10And25M": "Entre $10.000.001 a $25.000.000",
+      "greaterThan25M": "Más de $25.000.001"
     },
     "errors": {
       "rutRequired": "El RUT es requerido",
