@@ -1,69 +1,71 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View } from 'react-native';
 import { router } from 'expo-router';
-import { Container } from '@/components/ui/Container';
+import { FormLayout, RadioButton } from '@/components/ui';
 import { useTranslation } from 'react-i18next';
 
 export default function ProfileQuestion() {
   const { t } = useTranslation();
 
-  const questions = t('investmentSurvey.questions', { returnObjects: true }) as {
-    text: string;
-    options: string[];
-  }[];
+  const questionKeys = [
+    'question1', 'question2', 'question3', 'question4', 'question5',
+    'question6', 'question7', 'question8', 'question9', 'question10'
+  ];
 
-  const totalSteps = questions.length;
+  const totalSteps = questionKeys.length;
   const [step, setStep] = useState(0);
+  const [selectedValue, setSelectedValue] = useState<string>('');
 
-  const handleSelect = (index: number) => {
-    if (step < totalSteps - 1) {
-      setStep(step + 1);
+  const handleSelect = (value: string) => {
+    setSelectedValue(value);
+
+    setTimeout(() => {
+      if (step < totalSteps - 1) {
+        setStep(step + 1);
+        setSelectedValue('');
+      } else {
+        router.push('/investment/create-account/investment-survey/loading-profile' as any);
+      }
+    }, 300);
+  };
+
+  const handlePrevious = () => {
+    if (step > 0) {
+      setStep(step - 1);
+      setSelectedValue('');
     } else {
-      router.push('/investment/create-account/investment-survey/loading-profile' as any);
+      router.back();
     }
   };
 
+  const currentQuestionKey = questionKeys[step];
+  const currentQuestion = t(`investmentSurvey.${currentQuestionKey}`, { returnObjects: true }) as {
+    title: string;
+    options: string[];
+  };
+
+  const radioOptions = currentQuestion?.options?.map((option, index) => ({
+    label: option,
+    value: index.toString()
+  })) || [];
+
   return (
-    <Container variant="secondaryPage" style={{ padding: 20 }}>
-      <View className="flex-1 p-5 justify-center bg-white">
-        {/* Progreso visual */}
-        <View className="flex-row mb-6">
-          {Array.from({ length: totalSteps }).map((_, index) => (
-            <View
-              key={index}
-              className={`flex-1 h-1 mx-1 rounded ${
-                index <= step ? 'bg-primary-500' : 'bg-gray-200'
-              }`}
-            />
-          ))}
-        </View>
-
-        {/* Pregunta actual */}
-        <Text className="text-lg font-semibold mb-5">
-          {questions[step]?.text}
-        </Text>
-
-        {/* Opciones */}
-        {questions[step]?.options.map((option, index) => (
-          <TouchableOpacity
-            key={index}
-            className="bg-gray-100 p-3 rounded-lg mb-3"
-            onPress={() => handleSelect(index)}
-          >
-            <Text className="text-base text-gray-800">{option}</Text>
-          </TouchableOpacity>
-        ))}
-
-        {/* Botón para retroceder */}
-        {step > 0 && (
-          <TouchableOpacity
-            className="mt-4 items-center"
-            onPress={() => setStep(step - 1)}
-          >
-            <Text className="text-gray-500">{t('common.back', 'Volver')}</Text>
-          </TouchableOpacity>
-        )}
+    <FormLayout
+      title={currentQuestion?.title}
+      subtitle=""
+      currentStep={step + 1}
+      totalSteps={totalSteps}
+      onPrevious={handlePrevious}
+      previousButtonTitle={t('common.back')}
+      showLogo={false}
+    >
+      <View className="py-4">
+        <RadioButton
+          options={radioOptions}
+          selectedValue={selectedValue}
+          onSelect={handleSelect}
+        />
       </View>
-    </Container>
+    </FormLayout>
   );
 }
