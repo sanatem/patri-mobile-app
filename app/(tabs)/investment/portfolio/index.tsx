@@ -78,58 +78,18 @@ export default function InvestmentPortfolioScreen() {
     BarChart: <BarChart size={24} color={Colors.gray[500]} />,
   };
 
-  const staticInvestmentCategories = [
-    { id: 'reserva', keywords: ['reserva', 'emergencia', 'fondo'] },
-    { id: 'emergencias', keywords: ['emergencia', 'urgencia', 'imprevisto'] },
-    { id: 'casa', keywords: ['casa', 'vivienda', 'propiedad', 'hogar'] },
-    { id: 'jubilacion', keywords: ['jubilación', 'jubilacion', 'retiro', 'apv', 'pension'] }
-  ];
 
   const getCurrentGoals = () => {
+    if (!goals || goalsLoading) {
+      return [];
+    }
+    
     if (selectedAccountType === 'investment') {
-      return [...goals.investment.shortTerm, ...goals.investment.mediumTerm, ...goals.investment.longTerm];
+      return [...(goals.investment?.shortTerm || []), ...(goals.investment?.mediumTerm || []), ...(goals.investment?.longTerm || [])];
     } else {
-      return [...goals.savings.shortTerm, ...goals.savings.mediumTerm, ...goals.savings.longTerm];
+      return [...(goals.savings?.shortTerm || []), ...(goals.savings?.mediumTerm || []), ...(goals.savings?.longTerm || [])];
     }
   };
-
-  const allGoals: Goal[] = getCurrentGoals();
-
-  const investmentData = staticInvestmentCategories.map(category => {
-    const matchedGoal = allGoals.find(goal => 
-      category.keywords.some(keyword => 
-        goal.name.toLowerCase().includes(keyword.toLowerCase()) ||
-        goal.kindName.toLowerCase().includes(keyword.toLowerCase())
-      )
-    );
-    
-    const value = matchedGoal
-      ? formatValue(matchedGoal.currentAmount.toString())
-      : '0';
-      
-    return {
-      id: category.id,
-      title: t(`portfolio.cards.${category.id}.title`),
-      subtitle: t(`portfolio.cards.${category.id}.subtitle`),
-      value,
-      icon: {
-        component: iconMap[category.id.charAt(0).toUpperCase() + category.id.slice(1) as keyof typeof iconMap] || <PiggyBank size={24} color={Colors.gray[500]} />,
-        backgroundColor: Colors.gray[50],
-        color: Colors.secondary[500],
-        text: category.id.charAt(0).toUpperCase()
-      },
-      onPress: matchedGoal
-        ? () =>
-            router.push({
-              pathname: '/investment/portfolio/portfolio-details',
-              params: {
-                goalId: matchedGoal.id,
-                goalName: matchedGoal.name
-              }
-            })
-        : undefined
-    };
-  });
 
   const getFallbackPatrimonyValue = () => {
     if (walletLoading || goalsLoading) {

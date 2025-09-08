@@ -80,7 +80,7 @@ export function useHasInvestmentAccount(): UseHasInvestmentAccountReturn {
       setLoading(true);
       setError(null);
       
-      const hasAccount = await investmentService.hasInvestmentAccount(accessToken || undefined);
+      const hasAccount = await investmentService.hasAnyInvestmentOrSavingsAccount(accessToken || undefined);
       setHasInvestmentAccount(hasAccount);
     } catch (err) {
       console.error('Error checking investment account:', err);
