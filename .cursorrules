@@ -84,6 +84,7 @@ styles/ - Estilos específicos por feature
   - `primary-*` para colores primarios (grises)
   - `secondary-*` para colores de acento (naranjas)
   - `success-*`, `error-*`, `navy-*` para estados
+- **Usa el sistema de colores expuesto en tailwind.config.js y constants/Colors.ts (misma fuente).**
 - **Combina className con style** solo cuando sea necesario
 - **Usa la función `cn`** (tailwind-merge) para concatenar clases
 - **Implementa variantes de componentes** usando objetos Record
