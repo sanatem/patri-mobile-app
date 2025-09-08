@@ -101,7 +101,7 @@ export function PortfolioHeader({ patrimony, isLoading, cashAmount, selectedAcco
         <View style={styles.expandedContainer}>
           <View style={styles.rowContainer}>
             <Text style={styles.subtitle}>{t('patrimony.cash_balance')}</Text>
-            <Text style={styles.cashAmount}>${cashDisplayValue}</Text>
+            <Text style={[styles.cashAmount, { marginLeft: 8 }]}>${cashDisplayValue}</Text>
           </View>
         </View>
       )}
@@ -149,8 +149,7 @@ const styles = StyleSheet.create({
   },
   rowContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'baseline',
     justifyContent: 'center',
-    gap: 8,
   },
 });
