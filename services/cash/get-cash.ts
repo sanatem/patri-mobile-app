@@ -12,11 +12,18 @@ export interface Cash {
   pending_retirements_amount: number | string;
   pending_sale_orders_amount: number | string;
   user_cash_without_pending_movements: number | string;
+  account_id: number;
+  account_name: string;
   last_cash_update: string;
 }
 
+export interface AccountCash {
+  investment?: Cash;
+  savings?: Cash;
+}
+
 export interface CashResponse {
-  cash: Cash;
+  cash: AccountCash;
 }
 
 export async function getCash(token: string): Promise<CashResponse | null> {
@@ -36,6 +43,9 @@ export async function getCash(token: string): Promise<CashResponse | null> {
     });
 
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Cash Service: Error en respuesta:', response.status, errorText);
+      
       if (response.status === 401) {
         throw new Error('Token de autenticación inválido o expirado');
       }
@@ -48,7 +58,6 @@ export async function getCash(token: string): Promise<CashResponse | null> {
         throw new Error('Error interno del servidor');
       }
       
-      const errorText = await response.text();
       throw new Error(`API Error ${response.status}: ${errorText}`);
     }
 
@@ -57,7 +66,7 @@ export async function getCash(token: string): Promise<CashResponse | null> {
     return data;
 
   } catch (error) {
-    console.error('❌ Cash Service: Error fetching cash data from API:', error);
+    console.error('Cash Service: Error fetching cash data from API:', error);
     throw error;
   }
 }

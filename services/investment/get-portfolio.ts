@@ -8,12 +8,14 @@ export const investmentService = {
   },
 
   async hasInvestmentAccount(token?: string): Promise<boolean> {
-    try {
+    try {  
       if (!token) {
         return false;
       }
 
-      const response = await fetch(`${config.apiBaseUrl}/api/v2/goals`, {
+      const url = `${config.apiBaseUrl}/api/v2/goals`;
+
+      const response = await fetch(url, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -24,10 +26,12 @@ export const investmentService = {
       if (response.ok) {
         const data = await response.json();
         
-        const hasGoals = data.goals && data.goals.length > 0;
-        const hasInvestmentAccountId = hasGoals && data.goals.some((goal: any) => goal.investment_account_id);
+        const hasInvestmentAccount = data.investment && data.investment.account_id;
+        const hasSavingsAccount = data.savings && data.savings.account_id;
+
+        const hasAnyAccount = hasInvestmentAccount || hasSavingsAccount;
         
-        return hasInvestmentAccountId;
+        return hasAnyAccount;
       }
       
       if (response.status === 401) {
