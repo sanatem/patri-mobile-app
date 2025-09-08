@@ -396,9 +396,19 @@
     "portfolio": {
         "title": "Portafolio",
         "goalsTitle": "Metas",
+        "savingsTitle": "Metas",
         "goalsError": "Error al cargar metas",
         "noGoals": "Aún no tienes metas definidas.",
+        "savingInstrumentsError": "Error al cargar metas",
+        "noSavingInstruments": "Aún no tienes metas definidas.",
+        "savingInstrumentSubtitle": "Meta",
         "goalPrefix": "Meta",
+        "accountTypeLabel": "Tipo de cuenta",
+        "selectAccountType": "Selecciona el tipo de cuenta",
+        "accountTypes": {
+            "investment": "Cuenta de Inversión",
+            "savings": "Cuenta de Ahorro"
+        },
         "actions": {
             "invest": "Invertir",
             "withdraw": "Retirar"

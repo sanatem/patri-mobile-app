@@ -5,9 +5,24 @@ import type { Goal } from '@/types/api';
 
 interface UseGoalsReturn {
   goals: {
-    shortTerm: Goal[];
-    mediumTerm: Goal[];
-    longTerm: Goal[];
+    investment: {
+      shortTerm: Goal[];
+      mediumTerm: Goal[];
+      longTerm: Goal[];
+      accountInfo?: {
+        id: number;
+        name: string;
+      };
+    };
+    savings: {
+      shortTerm: Goal[];
+      mediumTerm: Goal[];
+      longTerm: Goal[];
+      accountInfo?: {
+        id: number;
+        name: string;
+      };
+    };
   };
   loading: boolean;
   error: string | null;
@@ -17,13 +32,35 @@ interface UseGoalsReturn {
 export function useGoals(): UseGoalsReturn {
   const { accessToken, isAuthenticated } = useAuth();
   const [goals, setGoals] = useState<{
-    shortTerm: Goal[];
-    mediumTerm: Goal[];
-    longTerm: Goal[];
+    investment: {
+      shortTerm: Goal[];
+      mediumTerm: Goal[];
+      longTerm: Goal[];
+      accountInfo?: {
+        id: number;
+        name: string;
+      };
+    };
+    savings: {
+      shortTerm: Goal[];
+      mediumTerm: Goal[];
+      longTerm: Goal[];
+      accountInfo?: {
+        id: number;
+        name: string;
+      };
+    };
   }>({
-    shortTerm: [],
-    mediumTerm: [],
-    longTerm: [],
+    investment: {
+      shortTerm: [],
+      mediumTerm: [],
+      longTerm: [],
+    },
+    savings: {
+      shortTerm: [],
+      mediumTerm: [],
+      longTerm: [],
+    },
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

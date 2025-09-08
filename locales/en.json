@@ -396,9 +396,19 @@
   "portfolio": {
     "title": "Portfolio",
     "goalsTitle": "Goals",
+    "savingsTitle": "Goals",
     "goalsError": "Error loading goals",
-    "noGoals": "You haven’t defined any goals yet.",
+    "noGoals": "You haven't defined any goals yet.",
+    "savingInstrumentsError": "Error loading goals",
+    "noSavingInstruments": "You haven't defined any goals yet.",
+    "savingInstrumentSubtitle": "Goal",
     "goalPrefix": "Goal",
+    "accountTypeLabel": "Account type",
+    "selectAccountType": "Select account type",
+    "accountTypes": {
+      "investment": "Investment Account",
+      "savings": "Savings Account"
+    },
     "actions": {
       "invest": "Invest",
       "withdraw": "Withdraw"
