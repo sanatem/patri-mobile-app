@@ -295,14 +295,110 @@
     }
   },
   "amountStep": {
-    "title": "Enter amount",
-    "placeholder": "Enter the amount",
+    "title": "How much money do you want to deposit?",
+    "placeholder": "$0",
     "rateNote": "(at ${{ rate }} per dollar)"
   },
   "investmentMovement": {
     "header": {
       "from": "Move from {{from}}",
       "amount": "Enter amount"
+    },
+    "goalStep": {
+      "title": "Deposit Creation 💰",
+      "portfolioInfo": {
+        "label": "View my associated recommended portfolio"
+      }
+    },
+    "amountStep": {
+      "title": "Deposit Creation",
+      "subtitle": "Enter the amount you want to deposit"
+    }
+  },
+  "sourceFunds": {
+    "title": "Source of funds",
+    "subtitle": "Select where you want to transfer the money from",
+    "placeholder": "Select source of funds",
+    "options": {
+      "fintoc": "Transfer without leaving Patrimore",
+      "fintocDesc": "Connect your bank securely",
+      "bank": "Transfer from your bank",
+      "bankDesc": "Manual bank transfer",
+      "check": "Deposit check",
+      "checkDesc": "Deposit a physical check",
+      "cash": "Use my cash balance ({{amount}})",
+      "cashDesc": "Use available funds in your account"
+    },
+    "bankTransfer": {
+      "instructions": {
+        "line1": "Make the transfer from <1>an account in your name</1>.",
+        "line2": "To identify your transfer faster, remember to include the email indicated when creating the recipient."
+      },
+      "bankName": "Security Bank",
+      "fields": {
+        "name": "Name",
+        "rut": "RUT",
+        "accountNumber": "Account number",
+        "accountType": "Account type",
+        "currency": "Currency",
+        "email": "Email"
+      },
+      "values": {
+        "accountType": "Checking account",
+        "currency": "CLP"
+      },
+      "copyAll": "Copy all",
+      "alerts": {
+        "copied": "Copied",
+        "copiedField": "{{field}} copied to clipboard",
+        "copiedAll": "All bank details copied to clipboard",
+        "error": "Error",
+        "copyError": "Could not copy to clipboard"
+      }
+    },
+    "fintocTransfer": {
+      "title": "Transfer without leaving Patrimore",
+      "amount": "Transfer {{amount}}",
+      "openWidget": "Connect my bank",
+      "info": {
+        "title": "Secure bank transfer",
+        "description": "Connect your bank securely to transfer directly without leaving Patrimore.",
+        "amountLabel": "Amount to transfer"
+      },
+      "success": {
+        "title": "Transfer successful!",
+        "message": "Your transfer has been processed successfully."
+      },
+      "security": {
+        "title": "🔒 100% secure transfer",
+        "description": "We use institutional-grade banking technology to protect your information."
+      }
+    },
+    "cashTransfer": {
+      "title": "Use cash balance",
+      "description": "Your available cash balance will be used for this operation.",
+      "availableBalance": "Available balance: {{amount}}"
+    },
+    "checkDeposit": {
+      "title": "Deposit check",
+      "description": "Instructions for depositing a physical check will appear here.",
+      "instructions": {
+        "line1": "Deposit the check from <1>an account in your name</1>.",
+        "line2": "To identify your deposit faster, remember to include the email indicated when creating the recipient."
+      },
+      "voucher": {
+        "title": "Send the receipt through our chat or directly to your advisor",
+        "description": "Remember that the deposit will be available within 2 business days."
+      },
+      "rutRequirement": {
+        "title": "The check must be associated with your RUT",
+        "description": "Otherwise, the deposit will be rejected."
+      }
+    },
+    "cashBalance": {
+      "title": "Use cash balance",
+      "description": "Your available cash balance will be used for this operation.",
+      "availableBalance": "Available balance: {{amount}}"
     }
   },
   "confirmationStep": {
@@ -342,9 +438,7 @@
     "goalPlaceholder": "Select a goal",
     "destinationPlaceholder": "Select destination",
     "metaTo": {
-      "part1": "Which ",
-      "part2": "goal",
-      "part3": "do you want to invest in?"
+      "part2": "Which goal do you want to invest in?"
     }
   },
   "salesFlow": {

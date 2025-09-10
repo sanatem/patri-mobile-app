@@ -259,35 +259,45 @@ export default function PatrimonyScreen() {
     }
   };
 
-  const extractInitialsFromAuth0User = (user: any): string => {
+  const extractInitialsFromPersonalInfo = (): string => {
     try {
-      const userMetadata = user['https://app.patrimore.com/user_metadata'];
-
-      if (userMetadata?.first_name && userMetadata?.last_name) {
-        const firstInitial = userMetadata.first_name.charAt(0).toUpperCase();
-        const lastInitial = userMetadata.last_name.charAt(0).toUpperCase();
-        return firstInitial + lastInitial;
-      }
-
-      if (user.nickname) {
-        const parts = user.nickname.split('.');
-        if (parts.length >= 2) {
-          return (parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase();
+      if (userData?.user?.personal_information) {
+        const { first_name, last_name } = userData.user.personal_information;
+        
+        if (first_name && last_name) {
+          const firstInitial = first_name.charAt(0).toUpperCase();
+          const lastInitial = last_name.charAt(0).toUpperCase();
+          return firstInitial + lastInitial;
         }
       }
-
-      if (user.email) {
-        const username = user.email.split('@')[0];
-        const parts = username.split(/[._-]+/);
-        if (parts.length >= 2) {
-          return (parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase();
+      if (user) {
+        const auth0User = user as any;
+        const userMetadata = auth0User['https://app.patrimore.com/user_metadata'];
+        if (userMetadata?.first_name && userMetadata?.last_name) {
+          const firstInitial = userMetadata.first_name.charAt(0).toUpperCase();
+          const lastInitial = userMetadata.last_name.charAt(0).toUpperCase();
+          return firstInitial + lastInitial;
         }
-        return username.slice(0, 2).toUpperCase();
+
+        if (auth0User.nickname) {
+          const parts = auth0User.nickname.split('.');
+          if (parts.length >= 2) {
+            return (parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase();
+          }
+        }
+
+        if (auth0User.email) {
+          const username = auth0User.email.split('@')[0];
+          const parts = username.split(/[._-]+/);
+          if (parts.length >= 2) {
+            return (parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase();
+          }
+          return username.slice(0, 2).toUpperCase();
+        }
       }
 
       return 'U';
     } catch (error) {
-      console.warn('Error extracting initials:', error);
       return 'U';
     }
   };
@@ -606,7 +616,7 @@ export default function PatrimonyScreen() {
             onViewChange={handleUserViewChange}
             showSelector={showSelector}
             onToggle={() => setShowSelector(!showSelector)}
-            myLabel={user ? extractInitialsFromAuth0User(user) : 'U'}
+            myLabel={extractInitialsFromPersonalInfo()}
             partnerLabel="P"
             enabled={false}
           />

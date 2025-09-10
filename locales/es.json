@@ -295,14 +295,110 @@
     }
   },
   "amountStep": {
-    "title": "Ingresar monto",
-    "placeholder": "Ingresa el monto",
+    "title": "¿Cuánto dinero quieres depositar?",
+    "placeholder": "$0",
     "rateNote": "(a ${{ rate }} el dólar)"
   },
   "investmentMovement": {
     "header": {
       "from": "Mover desde {{from}}",
       "amount": "Ingresar monto"
+    },
+    "goalStep": {
+      "title": "Creación de depósito 💰",
+      "portfolioInfo": {
+        "label": "Ver mi portafolio recomendado asociado"
+      }
+    },
+    "amountStep": {
+      "title": "Creación de depósito",
+      "subtitle": "Ingresa el monto que deseas depositar"
+    }
+  },
+  "sourceFunds": {
+    "title": "Origen de los fondos",
+    "subtitle": "Selecciona de dónde quieres transferir el dinero",
+    "placeholder": "Selecciona origen de fondos",
+    "options": {
+      "fintoc": "Transferir sin salir de Patrimore",
+      "fintocDesc": "Conecta tu banco de forma segura",
+      "bank": "Transferir desde tu banco",
+      "bankDesc": "Transferencia bancaria manual",
+      "check": "Depositar cheque",
+      "checkDesc": "Deposita un cheque físico",
+      "cash": "Utilizar mi saldo en caja ({{amount}})",
+      "cashDesc": "Usar fondos disponibles en tu cuenta"
+    },
+    "bankTransfer": {
+      "instructions": {
+        "line1": "Haz la transferencia desde <1>una cuenta a tu nombre</1>.",
+        "line2": "Para identificar tu transferencia más rápido, recuerda incluir el correo electrónico indicado en la creación del destinatario."
+      },
+      "bankName": "Banco Security",
+      "fields": {
+        "name": "Nombre",
+        "rut": "RUT",
+        "accountNumber": "Nº de cuenta",
+        "accountType": "Tipo de cuenta",
+        "currency": "Moneda",
+        "email": "Correo electrónico"
+      },
+      "values": {
+        "accountType": "Cuenta corriente",
+        "currency": "CLP"
+      },
+      "copyAll": "Copiar todo",
+      "alerts": {
+        "copied": "Copiado",
+        "copiedField": "{{field}} copiado al portapapeles",
+        "copiedAll": "Todos los datos bancarios copiados al portapapeles",
+        "error": "Error",
+        "copyError": "No se pudo copiar al portapapeles"
+      }
+    },
+    "fintocTransfer": {
+      "title": "Transferir sin salir de Patrimore",
+      "amount": "Transferir {{amount}}",
+      "openWidget": "Conectar mi banco",
+      "info": {
+        "title": "Transferencia bancaria segura",
+        "description": "Conecta tu banco de forma segura para transferir directamente sin salir de Patrimore.",
+        "amountLabel": "Monto a transferir"
+      },
+      "success": {
+        "title": "¡Transferencia exitosa!",
+        "message": "Tu transferencia ha sido procesada correctamente."
+      },
+      "security": {
+        "title": "🔒 Transferencia 100% segura",
+        "description": "Utilizamos tecnología bancaria de nivel institucional para proteger tu información."
+      }
+    },
+    "cashTransfer": {
+      "title": "Utilizar saldo en caja",
+      "description": "Se utilizará tu saldo disponible en caja para esta operación.",
+      "availableBalance": "Saldo disponible: {{amount}}"
+    },
+    "checkDeposit": {
+      "title": "Depositar cheque",
+      "description": "Instrucciones para depositar un cheque físico aparecerán aquí.",
+      "instructions": {
+        "line1": "Deposita el cheque desde <1>una cuenta a tu nombre</1>.",
+        "line2": "Para identificar tu depósito más rápido, recuerda incluir el correo electrónico indicado en la creación del destinatario."
+      },
+      "voucher": {
+        "title": "Envía el comprobante por nuestro chat o directamente a tu asesor",
+        "description": "Recuerda que el depósito estará disponible en un plazo de 2 días hábiles."
+      },
+      "rutRequirement": {
+        "title": "El cheque deberá estar asociado a tu RUT",
+        "description": "Caso contrario, el depósito será rechazado."
+      }
+    },
+    "cashBalance": {
+      "title": "Utilizar saldo en caja",
+      "description": "Se utilizará tu saldo disponible en caja para esta operación.",
+      "availableBalance": "Saldo disponible: {{amount}}"
     }
   },
   "confirmationStep": {
@@ -342,9 +438,7 @@
     "goalPlaceholder": "Selecciona una meta",
     "destinationPlaceholder": "Selecciona destino",
     "metaTo": {
-      "part1": "¿A qué ",
-      "part2": "meta",
-      "part3": "quieres invertir?"
+      "part2": "¿En qué meta quieres invertir?"
     }
   },
   "salesFlow": {
