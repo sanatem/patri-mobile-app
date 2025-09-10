@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TouchableOpacity, KeyboardAvoidingView, Platform, View, ScrollView } from 'react-native';
+import { TouchableOpacity } from 'react-native';
 import { ChevronLeft } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { Header } from '@/components/ui/Header';
@@ -8,10 +8,7 @@ import Colors from '@/constants/Colors';
 import FromGoalStep from './from-goal-step';
 import FromAssetStep from './from-asset-step';
 import ConfirmationStep from './confirmation-step';
-import { PortfolioActionsBar } from '@/components/investment/portfolio/PortfolioActionsBar';
 import { useTranslation } from 'react-i18next';
-
-
 
 export default function SalesFlow() {
   const { t } = useTranslation();
@@ -32,6 +29,7 @@ export default function SalesFlow() {
   const mockCuentas = [
     { label: t('salesFlow.mockCuentas.account1'), value: 'ca-6677' },
   ];
+  
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [goal, setGoal] = useState<string | undefined>();
@@ -47,50 +45,6 @@ export default function SalesFlow() {
     }
   };
 
-  const getActionsForStep = () => {
-    if (step === 1) {
-      return [
-        {
-          title: t('salesFlow.next'),
-          variant: 'primary' as const,
-          onPress: () => setStep(2),
-          disabled: !goal || !destino,
-          fullWidth: true,
-        },
-      ];
-    }
-    if (step === 2) {
-      return [
-        {
-          title: t('salesFlow.previous'),
-          variant: 'outline' as const,
-          onPress: () => setStep(1),
-        },
-        {
-          title: t('salesFlow.next'),
-          variant: 'primary' as const,
-          onPress: () => setStep(3),
-          disabled: !activo || (destino === 'cuenta-bancaria' && !cuenta),
-        },
-      ];
-    }
-    if (step === 3) {
-      return [
-        {
-          title: t('salesFlow.previous'),
-          variant: 'outline' as const,
-          onPress: () => setStep(2),
-        },
-        {
-          title: t('salesFlow.finish'),
-          variant: 'primary' as const,
-          onPress: () => router.push('/investment/portfolio'),
-        },
-      ];
-    }
-    return [];
-  };
-
   return (
     <Container variant="secondaryPage" className="px-1 flex-1">
       <Header
@@ -101,48 +55,42 @@ export default function SalesFlow() {
           </TouchableOpacity>
         }
       />
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
-        <View style={{ flex: 1 }}>
-          <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 100 }}>
-            {step === 1 && (
-              <FromGoalStep
-                goal={goal}
-                setGoal={setGoal}
-                destino={destino}
-                setDestino={setDestino}
-                mockGoals={mockGoals}
-                mockDestinos={mockDestinos}
-                onNext={() => setStep(2)}
-              />
-            )}
-            {step === 2 && (
-              <FromAssetStep
-                activo={activo}
-                setActivo={setActivo}
-                destino={destino}
-                cuenta={cuenta}
-                setCuenta={setCuenta}
-                mockActivos={mockActivos}
-                mockCuentas={mockCuentas}
-                onNext={() => setStep(3)}
-                onPrev={() => setStep(1)}
-              />
-            )}
-            {step === 3 && (
-              <ConfirmationStep
-                activo={activo}
-                mockActivos={mockActivos}
-                destino={destino}
-                onPrev={() => setStep(2)}
-                onFinish={() => router.push('/investment/portfolio')}
-              />
-            )}
-          </ScrollView>
-          <View className="px-3">
-            <PortfolioActionsBar actions={getActionsForStep()} />
-          </View>
-        </View>
-      </KeyboardAvoidingView>
+      
+      {step === 1 && (
+        <FromGoalStep
+          goal={goal}
+          setGoal={setGoal}
+          destino={destino}
+          setDestino={setDestino}
+          mockGoals={mockGoals}
+          mockDestinos={mockDestinos}
+          onNext={() => setStep(2)}
+        />
+      )}
+      
+      {step === 2 && (
+        <FromAssetStep
+          activo={activo}
+          setActivo={setActivo}
+          destino={destino}
+          cuenta={cuenta}
+          setCuenta={setCuenta}
+          mockActivos={mockActivos}
+          mockCuentas={mockCuentas}
+          onNext={() => setStep(3)}
+          onPrev={() => setStep(1)}
+        />
+      )}
+      
+      {step === 3 && (
+        <ConfirmationStep
+          activo={activo}
+          mockActivos={mockActivos}
+          destino={destino}
+          onPrev={() => setStep(2)}
+          onFinish={() => router.push('/investment/portfolio')}
+        />
+      )}
     </Container>
   );
 }

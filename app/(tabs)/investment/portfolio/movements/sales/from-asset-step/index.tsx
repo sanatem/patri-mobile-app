@@ -1,10 +1,6 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import FormLayout from '@/components/ui/FormLayout';
 import { Select } from '@/components/ui/Select';
-import { Button } from '@/components/ui/Button';
-import { PortfolioActionsBar } from '@/components/investment/portfolio/PortfolioActionsBar';
-import { Container } from '@/components/ui/Container';
-import Colors from '@/constants/Colors';
 import { useTranslation } from 'react-i18next';
 
 interface FromAssetStepProps {
@@ -19,15 +15,34 @@ interface FromAssetStepProps {
   mockCuentas: { label: string; value: string }[];
 }
 
-export default function FromAssetStep({ activo, setActivo, destino, cuenta, setCuenta, onNext, onPrev, mockActivos, mockCuentas }: FromAssetStepProps) {
+export default function FromAssetStep({ 
+  activo, 
+  setActivo, 
+  destino, 
+  cuenta, 
+  setCuenta, 
+  onNext, 
+  onPrev, 
+  mockActivos, 
+  mockCuentas 
+}: FromAssetStepProps) {
   const { t } = useTranslation();
 
   return (
-    <Container variant="secondaryPage" className="px-3">
-      <Text className="text-base font-regular mb-2" style={{ color: Colors.primary[500] }}>
-        {t('fromAssetStep.assetQuestion.part1')} <Text className="font-semibold">{t('fromAssetStep.assetQuestion.part2')}</Text> {t('fromAssetStep.assetQuestion.part3')}
-      </Text>
+    <FormLayout
+      title={t('salesFlow.fromAssetStep.title')}
+      subtitle={t('salesFlow.fromAssetStep.subtitle')}
+      currentStep={2}
+      totalSteps={3}
+      onNext={onNext}
+      onPrevious={onPrev}
+      nextButtonTitle={t('salesFlow.next')}
+      previousButtonTitle={t('salesFlow.previous')}
+      isNextDisabled={!activo || (destino === 'cuenta-bancaria' && !cuenta)}
+      showLogo={false}
+    >
       <Select
+        label={t('fromAssetStep.assetQuestion.part2')}
         options={mockActivos}
         value={activo}
         onSelect={setActivo}
@@ -35,18 +50,14 @@ export default function FromAssetStep({ activo, setActivo, destino, cuenta, setC
       />
 
       {destino === 'cuenta-bancaria' && (
-        <>
-          <Text className="text-base font-regular mb-2" style={{ color: Colors.primary[500] }}>
-            {t('fromAssetStep.accountQuestion.part1')} <Text className="font-semibold">{t('fromAssetStep.accountQuestion.part2')}</Text> {t('fromAssetStep.accountQuestion.part3')}
-          </Text>
-          <Select
-            options={mockCuentas}
-            value={cuenta}
-            onSelect={setCuenta}
-            placeholder={t('fromAssetStep.accountPlaceholder')}
-          />
-        </>
+        <Select
+          label={t('fromAssetStep.accountQuestion.part2')}
+          options={mockCuentas}
+          value={cuenta}
+          onSelect={setCuenta}
+          placeholder={t('fromAssetStep.accountPlaceholder')}
+        />
       )}
-    </Container>
+    </FormLayout>
   );
 }
