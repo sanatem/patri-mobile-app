@@ -63,13 +63,7 @@ const transformApiGoalHistoryResponse = (apiData: ApiGoalHistoryResponse): GoalH
 export const goalHistoryService = {
   async getGoalHistory(params: GoalHistoryParams, token: string): Promise<GoalHistoryData> {
     try {
-      console.log('🚀 goalHistoryService - Iniciando llamada con params:', {
-        goalId: params.goalId,
-        startDate: params.startDate,
-        endDate: params.endDate,
-        page: params.page,
-        perPage: params.perPage
-      });
+      
 
       if (!token) {
         throw new Error('No hay token de autenticación disponible');
@@ -95,8 +89,6 @@ export const goalHistoryService = {
 
       const queryString = queryParams.toString();
       const url = `${config.apiBaseUrl}/api/v2/goals/${params.goalId}/historic_value${queryString ? `?${queryString}` : ''}`;
-      
-      console.log('🔗 goalHistoryService - URL:', url);
 
       const response = await fetch(url, {
         method: 'GET',
@@ -106,11 +98,10 @@ export const goalHistoryService = {
         },
       });
 
-      console.log('📥 goalHistoryService - Status:', response.status);
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('❌ goalHistoryService - Error response:', {
+        console.error('goalHistoryService - Error response:', {
           status: response.status,
           errorText
         });
@@ -127,49 +118,17 @@ export const goalHistoryService = {
       }
 
       const data: ApiGoalHistoryResponse = await response.json();
-      console.log('✅ goalHistoryService - Datos recibidos:', {
-        goalId: data.goal_id,
-        pointsCount: data.historic_goal_value.length,
-        pagination: data.pagination
-      });
       
       const transformedData = transformApiGoalHistoryResponse(data);
       
       return transformedData;
 
     } catch (error) {
-      console.error('❌ goalHistoryService - Error completo:', {
+      console.error('goalHistoryService - Error completo:', {
         error: error instanceof Error ? error.message : 'Error desconocido',
         params,
         isDev: __DEV__
       });
-      
-      if (__DEV__) {
-        console.log('🔄 goalHistoryService - Retornando datos mock en desarrollo');
-        const mockHistoryData: GoalHistoryData = {
-          goalId: parseInt(params.goalId),
-          historicValues: [
-            { date: '2024-01-01', value: 100000 },
-            { date: '2024-01-15', value: 150000 },
-            { date: '2024-02-01', value: 175000 },
-            { date: '2024-02-15', value: 200000 },
-            { date: '2024-03-01', value: 225000 },
-            { date: '2024-03-15', value: 250000 },
-            { date: '2024-04-01', value: 275000 },
-            { date: '2024-04-15', value: 300000 },
-          ],
-          pagination: {
-            currentPage: 1,
-            perPage: 30,
-            totalCount: 8,
-            totalPages: 1,
-            hasNextPage: false,
-            hasPrevPage: false
-          }
-        };
-        
-        return mockHistoryData;
-      }
       
       throw error;
     }

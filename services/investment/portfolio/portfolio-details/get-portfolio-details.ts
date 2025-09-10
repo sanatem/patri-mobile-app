@@ -1,6 +1,4 @@
 import config from '@/config/constants';
-import mockData from '@/data/mock/mock-data.json';
-import { apiService } from '@/services/api';
 import { safeCurrencyToNumber } from '@/lib/utils';
 
 export interface MetaDetails {
@@ -231,72 +229,13 @@ export async function getPortfolioDetails(goalId: string, token: string): Promis
     try {
       return transformApiGoalToMetaDetails(data);
     } catch (transformError) {
-      console.error('❌ Error transforming API data:', transformError);
+      console.error('Error transforming API data:', transformError);
       throw transformError;
     }
 
   } catch (error) {
-    console.error('❌ Portfolio Details Service: Error fetching goal details from API:', error);
+    console.error('Portfolio Details Service: Error fetching goal details from API:', error);
     
-    if (__DEV__) {
-      await new Promise(resolve => setTimeout(resolve, 300));
-      
-      const investment = mockData.investmentPortfolio.investments.find(
-        inv => inv.id === goalId
-      );
-      
-      if (!investment) {
-        return null;
-      }
-      
-      const progress = investment.currentAmount / investment.targetAmount;
-      
-      const createdAt = '13/08/2024';
-      const goalDate = '18/06/2025';
-      const yearsRange = 'Entre 3 y 5 años';
-      
-      const summary = {
-        estrategia: 'Recomendación de Algoritmo',
-        riesgo: investment.riskLevel === 'muy-conservador' ? 'Muy Conservador' : 
-                investment.riskLevel === 'conservador' ? 'Conservador' : 
-                investment.riskLevel === 'moderado' ? 'Moderado' : 'Arriesgado',
-        aportes: investment.investmentDetails?.depositedAmount || 0,
-        rescates: 0,
-        variacion: '2.45%',
-        variacionPesos: investment.investmentDetails?.depositedAmount || 0,
-      };
-      
-              const assets = [
-          {
-            id: '1',
-            title: 'Singular S&P 500',
-            subtitle: 'CFISP500',
-            value: Math.floor(investment.currentAmount * 0.3),
-            badge: { text: '0.35%', variant: 'positive' as const }
-          },
-          {
-            id: '2',
-            title: 'Singular Nasdaq 100',
-            subtitle: 'CFINASDAQ',
-            value: Math.floor(investment.currentAmount * 0.7),
-            badge: { text: '0.12%', variant: 'positive' as const }
-          }
-        ];
-      
-      return {
-        id: investment.id,
-        name: investment.title,
-        createdAt,
-        goal: investment.targetAmount,
-        goalDate,
-        yearsRange,
-        progress,
-        current: investment.currentAmount,
-        currency: 'CLP',
-        summary,
-        assets
-      };
-    }
     
     throw error;
   }

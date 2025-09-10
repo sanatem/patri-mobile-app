@@ -138,36 +138,6 @@ export const goalsService = {
 
     } catch (error) {
       console.error('Goals Service: Error fetching goals from API:', error);
-      
-      if (__DEV__) {
-        const mockUserData = require('@/data/mock/mock-data.json');
-        const mockGoalsData = mockUserData.goals;
-        const transformedMockGoals = {
-          shortTerm: mockGoalsData.shortTerm.map(transformMockGoalToAppGoal),
-          mediumTerm: mockGoalsData.mediumTerm.map(transformMockGoalToAppGoal),
-          longTerm: mockGoalsData.longTerm.map(transformMockGoalToAppGoal)
-        };
-        
-        return {
-          investment: {
-            ...transformedMockGoals,
-            accountInfo: {
-              id: 1083,
-              name: "Cuenta de inversión"
-            }
-          },
-          savings: {
-            shortTerm: [],
-            mediumTerm: [],
-            longTerm: [],
-            accountInfo: {
-              id: 1451,
-              name: "Cuenta de ahorro"
-            }
-          }
-        };
-      }
-      
       throw error;
     }
   }
