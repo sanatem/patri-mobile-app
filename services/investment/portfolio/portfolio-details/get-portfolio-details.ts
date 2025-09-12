@@ -41,7 +41,7 @@ interface ApiGoalDetails {
     target_date: string;
     unit: string;
     created_at: string;
-    wallet_value: number;
+    goal_wallet: number;
     investment_account_id: number;
   };
   presenter_data?: {
@@ -77,6 +77,10 @@ const formatSafeDate = (dateString: string): string => {
   if (!dateString) return 'Fecha no disponible';
   
   try {
+    if (dateString.includes('En menos de') || dateString.includes('año') || dateString.includes('mes')) {
+      return dateString;
+    }
+    
     if (dateString.includes('/')) {
       const parts = dateString.split('/');
       if (parts.length === 3) {
@@ -123,7 +127,7 @@ const transformApiGoalToMetaDetails = (apiData: ApiGoalDetails): MetaDetails => 
   const { goal, presenter_data } = apiData;
   
   const targetAmount = getSafeNumber(goal.target_amount, 0);
-  const currentAmount = getSafeNumber(goal.wallet_value, 0);
+  const currentAmount = getSafeNumber(goal.goal_wallet, 0);
   
   const progress = targetAmount > 0 
     ? currentAmount / targetAmount 
@@ -150,11 +154,11 @@ const transformApiGoalToMetaDetails = (apiData: ApiGoalDetails): MetaDetails => 
 
   const summary = {
     estrategia: 'Recomendación de Algoritmo',
-    riesgo: getRiskLabel(presenter_data?.goal_last_portfolio_risk_profile),
+    riesgo: getRiskLabel(presenter_data?.broker_portfolio?.risk_profile || presenter_data?.goal_last_portfolio_risk_profile),
     aportes: getSafeNumber(presenter_data?.deposit_sum, 0),
     rescates: getSafeNumber(presenter_data?.retirement_sum, 0),
     variacion: calculateVariation(),
-    variacionPesos: currentAmount - getSafeNumber(presenter_data?.deposit_sum, 0) + getSafeNumber(presenter_data?.retirement_sum, 0),
+    variacionPesos: getSafeNumber(presenter_data?.variation, 0),
   };
 
   const assets = (presenter_data?.wallet_containers || []).map((container, index) => ({

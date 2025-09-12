@@ -63,7 +63,6 @@ const transformApiGoalHistoryResponse = (apiData: ApiGoalHistoryResponse): GoalH
 export const goalHistoryService = {
   async getGoalHistory(params: GoalHistoryParams, token: string): Promise<GoalHistoryData> {
     try {
-      
 
       if (!token) {
         throw new Error('No hay token de autenticación disponible');
@@ -98,7 +97,6 @@ export const goalHistoryService = {
         },
       });
 
-
       if (!response.ok) {
         const errorText = await response.text();
         console.error('goalHistoryService - Error response:', {
@@ -120,7 +118,7 @@ export const goalHistoryService = {
       const data: ApiGoalHistoryResponse = await response.json();
       
       const transformedData = transformApiGoalHistoryResponse(data);
-      
+
       return transformedData;
 
     } catch (error) {
