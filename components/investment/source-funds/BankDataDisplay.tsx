@@ -25,7 +25,7 @@ export function BankDataDisplay({ title }: BankDataDisplayProps) {
     },
     {
       label: 'Rut:',
-      value: '13345668-5',
+      value: '76513680-6',
       copyable: true,
     },
     {
@@ -35,22 +35,22 @@ export function BankDataDisplay({ title }: BankDataDisplayProps) {
     },
     {
       label: 'Tipo de cuenta:',
-      value: t('sourceFunds.bankTransfer.values.accountType'),
+      value: 'Cuenta corriente',
       copyable: true,
     },
     {
       label: 'Número de cuenta:',
-      value: '11068350',
+      value: '922995560',
       copyable: true,
     },
     {
       label: 'Moneda:',
-      value: t('sourceFunds.bankTransfer.values.currency'),
+      value: 'CLP',
       copyable: true,
     },
     {
       label: 'Correo electrónico:',
-      value: 'user8@demo.com',
+      value: 'aportes@vectorcapital.cl',
       copyable: true,
     },
   ];
