@@ -98,7 +98,7 @@ export default function PersonalInformationStepper() {
               >
                 <Text className="text-base text-gray-800">{option.label}</Text>
               </TouchableOpacity>
-            )}
+            ))}
           </View>
         );
 
@@ -165,7 +165,7 @@ export default function PersonalInformationStepper() {
                         <Picker.Item label={field.placeholder} value="" />
                         {options.map((option: string, idx: number) => (
                           <Picker.Item key={idx} label={option} value={option} />
-                        )}
+                        ))}
                       </Picker>
                     </View>
                   </View>
@@ -202,7 +202,7 @@ export default function PersonalInformationStepper() {
                 index <= currentStep ? 'bg-primary-500' : 'bg-gray-200'
               }`}
             />
-          )}
+          ))}
         </View>
 
         <Text className="text-lg font-semibold mb-5">
