@@ -41,7 +41,7 @@ export default function InvestmentPortfolioScreen() {
   const { totalWalletValue, investmentWalletValue, savingsWalletValue, loading: walletLoading, error: walletError } = useTotalWalletValue();
   const { accessToken } = useAuth();
   const [cashData, setCashData] = useState<any>(null);
-  const [selectedAccountType, setSelectedAccountType] = useState<string>('investment');
+  const [selectedAccountType, setSelectedAccountType] = useState<string>('investment')
   
   useEffect(() => {
     const loadCashData = async () => {
@@ -132,8 +132,8 @@ export default function InvestmentPortfolioScreen() {
     }
   };
 
-  const handleInvestPress = () => router.push('/investment/portfolio/movements/investment');
-  const handleWithdrawPress = () => router.push('/investment/portfolio/movements/sales');
+  const handleInvestPress = () => router.push('/(tabs)/investment/portfolio/movements/investment')
+  const handleWithdrawPress = () => router.push('/(tabs)/investment/portfolio/movements/sales')
 
   const renderGoalsSection = () => {
     if (goalsLoading) {

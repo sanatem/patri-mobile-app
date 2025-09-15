@@ -39,7 +39,7 @@ export default function SalesFlow() {
 
   const handleBack = () => {
     if (step === 1) {
-      router.push('/investment/portfolio');
+      router.push('/(tabs)/investment/portfolio')
     } else {
       setStep(step - 1);
     }
@@ -88,7 +88,7 @@ export default function SalesFlow() {
           mockActivos={mockActivos}
           destino={destino}
           onPrev={() => setStep(2)}
-          onFinish={() => router.push('/investment/portfolio')}
+          onFinish={() => router.push('/(tabs)/investment/portfolio')}
         />
       )}
     </Container>

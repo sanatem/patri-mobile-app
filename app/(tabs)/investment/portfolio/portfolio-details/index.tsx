@@ -33,11 +33,11 @@ export default function PortfolioDetailsScreen() {
         setError(null);
         
         if (!goalId) {
-          throw new Error('portfolioDetails.error.noGoalId');
+          throw new Error('portfolioDetails.error.noGoalId')
         }
         
         if (!accessToken) {
-          throw new Error('portfolioDetails.error.noToken');
+          throw new Error('portfolioDetails.error.noToken')
         }
         
         const [movementsData, metaData] = await Promise.all([
@@ -49,7 +49,7 @@ export default function PortfolioDetailsScreen() {
         setMetaDetails(metaData);
       } catch (error) {
         console.error('Error loading portfolio details:', error);
-        setError(error instanceof Error ? error.message : 'portfolioDetails.error.unknown');
+        setError(error instanceof Error ? error.message : 'portfolioDetails.error.unknown')
       } finally {
         setLoading(false);
       }
@@ -67,7 +67,7 @@ export default function PortfolioDetailsScreen() {
             title={t('portfolioDetails.title')} 
             leftAction={
               <TouchableOpacity
-                onPress={() => router.push('/investment/portfolio')}
+                onPress={() => router.push('/(tabs)/investment/portfolio')}
                 className="w-10 h-10 rounded-full justify-center items-center"
               >
                 <ChevronLeft size={24} color={Colors.primary[700]} />
@@ -80,7 +80,7 @@ export default function PortfolioDetailsScreen() {
                 {t(error) || error}
               </Text>
               <TouchableOpacity
-                onPress={() => router.push('/investment/portfolio')}
+                onPress={() => router.push('/(tabs)/investment/portfolio')}
                 className="bg-primary-500 px-4 py-2 rounded-lg"
               >
                 <Text className="text-white">{t('common.backToPortfolio')}</Text>
@@ -113,7 +113,7 @@ export default function PortfolioDetailsScreen() {
           title={t('portfolioDetails.title')} 
           leftAction={
             <TouchableOpacity
-              onPress={() => router.push('/investment/portfolio')}
+              onPress={() => router.push('/(tabs)/investment/portfolio')}
               className="p-1 mr-3"
             >
               <ChevronLeft size={24} color={Colors.primary[500]} />
@@ -142,14 +142,14 @@ export default function PortfolioDetailsScreen() {
             actions={[
               {
                 title: t('portfolioDetails.actions.invest'),
-                onPress: () => router.push('/investment/portfolio/movements/investment' as any),
+                onPress: () => router.push('/(tabs)/investment/portfolio/movements/investment'),
                 icon: <ArrowDown size={20} color="#fff" />,
                 variant: 'primary'
               },
               {
                 title: t('portfolioDetails.actions.withdraw'),
                 onPress: () => {
-                  router.push('/investment/portfolio/movements/sales' as any);
+                  router.push('/(tabs)/investment/portfolio/movements/sales')
                 },
                 icon: <ArrowUp size={20} color="#FF5603" />,
                 variant: 'outline'

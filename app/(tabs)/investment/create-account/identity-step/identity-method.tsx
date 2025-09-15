@@ -20,7 +20,7 @@ export default function IdentityMethod() {
 
         <TouchableOpacity
           className="bg-white py-3 px-4 rounded-lg items-center mb-3 border border-primary-500"
-          onPress={() => router.push('/investment/create-account/identity-step/identity-upload' as any)}
+          onPress={() => router.push('/(tabs)/investment/create-account/identity-step/identity-upload')}
         >
           <Text className="text-primary-500 font-semibold text-base">
             {t('identityMethod.option_id_card')}
@@ -29,7 +29,7 @@ export default function IdentityMethod() {
 
         <TouchableOpacity
           className="bg-white py-3 px-4 rounded-lg items-center mb-3 mt-3 border border-primary-500"
-          onPress={() => router.push('/investment/create-account/identity-step/identity-upload' as any)}
+          onPress={() => router.push('/(tabs)/investment/create-account/identity-step/identity-upload')}
         >
           <Text className="text-primary-500 font-semibold text-base">
             {t('identityMethod.option_passport')}

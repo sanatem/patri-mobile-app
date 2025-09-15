@@ -3,15 +3,16 @@ import { View, Text, TouchableOpacity, Modal, Pressable, ScrollView, Animated } 
 import FormLayout from '@/components/ui/FormLayout';
 import { Select } from '@/components/ui/Select';
 import { Input } from '@/components/ui/Input';
+import { Card } from '@/components/ui/Card';
 import { useFormatValue } from '@/hooks/common/useFormatValue';
 import { useGoals } from '@/hooks/investment/useGoals';
 import { useBrokerPortfolioDetails } from '@/hooks/investment/useBrokerPortfolioDetails';
 import { useCreatePurchase } from '@/hooks/investment/useCreatePurchase';
 import { useAuth } from '@/providers/AuthProvider';
 import { useTranslation } from 'react-i18next';
-import { cn } from '@/lib/utils';
 import { selectStyles, SCREEN_HEIGHT } from '@/styles/ui/Select.styles';
 import Colors from '@/constants/Colors';
+import { PieChart } from 'lucide-react-native';
 
 interface GoalSelectionStepProps {
   selectedGoal?: string;
@@ -31,8 +32,8 @@ export default function GoalSelectionStep({
   onCancel,
 }: GoalSelectionStepProps) {
   const [selectedGoal, setSelectedGoal] = useState(initialGoal);
-  const [displayValue, setDisplayValue] = useState('');
-  const [selectedPortfolio, setSelectedPortfolio] = useState('');
+  const [displayValue, setDisplayValue] = useState('')
+  const [selectedPortfolio, setSelectedPortfolio] = useState('')
   const [isPortfolioModalVisible, setIsPortfolioModalVisible] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const overlayAnim = useRef(new Animated.Value(0)).current;
@@ -83,7 +84,7 @@ export default function GoalSelectionStep({
     if (amount) {
       setDisplayValue(formatValue(amount));
     } else {
-      setDisplayValue('');
+      setDisplayValue('')
     }
   }, [amount, formatValue]);
 
@@ -136,9 +137,9 @@ export default function GoalSelectionStep({
         onAmountChange(clean);
       }
     } else {
-      setDisplayValue('');
+      setDisplayValue('')
       if (onAmountChange) {
-        onAmountChange('');
+        onAmountChange('')
       }
     }
   };
@@ -151,11 +152,6 @@ export default function GoalSelectionStep({
 
   const handlePortfolioLinkPress = () => {
     setIsPortfolioModalVisible(true);
-  };
-
-  const handlePortfolioSelect = (value: string) => {
-    setSelectedPortfolio(value);
-    setIsPortfolioModalVisible(false);
   };
 
   const closeModal = () => {
@@ -187,15 +183,24 @@ export default function GoalSelectionStep({
       />
 
       {selectedGoal && (
-        <View>
-          <TouchableOpacity onPress={handlePortfolioLinkPress}>
-            <Text 
-              className="text-sm font-regular"
-              style={{ 
-                color: Colors.secondary[500],
-                textDecorationLine: 'underline'
-              }}
-            >
+        <View style={{ marginTop: -20 }}>
+          <TouchableOpacity
+            onPress={handlePortfolioLinkPress}
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              paddingVertical: 6,
+              paddingHorizontal: 12,
+              borderWidth: 1,
+              borderColor: Colors.primary[200],
+              borderRadius: 12,
+              backgroundColor: 'white',
+            }}
+            activeOpacity={0.7}
+          >
+            <PieChart size={14} color={Colors.primary[500]} style={{ marginRight: 6 }} />
+            <Text className="text-xs font-medium" style={{ color: Colors.primary[500] }}>
               {t('investmentMovement.goalStep.portfolioInfo.label')}
             </Text>
           </TouchableOpacity>

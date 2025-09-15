@@ -307,7 +307,7 @@
     "goalStep": {
       "title": "Creación de depósito 💰",
       "portfolioInfo": {
-        "label": "Ver mi portafolio recomendado asociado"
+        "label": "Ver mi portafolio asociado"
       }
     },
     "amountStep": {
@@ -316,7 +316,7 @@
     }
   },
   "sourceFunds": {
-    "title": "Origen de los fondos",
+    "title": "Origen de los fondos 🏦",
     "subtitle": "Selecciona de dónde quieres transferir el dinero",
     "placeholder": "Selecciona origen de fondos",
     "options": {
@@ -334,6 +334,7 @@
         "line1": "Haz la transferencia desde <1>una cuenta a tu nombre</1>.",
         "line2": "Para identificar tu transferencia más rápido, recuerda incluir el correo electrónico indicado en la creación del destinatario."
       },
+      "dataTitle": "Datos bancarios",
       "bankName": "Banco Security",
       "fields": {
         "name": "Nombre",

@@ -11,21 +11,33 @@ export interface CreatePurchaseRequest {
 }
 
 export interface CreatePurchaseResponse {
-  id: number;
-  type: string;
-  original_amount: number;
-  current_amount: number;
-  investment_amount: number;
-  aasm_state: string;
-  created_at: string;
-  updated_at: string;
-  source_destination: string;
-  payment_method: string;
-  broker_portfolio_name: string;
-  user_id: number;
-  goal_id: number;
-  goal_wallet_id: number;
-  orphan: boolean;
+  movement: {
+    id: number;
+    type: string;
+    original_amount: number;
+    current_amount: number;
+    investment_amount: number;
+    aasm_state: string;
+    created_at: string;
+    updated_at: string;
+    source_destination: string;
+    payment_method: string;
+    broker_portfolio_name: string;
+    user_id: number;
+    goal_id: number;
+    goal_wallet_id: number;
+    orphan: boolean;
+  };
+  fintoc_widget?: {
+    widget_token: string;
+    fintoc_event_id: string;
+    fintoc_public_key: string;
+    webhook_url: string;
+    delete_url: string;
+    country: string;
+    product: string;
+    holder_type: string;
+  };
 }
 
 export interface CreatePurchaseApiResponse {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View } from 'react-native';
+import { View, Text } from 'react-native';
 import { FintocWidgetView } from '@fintoc/fintoc-react-native';
 import Colors from '@/constants/Colors';
 
@@ -7,29 +7,26 @@ interface FintocTransferProps {
   amount: number;
   onSuccess?: (data: any) => void;
   onExit?: () => void;
+  fintocConfig?: {
+    widget_token: string;
+    public_key: string;
+    webhook_url: string;
+  };
 }
 
-export function FintocTransfer({ amount, onSuccess, onExit }: FintocTransferProps) {
-  // Configuración del widget de Fintoc
+export function FintocTransfer({ amount, onSuccess, onExit, fintocConfig }: FintocTransferProps) {
+
+  const shouldShowWidget = Boolean(fintocConfig?.widget_token);
+
   const fintocOptions = {
-    public_key: process.env.EXPO_PUBLIC_FINTOC_PUBLIC_KEY || 'pk_test_example',
-    product: 'payment_intent',
-    widget_id: process.env.EXPO_PUBLIC_FINTOC_WIDGET_ID || 'wg_test_example',
-    
-    amount: amount,
-    currency: 'CLP',
-    
-    theme: {
-      primary_color: Colors.primary[500],
-      background_color: Colors.gray[50],
-    },
-    
-    language: 'es',
+    public_key: fintocConfig?.public_key || process.env.EXPO_PUBLIC_FINTOC_PUBLIC_KEY || 'pk_test_mUqyEi4cVChLF748ySsm-b6M38w_LkS2',
+    product: 'payments',
     country: 'cl',
+    widget_token: fintocConfig?.widget_token,
   };
 
   const handleSuccess = (data: any) => {
-    console.log('Fintoc Success:', data);
+
     onSuccess?.(data);
   };
 
@@ -37,6 +34,34 @@ export function FintocTransfer({ amount, onSuccess, onExit }: FintocTransferProp
     console.log('Fintoc Exit');
     onExit?.();
   };
+
+  if (!shouldShowWidget) {
+    return (
+      <View style={{ flex: 1, backgroundColor: 'white', padding: 20 }}>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <Text style={{ 
+            fontSize: 24, 
+            fontWeight: 'bold', 
+            color: Colors.error[700],
+            marginBottom: 16,
+            textAlign: 'center'
+          }}>
+            Error de Configuración
+          </Text>
+          
+          <Text style={{ 
+            fontSize: 16, 
+            color: Colors.error[600],
+            textAlign: 'center',
+            lineHeight: 24
+          }}>
+            No se recibió la configuración de Fintoc del servidor. 
+            Por favor, intenta nuevamente o contacta soporte.
+          </Text>
+        </View>
+      </View>
+    );
+  }
 
   return (
     <View style={{ flex: 1, backgroundColor: 'white' }}>

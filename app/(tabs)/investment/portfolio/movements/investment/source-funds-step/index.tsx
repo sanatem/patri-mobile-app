@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import FormLayout from '@/components/ui/FormLayout';
 import { Select } from '@/components/ui/Select';
 import { BankTransfer, CheckDeposit, FintocTransfer } from '@/components/investment/source-funds';
@@ -12,6 +12,7 @@ interface SourceFundsStepProps {
   onSourceSelect?: (source: string) => void;
   onContinue?: () => void;
   onPrevious?: () => void;
+  onConfirm?: (source: string) => void;
   amount: number;
   availableCashAmount: number;
   loading?: boolean;
@@ -22,6 +23,7 @@ function SourceFundsStep({
   onSourceSelect,
   onContinue,
   onPrevious,
+  onConfirm,
   amount,
   availableCashAmount,
   loading = false,
@@ -64,7 +66,11 @@ function SourceFundsStep({
   };
 
   const handleContinue = () => {
-    if (onContinue) {
+    if ((selectedOption === 'bank' || selectedOption === 'check' || selectedOption === 'cash') && onConfirm) {
+      onConfirm(selectedOption);
+    } else if (selectedOption === 'fintoc' && onConfirm) {
+      onConfirm(selectedOption);
+    } else if (onContinue) {
       onContinue();
     }
   };
@@ -106,16 +112,16 @@ function SourceFundsStep({
       )}
       
       {selectedOption === 'cash' && (
-        <View style={{ marginTop: 2, padding: 20, backgroundColor: Colors.gray[50], borderRadius: 12 }}>
-          <Text className="text-base font-medium mb-2" style={{ color: Colors.primary[700] }}>
-            {t('sourceFunds.cashTransfer.title')}
-          </Text>
-          <Text className="text-sm font-regular mb-2" style={{ color: Colors.primary[600] }}>
-            {t('sourceFunds.cashTransfer.description')}
-          </Text>
-          <Text className="text-sm font-medium" style={{ color: Colors.primary[600] }}>
-            {t('sourceFunds.cashTransfer.availableBalance', { amount: formatValue(availableCashAmount.toString()) })}
-          </Text>
+        <View style={{ marginTop: 2 }}>
+          <View style={{ padding: 2, backgroundColor: 'white'}}>
+            <Text className="text-sm font-regular mb-2" style={{ color: Colors.primary[600] }}>
+              {t('sourceFunds.cashTransfer.description')}
+            </Text>
+            <Text className="text-sm font-medium" style={{ color: Colors.primary[600] }}>
+              {t('sourceFunds.cashTransfer.availableBalance', { amount: formatValue(availableCashAmount.toString()) })}
+            </Text>
+          </View>
+          
         </View>
       )}
     </FormLayout>

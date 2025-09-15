@@ -5,6 +5,7 @@ declare module '@fintoc/fintoc-react-native' {
     public_key: string;
     product?: string;
     widget_id?: string;
+    widget_token?: string;
     amount?: number;
     currency?: string;
     theme?: {
@@ -25,3 +26,4 @@ declare module '@fintoc/fintoc-react-native' {
 
   export declare const FintocWidgetView: React.ComponentType<FintocWidgetViewProps>;
 }
+
