@@ -11,7 +11,8 @@ interface ApiGoal {
   target_date: string;
   unit: string;
   created_at: string;
-  wallet_value: number;
+  goal_wallet: number;
+  available_value_for_retirement?: number;
   investment_account_id: number;
 }
 
@@ -37,10 +38,14 @@ const transformApiGoalToAppGoal = (apiGoal: ApiGoal): Goal => {
     targetDate: apiGoal.target_date,
     unit: apiGoal.unit,
     createdAt: apiGoal.created_at,
-    currentAmount: Math.round(apiGoal.wallet_value),
+    currentAmount: Math.round(apiGoal.goal_wallet),
+    goalWallet: Math.round(apiGoal.goal_wallet),
+    availableValueForRetirement: apiGoal.available_value_for_retirement
+      ? Math.round(apiGoal.available_value_for_retirement)
+      : undefined,
     investmentAccountId: apiGoal.investment_account_id,
-    progress: apiGoal.target_amount > 0 
-      ? Math.round((apiGoal.wallet_value / apiGoal.target_amount) * 100) 
+    progress: apiGoal.target_amount > 0
+      ? Math.round((apiGoal.goal_wallet / apiGoal.target_amount) * 100)
       : 0
   };
 };

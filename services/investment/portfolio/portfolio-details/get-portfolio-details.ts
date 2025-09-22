@@ -24,6 +24,8 @@ export interface MetaDetails {
     title: string;
     subtitle: string;
     value: number;
+    availableQuotas: number;
+    quotaValue: number;
     badge: {
       text: string;
       variant: 'positive' | 'negative' | 'neutral';
@@ -58,6 +60,8 @@ interface ApiGoalDetails {
       quotas: number;
       available_quotas_for_retirement: number;
       current_value: number;
+      available_value_for_retirement: number;
+      quota_value: number;
       percentage: number;
     }>;
     broker_portfolio: {
@@ -165,7 +169,9 @@ const transformApiGoalToMetaDetails = (apiData: ApiGoalDetails): MetaDetails => 
     id: getSafeNumber(container.wallet_container_id, index + 1).toString(),
     title: container.broker_product_name || 'Producto',
     subtitle: container.broker_product_code || 'Código',
-    value: getSafeNumber(container.current_value, 0),
+    value: getSafeNumber(container.available_value_for_retirement, 0),
+    availableQuotas: getSafeNumber(container.available_quotas_for_retirement, 0),
+    quotaValue: getSafeNumber(container.quota_value, 0),
     badge: {
       text: formatPercentage(presenter_data?.variation),
       variant: getSafeNumber(presenter_data?.variation, 0) >= 0 ? 'positive' as const : 'negative' as const
@@ -178,6 +184,8 @@ const transformApiGoalToMetaDetails = (apiData: ApiGoalDetails): MetaDetails => 
       title: goal.name || 'Meta',
       subtitle: goal.kind_name || 'Meta',
       value: currentAmount,
+      availableQuotas: 0,
+      quotaValue: 0,
       badge: {
         text: formatPercentage(0),
         variant: 'positive' as const

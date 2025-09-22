@@ -1,6 +1,5 @@
-import React from 'react';
 import { View, Text, TouchableOpacity, Alert, Clipboard } from 'react-native';
-import { useTranslation, Trans } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import Colors from '@/constants/Colors';
 import { Copy } from 'lucide-react-native';
 

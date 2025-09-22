@@ -4,24 +4,69 @@ import FormLayout from '@/components/ui/FormLayout';
 import { Card } from '@/components/ui/Card';
 import Colors from '@/constants/Colors';
 import { useTranslation } from 'react-i18next';
+import CashSaleForm from '@/components/investment/movements/sales/CashSaleForm';
+import AssetSelectionList from '@/components/investment/portfolio/AssetSelectionList';
 
 interface ConfirmationStepProps {
   activo: string | undefined;
-  mockActivos: { label: string; value: string }[];
+  activos: { label: string; value: string }[];
   destino: string | undefined;
+  goal: string | undefined;
+  cashAmount: string;
+  setCashAmount: (value: string) => void;
+  cashBankAccount: string | undefined;
+  setCashBankAccount: (value: string) => void;
+  bankAccounts: { label: string; value: string }[];
   onPrev: () => void;
   onFinish: () => void;
 }
 
-export default function ConfirmationStep({ 
-  activo, 
-  mockActivos, 
-  destino, 
-  onPrev, 
-  onFinish 
+export default function ConfirmationStep({
+  activo,
+  activos,
+  destino,
+  goal,
+  cashAmount,
+  setCashAmount,
+  cashBankAccount,
+  setCashBankAccount,
+  bankAccounts,
+  onPrev,
+  onFinish
 }: ConfirmationStepProps) {
   const { t } = useTranslation();
 
+  // Show cash form when cash-balance is selected
+  if (goal === 'cash-balance') {
+    return (
+      <FormLayout
+        title={t('salesFlow.confirmationStep.title')}
+        subtitle={t('salesFlow.confirmationStep.subtitle')}
+        currentStep={3}
+        totalSteps={3}
+        onNext={onFinish}
+        onPrevious={onPrev}
+        nextButtonTitle={t('salesFlow.finish')}
+        previousButtonTitle={t('salesFlow.previous')}
+        isNextDisabled={!cashAmount || !cashBankAccount}
+        showLogo={false}
+      >
+        <CashSaleForm
+          amount={cashAmount}
+          setAmount={setCashAmount}
+          bankAccount={cashBankAccount}
+          setBankAccount={setCashBankAccount}
+          bankAccounts={bankAccounts}
+        />
+
+        <Text className="text-xs font-regular mt-4" style={{ color: Colors.gray[500] }}>
+          {t('confirmationStep.note')}
+        </Text>
+      </FormLayout>
+    );
+  }
+
+  // Show confirmation for regular asset sales
   return (
     <FormLayout
       title={t('salesFlow.confirmationStep.title')}
@@ -40,7 +85,7 @@ export default function ConfirmationStep({
             {t('confirmationStep.origin')}
           </Text>
           <Text className="text-base font-semibold" style={{ color: Colors.primary[700] }}>
-            {activo ? mockActivos.find(a => a.value === activo)?.label : ''}
+            {activo ? activos.find(a => a.value === activo)?.label : ''}
           </Text>
         </View>
 
@@ -49,7 +94,7 @@ export default function ConfirmationStep({
             {t('confirmationStep.amount')}
           </Text>
           <Text className="text-base font-semibold" style={{ color: Colors.primary[700] }}>
-            $1.492.500,00 CLP
+            -
           </Text>
         </View>
 

@@ -412,28 +412,20 @@
   },
   "fromAssetStep": {
     "assetQuestion": {
-      "part1": "From",
-      "part2": "which asset",
-      "part3": "do you want to sell shares?"
+      "part2": "From which asset do you want to sell shares?"
     },
     "assetPlaceholder": "Select an asset",
     "accountQuestion": {
-      "part1": "To",
-      "part2": "which bank account",
-      "part3": "do you want the funds to go?"
+      "part2": "To which bank account do you want the funds to go?"
     },
     "accountPlaceholder": "Select bank account"
   },
   "fromGoalStep": {
     "from": {
-      "part1": "From",
-      "part2": "where",
-      "part3": "do you want to withdraw money?"
+      "part2": "From where do you want to withdraw money?"
     },
     "to": {
-      "part1": "To",
-      "part2": "where",
-      "part3": "do you want to send it?"
+      "part2": "To where do you want to send it?"
     },
     "goalPlaceholder": "Select a goal",
     "destinationPlaceholder": "Select destination",
@@ -442,26 +434,37 @@
     }
   },
   "salesFlow": {
-    "header": "Withdrawal request",
     "next": "Next",
     "previous": "Previous",
     "finish": "Finish",
-    "mockGoals": {
-      "newGoal": "New goal ($1,492,500.00)",
-      "cashBalance": "Cash balance ($7,560.00)"
+    "cashBalance": "Cash balance",
+    "bankAccount": "My bank account",
+    "cashBalanceInfo": "You will receive the money in your bank account.",
+    "fromGoalStep": {
+      "title": "Withdrawal request 💸"
     },
-    "mockDestinos": {
-      "bankAccount": "My bank account",
-      "cashBalance": "My cash balance"
+    "fromAssetStep": {
+      "title": "Withdrawal request 💸"
     },
-    "mockActivos": {
-      "option1": "Singular Chile Short-Term Debt CFIETFCD\n$1,492,500 CLP as of 10/05/2023 · 14,925.0 shares",
-      "option2": "All my portfolio\n$1,492,500 CLP as of 06/26/2025",
-      "option3": "Proportional withdrawal\nMaintains portfolio structure"
+    "cashSale": {
+      "amountLabel": "How much money do you want to receive?",
+      "bankAccountLabel": "Which bank account do you want to receive the money in?",
+      "bankAccountPlaceholder": "Select a bank account"
     },
-    "mockCuentas": {
-      "account1": "CA 6677 · Chile-Edwards"
-    }
+    "totalAvailable": "Total available",
+    "investmentFunds": "investment funds",
+    "asOf": "as of {{date}}",
+    "quickOptions": "Quick options",
+    "individualFunds": "Individual funds",
+    "allPortfolio": "My entire portfolio",
+    "sellAllShares": "Sell all units of all funds",
+    "proportionalWithdrawal": "Proportional withdrawal",
+    "maintainStructure": "Maintains the portfolio structure",
+    "availableShares": "Available shares",
+    "noIndividualFunds": "No individual funds available",
+    "pricePerShare": "Price per share",
+    "total": "Total",
+    "forSpecificWithdrawals": "For specific withdrawals by fund"
   },
   "movements": {
     "title": "Movements",

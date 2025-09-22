@@ -1,7 +1,11 @@
-import React from 'react';
+import React, { useMemo } from 'react';
+import { View } from 'react-native';
 import FormLayout from '@/components/ui/FormLayout';
-import { Select } from '@/components/ui/Select';
 import { useTranslation } from 'react-i18next';
+import AssetSelectionList from '@/components/investment/portfolio/AssetSelectionList';
+import CashSaleForm from '@/components/investment/movements/sales/CashSaleForm';
+import { usePortfolioDetails } from '@/hooks/investment/usePortfolioDetails';
+import { useFormatValue } from '@/hooks/common/useFormatValue';
 
 interface FromAssetStepProps {
   activo: string | undefined;
@@ -9,54 +13,128 @@ interface FromAssetStepProps {
   destino: string | undefined;
   cuenta: string | undefined;
   setCuenta: (v: string) => void;
+  assetAmount: string;
+  setAssetAmount: (v: string) => void;
+  assetBankAccount: string | undefined;
+  setAssetBankAccount: (v: string) => void;
+  bankAccounts: { label: string; value: string }[];
   onNext: () => void;
   onPrev: () => void;
-  mockActivos: { label: string; value: string }[];
-  mockCuentas: { label: string; value: string }[];
+  goalId: string;
+  activos: { label: string; value: string }[];
+  cuentas: { label: string; value: string }[];
 }
 
-export default function FromAssetStep({ 
-  activo, 
-  setActivo, 
-  destino, 
-  cuenta, 
-  setCuenta, 
-  onNext, 
-  onPrev, 
-  mockActivos, 
-  mockCuentas 
+export default function FromAssetStep({
+  activo,
+  setActivo,
+  destino,
+  cuenta,
+  setCuenta,
+  assetAmount,
+  setAssetAmount,
+  assetBankAccount,
+  setAssetBankAccount,
+  bankAccounts,
+  onNext,
+  onPrev,
+  goalId,
+  activos,
+  cuentas
 }: FromAssetStepProps) {
   const { t } = useTranslation();
+  const { formatValue } = useFormatValue();
+  const { metaDetails, loading: portfolioLoading } = usePortfolioDetails({ goalId });
+
+  const assetData = useMemo(() => {
+    if (!metaDetails) {
+      return {
+        totalAvailable: 0,
+        portfolioOptions: [],
+        individualFunds: [],
+        brokerPortfoliosCount: 0
+      };
+    }
+
+    const totalAvailable = metaDetails.assets?.reduce((sum: number, asset) =>
+      sum + (asset.value || 0), 0) || 0;
+
+    const brokerPortfoliosCount = metaDetails.assets?.length || 0;
+
+    const portfolioOptions = [
+      {
+        id: 'portfolio-completo',
+        title: t('salesFlow.allPortfolio'),
+        subtitle: '',
+        description: '',
+        value: totalAvailable
+      },
+      {
+        id: 'retiro-proporcional',
+        title: t('salesFlow.proportionalWithdrawal'),
+        subtitle: '',
+        description: t('salesFlow.maintainStructure'),
+        value: 0
+      }
+    ];
+
+    const individualFunds = metaDetails.assets?.map((asset) => ({
+      id: `fund-${asset.id}`,
+      title: asset.title || 'Fondo',
+      subtitle: asset.subtitle || '',
+      description: `${t('salesFlow.availableShares')}: ${asset.availableQuotas || 0}`,
+      value: asset.value || 0,
+      additionalInfo: `${((asset.value / totalAvailable) * 100).toFixed(1)}% • ${t('salesFlow.pricePerShare')}: ${formatValue(asset.quotaValue?.toString() || '0')}`
+    })) || [];
+
+    return {
+      totalAvailable,
+      portfolioOptions,
+      individualFunds,
+      brokerPortfoliosCount
+    };
+  }, [metaDetails, t, formatValue]);
+
+  // Check if selected asset requires amount and bank account inputs
+  const requiresAmountInput = activo && activo !== 'portfolio-completo';
+
+  // Validation logic for the Next button
+  const isNextDisabled = !activo ||
+    (requiresAmountInput && (!assetAmount || !assetBankAccount || parseFloat(assetAmount) <= 0));
 
   return (
     <FormLayout
       title={t('salesFlow.fromAssetStep.title')}
-      subtitle={t('salesFlow.fromAssetStep.subtitle')}
+      subtitle=''
       currentStep={2}
       totalSteps={3}
       onNext={onNext}
       onPrevious={onPrev}
       nextButtonTitle={t('salesFlow.next')}
       previousButtonTitle={t('salesFlow.previous')}
-      isNextDisabled={!activo || (destino === 'cuenta-bancaria' && !cuenta)}
+      isNextDisabled={isNextDisabled}
       showLogo={false}
     >
-      <Select
-        label={t('fromAssetStep.assetQuestion.part2')}
-        options={mockActivos}
-        value={activo}
-        onSelect={setActivo}
-        placeholder={t('fromAssetStep.assetPlaceholder')}
+      <AssetSelectionList
+        selectedAsset={activo}
+        onAssetSelect={setActivo}
+        totalAvailable={assetData.totalAvailable}
+        portfolioOptions={assetData.portfolioOptions}
+        individualFunds={assetData.individualFunds}
+        brokerPortfoliosCount={assetData.brokerPortfoliosCount}
+        loading={portfolioLoading}
       />
 
-      {destino === 'cuenta-bancaria' && (
-        <Select
-          label={t('fromAssetStep.accountQuestion.part2')}
-          options={mockCuentas}
-          value={cuenta}
-          onSelect={setCuenta}
-          placeholder={t('fromAssetStep.accountPlaceholder')}
-        />
+      {requiresAmountInput && (
+        <View style={{ marginTop: 24 }}>
+          <CashSaleForm
+            amount={assetAmount}
+            setAmount={setAssetAmount}
+            bankAccount={assetBankAccount}
+            setBankAccount={setAssetBankAccount}
+            bankAccounts={bankAccounts}
+          />
+        </View>
       )}
     </FormLayout>
   );

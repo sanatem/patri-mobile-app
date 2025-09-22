@@ -412,28 +412,20 @@
     },
     "fromAssetStep": {
         "assetQuestion": {
-            "part1": "¿De",
-            "part2": "qué activo",
-            "part3": "quieres vender cuotas?"
+            "part2": "¿De qué activo quieres vender cuotas?"
         },
         "assetPlaceholder": "Selecciona un activo",
         "accountQuestion": {
-            "part1": "¿En",
-            "part2": "qué cuenta bancaria",
-            "part3": "quieres recibir el dinero?"
+            "part2": "¿En qué cuenta bancaria quieres recibir el dinero?"
         },
         "accountPlaceholder": "Selecciona cuenta bancaria"
     },
     "fromGoalStep": {
         "from": {
-            "part1": "¿De",
-            "part2": "dónde",
-            "part3": "quieres retirar dinero?"
+            "part2": "¿De dónde quieres retirar dinero?"
         },
         "to": {
-            "part1": "¿A",
-            "part2": "dónde",
-            "part3": "quieres destinarlo?"
+            "part2": "¿A dónde quieres destinarlo?"
         },
         "goalPlaceholder": "Selecciona una meta",
         "destinationPlaceholder": "Selecciona destino",
@@ -442,25 +434,36 @@
         }
     },
     "salesFlow": {
-        "header": "Solicitud de retiro",
         "next": "Siguiente",
         "previous": "Anterior",
         "finish": "Finalizar",
-        "mockGoals": {
-            "newGoal": "Nueva meta ($1.492.500,00)",
-            "cashBalance": "Saldo en caja ($7.560,00)"
+        "cashBalance": "Saldo en caja",
+        "bankAccount": "Mi cuenta bancaria",
+        "cashBalanceInfo": "Recibirás el dinero en tu cuenta bancaria.",
+        "totalAvailable": "Total disponible",
+        "investmentFunds": "fondos de inversión",
+        "asOf": "al {{date}}",
+        "quickOptions": "Opciones rápidas",
+        "individualFunds": "Fondos individuales",
+        "allPortfolio": "Todo mi portafolio",
+        "sellAllShares": "Vender todas las cuotas de todos los fondos",
+        "proportionalWithdrawal": "Retiro proporcional",
+        "maintainStructure": "Mantiene la estructura del portafolio",
+        "availableShares": "Cuotas disponibles",
+        "noIndividualFunds": "No hay fondos individuales disponibles",
+        "pricePerShare": "Precio por cuota",
+        "total": "Total",
+        "forSpecificWithdrawals": "Para retiros específicos por fondo",
+        "fromGoalStep": {
+            "title": "Solicitud de retiro 💸"
         },
-        "mockDestinos": {
-            "bankAccount": "Mi cuenta bancaria",
-            "cashBalance": "Mi saldo en caja"
+        "fromAssetStep": {
+            "title": "Solicitud de retiro 💸"
         },
-        "mockActivos": {
-            "option1": "Singular Chile Deuda Corta Duración CFIETFCD\n$1.492.500 CLP al 10/05/2023 · 14.925,0 cuotas",
-            "option2": "Todo mi portafolio\n$1.492.500 CLP al 26/06/2025",
-            "option3": "Retiro proporcional\nMantiene la estructura del portafolio"
-        },
-        "mockCuentas": {
-            "account1": "CA 6677 · Chile-Edwards"
+        "cashSale": {
+            "amountLabel": "¿Cuánto dinero quieres recibir?",
+            "bankAccountLabel": "¿En qué cuenta bancaria quieres recibir el dinero?",
+            "bankAccountPlaceholder": "Selecciona una cuenta bancaria"
         }
     },
     "movements": {

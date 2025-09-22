@@ -1,7 +1,9 @@
 import React from 'react';
+import { View, Text } from 'react-native';
 import FormLayout from '@/components/ui/FormLayout';
 import { Select } from '@/components/ui/Select';
 import { useTranslation } from 'react-i18next';
+import Colors from '@/constants/Colors';
 
 interface FromGoalStepProps {
   goal: string | undefined;
@@ -9,8 +11,9 @@ interface FromGoalStepProps {
   destino: string | undefined;
   setDestino: (v: string) => void;
   onNext: () => void;
-  mockGoals: { label: string; value: string }[];
-  mockDestinos: { label: string; value: string }[];
+  onCancel: () => void;
+  goals: { label: string; value: string }[];
+  destinos: { label: string; value: string }[];
 }
 
 export default function FromGoalStep({ 
@@ -19,38 +22,48 @@ export default function FromGoalStep({
   destino, 
   setDestino, 
   onNext, 
-  mockGoals, 
-  mockDestinos 
+  onCancel,
+  goals,
+  destinos 
 }: FromGoalStepProps) {
   const { t } = useTranslation();
   
   return (
     <FormLayout
       title={t('salesFlow.fromGoalStep.title')}
-      subtitle={t('salesFlow.fromGoalStep.subtitle')}
+      subtitle=''
       currentStep={1}
       totalSteps={3}
       onNext={onNext}
+      onCancel={onCancel}
       nextButtonTitle={t('salesFlow.next')}
-      isNextDisabled={!goal || !destino}
+      isNextDisabled={!goal || (goal !== 'cash-balance' && !destino)}
       showLogo={false}
     >
       <Select
         label={t('fromGoalStep.from.part2')}
-        options={mockGoals}
+        options={goals}
         value={goal}
         onSelect={setGoal}
         placeholder={t('fromGoalStep.goalPlaceholder')}
       />
 
-      {goal && (
+      {goal && goal !== 'cash-balance' && destinos.length > 0 && (
         <Select
           label={t('fromGoalStep.to.part2')}
-          options={mockDestinos}
+          options={destinos}
           value={destino}
           onSelect={setDestino}
           placeholder={t('fromGoalStep.destinationPlaceholder')}
         />
+      )}
+
+      {goal === 'cash-balance' && (
+        <View className="mt-1" style={{ borderWidth: 1, borderColor: Colors.primary[200], padding: 10, borderRadius: 16, marginTop: -20}}>
+          <Text className="text-sm font-regular" style={{ color: Colors.primary[600] }}>
+            {t('salesFlow.cashBalanceInfo')}
+          </Text>
+        </View>
       )}
     </FormLayout>
   );
