@@ -43,7 +43,7 @@ export interface CreateSaleApiResponse {
 
 export const createSaleService = {
   async createSale(
-    saleData: CreateSaleRequest,
+    saleData: any,
     token: string
   ): Promise<CreateSaleResponse> {
     try {
@@ -53,18 +53,13 @@ export const createSaleService = {
 
       const url = `${config.apiBaseUrl}/api/v2/movements/create_sale`;
 
-      const requestBody: CreateSaleRequest = {
-        ...saleData,
-        destination: saleData.destination || 'cash',
-      };
-
       const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(requestBody),
+        body: JSON.stringify(saleData),
       });
 
       if (!response.ok) {

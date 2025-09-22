@@ -3,6 +3,7 @@ import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
+import { useFormatValue } from '@/hooks/common/useFormatValue';
 
 interface CashSaleFormProps {
   amount: string;
@@ -20,14 +21,20 @@ export default function CashSaleForm({
   bankAccounts
 }: CashSaleFormProps) {
   const { t } = useTranslation();
+  const { formatValue, cleanNumericValue } = useFormatValue();
+
+  const handleAmountChange = (value: string) => {
+    const cleaned = cleanNumericValue(value);
+    setAmount(cleaned);
+  };
 
   return (
     <View>
       <Input
         label={t('salesFlow.cashSale.amountLabel')}
-        value={amount}
-        onChangeText={setAmount}
-        placeholder="0"
+        value={amount ? formatValue(amount) : ''}
+        onChangeText={handleAmountChange}
+        placeholder="$0"
         keyboardType="numeric"
         className="mb-4"
       />

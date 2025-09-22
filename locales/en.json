@@ -464,7 +464,12 @@
     "noIndividualFunds": "No individual funds available",
     "pricePerShare": "Price per share",
     "total": "Total",
-    "forSpecificWithdrawals": "For specific withdrawals by fund"
+    "forSpecificWithdrawals": "For specific withdrawals by fund",
+    "confirmationStep": {
+      "title": "Withdrawal request 💸",
+      "subtitle": "Confirm that the data is correct before finalizing the operation.",
+      "finalNote": "• Your request will be sent to the broker\n• Money will arrive in 2 business days\n• Low liquidity funds may take longer"
+    }
   },
   "movements": {
     "title": "Movements",

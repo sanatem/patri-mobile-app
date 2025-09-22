@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView } from 'react-native';
+import { View, Text, ScrollView, ActivityIndicator } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import Colors from '@/constants/Colors';
 import AssetCard from './AssetCard';
@@ -43,10 +43,13 @@ export default function AssetSelectionList({
 
   if (loading) {
     return (
-      <View style={{ padding: 16 }}>
-        <Text style={{ textAlign: 'center', color: Colors.gray[500] }}>
-          {t('common.loading')}
-        </Text>
+      <View style={{
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 32
+      }}>
+        <ActivityIndicator size="large" color={Colors.secondary[500]} />
       </View>
     );
   }
@@ -58,13 +61,10 @@ export default function AssetSelectionList({
       showsVerticalScrollIndicator={false}
     >
 
-      {/* Quick Options Section */}
       <View style={{ marginBottom: 24 }}>
-        <Text
+        <Text className='font-medium text-base'
           style={{
-            fontSize: 18,
-            fontWeight: '600',
-            color: Colors.primary[700],
+            color: Colors.primary[500],
             marginBottom: 16,
           }}
         >
@@ -87,14 +87,10 @@ export default function AssetSelectionList({
           />
         ))}
       </View>
-
-      {/* Individual Funds Section */}
       <View>
-        <Text
+        <Text className='font-medium text-base'
           style={{
-            fontSize: 18,
-            fontWeight: '600',
-            color: Colors.primary[700],
+            color: Colors.primary[500],
             marginBottom: 16,
           }}
         >

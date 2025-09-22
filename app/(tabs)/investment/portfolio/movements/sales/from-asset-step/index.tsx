@@ -4,6 +4,8 @@ import FormLayout from '@/components/ui/FormLayout';
 import { useTranslation } from 'react-i18next';
 import AssetSelectionList from '@/components/investment/portfolio/AssetSelectionList';
 import CashSaleForm from '@/components/investment/movements/sales/CashSaleForm';
+import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
 import { usePortfolioDetails } from '@/hooks/investment/usePortfolioDetails';
 import { useFormatValue } from '@/hooks/common/useFormatValue';
 
@@ -18,6 +20,7 @@ interface FromAssetStepProps {
   assetBankAccount: string | undefined;
   setAssetBankAccount: (v: string) => void;
   bankAccounts: { label: string; value: string }[];
+  loadingBankAccounts?: boolean;
   onNext: () => void;
   onPrev: () => void;
   goalId: string;
@@ -36,6 +39,7 @@ export default function FromAssetStep({
   assetBankAccount,
   setAssetBankAccount,
   bankAccounts,
+  loadingBankAccounts = false,
   onNext,
   onPrev,
   goalId,
@@ -84,7 +88,7 @@ export default function FromAssetStep({
       subtitle: asset.subtitle || '',
       description: `${t('salesFlow.availableShares')}: ${asset.availableQuotas || 0}`,
       value: asset.value || 0,
-      additionalInfo: `${((asset.value / totalAvailable) * 100).toFixed(1)}% • ${t('salesFlow.pricePerShare')}: ${formatValue(asset.quotaValue?.toString() || '0')}`
+      additionalInfo: `${t('salesFlow.pricePerShare')}: ${formatValue(asset.quotaValue?.toString() || '0')}`
     })) || [];
 
     return {
@@ -95,12 +99,11 @@ export default function FromAssetStep({
     };
   }, [metaDetails, t, formatValue]);
 
-  // Check if selected asset requires amount and bank account inputs
   const requiresAmountInput = activo && activo !== 'portfolio-completo';
-
-  // Validation logic for the Next button
   const isNextDisabled = !activo ||
-    (requiresAmountInput && (!assetAmount || !assetBankAccount || parseFloat(assetAmount) <= 0));
+    (requiresAmountInput && (!assetAmount || parseFloat(assetAmount) <= 0)) ||
+    (requiresAmountInput && destino === 'cuenta-bancaria' && (!assetBankAccount || loadingBankAccounts)) ||
+    (activo === 'portfolio-completo' && destino === 'cuenta-bancaria' && (!assetBankAccount || loadingBankAccounts));
 
   return (
     <FormLayout
@@ -112,7 +115,7 @@ export default function FromAssetStep({
       onPrevious={onPrev}
       nextButtonTitle={t('salesFlow.next')}
       previousButtonTitle={t('salesFlow.previous')}
-      isNextDisabled={isNextDisabled}
+      isNextDisabled={isNextDisabled || false}
       showLogo={false}
     >
       <AssetSelectionList
@@ -126,13 +129,39 @@ export default function FromAssetStep({
       />
 
       {requiresAmountInput && (
-        <View style={{ marginTop: 24 }}>
-          <CashSaleForm
-            amount={assetAmount}
-            setAmount={setAssetAmount}
-            bankAccount={assetBankAccount}
-            setBankAccount={setAssetBankAccount}
-            bankAccounts={bankAccounts}
+        <View style={{ marginTop: -10}}>
+          <Input
+            label={t('salesFlow.cashSale.amountLabel')}
+            value={assetAmount ? formatValue(assetAmount) : ''}
+            onChangeText={(value) => {
+              const cleaned = value.replace(/[^\d]/g, '');
+              setAssetAmount(cleaned);
+            }}
+            placeholder="$0"
+            keyboardType="numeric"
+            className="mb-4"
+          />
+
+          {destino === 'cuenta-bancaria' && (
+            <Select
+              label={t('salesFlow.cashSale.bankAccountLabel')}
+              options={bankAccounts}
+              value={assetBankAccount}
+              onSelect={setAssetBankAccount}
+              placeholder={t('salesFlow.cashSale.bankAccountPlaceholder')}
+            />
+          )}
+        </View>
+      )}
+
+      {activo === 'portfolio-completo' && destino === 'cuenta-bancaria' && (
+        <View style={{ marginTop: -10}}>
+          <Select
+            label={t('salesFlow.cashSale.bankAccountLabel')}
+            options={bankAccounts}
+            value={assetBankAccount}
+            onSelect={setAssetBankAccount}
+            placeholder={t('salesFlow.cashSale.bankAccountPlaceholder')}
           />
         </View>
       )}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TouchableOpacity, Animated } from 'react-native';
 import Colors from '@/constants/Colors';
 import { ChevronDown } from 'lucide-react-native';
@@ -36,13 +36,12 @@ export default function AssetCard({
 }: AssetCardProps) {
   const [rotateAnim] = useState(new Animated.Value(isExpanded ? 1 : 0));
   const [expandAnim] = useState(new Animated.Value(isExpanded ? 1 : 0));
+  const borderColorAnim = useRef(new Animated.Value(isSelected ? 1 : 0)).current;
 
   const getCurrentDate = () => {
     const today = new Date();
     return today.toLocaleDateString('es-CL');
   };
-
-  // Sync animations when isExpanded prop changes
   useEffect(() => {
     const toValue = isExpanded ? 1 : 0;
 
@@ -55,10 +54,18 @@ export default function AssetCard({
       Animated.timing(expandAnim, {
         toValue,
         duration: 250,
-        useNativeDriver: false, // height animations require useNativeDriver: false
+        useNativeDriver: false,
       })
     ]).start();
   }, [isExpanded, rotateAnim, expandAnim]);
+
+  useEffect(() => {
+    Animated.timing(borderColorAnim, {
+      toValue: isSelected ? 1 : 0,
+      duration: 200,
+      useNativeDriver: false,
+    }).start();
+  }, [isSelected, borderColorAnim]);
 
   const toggleExpanded = () => {
     if (onToggleExpanded) {
@@ -81,31 +88,31 @@ export default function AssetCard({
     opacity: expandAnim,
     maxHeight: expandAnim.interpolate({
       inputRange: [0, 1],
-      outputRange: [0, 200], // Adjust max height as needed
+      outputRange: [0, 200],
+    }),
+  };
+
+  const borderColorStyle = {
+    borderColor: borderColorAnim.interpolate({
+      inputRange: [0, 1],
+      outputRange: [Colors.gray[100], Colors.primary[500]],
     }),
   };
   if (!isExpandable) {
-    // Non-expandable card (for portfolio options like "Todo mi portafolio", "Retiro proporcional")
     return (
-      <TouchableOpacity
-        onPress={onSelect}
-        style={{
-          backgroundColor: 'white',
-          borderRadius: 12,
-          padding: 16,
-          marginBottom: 12,
-          borderWidth: 1,
-          borderColor: isSelected ? Colors.secondary[500] : Colors.gray[200],
-          shadowColor: '#000',
-          shadowOffset: {
-            width: 0,
-            height: 1,
-          },
-          shadowOpacity: 0.05,
-          shadowRadius: 2,
-          elevation: 1,
-        }}
-      >
+      <TouchableOpacity onPress={onSelect}>
+        <Animated.View
+          style={[
+            {
+              backgroundColor: 'white',
+              borderRadius: 12,
+              padding: 16,
+              marginBottom: 12,
+              borderWidth: 1,
+            },
+            borderColorStyle,
+          ]}
+        >
         <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
           {showRadioButton && (
             <View
@@ -115,8 +122,8 @@ export default function AssetCard({
                 borderRadius: 10,
                 borderWidth: 2,
                 borderColor: isSelected
-                  ? Colors.secondary[500]
-                  : Colors.gray[300],
+                  ? Colors.primary[500]
+                  : Colors.gray[200],
                 marginRight: 12,
                 marginTop: 2,
                 justifyContent: 'center',
@@ -130,7 +137,7 @@ export default function AssetCard({
                     width: 10,
                     height: 10,
                     borderRadius: 5,
-                    backgroundColor: Colors.secondary[500],
+                    backgroundColor: Colors.primary[500],
                   }}
                 />
               )}
@@ -140,11 +147,9 @@ export default function AssetCard({
           <View style={{ flex: 1 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <View style={{ flex: 1, marginRight: 8 }}>
-                <Text
+                <Text className='font-medium text-sm'
                   style={{
-                    fontSize: 16,
-                    fontWeight: '600',
-                    color: Colors.primary[700],
+                    color: Colors.primary[500],
                     marginBottom: 4,
                   }}
                 >
@@ -152,10 +157,8 @@ export default function AssetCard({
                 </Text>
 
                 {subtitle && (
-                  <Text
+                  <Text className='font-regular text-xs'
                     style={{
-                      fontSize: 12,
-                      fontWeight: '500',
                       color: Colors.primary[500],
                       marginBottom: 4,
                     }}
@@ -166,8 +169,8 @@ export default function AssetCard({
 
                 {description && (
                   <Text
+                    className='font-regular text-xs'
                     style={{
-                      fontSize: 14,
                       color: Colors.gray[600],
                       marginBottom: 4,
                     }}
@@ -178,8 +181,8 @@ export default function AssetCard({
 
                 {additionalInfo && (
                   <Text
+                    className='font-regular text-xs'
                     style={{
-                      fontSize: 12,
                       color: Colors.gray[500],
                     }}
                   >
@@ -191,10 +194,9 @@ export default function AssetCard({
               <View style={{ alignItems: 'flex-end' }}>
                 {showValue && (
                   <Text
+                    className='font-medium text-base'
                     style={{
-                      fontSize: 16,
-                      fontWeight: '700',
-                      color: Colors.primary[700],
+                      color: Colors.primary[500],
                     }}
                   >
                     {value}
@@ -202,8 +204,8 @@ export default function AssetCard({
                 )}
                 {showDate && (
                   <Text
+                    className='font-regular text-xs'
                     style={{
-                      fontSize: 12,
                       color: Colors.gray[500],
                       marginTop: 2,
                     }}
@@ -215,31 +217,24 @@ export default function AssetCard({
             </View>
           </View>
         </View>
+        </Animated.View>
       </TouchableOpacity>
     );
   }
 
-  // Expandable card (for individual funds)
   return (
-    <View
-      style={{
-        backgroundColor: 'white',
-        borderRadius: 12,
-        padding: 16,
-        marginBottom: 12,
-        borderWidth: 1,
-        borderColor: isSelected ? Colors.secondary[500] : Colors.gray[200],
-        shadowColor: '#000',
-        shadowOffset: {
-          width: 0,
-          height: 1,
+    <Animated.View
+      style={[
+        {
+          backgroundColor: 'white',
+          borderRadius: 12,
+          padding: 16,
+          marginBottom: 12,
+          borderWidth: 1,
         },
-        shadowOpacity: 0.05,
-        shadowRadius: 2,
-        elevation: 1,
-      }}
+        borderColorStyle,
+      ]}
     >
-      {/* Main selectable area */}
       <TouchableOpacity onPress={onSelect}>
         <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
           {showRadioButton && (
@@ -250,8 +245,8 @@ export default function AssetCard({
                 borderRadius: 10,
                 borderWidth: 2,
                 borderColor: isSelected
-                  ? Colors.secondary[500]
-                  : Colors.gray[300],
+                  ? Colors.primary[500]
+                  : Colors.gray[200],
                 marginRight: 12,
                 marginTop: 2,
                 justifyContent: 'center',
@@ -265,7 +260,7 @@ export default function AssetCard({
                     width: 10,
                     height: 10,
                     borderRadius: 5,
-                    backgroundColor: Colors.secondary[500],
+                    backgroundColor: Colors.primary[500],
                   }}
                 />
               )}
@@ -275,11 +270,9 @@ export default function AssetCard({
           <View style={{ flex: 1 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <View style={{ flex: 1, marginRight: 8 }}>
-                <Text
+                <Text className='font-medium text-sm'
                   style={{
-                    fontSize: 16,
-                    fontWeight: '600',
-                    color: Colors.primary[700],
+                    color: Colors.primary[500],
                     marginBottom: 4,
                   }}
                 >
@@ -290,19 +283,16 @@ export default function AssetCard({
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 {showValue && (
                   <View style={{ alignItems: 'flex-end', marginRight: 8 }}>
-                    <Text
+                    <Text className='font-medium text-base'
                       style={{
-                        fontSize: 16,
-                        fontWeight: '700',
-                        color: Colors.primary[700],
+                        color: Colors.primary[500],
                       }}
                     >
                       {value}
                     </Text>
                     {showDate && (
-                      <Text
+                      <Text className='font-regular text-xs'
                         style={{
-                          fontSize: 12,
                           color: Colors.gray[500],
                           marginTop: 2,
                         }}
@@ -313,7 +303,6 @@ export default function AssetCard({
                   </View>
                 )}
 
-                {/* Expand/collapse button */}
                 <TouchableOpacity onPress={toggleExpanded} style={{ padding: 4 }}>
                   <Animated.View style={[rotateStyle]}>
                     <ChevronDown size={20} color={Colors.primary[500]} />
@@ -325,14 +314,11 @@ export default function AssetCard({
         </View>
       </TouchableOpacity>
 
-      {/* Expanded content */}
       <Animated.View style={[expandStyle, { overflow: 'hidden' }]}>
         <View style={{ marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderTopColor: Colors.gray[100] }}>
           {subtitle && (
-            <Text
+            <Text className='font-medium text-xs'
               style={{
-                fontSize: 12,
-                fontWeight: '500',
                 color: Colors.primary[500],
                 marginBottom: 4,
               }}
@@ -342,9 +328,8 @@ export default function AssetCard({
           )}
 
           {description && (
-            <Text
+            <Text className='font-regular text-xs'
               style={{
-                fontSize: 14,
                 color: Colors.gray[600],
                 marginBottom: 4,
               }}
@@ -355,8 +340,8 @@ export default function AssetCard({
 
           {additionalInfo && (
             <Text
+              className='font-regular text-xs'
               style={{
-                fontSize: 12,
                 color: Colors.gray[500],
               }}
             >
@@ -365,7 +350,7 @@ export default function AssetCard({
           )}
         </View>
       </Animated.View>
-    </View>
+    </Animated.View>
   );
 }
 

@@ -465,7 +465,12 @@
     "noIndividualFunds": "No hay fondos individuales disponibles",
     "pricePerShare": "Precio por cuota",
     "total": "Total",
-    "forSpecificWithdrawals": "Para retiros específicos por fondo"
+    "forSpecificWithdrawals": "Para retiros específicos por fondo",
+    "confirmationStep": {
+      "title": "Solicitud de retiro 💸",
+      "subtitle": "Confirma que los datos sean correctos antes de finalizar la operación.",
+      "finalNote": "• Tu solicitud será enviada a la corredora\n• El dinero llegará en 2 días hábiles\n• Fondos con poca liquidez pueden demorar más"
+    }
   },
   "movements": {
     "title": "Movimientos",
