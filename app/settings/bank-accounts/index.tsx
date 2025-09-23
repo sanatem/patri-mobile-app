@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Alert, StyleSheet, Modal, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Alert, StyleSheet, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Card } from '@/components/ui/Card';
-import { Button } from '@/components/ui';
+import { Button, ConfirmModal } from '@/components/ui';
 import Colors from '@/constants/Colors';
 import { useTranslation } from 'react-i18next';
 import { getBankAccounts, type BankAccount } from '@/services/investment/bank-accounts/get-bank-account';
@@ -211,42 +211,16 @@ export default function BankAccountsPage() {
         </View>
       </View>
 
-      <Modal visible={showDeleteModal} transparent animationType="fade">
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <View style={styles.modalHeader}>
-              <View style={[styles.modalIconContainer, styles.destructiveIconContainer]}>
-                <Trash2 size={32} color={Colors.secondary[500]} />
-              </View>
-              <Text className='text-base font-medium' style={styles.modalTitle}>Eliminar cuenta bancaria</Text>
-              <Text className='text-sm font-regular' style={styles.modalSubtitle}>
-                ¿Estás seguro de que deseas eliminar esta cuenta bancaria? Esta acción no se puede deshacer.
-              </Text>
-            </View>
-
-            <View style={styles.modalButtons}>
-              <View style={{ flex: 1 }}>
-                <Button
-                  title={t('common.cancel')}
-                  variant="outline"
-                  fullWidth
-                  onPress={handleCancelDelete}
-                />
-              </View>
-
-              <View style={{ flex: 1 }}>
-                <Button
-                  title="Eliminar"
-                  variant="primary"
-                  fullWidth
-                  onPress={handleConfirmDelete}
-                  disabled={isDeleting}
-                />
-              </View>
-            </View>
-          </View>
-        </View>
-      </Modal>
+      <ConfirmModal
+        visible={showDeleteModal}
+        onClose={handleCancelDelete}
+        onConfirm={handleConfirmDelete}
+        title="Eliminar cuenta bancaria"
+        itemName={accountToDelete?.account_number}
+        message="¿Estás seguro de que deseas eliminar esta cuenta bancaria? Esta acción no se puede deshacer."
+        isDeleting={isDeleting}
+        cancelButtonText={t('common.cancel')}
+      />
     </ScrollView>
   );
 }

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Animated, Dimensions, ActivityIndicator, RefreshControl } from 'react-native';
-import { Settings, Plus } from 'lucide-react-native';
+import { View, Text, ScrollView, TouchableOpacity, Animated, Dimensions, ActivityIndicator, RefreshControl, Modal, Alert } from 'react-native';
+import { Settings, Plus, Trash2 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
 import { 
@@ -15,8 +15,8 @@ import { useChartRangeStore, RangeSize } from '@/store/chartRangeStore';
 import { Asset, Liability } from '@/types';
 import { patrimonyService } from '@/services/patrimony/get-patrimony';
 import { useAssets, useDebts } from '@/hooks/patrimony';
-import { 
-  SearchBar, 
+import {
+  SearchBar,
   Tabs,
   ListItem,
   Header,
@@ -26,7 +26,11 @@ import {
   KeyboardAwareContainer,
   LockedTabOverlay,
   Button,
+  ConfirmModal,
 } from '@/components/ui';
+import { SwipeableListItem } from '@/components/ui/SwipeableListItem';
+import { deleteAsset } from '@/services/patrimony/delete-asset';
+import { deleteDebt } from '@/services/patrimony/delete-debt';
 import { SkeletonBase } from '@/components/ui/SkeletonBase';
 import { useUserData } from '@/hooks/user/useUserData';
 import { useSubscriptionStatus } from '@/hooks/common/useSubscriptionStatus';
@@ -40,7 +44,7 @@ import { useTranslation } from 'react-i18next';
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
 export default function PatrimonyScreen() {
-  const { user } = useAuth();
+  const { user, accessToken } = useAuth();
   const { shouldBlockTab, loading: subscriptionLoading } = useSubscriptionStatus();
   const { userData, loading: userLoading } = useUserData();
   const { rangeSize, setRangeSize } = useChartRangeStore();
@@ -71,6 +75,9 @@ export default function PatrimonyScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [visibleCount, setVisibleCount] = useState(5);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<any>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const overlayAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(0)).current;  
@@ -306,6 +313,86 @@ export default function PatrimonyScreen() {
     setShowAddModal(false);
   };
 
+  const handleItemPress = (item: any) => {
+    if (activeTab === 'assets') {
+      router.push({
+        pathname: '/patrimony/add-asset',
+        params: {
+          editMode: 'true',
+          assetId: item.id,
+          rawData: JSON.stringify(item.rawData)
+        }
+      });
+    } else {
+      router.push({
+        pathname: '/patrimony/add-liability',
+        params: {
+          editMode: 'true',
+          debtId: item.id,
+          rawData: JSON.stringify(item.rawData)
+        }
+      });
+    }
+  };
+
+  const handleItemDelete = (item: any) => {
+    setItemToDelete(item);
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!itemToDelete) return;
+
+    setIsDeleting(true);
+
+    try {
+      if (activeTab === 'assets') {
+        const response = await deleteAsset(itemToDelete.rawData.id, accessToken!);
+        if (response.success) {
+          Alert.alert('Éxito', 'Activo eliminado correctamente');
+        } else {
+          console.error('Delete asset failed:', response.error);
+          Alert.alert('Error', response.error || 'No se pudo eliminar el activo');
+          setIsDeleting(false);
+          setShowDeleteModal(false);
+          setItemToDelete(null);
+          return;
+        }
+      } else {
+        const response = await deleteDebt(itemToDelete.rawData.id, accessToken!);
+        if (response.success) {
+          Alert.alert('Éxito', 'Pasivo eliminado correctamente');
+        } else {
+          console.error('Delete debt failed:', response.error);
+          Alert.alert('Error', response.error || 'No se pudo eliminar el pasivo');
+          setIsDeleting(false);
+          setShowDeleteModal(false);
+          setItemToDelete(null);
+          return;
+        }
+      }
+
+      if (activeTab === 'assets') {
+        refetchAssets();
+      } else {
+        refetchDebts();
+      }
+
+      setShowDeleteModal(false);
+      setItemToDelete(null);
+    } catch (error) {
+      console.error('Error deleting item:', error);
+      Alert.alert('Error', 'No se pudo eliminar el elemento');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setShowDeleteModal(false);
+    setItemToDelete(null);
+  };
+
   const myAssets = patrimonyData.MY_ASSETS;
   const partnerAssets = patrimonyData.PARTNER_ASSETS;
   const myLiabilities = patrimonyData.MY_LIABILITIES;
@@ -357,7 +444,8 @@ export default function PatrimonyScreen() {
         badge: {
           text: '0.00%',
           variant: 'positive' as const
-        }
+        },
+        rawData: asset
       })),
 
       ...apiAssets.assets.saving_instruments.map(asset => {
@@ -372,14 +460,15 @@ export default function PatrimonyScreen() {
           badge: {
             text: '0.00%',
             variant: 'positive' as const
-          }
+          },
+          rawData: asset
         };
       }),
 
       ...apiAssets.assets.investment_properties.map(asset => ({
         id: asset.id.toString(),
         title: `Propiedad ${asset.location}`,
-        subtitle: asset.square_mts 
+        subtitle: asset.square_mts
           ? `${asset.square_mts}m² - ${asset.number_of_bedrooms || 0} hab`
           : 'Propiedad de inversión',
         value: Math.round(asset.commercial_value),
@@ -390,13 +479,14 @@ export default function PatrimonyScreen() {
         badge: {
           text: '0.00%',
           variant: 'positive' as const
-        }
+        },
+        rawData: asset
       })),
 
       ...apiAssets.assets.main_homes.map(asset => ({
         id: asset.id.toString(),
         title: `Casa ${asset.location}`,
-        subtitle: asset.square_mts 
+        subtitle: asset.square_mts
           ? `${asset.square_mts}m² - ${asset.number_of_bedrooms || 0} hab`
           : asset.kind === 'leased' ? 'Casa arrendada' : 'Casa propia',
         value: Math.round(asset.commercial_value),
@@ -407,7 +497,8 @@ export default function PatrimonyScreen() {
         badge: {
           text: '0.00%',
           variant: 'positive' as const
-        }
+        },
+        rawData: asset
       }))
     ];
 
@@ -434,9 +525,10 @@ export default function PatrimonyScreen() {
       badge: {
         text: `${debt.cae_percentage}% CAE`,
         variant: 'negative' as const
-      }
-    })).filter(debt => 
-      debt.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      },
+      rawData: debt
+    })).filter(debt =>
+      debt.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       debt.subtitle.toLowerCase().includes(searchQuery.toLowerCase())
     );
   };
@@ -629,7 +721,7 @@ export default function PatrimonyScreen() {
             >
               <Plus size={24} color={Colors.primary[500]} />
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => router.push('/settings')}>
+            <TouchableOpacity onPress={() => router.push('/settings/settings')}>
               <Settings size={24} color={Colors.primary[500]} />
             </TouchableOpacity>
           </View>
@@ -872,12 +964,15 @@ export default function PatrimonyScreen() {
                 </Animated.View>
               ) : (
                                  <>
-                   <ListItem
+                   <SwipeableListItem
+                     key={`${activeTab}-${showDeleteModal}`}
                      data={paginatedData}
                      showLoadMore={false}
                      showContainer={false}
+                     onItemPress={handleItemPress}
+                     onItemDelete={handleItemDelete}
                    />
-                   
+
                     {(hasMoreData(currentData) && !isExpanded) && (
                       <View style={{ padding: 20, alignItems: 'center' }}>
                         <Button
@@ -893,6 +988,15 @@ export default function PatrimonyScreen() {
           </Container>
         </ScrollView>
       </KeyboardAwareContainer>
+
+      <ConfirmModal
+        visible={showDeleteModal}
+        onClose={handleCancelDelete}
+        onConfirm={handleConfirmDelete}
+        title={activeTab === 'assets' ? 'Eliminar activo' : 'Eliminar pasivo'}
+        itemName={itemToDelete?.title}
+        isDeleting={isDeleting}
+      />
       {modalVisible && (
         <View 
           style={{

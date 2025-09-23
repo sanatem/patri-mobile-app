@@ -11,7 +11,7 @@ import {
   Linking,
   Platform,
 } from 'react-native';
-import { Button } from '@/components/ui';
+import { Button, ConfirmModal } from '@/components/ui';
 import {
   HelpCircle,
   FileText,
@@ -232,39 +232,15 @@ export default function MoreScreen() {
         <Text style={styles.versionText}>Version {Constants.expoConfig?.version ?? 'unknown'}</Text>
       </View>
 
-      <Modal visible={showDeleteModal} transparent animationType="fade">
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <View style={styles.modalHeader}>
-              <View style={[styles.modalIconContainer, styles.destructiveIconContainer]}>
-                <Trash2 size={32} color={Colors.secondary[500]} />
-              </View>
-              <Text style={styles.modalTitle}>{t('settings.delete.title')}</Text>
-              <Text style={styles.modalSubtitle}>{t('settings.delete.subtitle')}</Text>
-            </View>
-            
-            <View style={styles.modalButtons}>
-              <View style={{ flex: 1 }}>
-                <Button
-                  title={t('common.cancel')}
-                  variant="outline"
-                  fullWidth
-                  onPress={() => setShowDeleteModal(false)}
-                />
-              </View>
-              
-              <View style={{ flex: 1 }}>
-                <Button
-                  title="Eliminar cuenta"
-                  variant="primary"
-                  fullWidth
-                  onPress={handleConfirmDelete}
-                />
-              </View>
-            </View>
-          </View>
-        </View>
-      </Modal>
+      <ConfirmModal
+        visible={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleConfirmDelete}
+        title={t('settings.delete.title')}
+        message={t('settings.delete.subtitle')}
+        confirmButtonText="Eliminar cuenta"
+        cancelButtonText={t('common.cancel')}
+      />
 
       <Modal visible={showConfirmationModal} transparent animationType="fade">
         <View style={styles.modalOverlay}>
