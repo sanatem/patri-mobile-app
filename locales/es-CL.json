@@ -11,6 +11,8 @@
             "privacySubtitle": "Configuración de privacidad",
             "help": "Ayuda y soporte",
             "helpSubtitle": "Centro de ayuda y contacto",
+            "bankAccounts": "Mis cuentas bancarias",
+            "bankAccountsSubtitle": "Gestionar cuentas bancarias vinculadas",
             "logout": "Cerrar sesión",
             "logoutSubtitle": "Salir de la aplicación"
         },
@@ -35,6 +37,25 @@
         },
         "links": {
             "cannotOpen": "No se puede abrir el enlace: {{title}}"
+        },
+        "bankAccounts": {
+            "title": "Mis cuentas bancarias",
+            "subtitle": "Gestiona las cuentas bancarias vinculadas a tu perfil",
+            "addAccount": "Agregar cuenta",
+            "noAccounts": "Aún no tienes cuentas bancarias agregadas",
+            "addForm": {
+                "title": "Agregar cuenta bancaria",
+                "subtitle": "Completa la información de tu cuenta bancaria",
+                "bankLabel": "¿Dónde tienes tu cuenta bancaria?",
+                "bankPlaceholder": "Selecciona el banco",
+                "accountTypeLabel": "¿Qué tipo de cuenta es?",
+                "accountTypePlaceholder": "Selecciona la cuenta",
+                "accountNumberLabel": "¿Cuál es tu número de cuenta?",
+                "accountNumberPlaceholder": "Ingresa tu número de cuenta",
+                "setAsDefault": "Usar como cuenta predeterminada",
+                "save": "Guardar cuenta",
+                "cancel": "Cancelar"
+            }
         }
     },
     "common": {

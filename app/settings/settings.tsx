@@ -22,6 +22,7 @@ import {
   Trash2,
   X,
   Settings,
+  CreditCard,
 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
@@ -129,7 +130,14 @@ export default function MoreScreen() {
       title: t('settings.menu.preferences'),
       subtitle: t('settings.menu.preferencesSubtitle'),
       icon: Settings,
-      onPress: () => router.push('/preferences'),
+      onPress: () => router.push('/settings/preferences/index'),
+    },
+    {
+      id: '1',
+      title: t('settings.menu.bankAccounts'),
+      subtitle: t('settings.menu.bankAccountsSubtitle'),
+      icon: CreditCard,
+      onPress: () => router.push('/settings/bank-accounts/index'),
     },
     {
       id: '5',

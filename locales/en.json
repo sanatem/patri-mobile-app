@@ -11,6 +11,8 @@
       "privacySubtitle": "Privacy settings",
       "help": "Help and Support",
       "helpSubtitle": "Help center and contact",
+      "bankAccounts": "My bank accounts",
+      "bankAccountsSubtitle": "Manage linked bank accounts",
       "logout": "Log Out",
       "logoutSubtitle": "Exit the application"
     },
@@ -35,6 +37,25 @@
     },
     "links": {
       "cannotOpen": "Cannot open link: {{title}}"
+    },
+    "bankAccounts": {
+      "title": "My bank accounts",
+      "subtitle": "Manage bank accounts linked to your profile",
+      "addAccount": "Add account",
+      "noAccounts": "You don't have any bank accounts added yet",
+      "addForm": {
+        "title": "Add bank account",
+        "subtitle": "Complete your bank account information",
+        "bankLabel": "Where do you have your bank account?",
+        "bankPlaceholder": "Select bank",
+        "accountTypeLabel": "What type of account is it?",
+        "accountTypePlaceholder": "Select account type",
+        "accountNumberLabel": "What is your account number?",
+        "accountNumberPlaceholder": "Enter your account number",
+        "setAsDefault": "Set as default account",
+        "save": "Save account",
+        "cancel": "Cancel"
+      }
     }
   },
   "common": {

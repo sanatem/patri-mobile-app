@@ -41,9 +41,11 @@ export interface BankAccount {
   id: string;
   label: string;
   value: string;
+  bank_id: number;
   bank_name: string;
   account_number: string;
   account_type: string;
+  kind: string; // Valor original del tipo de cuenta
   is_default?: boolean;
 }
 
@@ -77,9 +79,11 @@ export async function getBankAccounts(token: string): Promise<GetBankAccountResp
           id: account.id.toString(),
           label: `${bankName} - ****${account.account_number.slice(-4)} (${accountType})`,
           value: account.id.toString(),
+          bank_id: account.bank_id,
           bank_name: bankName,
           account_number: account.account_number,
           account_type: accountType,
+          kind: account.kind, // Valor original para el formulario
           is_default: account.is_default || false,
         };
       }); 

@@ -83,7 +83,10 @@ export default function ConfirmationStep({
         movement: {
           type: 'retirement' as const,
           amount: amount,
-          goal: goal === 'cash-balance' ? 'cash_balance' : parseInt(goal || '0'),
+          ...(goal === 'cash-balance'
+            ? { goal: 'cash_balance' }
+            : { goal_id: parseInt(goal || '0') }
+          ),
           investment_account_id: accountInfo.id,
           destination: goal === 'cash-balance' ? 'bank' : destino === 'cuenta-bancaria' ? 'bank' : 'cash',
           bank_account_id: destino === 'cuenta-bancaria' || goal === 'cash-balance' ? bankAccountId : undefined

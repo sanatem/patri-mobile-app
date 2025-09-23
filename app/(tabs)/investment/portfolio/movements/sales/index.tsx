@@ -12,7 +12,7 @@ import { useGoals } from '@/hooks/investment/useGoals';
 import { useFormatValue } from '@/hooks/common/useFormatValue';
 import { useAuth } from '@/providers/AuthProvider';
 import { getCash } from '@/services/cash/get-cash';
-import { getBankAccounts, type BankAccount } from '@/services/investment/get-bank-account';
+import { getBankAccounts, type BankAccount } from '@/services/investment/bank-accounts/get-bank-account';
 import type { Goal } from '@/types/api';
 import type { Cash } from '@/services/cash/get-cash';
 
@@ -50,11 +50,23 @@ export default function SalesFlow() {
         const bankResponse = await getBankAccounts(accessToken);
 
         if (bankResponse.success) {
-          const formattedAccounts = bankResponse.accounts.map(account => ({
-            label: account.label,
-            value: account.value
-          }));
-          setBankAccounts(formattedAccounts);
+          // Solo mostrar la cuenta predeterminada en el flujo de ventas
+          const defaultAccount = bankResponse.accounts.find(account => account.is_default);
+
+          if (defaultAccount) {
+            const formattedAccounts = [{
+              label: defaultAccount.label,
+              value: defaultAccount.value
+            }];
+            setBankAccounts(formattedAccounts);
+
+            // Auto-seleccionar inmediatamente la cuenta predeterminada
+            setCashBankAccount(defaultAccount.value);
+            setAssetBankAccount(defaultAccount.value);
+          } else {
+            console.warn('SalesFlow: No default bank account found');
+            setBankAccounts([]);
+          }
         } else {
           console.error('SalesFlow: Error loading bank accounts:', bankResponse.message);
           setBankAccounts([]);
@@ -69,6 +81,7 @@ export default function SalesFlow() {
 
     loadData();
   }, [accessToken]);
+
 
   const goals = useMemo(() => {
     const allGoals: Goal[] = [

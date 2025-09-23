@@ -29,7 +29,7 @@ export interface CreateAssetResponse {
 
 export const createAsset = async (data: CreateAssetRequest, token: string): Promise<CreateAssetResponse> => {
   try {
-    const url = `${config.apiBaseUrl}/api/v2/networth/create_asset`;
+    const url = `${config.apiBaseUrl}/api/v2/networth/assets`;
 
     const response = await fetch(url, {
       method: 'POST',
