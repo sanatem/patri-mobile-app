@@ -11,6 +11,8 @@
       "privacySubtitle": "Privacy settings",
       "help": "Help and Support",
       "helpSubtitle": "Help center and contact",
+      "bankAccounts": "My bank accounts",
+      "bankAccountsSubtitle": "Manage linked bank accounts",
       "logout": "Log Out",
       "logoutSubtitle": "Exit the application"
     },
@@ -35,6 +37,25 @@
     },
     "links": {
       "cannotOpen": "Cannot open link: {{title}}"
+    },
+    "bankAccounts": {
+      "title": "My bank accounts",
+      "subtitle": "Manage bank accounts linked to your profile",
+      "addAccount": "Add account",
+      "noAccounts": "You don't have any bank accounts added yet",
+      "addForm": {
+        "title": "Add bank account",
+        "subtitle": "Complete your bank account information",
+        "bankLabel": "Where do you have your bank account?",
+        "bankPlaceholder": "Select bank",
+        "accountTypeLabel": "What type of account is it?",
+        "accountTypePlaceholder": "Select account type",
+        "accountNumberLabel": "What is your account number?",
+        "accountNumberPlaceholder": "Enter your account number",
+        "setAsDefault": "Set as default account",
+        "save": "Save account",
+        "cancel": "Cancel"
+      }
     }
   },
   "common": {
@@ -295,14 +316,110 @@
     }
   },
   "amountStep": {
-    "title": "Enter amount",
-    "placeholder": "Enter the amount",
+    "title": "How much money do you want to deposit?",
+    "placeholder": "$0",
     "rateNote": "(at ${{ rate }} per dollar)"
   },
   "investmentMovement": {
     "header": {
       "from": "Move from {{from}}",
       "amount": "Enter amount"
+    },
+    "goalStep": {
+      "title": "Deposit Creation 💰",
+      "portfolioInfo": {
+        "label": "View my associated recommended portfolio"
+      }
+    },
+    "amountStep": {
+      "title": "Deposit Creation",
+      "subtitle": "Enter the amount you want to deposit"
+    }
+  },
+  "sourceFunds": {
+    "title": "Source of funds",
+    "subtitle": "Select where you want to transfer the money from",
+    "placeholder": "Select source of funds",
+    "options": {
+      "fintoc": "Transfer without leaving Patrimore",
+      "fintocDesc": "Connect your bank securely",
+      "bank": "Transfer from your bank",
+      "bankDesc": "Manual bank transfer",
+      "check": "Deposit check",
+      "checkDesc": "Deposit a physical check",
+      "cash": "Use my cash balance ({{amount}})",
+      "cashDesc": "Use available funds in your account"
+    },
+    "bankTransfer": {
+      "instructions": {
+        "line1": "Make the transfer from <1>an account in your name</1>.",
+        "line2": "To identify your transfer faster, remember to include the email indicated when creating the recipient."
+      },
+      "bankName": "Security Bank",
+      "fields": {
+        "name": "Name",
+        "rut": "RUT",
+        "accountNumber": "Account number",
+        "accountType": "Account type",
+        "currency": "Currency",
+        "email": "Email"
+      },
+      "values": {
+        "accountType": "Checking account",
+        "currency": "CLP"
+      },
+      "copyAll": "Copy all",
+      "alerts": {
+        "copied": "Copied",
+        "copiedField": "{{field}} copied to clipboard",
+        "copiedAll": "All bank details copied to clipboard",
+        "error": "Error",
+        "copyError": "Could not copy to clipboard"
+      }
+    },
+    "fintocTransfer": {
+      "title": "Transfer without leaving Patrimore",
+      "amount": "Transfer {{amount}}",
+      "openWidget": "Connect my bank",
+      "info": {
+        "title": "Secure bank transfer",
+        "description": "Connect your bank securely to transfer directly without leaving Patrimore.",
+        "amountLabel": "Amount to transfer"
+      },
+      "success": {
+        "title": "Transfer successful!",
+        "message": "Your transfer has been processed successfully."
+      },
+      "security": {
+        "title": "🔒 100% secure transfer",
+        "description": "We use institutional-grade banking technology to protect your information."
+      }
+    },
+    "cashTransfer": {
+      "title": "Use cash balance",
+      "description": "Your available cash balance will be used for this operation.",
+      "availableBalance": "Available balance: {{amount}}"
+    },
+    "checkDeposit": {
+      "title": "Deposit check",
+      "description": "Instructions for depositing a physical check will appear here.",
+      "instructions": {
+        "line1": "Deposit the check from <1>an account in your name</1>.",
+        "line2": "To identify your deposit faster, remember to include the email indicated when creating the recipient."
+      },
+      "voucher": {
+        "title": "Send the receipt through our chat or directly to your advisor",
+        "description": "Remember that the deposit will be available within 2 business days."
+      },
+      "rutRequirement": {
+        "title": "The check must be associated with your RUT",
+        "description": "Otherwise, the deposit will be rejected."
+      }
+    },
+    "cashBalance": {
+      "title": "Use cash balance",
+      "description": "Your available cash balance will be used for this operation.",
+      "availableBalance": "Available balance: {{amount}}"
     }
   },
   "confirmationStep": {
@@ -316,57 +433,63 @@
   },
   "fromAssetStep": {
     "assetQuestion": {
-      "part1": "From",
-      "part2": "which asset",
-      "part3": "do you want to sell shares?"
+      "part2": "From which asset do you want to sell shares?"
     },
     "assetPlaceholder": "Select an asset",
     "accountQuestion": {
-      "part1": "To",
-      "part2": "which bank account",
-      "part3": "do you want the funds to go?"
+      "part2": "To which bank account do you want the funds to go?"
     },
     "accountPlaceholder": "Select bank account"
   },
   "fromGoalStep": {
     "from": {
-      "part1": "From",
-      "part2": "where",
-      "part3": "do you want to withdraw money?"
+      "part2": "From where do you want to withdraw money?"
     },
     "to": {
-      "part1": "To",
-      "part2": "where",
-      "part3": "do you want to send it?"
+      "part2": "To where do you want to send it?"
     },
     "goalPlaceholder": "Select a goal",
     "destinationPlaceholder": "Select destination",
     "metaTo": {
-      "part1": "Which ",
-      "part2": "goal",
-      "part3": "do you want to invest in?"
+      "part2": "Which goal do you want to invest in?"
     }
   },
   "salesFlow": {
-    "header": "Withdrawal request",
     "next": "Next",
     "previous": "Previous",
     "finish": "Finish",
-    "mockGoals": {
-      "newGoal": "New goal ($1,492,500.00)",
-      "cashBalance": "Cash balance ($7,560.00)"
+    "cashBalance": "Cash balance",
+    "bankAccount": "My bank account",
+    "cashBalanceInfo": "You will receive the money in your bank account.",
+    "fromGoalStep": {
+      "title": "Withdrawal request 💸"
     },
-    "mockDestinos": {
-      "bankAccount": "My bank account",
-      "cashBalance": "My cash balance"
+    "fromAssetStep": {
+      "title": "Withdrawal request 💸"
     },
-    "mockActivos": {
-      "option1": "Singular Chile Short-Term Debt CFIETFCD\n$1,492,500 CLP as of 10/05/2023 · 14,925.0 shares",
-      "option2": "All my portfolio\n$1,492,500 CLP as of 06/26/2025",
-      "option3": "Proportional withdrawal\nMaintains portfolio structure"
+    "cashSale": {
+      "amountLabel": "How much money do you want to receive?",
+      "bankAccountLabel": "Which bank account do you want to receive the money in?",
+      "bankAccountPlaceholder": "Select a bank account"
     },
-    "mockCuentas": {
-      "account1": "CA 6677 · Chile-Edwards"
+    "totalAvailable": "Total available",
+    "investmentFunds": "investment funds",
+    "asOf": "as of {{date}}",
+    "quickOptions": "Quick options",
+    "individualFunds": "Individual funds",
+    "allPortfolio": "My entire portfolio",
+    "sellAllShares": "Sell all units of all funds",
+    "proportionalWithdrawal": "Proportional withdrawal",
+    "maintainStructure": "Maintains the portfolio structure",
+    "availableShares": "Available shares",
+    "noIndividualFunds": "No individual funds available",
+    "pricePerShare": "Price per share",
+    "total": "Total",
+    "forSpecificWithdrawals": "For specific withdrawals by fund",
+    "confirmationStep": {
+      "title": "Withdrawal request 💸",
+      "subtitle": "Confirm that the data is correct before finalizing the operation.",
+      "finalNote": "• Your request will be sent to the broker\n• Money will arrive in 2 business days\n• Low liquidity funds may take longer"
     }
   },
   "movements": {

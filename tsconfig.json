@@ -1,15 +1,29 @@
 {
-  "extends": "expo/tsconfig.base",
+  "//": "DO NOT ADD EXTENDS - SDK 54 compatibility issue",
   "compilerOptions": {
+    "target": "esnext",
+    "lib": [
+      "dom",
+      "esnext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
     "strict": true,
-    "jsx": "react-jsx",
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
     "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "node",
     "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noImplicitAny": false,
+    "jsx": "react-jsx",
     "allowSyntheticDefaultImports": true,
     "paths": {
-      "@/*": ["./*"]
-    },
-    "typeRoots": ["./node_modules/@types", "./types"]
+      "@/*": [
+        "./*"
+      ]
+    }
   },
   "include": [
     "**/*.ts",
@@ -17,5 +31,8 @@
     ".expo/types/**/*.ts",
     "expo-env.d.ts",
     "nativewind-env.d.ts"
+  ],
+  "exclude": [
+    "node_modules"
   ]
 }

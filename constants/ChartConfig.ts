@@ -4,15 +4,12 @@ const formatDateHelper = (dateString: string): Date | null => {
   if (!dateString) return null;
   
   try {
-    // First try direct parsing
     let date = new Date(dateString);
     if (!isNaN(date.getTime())) return date;
 
-    // If that fails, try parsing with replacing - with /
     date = new Date(dateString.replace(/-/g, '/'));
     if (!isNaN(date.getTime())) return date;
 
-    // If both fail, try manual parsing
     const [year, month, day] = dateString.split('-').map(Number);
     if (year && month && day) {
       date = new Date(year, month - 1, day);
@@ -42,7 +39,6 @@ export const CHART_CONFIG = {
         year: 'numeric'
       });
     } catch {
-      // Fallback format if toLocaleDateString fails
       const day = dateObj.getDate().toString().padStart(2, '0');
       const month = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'][dateObj.getMonth()];
       const year = dateObj.getFullYear();
@@ -59,7 +55,6 @@ export const CHART_CONFIG = {
         month: 'short'
       });
     } catch {
-      // Fallback format if toLocaleDateString fails
       const day = dateObj.getDate().toString().padStart(2, '0');
       const month = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'][dateObj.getMonth()];
       return `${day} ${month}`;

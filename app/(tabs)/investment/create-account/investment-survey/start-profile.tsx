@@ -19,7 +19,7 @@ export default function StartProfile() {
 
       <TouchableOpacity
         className="bg-primary-500 py-3 px-4 rounded-lg items-center"
-        onPress={() => router.push('/investment/create-account/investment-survey/profile-question' as any)}
+        onPress={() => router.push('/(tabs)/investment/create-account/investment-survey/profile-question')}
       >
         <Text className="text-white font-semibold text-base">{t('common.start')}</Text>
       </TouchableOpacity>

@@ -11,6 +11,8 @@
       "privacySubtitle": "Configuración de privacidad",
       "help": "Ayuda y soporte",
       "helpSubtitle": "Centro de ayuda y contacto",
+      "bankAccounts": "Mis cuentas bancarias",
+      "bankAccountsSubtitle": "Gestionar cuentas bancarias vinculadas",
       "logout": "Cerrar sesión",
       "logoutSubtitle": "Salir de la aplicación"
     },
@@ -35,6 +37,25 @@
     },
     "links": {
       "cannotOpen": "No se puede abrir el enlace: {{title}}"
+    },
+    "bankAccounts": {
+      "title": "Mis cuentas bancarias",
+      "subtitle": "Gestiona las cuentas bancarias vinculadas a tu perfil",
+      "addAccount": "Agregar cuenta",
+      "noAccounts": "Aún no tienes cuentas bancarias agregadas",
+      "addForm": {
+        "title": "Agregar cuenta bancaria",
+        "subtitle": "Completa la información de tu cuenta bancaria",
+        "bankLabel": "¿Dónde tienes tu cuenta bancaria?",
+        "bankPlaceholder": "Selecciona el banco",
+        "accountTypeLabel": "¿Qué tipo de cuenta es?",
+        "accountTypePlaceholder": "Selecciona la cuenta",
+        "accountNumberLabel": "¿Cuál es tu número de cuenta?",
+        "accountNumberPlaceholder": "Ingresa tu número de cuenta",
+        "setAsDefault": "Usar como cuenta predeterminada",
+        "save": "Guardar cuenta",
+        "cancel": "Cancelar"
+      }
     }
   },
   "common": {
@@ -295,14 +316,111 @@
     }
   },
   "amountStep": {
-    "title": "Ingresar monto",
-    "placeholder": "Ingresa el monto",
+    "title": "¿Cuánto dinero quieres depositar?",
+    "placeholder": "$0",
     "rateNote": "(a ${{ rate }} el dólar)"
   },
   "investmentMovement": {
     "header": {
       "from": "Mover desde {{from}}",
       "amount": "Ingresar monto"
+    },
+    "goalStep": {
+      "title": "Creación de depósito 💰",
+      "portfolioInfo": {
+        "label": "Ver mi portafolio asociado"
+      }
+    },
+    "amountStep": {
+      "title": "Creación de depósito",
+      "subtitle": "Ingresa el monto que deseas depositar"
+    }
+  },
+  "sourceFunds": {
+    "title": "Origen de los fondos 🏦",
+    "subtitle": "Selecciona de dónde quieres transferir el dinero",
+    "placeholder": "Selecciona origen de fondos",
+    "options": {
+      "fintoc": "Transferir sin salir de Patrimore",
+      "fintocDesc": "Conecta tu banco de forma segura",
+      "bank": "Transferir desde tu banco",
+      "bankDesc": "Transferencia bancaria manual",
+      "check": "Depositar cheque",
+      "checkDesc": "Deposita un cheque físico",
+      "cash": "Utilizar mi saldo en caja ({{amount}})",
+      "cashDesc": "Usar fondos disponibles en tu cuenta"
+    },
+    "bankTransfer": {
+      "instructions": {
+        "line1": "Haz la transferencia desde <1>una cuenta a tu nombre</1>.",
+        "line2": "Para identificar tu transferencia más rápido, recuerda incluir el correo electrónico indicado en la creación del destinatario."
+      },
+      "dataTitle": "Datos bancarios",
+      "bankName": "Banco Security",
+      "fields": {
+        "name": "Nombre",
+        "rut": "RUT",
+        "accountNumber": "Nº de cuenta",
+        "accountType": "Tipo de cuenta",
+        "currency": "Moneda",
+        "email": "Correo electrónico"
+      },
+      "values": {
+        "accountType": "Cuenta corriente",
+        "currency": "CLP"
+      },
+      "copyAll": "Copiar todo",
+      "alerts": {
+        "copied": "Copiado",
+        "copiedField": "{{field}} copiado al portapapeles",
+        "copiedAll": "Todos los datos bancarios copiados al portapapeles",
+        "error": "Error",
+        "copyError": "No se pudo copiar al portapapeles"
+      }
+    },
+    "fintocTransfer": {
+      "title": "Transferir sin salir de Patrimore",
+      "amount": "Transferir {{amount}}",
+      "openWidget": "Conectar mi banco",
+      "info": {
+        "title": "Transferencia bancaria segura",
+        "description": "Conecta tu banco de forma segura para transferir directamente sin salir de Patrimore.",
+        "amountLabel": "Monto a transferir"
+      },
+      "success": {
+        "title": "¡Transferencia exitosa!",
+        "message": "Tu transferencia ha sido procesada correctamente."
+      },
+      "security": {
+        "title": "🔒 Transferencia 100% segura",
+        "description": "Utilizamos tecnología bancaria de nivel institucional para proteger tu información."
+      }
+    },
+    "cashTransfer": {
+      "title": "Utilizar saldo en caja",
+      "description": "Se utilizará tu saldo disponible en caja para esta operación.",
+      "availableBalance": "Saldo disponible: {{amount}}"
+    },
+    "checkDeposit": {
+      "title": "Depositar cheque",
+      "description": "Instrucciones para depositar un cheque físico aparecerán aquí.",
+      "instructions": {
+        "line1": "Deposita el cheque desde <1>una cuenta a tu nombre</1>.",
+        "line2": "Para identificar tu depósito más rápido, recuerda incluir el correo electrónico indicado en la creación del destinatario."
+      },
+      "voucher": {
+        "title": "Envía el comprobante por nuestro chat o directamente a tu asesor",
+        "description": "Recuerda que el depósito estará disponible en un plazo de 2 días hábiles."
+      },
+      "rutRequirement": {
+        "title": "El cheque deberá estar asociado a tu RUT",
+        "description": "Caso contrario, el depósito será rechazado."
+      }
+    },
+    "cashBalance": {
+      "title": "Utilizar saldo en caja",
+      "description": "Se utilizará tu saldo disponible en caja para esta operación.",
+      "availableBalance": "Saldo disponible: {{amount}}"
     }
   },
   "confirmationStep": {
@@ -316,57 +434,63 @@
   },
   "fromAssetStep": {
     "assetQuestion": {
-      "part1": "¿De",
-      "part2": "qué activo",
-      "part3": "quieres vender cuotas?"
+      "part2": "¿De qué activo quieres vender cuotas?"
     },
     "assetPlaceholder": "Selecciona un activo",
     "accountQuestion": {
-      "part1": "¿En",
-      "part2": "qué cuenta bancaria",
-      "part3": "quieres recibir el dinero?"
+      "part2": "¿En qué cuenta bancaria quieres recibir el dinero?"
     },
     "accountPlaceholder": "Selecciona cuenta bancaria"
   },
   "fromGoalStep": {
     "from": {
-      "part1": "¿De",
-      "part2": "dónde",
-      "part3": "quieres retirar dinero?"
+      "part2": "¿De dónde quieres retirar dinero?"
     },
     "to": {
-      "part1": "¿A",
-      "part2": "dónde",
-      "part3": "quieres destinarlo?"
+      "part2": "¿A dónde quieres destinarlo?"
     },
     "goalPlaceholder": "Selecciona una meta",
     "destinationPlaceholder": "Selecciona destino",
     "metaTo": {
-      "part1": "¿A qué ",
-      "part2": "meta",
-      "part3": "quieres invertir?"
+      "part2": "¿En qué meta quieres invertir?"
     }
   },
   "salesFlow": {
-    "header": "Solicitud de retiro",
     "next": "Siguiente",
     "previous": "Anterior",
     "finish": "Finalizar",
-    "mockGoals": {
-      "newGoal": "Nueva meta ($1.492.500,00)",
-      "cashBalance": "Saldo en caja ($7.560,00)"
+    "cashBalance": "Saldo en caja",
+    "bankAccount": "Mi cuenta bancaria",
+    "cashBalanceInfo": "Recibirás el dinero en tu cuenta bancaria.",
+    "fromGoalStep": {
+    "title": "Solicitud de retiro 💸"
     },
-    "mockDestinos": {
-      "bankAccount": "Mi cuenta bancaria",
-      "cashBalance": "Mi saldo en caja"
+    "fromAssetStep": {
+      "title": "Solicitud de retiro 💸"
     },
-    "mockActivos": {
-      "option1": "Singular Chile Deuda Corta Duración CFIETFCD\n$1.492.500 CLP al 10/05/2023 · 14.925,0 cuotas",
-      "option2": "Todo mi portafolio\n$1.492.500 CLP al 26/06/2025",
-      "option3": "Retiro proporcional\nMantiene la estructura del portafolio"
+    "cashSale": {
+      "amountLabel": "¿Cuánto dinero quieres recibir?",
+      "bankAccountLabel": "¿En qué cuenta bancaria quieres recibir el dinero?",
+      "bankAccountPlaceholder": "Selecciona una cuenta bancaria"
     },
-    "mockCuentas": {
-      "account1": "CA 6677 · Chile-Edwards"
+    "totalAvailable": "Total disponible",
+    "investmentFunds": "fondos de inversión",
+    "asOf": "al {{date}}",
+    "quickOptions": "Opciones rápidas",
+    "individualFunds": "Fondos individuales",
+    "allPortfolio": "Todo mi portafolio",
+    "sellAllShares": "Vender todas las cuotas de todos los fondos",
+    "proportionalWithdrawal": "Retiro proporcional",
+    "maintainStructure": "Mantiene la estructura del portafolio",
+    "availableShares": "Cuotas disponibles",
+    "noIndividualFunds": "No hay fondos individuales disponibles",
+    "pricePerShare": "Precio por cuota",
+    "total": "Total",
+    "forSpecificWithdrawals": "Para retiros específicos por fondo",
+    "confirmationStep": {
+      "title": "Solicitud de retiro 💸",
+      "subtitle": "Confirma que los datos sean correctos antes de finalizar la operación.",
+      "finalNote": "• Tu solicitud será enviada a la corredora\n• El dinero llegará en 2 días hábiles\n• Fondos con poca liquidez pueden demorar más"
     }
   },
   "movements": {

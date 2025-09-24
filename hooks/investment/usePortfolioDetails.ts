@@ -101,4 +101,4 @@ export function useHasInvestmentAccount(): UseHasInvestmentAccountReturn {
     error,
     refetch: checkInvestmentAccount,
   };
-} 
+}

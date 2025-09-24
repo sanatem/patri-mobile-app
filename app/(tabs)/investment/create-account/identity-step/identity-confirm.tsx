@@ -24,7 +24,7 @@ export default function IdentityConfirm() {
 
       <Button
         title={t('common.continue')}
-        onPress={() => router.push('/investment/create-account/personal-information/personal-information-question' as any)}
+        onPress={() => router.push('/(tabs)/investment/create-account/personal-information/personal-information-question')}
         variant="primary"
         fullWidth
       />

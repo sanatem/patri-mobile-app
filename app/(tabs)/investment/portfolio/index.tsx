@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import {
-  Settings,
   PiggyBank,
   LineChart,
   Home,
@@ -41,7 +40,7 @@ export default function InvestmentPortfolioScreen() {
   const { totalWalletValue, investmentWalletValue, savingsWalletValue, loading: walletLoading, error: walletError } = useTotalWalletValue();
   const { accessToken } = useAuth();
   const [cashData, setCashData] = useState<any>(null);
-  const [selectedAccountType, setSelectedAccountType] = useState<string>('investment');
+  const [selectedAccountType, setSelectedAccountType] = useState<string>('investment')
   
   useEffect(() => {
     const loadCashData = async () => {
@@ -132,8 +131,8 @@ export default function InvestmentPortfolioScreen() {
     }
   };
 
-  const handleInvestPress = () => router.push('/investment/portfolio/movements/investment');
-  const handleWithdrawPress = () => router.push('/investment/portfolio/movements/sales');
+  const handleInvestPress = () => router.push('/(tabs)/investment/portfolio/movements/investment')
+  const handleWithdrawPress = () => router.push('/(tabs)/investment/portfolio/movements/sales')
 
   const renderGoalsSection = () => {
     if (goalsLoading) {
@@ -250,65 +249,57 @@ export default function InvestmentPortfolioScreen() {
 
   return (
     <Container variant="secondaryPage">
-      <Header 
-        title={t('portfolio.title')} 
-        rightAction={
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <TouchableOpacity
-              className="w-10 h-10 rounded-full justify-center items-center"
-              onPress={() => router.push('/settings')}
-            >
-              <Settings size={24} color={Colors.gray[700]} />
-            </TouchableOpacity>
-          </View>
-        }
+      <Header
+        title={t('portfolio.title')}
       />
-      <ScrollView className="flex-1 px-5 pb-[120px] mt-16" showsVerticalScrollIndicator={false}>
-        <PortfolioHeader
-          patrimony={getFallbackPatrimonyValue()}
-          isLoading={walletLoading}
-          cashAmount={getCurrentCashAmount()}
-          selectedAccountType={selectedAccountType}
-        />
-        
-        <View className="px-1 py-4">
-          <Select
-            options={accountTypeOptions}
-            value={selectedAccountType}
-            onSelect={setSelectedAccountType}
-            label={t('portfolio.accountTypeLabel')}
-            placeholder={t('portfolio.selectAccountType')}
+      <View className="flex-1">
+        <ScrollView className="flex-1 px-5 mt-16" showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
+          <PortfolioHeader
+            patrimony={getFallbackPatrimonyValue()}
+            isLoading={walletLoading}
+            cashAmount={getCurrentCashAmount()}
+            selectedAccountType={selectedAccountType}
+          />
+          
+          <View className="px-1 py-4">
+            <Select
+              options={accountTypeOptions}
+              value={selectedAccountType}
+              onSelect={setSelectedAccountType}
+              label={t('portfolio.accountTypeLabel')}
+              placeholder={t('portfolio.selectAccountType')}
+            />
+          </View>
+          
+          <View className="px-6 py-2">
+            <Text className="text-lg font-medium text-gray-800">
+              {selectedAccountType === 'investment' ? t('portfolio.goalsTitle') : t('portfolio.savingsTitle')}
+            </Text>
+          </View>
+          
+          <View style={listItemStyles.cardContainer}>
+            {renderGoalsSection()}
+          </View>
+        </ScrollView>
+        <View className="px-5 pb-1 pt-1 bg-white">
+          <PortfolioActionsBar
+            actions={[
+              {
+                title: t('portfolio.actions.withdraw'),
+                onPress: handleWithdrawPress,
+                icon: <ArrowUp size={20} color={Colors.secondary[500]} />,
+                variant: 'outline'
+              },
+              {
+                title: t('portfolio.actions.invest'),
+                onPress: handleInvestPress,
+                icon: <ArrowDown size={20} color={Colors.primary[500]} />,
+                variant: 'primary'
+              }
+            ]}
           />
         </View>
-        
-        {false && (
-        <PortfolioActionsBar
-          actions={[
-            {
-              title: t('portfolio.actions.invest'),
-              onPress: handleInvestPress,
-              icon: <ArrowDown size={20} color="#fff" />,
-              variant: 'primary'
-            },
-            {
-              title: t('portfolio.actions.withdraw'),
-              onPress: handleWithdrawPress,
-              icon: <ArrowUp size={20} color="#FF5603" />,
-              variant: 'outline'
-            }
-          ]}
-        />
-        )}
-        <View className="px-6 py-2">
-          <Text className="text-lg font-medium text-gray-800">
-            {selectedAccountType === 'investment' ? t('portfolio.goalsTitle') : t('portfolio.savingsTitle')}
-          </Text>
-        </View>
-        
-        <View style={listItemStyles.cardContainer}>
-          {renderGoalsSection()}
-        </View>
-      </ScrollView>
+      </View>
     </Container>
   );
 }

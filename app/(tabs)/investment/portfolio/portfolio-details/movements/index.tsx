@@ -5,7 +5,6 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Header } from '@/components/ui/Header';
 import { Container } from '@/components/ui/Container';
 import { Card } from '@/components/ui/Card';
-import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { getMovementsByGoal, Movement } from '@/services/investment/portfolio/movements/get-movements';
 import { useAuth } from '@/providers/AuthProvider';
 import Colors from '@/constants/Colors';
@@ -24,8 +23,8 @@ export default function MovementsScreen() {
 
   const handleBackPress = () => {
     if (!goalId || goalId.trim() === '') {
-      console.warn('goalId está vacío, navegando al portfolio principal');
-      router.push('/investment/portfolio');
+      console.warn('goalId está vacío, navegando al portfolio principal')
+      router.push('/(tabs)/investment/portfolio')
       return;
     }
     
@@ -33,12 +32,12 @@ export default function MovementsScreen() {
     const safeGoalName = goalName || '';
     
     router.replace({
-      pathname: '/investment/portfolio/portfolio-details',
+      pathname: '/(tabs)/investment/portfolio/portfolio-details',
       params: {
         goalId: safeGoalId,
         goalName: safeGoalName,
       },
-    } as any);
+    });
   };
 
   useEffect(() => {
@@ -51,7 +50,7 @@ export default function MovementsScreen() {
         setMovements(movementsData);
       } catch (err) {
         console.error('Error loading movements:', err);
-        setError(err instanceof Error ? err.message : 'Error cargando movimientos');
+        setError(err instanceof Error ? err.message : 'Error cargando movimientos')
       } finally {
         setLoading(false);
       }

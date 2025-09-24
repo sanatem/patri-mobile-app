@@ -183,7 +183,8 @@ export interface ApiGoal {
   target_date: string;
   unit: string;
   created_at: string;
-  wallet_value: number;
+  goal_wallet: number;
+  available_value_for_retirement?: number;
   investment_account_id: number;
 }
 
@@ -202,6 +203,8 @@ export interface Goal {
   unit: string;
   createdAt: string;
   currentAmount: number;
+  goalWallet?: number;
+  availableValueForRetirement?: number;
   investmentAccountId: number;
   progress: number;
 }
