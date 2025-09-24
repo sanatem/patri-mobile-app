@@ -285,7 +285,13 @@ export default function SalesFlow() {
           bankAccounts={bankAccounts}
           assetSections={assetSections}
           onPrev={() => setStep(2)}
-          onFinish={() => router.push('/(tabs)/investment/portfolio')}
+          onFinish={() => {
+            try {
+              router.push('/(tabs)/investment/portfolio');
+            } catch (error) {
+              console.error('Portfolio navigation error:', error);
+            }
+          }}
         />
       )}
     </Container>

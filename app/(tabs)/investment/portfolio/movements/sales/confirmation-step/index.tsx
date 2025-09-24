@@ -94,11 +94,28 @@ export default function ConfirmationStep({
       };
 
       const result = await createSaleService.createSale(saleData, accessToken);
-      Alert.alert(
-        'Éxito',
-        'El retiro ha sido creado exitosamente',
-        [{ text: 'OK', onPress: onFinish }]
-      );
+
+      // Para web, navegar directamente. Para móvil, mostrar alert
+      if (typeof window !== 'undefined') {
+        // Estamos en web
+        onFinish();
+      } else {
+        // Estamos en móvil
+        Alert.alert(
+          'Éxito',
+          'El retiro ha sido creado exitosamente',
+          [{
+            text: 'OK',
+            onPress: () => {
+              try {
+                onFinish();
+              } catch (error) {
+                console.error('Navigation error:', error);
+              }
+            }
+          }]
+        );
+      }
 
     } catch (error) {
       console.error('Error creating sale:', error);

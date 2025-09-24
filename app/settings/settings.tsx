@@ -130,14 +130,14 @@ export default function MoreScreen() {
       title: t('settings.menu.preferences'),
       subtitle: t('settings.menu.preferencesSubtitle'),
       icon: Settings,
-      onPress: () => router.push('/settings/preferences/index'),
+      onPress: () => router.push('/settings/preferences'),
     },
     {
       id: '1',
       title: t('settings.menu.bankAccounts'),
       subtitle: t('settings.menu.bankAccountsSubtitle'),
       icon: CreditCard,
-      onPress: () => router.push('/settings/bank-accounts/index'),
+      onPress: () => router.push('/settings/bank-accounts'),
     },
     {
       id: '5',

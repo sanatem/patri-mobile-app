@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import {
-  Settings,
   PiggyBank,
   LineChart,
   Home,
@@ -250,18 +249,8 @@ export default function InvestmentPortfolioScreen() {
 
   return (
     <Container variant="secondaryPage">
-      <Header 
-        title={t('portfolio.title')} 
-        rightAction={
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <TouchableOpacity
-              className="w-10 h-10 rounded-full justify-center items-center"
-              onPress={() => router.push('/settings')}
-            >
-              <Settings size={24} color={Colors.gray[700]} />
-            </TouchableOpacity>
-          </View>
-        }
+      <Header
+        title={t('portfolio.title')}
       />
       <View className="flex-1">
         <ScrollView className="flex-1 px-5 mt-16" showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>

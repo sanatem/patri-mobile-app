@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { View } from 'react-native';
 import FormLayout from '@/components/ui/FormLayout';
 import { useTranslation } from 'react-i18next';
@@ -99,11 +99,19 @@ export default function FromAssetStep({
     };
   }, [metaDetails, t, formatValue]);
 
+  // Auto-set amount for portfolio-completo
+  useEffect(() => {
+    if (activo === 'portfolio-completo' && assetData.totalAvailable > 0) {
+      setAssetAmount(assetData.totalAvailable.toString());
+    }
+  }, [activo, assetData.totalAvailable, setAssetAmount]);
+
   const requiresAmountInput = activo && activo !== 'portfolio-completo';
   const isNextDisabled = !activo ||
     (requiresAmountInput && (!assetAmount || parseFloat(assetAmount) <= 0)) ||
     (requiresAmountInput && destino === 'cuenta-bancaria' && (!assetBankAccount || loadingBankAccounts)) ||
-    (activo === 'portfolio-completo' && destino === 'cuenta-bancaria' && (!assetBankAccount || loadingBankAccounts));
+    (activo === 'portfolio-completo' && destino === 'cuenta-bancaria' && (!assetBankAccount || loadingBankAccounts)) ||
+    (activo === 'portfolio-completo' && (!assetAmount || parseFloat(assetAmount) <= 0));
 
   return (
     <FormLayout

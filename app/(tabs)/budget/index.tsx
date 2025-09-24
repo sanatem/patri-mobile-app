@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Animated, Dimensions, ActivityIndicator } from 'react-native';
-import { ChevronLeft, ChevronRight, Settings, Plus, RefreshCw } from 'lucide-react-native';
+import { ChevronLeft, ChevronRight, Plus, RefreshCw } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import {
   BUDGET_CATEGORY_KEYS,
@@ -326,18 +326,12 @@ export default function BudgetScreen() {
         title={t('budget.title')}
           rightAction={
            <View className="flex-row items-center">
-             <TouchableOpacity 
+             <TouchableOpacity
                onPress={() => setShowAddModal(true)}
                className="mr-3"
              >
                <Plus size={24} color={Colors.primary[500]} />
              </TouchableOpacity>
-             <TouchableOpacity 
-               onPress={() => router.push('/settings')}
-               className="mr-3"
-             >
-               <Settings size={24} color={Colors.primary[500]} />
-             </TouchableOpacity> 
            </View>
          }
         />

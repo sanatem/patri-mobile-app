@@ -147,7 +147,7 @@ export default function AssetCard({
           <View style={{ flex: 1 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <View style={{ flex: 1, marginRight: 8 }}>
-                <Text className='font-medium text-sm'
+                <Text className='font-medium text-base'
                   style={{
                     color: Colors.primary[500],
                     marginBottom: 4,
@@ -169,7 +169,7 @@ export default function AssetCard({
 
                 {description && (
                   <Text
-                    className='font-regular text-xs'
+                    className='font-regular text-sm'
                     style={{
                       color: Colors.gray[600],
                       marginBottom: 4,
@@ -181,7 +181,7 @@ export default function AssetCard({
 
                 {additionalInfo && (
                   <Text
-                    className='font-regular text-xs'
+                    className='font-regular text-sm'
                     style={{
                       color: Colors.gray[500],
                     }}
@@ -204,7 +204,7 @@ export default function AssetCard({
                 )}
                 {showDate && (
                   <Text
-                    className='font-regular text-xs'
+                    className='font-regular text-sm'
                     style={{
                       color: Colors.gray[500],
                       marginTop: 2,
@@ -270,7 +270,7 @@ export default function AssetCard({
           <View style={{ flex: 1 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <View style={{ flex: 1, marginRight: 8 }}>
-                <Text className='font-medium text-sm'
+                <Text className='font-medium text-base'
                   style={{
                     color: Colors.primary[500],
                     marginBottom: 4,
@@ -291,7 +291,7 @@ export default function AssetCard({
                       {value}
                     </Text>
                     {showDate && (
-                      <Text className='font-regular text-xs'
+                      <Text className='font-regular text-sm'
                         style={{
                           color: Colors.gray[500],
                           marginTop: 2,
@@ -328,7 +328,7 @@ export default function AssetCard({
           )}
 
           {description && (
-            <Text className='font-regular text-xs'
+            <Text className='font-regular text-sm'
               style={{
                 color: Colors.gray[600],
                 marginBottom: 4,
@@ -340,7 +340,7 @@ export default function AssetCard({
 
           {additionalInfo && (
             <Text
-              className='font-regular text-xs'
+              className='font-regular text-sm'
               style={{
                 color: Colors.gray[500],
               }}
