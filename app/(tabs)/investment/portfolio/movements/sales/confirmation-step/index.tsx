@@ -88,22 +88,19 @@ export default function ConfirmationStep({
             : { goal_id: parseInt(goal || '0') }
           ),
           investment_account_id: accountInfo.id,
-          destination: goal === 'cash-balance' ? 'bank' : destino === 'cuenta-bancaria' ? 'bank' : 'cash',
-          bank_account_id: destino === 'cuenta-bancaria' || goal === 'cash-balance' ? bankAccountId : undefined
+          destination: goal === 'cash-balance' ? 'bank' : destino === 'bank-account' ? 'bank' : 'cash',
+          bank_account_id: destino === 'bank-account' || goal === 'cash-balance' ? bankAccountId : undefined
         }
       };
 
       const result = await createSaleService.createSale(saleData, accessToken);
 
-      // Para web, navegar directamente. Para móvil, mostrar alert
       if (typeof window !== 'undefined') {
-        // Estamos en web
         onFinish();
       } else {
-        // Estamos en móvil
         Alert.alert(
-          'Éxito',
-          'El retiro ha sido creado exitosamente',
+          '',
+          'La solicitud de retiro ha sido creada exitosamente',
           [{
             text: 'OK',
             onPress: () => {
@@ -121,7 +118,7 @@ export default function ConfirmationStep({
       console.error('Error creating sale:', error);
       Alert.alert(
         'Error',
-        error instanceof Error ? error.message : 'Ocurrió un error al crear el retiro'
+        error instanceof Error ? error.message : 'Ocurrió un error al crear la solicitud de retiro'
       );
     } finally {
       setIsSubmitting(false);
@@ -133,11 +130,11 @@ export default function ConfirmationStep({
       return t('salesFlow.cashBalance');
     }
 
-    if (activo === 'portfolio-completo') {
+    if (activo === 'all-portfolio') {
       return t('salesFlow.allPortfolio');
     }
 
-    if (activo === 'retiro-proporcional') {
+    if (activo === 'proportional-withdrawal') {
       return t('salesFlow.proportionalWithdrawal');
     }
 
@@ -245,7 +242,7 @@ export default function ConfirmationStep({
             {t('confirmationStep.destination')}
           </Text>
           <Text className="text-base font-semibold" style={{ color: Colors.primary[700] }}>
-            {destino === 'cuenta-bancaria'
+            {destino === 'bank-account'
               ? (bankAccounts.find(account => account.value === assetBankAccount)?.label || t('confirmationStep.bankAccount'))
               : t('confirmationStep.wallet')}
           </Text>
