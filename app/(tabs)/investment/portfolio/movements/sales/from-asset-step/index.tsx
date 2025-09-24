@@ -105,7 +105,6 @@ export default function FromAssetStep({
     if (activo === 'all-portfolio' && assetData.totalAvailable > 0) {
       setAssetAmount(assetData.totalAvailable.toString());
     } else if (activo && activo !== 'all-portfolio') {
-      // Limpiar el monto cuando se selecciona cualquier otra opción
       setAssetAmount('');
     }
   }, [activo, assetData.totalAvailable, setAssetAmount]);
