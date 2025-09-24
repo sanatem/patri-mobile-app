@@ -60,9 +60,9 @@ export default function ConfirmationStep({
     setIsSubmitting(true);
 
     try {
-      const amount = goal === 'cash-balance'
-        ? parseFloat(cashAmount.replace(/[^0-9]/g, '')) || 0
-        : parseFloat(assetAmount.replace(/[^0-9]/g, '')) || 0;
+      const amount = Math.round(goal === 'cash-balance'
+        ? parseFloat(cashAmount.replace(/[^0-9.]/g, '')) || 0
+        : parseFloat(assetAmount) || 0);
 
       if (amount <= 0) {
         Alert.alert('Error', 'El monto debe ser mayor a 0');
@@ -79,18 +79,28 @@ export default function ConfirmationStep({
         ? parseInt(cashBankAccount || '0')
         : parseInt(assetBankAccount || '0');
 
+      // Determinar wallet_container basado en el activo seleccionado
+      let walletContainer: string | number;
+      if (activo === 'all-portfolio') {
+        walletContainer = 'all';
+      } else if (activo === 'proportional-withdrawal') {
+        walletContainer = 'proportional';
+      } else if (activo?.startsWith('fund-')) {
+        walletContainer = parseInt(activo.replace('fund-', ''));
+      } else {
+        walletContainer = 'all'; // fallback
+      }
+
       const saleData = {
-        movement: {
-          type: 'retirement' as const,
-          amount: amount,
-          ...(goal === 'cash-balance'
-            ? { goal: 'cash_balance' }
-            : { goal_id: parseInt(goal || '0') }
-          ),
-          investment_account_id: accountInfo.id,
-          destination: goal === 'cash-balance' ? 'bank' : destino === 'bank-account' ? 'bank' : 'cash',
-          bank_account_id: destino === 'bank-account' || goal === 'cash-balance' ? bankAccountId : undefined
-        }
+        type: destino === 'bank-account' ? 'retirement' : 'closing',
+        amount: amount.toString(),
+        ...(goal === 'cash-balance'
+          ? { goal: 'cash_balance' }
+          : { goal_id: parseInt(goal || '0') }
+        ),
+        wallet_container: walletContainer,
+        investment_account_id: accountInfo.id,
+        ...(destino === 'bank-account' ? { bank_account_id: bankAccountId } : {})
       };
 
       const result = await createSaleService.createSale(saleData, accessToken);
