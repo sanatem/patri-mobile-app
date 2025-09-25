@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text } from 'react-native';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import {
   FormLayout,
   Input,
@@ -9,6 +9,7 @@ import {
 import { HypothecaryFields } from '@/components/patrimony/add-liability';
 import Colors from '@/constants/Colors';
 import { createDebt } from '@/services/patrimony/create-debt';
+import { updateDebt } from '@/services/patrimony/update-debt';
 import { getProperties  } from '@/services/properties/get-properties';
 import { useAuth } from '@/providers/AuthProvider';
 import { useFormatValue } from '@/hooks/common/useFormatValue';
@@ -19,6 +20,8 @@ const cleanIntegerValue = (value: string) => value.replace(/[^\d]/g, '');
 
 export default function AddLiabilityScreen() {
   const { t } = useTranslation();
+  const params = useLocalSearchParams();
+  const isEditMode = !!(params.editMode && params.rawData);
 
   const DEBT_CATEGORY_OPTIONS = [
     { label: t('addLiabilityScreen.debtCategoryOptions.1'), value: '1' },
@@ -117,6 +120,31 @@ export default function AddLiabilityScreen() {
     }
   }, [formData.property_associated, accessToken]);
 
+  useEffect(() => {
+    if (isEditMode && params.rawData) {
+      try {
+        const debtData = JSON.parse(params.rawData as string);
+        setFormData({
+          name: debtData.name || '',
+          debt_category_id: debtData.debt_category_id?.toString() || '',
+          amount: debtData.amount?.toString() || '',
+          unit: debtData.unit || 'clp',
+          installments_quantity: debtData.installments_quantity?.toString() || '',
+          installment_amount: debtData.installment_amount?.toString() || '',
+          property_associated: debtData.property_id ? 'yes' : 'no',
+          property_id: debtData.property_id?.toString() || '',
+          create_property: 'no',
+          property_location: '',
+          property_commercial_value: '',
+          property_unit: 'clp',
+          property_square_mts: '',
+        });
+      } catch (error) {
+        console.error('Error parsing debt data:', error);
+      }
+    }
+  }, [isEditMode, params.rawData]);
+
   const validateForm = () => {
     const newErrors: string[] = [];
 
@@ -206,10 +234,10 @@ export default function AddLiabilityScreen() {
         debt: {
           name: formData.name,
           debt_category_id: parseInt(formData.debt_category_id),
-          amount: cleanIntegerValue(formData.amount), // Enviar como string
+          amount: cleanIntegerValue(formData.amount),
           unit: formData.unit,
           installments_quantity: parseInt(cleanIntegerValue(formData.installments_quantity)),
-          installment_amount: cleanIntegerValue(formData.installment_amount), // Enviar como string
+          installment_amount: cleanIntegerValue(formData.installment_amount),
         }
       };
       if (formData.debt_category_id === '5' || formData.debt_category_id === '6') {
@@ -227,7 +255,13 @@ export default function AddLiabilityScreen() {
         }
       }
 
-      const response = await createDebt(debtData, accessToken);
+      let response;
+      if (isEditMode && params.rawData) {
+        const originalData = JSON.parse(params.rawData as string);
+        response = await updateDebt(originalData.id, debtData, accessToken);
+      } else {
+        response = await createDebt(debtData, accessToken);
+      }
 
       if (response.success) {
         router.push('/(tabs)/patrimony');
@@ -245,13 +279,13 @@ export default function AddLiabilityScreen() {
 
   return (
     <FormLayout
-      title={t('addLiabilityScreen.title')}
-      subtitle={t('addLiabilityScreen.subtitle')}
+      title={isEditMode ? t('editLiabilityScreen.title', 'Editar Pasivo') : t('addLiabilityScreen.title')}
+      subtitle={isEditMode ? t('editLiabilityScreen.subtitle', 'Modifica la información de tu pasivo') : t('addLiabilityScreen.subtitle')}
       currentStep={1}
       totalSteps={1}
       onNext={handleSubmit}
       onCancel={handleCancel}
-      nextButtonTitle={t('addLiabilityScreen.nextButton')}
+      nextButtonTitle={isEditMode ? t('editLiabilityScreen.save_button', 'Guardar cambios') : t('addLiabilityScreen.nextButton')}
       isLoading={loading}
       isNextDisabled={errors.length > 0}
       error={serverError || (errors.length > 0 ? errors[0] : null)}

@@ -1,10 +1,9 @@
 import React from 'react';
 import { View, Text } from 'react-native';
+import FormLayout from '@/components/ui/FormLayout';
 import { Select } from '@/components/ui/Select';
-import { Button } from '@/components/ui/Button';
-import Colors from '@/constants/Colors';
-import { Container } from '@/components/ui/Container';
 import { useTranslation } from 'react-i18next';
+import Colors from '@/constants/Colors';
 
 interface FromGoalStepProps {
   goal: string | undefined;
@@ -12,38 +11,60 @@ interface FromGoalStepProps {
   destino: string | undefined;
   setDestino: (v: string) => void;
   onNext: () => void;
-  mockGoals: { label: string; value: string }[];
-  mockDestinos: { label: string; value: string }[];
+  onCancel: () => void;
+  goals: { label: string; value: string }[];
+  destinos: { label: string; value: string }[];
 }
 
-export default function FromGoalStep({ goal, setGoal, destino, setDestino, onNext, mockGoals, mockDestinos }: FromGoalStepProps) {
+export default function FromGoalStep({ 
+  goal, 
+  setGoal, 
+  destino, 
+  setDestino, 
+  onNext, 
+  onCancel,
+  goals,
+  destinos 
+}: FromGoalStepProps) {
   const { t } = useTranslation();
+  
   return (
-    <Container variant="secondaryPage" className="px-3">
-      <Text className="text-base font-regular mb-2" style={{ color: Colors.primary[500] }}>
-        {t('fromGoalStep.from.part1')} <Text className="font-semibold">{t('fromGoalStep.from.part2')}</Text> {t('fromGoalStep.from.part3')}
-      </Text>
-
+    <FormLayout
+      title={t('salesFlow.fromGoalStep.title')}
+      subtitle=''
+      currentStep={1}
+      totalSteps={3}
+      onNext={onNext}
+      onCancel={onCancel}
+      nextButtonTitle={t('salesFlow.next')}
+      isNextDisabled={!goal || (goal !== 'cash-balance' && !destino)}
+      showLogo={false}
+    >
       <Select
-        options={mockGoals}
+        label={t('fromGoalStep.from.part2')}
+        options={goals}
         value={goal}
         onSelect={setGoal}
         placeholder={t('fromGoalStep.goalPlaceholder')}
       />
 
-      {goal && (
-        <>
-          <Text className="text-base font-regular mb-2" style={{ color: Colors.primary[500] }}>
-            {t('fromGoalStep.to.part1')} <Text className="font-semibold">{t('fromGoalStep.to.part2')}</Text> {t('fromGoalStep.to.part3')}
-          </Text>
-          <Select
-            options={mockDestinos}
-            value={destino}
-            onSelect={setDestino}
-            placeholder={t('fromGoalStep.destinationPlaceholder')}
-          />
-        </>
+      {goal && goal !== 'cash-balance' && destinos.length > 0 && (
+        <Select
+          label={t('fromGoalStep.to.part2')}
+          options={destinos}
+          value={destino}
+          onSelect={setDestino}
+          placeholder={t('fromGoalStep.destinationPlaceholder')}
+        />
       )}
-    </Container>
+
+      {goal === 'cash-balance' && (
+        <View className="mt-1" style={{ borderWidth: 1, borderColor: Colors.primary[200], padding: 10, borderRadius: 16, marginTop: -20}}>
+          <Text className="text-sm font-regular" style={{ color: Colors.primary[600] }}>
+            {t('salesFlow.cashBalanceInfo')}
+          </Text>
+        </View>
+      )}
+    </FormLayout>
   );
 } 

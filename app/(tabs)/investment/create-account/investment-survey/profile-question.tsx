@@ -19,7 +19,7 @@ export default function ProfileQuestion() {
     if (step < totalSteps - 1) {
       setStep(step + 1);
     } else {
-      router.push('/investment/create-account/investment-survey/loading-profile' as any);
+      router.push('/(tabs)/investment/create-account/investment-survey/loading-profile');
     }
   };
 
@@ -38,7 +38,6 @@ export default function ProfileQuestion() {
           ))}
         </View>
 
-        {/* Pregunta actual */}
         <Text className="text-lg font-semibold mb-5">
           {questions[step]?.text}
         </Text>
@@ -54,7 +53,6 @@ export default function ProfileQuestion() {
           </TouchableOpacity>
         ))}
 
-        {/* Botón para retroceder */}
         {step > 0 && (
           <TouchableOpacity
             className="mt-4 items-center"

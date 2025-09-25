@@ -13,7 +13,7 @@ export default function IdentityUpload() {
 
   const pickImageWeb = () => {
     if (Platform.OS === 'web') {
-      const input = document.createElement('input');
+      const input = document.createElement('input');;
       input.type = 'file';
       input.accept = 'image/*';
       input.onchange = (e: any) => {
@@ -106,7 +106,7 @@ export default function IdentityUpload() {
   };
 
   const handleContinue = () => {
-    router.push('/investment/create-account/identity-step/identity-upload-back' as any);
+    router.push('/(tabs)/investment/create-account/identity-step/identity-upload-back');
   };
 
   return (

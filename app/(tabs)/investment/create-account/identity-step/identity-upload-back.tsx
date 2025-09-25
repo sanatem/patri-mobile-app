@@ -106,7 +106,7 @@ export default function IdentityUploadBack() {
   };
 
   const handleContinue = () => {
-    router.push('/investment/create-account/identity-step/identity-confirm' as any);
+    router.push('/(tabs)/investment/create-account/identity-step/identity-confirm');
   };
 
   return (

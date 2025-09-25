@@ -22,7 +22,7 @@ export default function ProfileResult() {
 
       <TouchableOpacity
         className="bg-primary-500 py-3 px-4 rounded-lg items-center"
-        onPress={() => router.push('/investment/create-account/complete-profile' as any)}
+        onPress={() => router.push('/(tabs)/investment/create-account/complete-profile')}
       >
         <Text className="text-white font-semibold text-base">{t('common.understoodAndContinue')}</Text>
       </TouchableOpacity>

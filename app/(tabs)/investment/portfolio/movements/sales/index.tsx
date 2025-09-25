@@ -1,148 +1,299 @@
-import React, { useState } from 'react';
-import { TouchableOpacity, KeyboardAvoidingView, Platform, View, ScrollView } from 'react-native';
-import { ChevronLeft } from 'lucide-react-native';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'expo-router';
-import { Header } from '@/components/ui/Header';
 import { Container } from '@/components/ui/Container';
+import FormLayout from '@/components/ui/FormLayout';
 import Colors from '@/constants/Colors';
 import FromGoalStep from './from-goal-step';
 import FromAssetStep from './from-asset-step';
 import ConfirmationStep from './confirmation-step';
-import { PortfolioActionsBar } from '@/components/investment/portfolio/PortfolioActionsBar';
+import CashSaleForm from '@/components/investment/movements/sales/CashSaleForm';
 import { useTranslation } from 'react-i18next';
-
-
+import { useGoals } from '@/hooks/investment/useGoals';
+import { useFormatValue } from '@/hooks/common/useFormatValue';
+import { useAuth } from '@/providers/AuthProvider';
+import { getCash } from '@/services/cash/get-cash';
+import { getBankAccounts, type BankAccount } from '@/services/investment/bank-accounts/get-bank-account';
+import type { Goal } from '@/types/api';
+import type { Cash } from '@/services/cash/get-cash';
 
 export default function SalesFlow() {
   const { t } = useTranslation();
-  const mockGoals = [
-    { label: t('salesFlow.mockGoals.newGoal'), value: 'nueva-meta' },
-    { label: t('salesFlow.mockGoals.cashBalance'), value: 'saldo-caja' },
-  ];
-  const mockDestinos = [
-    { label: t('salesFlow.mockDestinos.bankAccount'), value: 'cuenta-bancaria' },
-    { label: t('salesFlow.mockDestinos.cashBalance'), value: 'saldo-caja' },
-  ];
+  const { goals: goalsData, loading: goalsLoading } = useGoals();
+  const { formatValue } = useFormatValue();
+  const { accessToken } = useAuth();
+  const [cashData, setCashData] = useState<Cash | null>(null);
+  const [bankAccounts, setBankAccounts] = useState<{ label: string; value: string }[]>([]);
+  const [loadingBankAccounts, setLoadingBankAccounts] = useState(false);
 
-  const mockActivos = [
-    { label: t('salesFlow.mockActivos.option1'), value: 'activo-1' },
-    { label: t('salesFlow.mockActivos.option2'), value: 'todo-portafolio' },
-    { label: t('salesFlow.mockActivos.option3'), value: 'proporcional' },
-  ];
-  const mockCuentas = [
-    { label: t('salesFlow.mockCuentas.account1'), value: 'ca-6677' },
-  ];
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [goal, setGoal] = useState<string | undefined>();
   const [destino, setDestino] = useState<string | undefined>();
   const [activo, setActivo] = useState<string | undefined>();
-  const [cuenta, setCuenta] = useState<string | undefined>(mockCuentas[0].value);
+  const [cuenta, setCuenta] = useState<string | undefined>();
+  const [cashAmount, setCashAmount] = useState<string>('');
+  const [cashBankAccount, setCashBankAccount] = useState<string | undefined>();
+  const [assetAmount, setAssetAmount] = useState<string>('');
+  const [assetBankAccount, setAssetBankAccount] = useState<string | undefined>();
 
-  const handleBack = () => {
-    if (step === 1) {
-      router.push('/investment/portfolio');
+  useEffect(() => {
+    const loadData = async () => {
+      if (!accessToken) return;
+
+      try {
+        // Load cash data
+        const cashResponse = await getCash(accessToken);
+        setCashData(cashResponse?.cash?.investment || cashResponse?.cash?.savings || null);
+
+        // Load bank accounts
+        setLoadingBankAccounts(true);
+        const bankResponse = await getBankAccounts(accessToken);
+
+        if (bankResponse.success) {
+          // Solo mostrar la cuenta predeterminada en el flujo de ventas
+          const defaultAccount = bankResponse.accounts.find(account => account.is_default);
+
+          if (defaultAccount) {
+            const formattedAccounts = [{
+              label: defaultAccount.label,
+              value: defaultAccount.value
+            }];
+            setBankAccounts(formattedAccounts);
+
+            // Auto-seleccionar inmediatamente la cuenta predeterminada
+            setCashBankAccount(defaultAccount.value);
+            setAssetBankAccount(defaultAccount.value);
+          } else {
+            console.warn('SalesFlow: No default bank account found');
+            setBankAccounts([]);
+          }
+        } else {
+          console.error('SalesFlow: Error loading bank accounts:', bankResponse.message);
+          setBankAccounts([]);
+        }
+      } catch (error) {
+        console.error('SalesFlow: Error loading data:', error);
+        setBankAccounts([]);
+      } finally {
+        setLoadingBankAccounts(false);
+      }
+    };
+
+    loadData();
+  }, [accessToken]);
+
+
+  const goals = useMemo(() => {
+    const allGoals: Goal[] = [
+      ...goalsData.investment.shortTerm,
+      ...goalsData.investment.mediumTerm,
+      ...goalsData.investment.longTerm,
+      ...goalsData.savings.shortTerm,
+      ...goalsData.savings.mediumTerm,
+      ...goalsData.savings.longTerm,
+    ];
+
+    const goalOptions = allGoals.map(goal => {
+      const amount = goal.availableValueForRetirement ?? goal.goalWallet ?? goal.currentAmount ?? 0;
+      return {
+        label: `${goal.name} (${formatValue(amount.toString())})`,
+        value: goal.id
+      };
+    });
+
+    if (cashData) {
+      const availableAmount = typeof cashData.available_amount === 'string'
+        ? parseFloat(cashData.available_amount)
+        : cashData.available_amount;
+
+      goalOptions.push({
+        label: `${t('salesFlow.cashBalance')} (${formatValue(availableAmount.toString())})`,
+        value: 'cash-balance'
+      });
     } else {
-      setStep(step - 1);
+      goalOptions.push({
+        label: t('salesFlow.cashBalance'),
+        value: 'cash-balance'
+      });
+    }
+
+    return goalOptions;
+  }, [goalsData, formatValue, t, cashData]);
+
+  const destinos = useMemo(() => {
+    if (!goal || goal === 'cash-balance') {
+      return [];
+    }
+
+    return [
+      {
+        label: t('salesFlow.bankAccount'),
+        value: 'cuenta-bancaria'
+      },
+      {
+        label: t('salesFlow.cashBalance'),
+        value: 'saldo-caja'
+      }
+    ];
+  }, [goal, t]);
+
+  const assetSections = [
+    {
+      title: t('salesFlow.quickOptions'),
+      assets: [
+        {
+          id: 'portfolio-completo',
+          title: t('salesFlow.allPortfolio'),
+          subtitle: '',
+          description: t('salesFlow.sellAllShares'),
+          value: 0,
+        },
+        {
+          id: 'retiro-proporcional',
+          title: t('salesFlow.proportionalWithdrawal'),
+          subtitle: '',
+          description: t('salesFlow.maintainStructure'),
+          value: 0,
+        },
+      ],
+    },
+    {
+      title: t('salesFlow.individualFunds'),
+      assets: [],
+    },
+  ];
+
+  const assetMap = useMemo(() => {
+    const map: Record<string, { label: string; value: string }> = {};
+    assetSections.forEach(section => {
+      section.assets.forEach(asset => {
+        map[asset.id] = {
+          label: asset.title,
+          value: asset.id
+        };
+      });
+    });
+    return map;
+  }, [assetSections]);
+
+  const activos: { label: string; value: string }[] = [
+    {
+      label: t('salesFlow.allPortfolio'),
+      value: 'portfolio-completo'
+    },
+    {
+      label: t('salesFlow.proportionalWithdrawal'),
+      value: 'retiro-proporcional'
+    },
+    ...assetSections.flatMap(section =>
+      section.assets.map(asset => ({
+        label: asset.title,
+        value: asset.id
+      }))
+    )
+  ];
+  const cuentas: { label: string; value: string }[] = [];
+
+  const handleGoalChange = (newGoal: string) => {
+    setGoal(newGoal);
+    if (newGoal === 'cash-balance') {
+      setDestino(undefined);
     }
   };
 
-  const getActionsForStep = () => {
-    if (step === 1) {
-      return [
-        {
-          title: t('salesFlow.next'),
-          variant: 'primary' as const,
-          onPress: () => setStep(2),
-          disabled: !goal || !destino,
-          fullWidth: true,
-        },
-      ];
+  const handleCancel = () => {
+    try {
+      router.push('/(tabs)/investment/portfolio')
+    } catch (error) {
+      console.error('handleCancel: Navigation error:', error);
     }
-    if (step === 2) {
-      return [
-        {
-          title: t('salesFlow.previous'),
-          variant: 'outline' as const,
-          onPress: () => setStep(1),
-        },
-        {
-          title: t('salesFlow.next'),
-          variant: 'primary' as const,
-          onPress: () => setStep(3),
-          disabled: !activo || (destino === 'cuenta-bancaria' && !cuenta),
-        },
-      ];
-    }
-    if (step === 3) {
-      return [
-        {
-          title: t('salesFlow.previous'),
-          variant: 'outline' as const,
-          onPress: () => setStep(2),
-        },
-        {
-          title: t('salesFlow.finish'),
-          variant: 'primary' as const,
-          onPress: () => router.push('/investment/portfolio'),
-        },
-      ];
-    }
-    return [];
   };
 
   return (
     <Container variant="secondaryPage" className="px-1 flex-1">
-      <Header
-        title={t('salesFlow.header')}
-        leftAction={
-          <TouchableOpacity onPress={handleBack} className="p-1">
-            <ChevronLeft size={24} color={Colors.primary[500]} />
-          </TouchableOpacity>
-        }
-      />
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
-        <View style={{ flex: 1 }}>
-          <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 100 }}>
-            {step === 1 && (
-              <FromGoalStep
-                goal={goal}
-                setGoal={setGoal}
-                destino={destino}
-                setDestino={setDestino}
-                mockGoals={mockGoals}
-                mockDestinos={mockDestinos}
-                onNext={() => setStep(2)}
-              />
-            )}
-            {step === 2 && (
-              <FromAssetStep
-                activo={activo}
-                setActivo={setActivo}
-                destino={destino}
-                cuenta={cuenta}
-                setCuenta={setCuenta}
-                mockActivos={mockActivos}
-                mockCuentas={mockCuentas}
-                onNext={() => setStep(3)}
-                onPrev={() => setStep(1)}
-              />
-            )}
-            {step === 3 && (
-              <ConfirmationStep
-                activo={activo}
-                mockActivos={mockActivos}
-                destino={destino}
-                onPrev={() => setStep(2)}
-                onFinish={() => router.push('/investment/portfolio')}
-              />
-            )}
-          </ScrollView>
-          <View className="px-3">
-            <PortfolioActionsBar actions={getActionsForStep()} />
-          </View>
-        </View>
-      </KeyboardAvoidingView>
+      
+      {step === 1 && (
+        <FromGoalStep
+          goal={goal}
+          setGoal={handleGoalChange}
+          destino={destino}
+          setDestino={setDestino}
+          goals={goals}
+          destinos={destinos}
+          onNext={() => goal === 'cash-balance' ? setStep(2) : setStep(2)}
+          onCancel={handleCancel}
+        />
+      )}
+      
+      {step === 2 && goal === 'cash-balance' && (
+        <FormLayout
+          title={t('salesFlow.cashSale.title')}
+          subtitle={t('salesFlow.cashSale.subtitle')}
+          currentStep={2}
+          totalSteps={3}
+          onNext={() => setStep(3)}
+          onPrevious={() => setStep(1)}
+          nextButtonTitle={t('salesFlow.next')}
+          previousButtonTitle={t('salesFlow.previous')}
+          isNextDisabled={!cashAmount || !cashBankAccount || loadingBankAccounts}
+          showLogo={false}
+        >
+          <CashSaleForm
+            amount={cashAmount}
+            setAmount={setCashAmount}
+            bankAccount={cashBankAccount}
+            setBankAccount={setCashBankAccount}
+            bankAccounts={bankAccounts}
+          />
+        </FormLayout>
+      )}
+
+      {step === 2 && goal !== 'cash-balance' && (
+        <FromAssetStep
+          activo={activo}
+          setActivo={setActivo}
+          destino={destino}
+          cuenta={cuenta}
+          setCuenta={setCuenta}
+          assetAmount={assetAmount}
+          setAssetAmount={setAssetAmount}
+          assetBankAccount={assetBankAccount}
+          setAssetBankAccount={setAssetBankAccount}
+          bankAccounts={bankAccounts}
+          loadingBankAccounts={loadingBankAccounts}
+          goalId={goal || ''}
+          activos={activos}
+          cuentas={cuentas}
+          onNext={() => setStep(3)}
+          onPrev={() => setStep(1)}
+        />
+      )}
+      
+      {step === 3 && (
+        <ConfirmationStep
+          activo={activo}
+          activos={activos}
+          destino={destino}
+          goal={goal}
+          goalOptions={goals}
+          assetAmount={assetAmount}
+          assetBankAccount={assetBankAccount}
+          cashAmount={cashAmount}
+          setCashAmount={setCashAmount}
+          cashBankAccount={cashBankAccount}
+          setCashBankAccount={setCashBankAccount}
+          bankAccounts={bankAccounts}
+          assetSections={assetSections}
+          onPrev={() => setStep(2)}
+          onFinish={() => {
+            try {
+              router.push('/(tabs)/investment/portfolio');
+            } catch (error) {
+              console.error('Portfolio navigation error:', error);
+            }
+          }}
+        />
+      )}
     </Container>
   );
 }

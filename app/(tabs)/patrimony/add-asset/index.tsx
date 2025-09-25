@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text } from 'react-native';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import {
   FormLayout,
   Input,
@@ -8,6 +8,7 @@ import {
 } from '@/components/ui';
 import Colors from '@/constants/Colors';
 import { createAsset } from '@/services/patrimony/create-asset';
+import { updateAsset } from '@/services/patrimony/update-asset';
 import { createProperty } from '@/services/properties/create-property';
 import { useAuth } from '@/providers/AuthProvider';
 import { useFormatValue } from '@/hooks/common/useFormatValue';
@@ -16,6 +17,9 @@ import { useTranslation } from 'react-i18next';
 
 export default function AddAssetScreen() {
   const { t } = useTranslation();
+  const params = useLocalSearchParams();
+  const isEditMode = !!(params.editMode && params.rawData);
+
   const ASSET_KIND_OPTIONS = [
     { label: t('addAssetScreen.asset_kind_options.fixed_asset'), value: 'fixed_asset' },
     { label: t('addAssetScreen.asset_kind_options.investment'), value: 'investment' },
@@ -66,6 +70,61 @@ export default function AddAssetScreen() {
       setLoading(false);
     }
   }, [errors, loading]);
+
+  useEffect(() => {
+    if (isEditMode && params.rawData) {
+      try {
+        const assetData = JSON.parse(params.rawData as string);
+
+        const getCategoryId = (categoryName: string) => {
+          switch(categoryName) {
+            case 'Auto o moto': return '1';
+            case 'Joyería': return '2';
+            case 'Electrónicos': return '3';
+            default: return '1';
+          }
+        };
+
+        setFormData({
+          name: assetData.name || '',
+          asset_category_id: assetData.asset_category_id?.toString() || getCategoryId(assetData.category || ''),
+          commercial_value: assetData.commercial_value?.toString() || '',
+          unit: assetData.unit || 'clp',
+          kind: assetData.kind === 'in_use' ? 'fixed_asset' : (assetData.kind || 'fixed_asset'),
+          property_kind: 'own',
+          location: '',
+          square_mts: '',
+          investment_type: '',
+          institution: '',
+          fund1: '',
+          fund1_percentage: '',
+          fund2: '',
+          fund2_percentage: '',
+          tax_regime: '',
+          brokerage: '',
+          bank: '',
+          platform: '',
+          description: '',
+          crowdfunding_institution: '',
+          crowdfunding_credit_id: '',
+          period_return_rate: '',
+          due_date: '',
+          deposit_type: '',
+          opening_date: '',
+          maturity_date: '',
+          fund: '',
+          fund_kind: '',
+          fund_id: '',
+          fund_series_id: '',
+          series: '',
+          mutual_fund_manager_id: '',
+          comments: assetData.comments || '',
+        });
+      } catch (error) {
+        console.error('Error parsing asset data:', error);
+      }
+    }
+  }, [isEditMode, params.rawData]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
@@ -217,17 +276,23 @@ export default function AddAssetScreen() {
             asset_category_id: parseInt(formData.asset_category_id),
             commercial_value: formData.commercial_value.replace(/[^\d]/g, ''),
             unit: formData.unit,
-            kind: formData.kind,
+            kind: formData.kind === 'fixed_asset' ? 'in_use' : formData.kind,
           }
         };
-        
-        const response = await createAsset(assetData, accessToken);
-        
+
+        let response;
+        if (isEditMode && params.rawData) {
+          const originalData = JSON.parse(params.rawData as string);
+          response = await updateAsset(originalData.id, assetData, accessToken);
+        } else {
+          response = await createAsset(assetData, accessToken);
+        }
+
         if (response.success) {
           setLoading(false);
           router.push('/(tabs)/patrimony');
         } else {
-          console.error('Asset creation failed:', response.error);
+          console.error('Asset operation failed:', response.error);
           setErrors([response.error || t('addAssetScreen.errors.assetCreationError')]);
           setLoading(false);
         }
@@ -488,13 +553,13 @@ export default function AddAssetScreen() {
 
   return (
     <FormLayout
-      title={t('addAssetScreen.title')}
-      subtitle={t('addAssetScreen.subtitle')}
+      title={isEditMode ? t('editAssetScreen.title', 'Editar Activo') : t('addAssetScreen.title')}
+      subtitle={isEditMode ? t('editAssetScreen.subtitle', 'Modifica la información de tu activo') : t('addAssetScreen.subtitle')}
       currentStep={1}
       totalSteps={1}
       onNext={handleSubmit}
       onCancel={handleCancel}
-      nextButtonTitle={t('addAssetScreen.next_button')}
+      nextButtonTitle={isEditMode ? t('editAssetScreen.save_button', 'Guardar cambios') : t('addAssetScreen.next_button')}
       isLoading={loading}
       isNextDisabled={errors.length > 0}
       error={errors.length > 0 ? errors[0] : null}

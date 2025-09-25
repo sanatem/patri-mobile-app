@@ -90,101 +90,113 @@ export default function FormLayout({
   return (
     <KeyboardAwareContainer>
       <Container variant="secondaryPage">
-        <ScrollView
-          style={{
-            flex: 1,
-            paddingBottom: isKeyboardVisible ? keyboardHeight + 20 : 0
-          }}
-          showsVerticalScrollIndicator={false}
-        >
-          <View style={{ flex: 1, paddingHorizontal: 24, paddingTop: height * 0.1 }}>
-            {showLogo && (
-              <View style={{ alignItems: 'center', marginBottom: 10 }}>
-                <PatrimoreIcon width={140} height={50} color={Colors.secondary[500]} />
-              </View>
-            )}
-
-            <Card style={{ padding: 24, marginBottom: 24 }}>
-              <View style={{ marginBottom: 24 }}>
-                <Text className='font-medium text-2xl'
-                  style={{
-                    color: Colors.primary[700],
-                    textAlign: 'center',
-                    marginBottom: 8,
-                  }}
-                >
-                  {title}
-                </Text>
-                <Text className='text-base font-regular text-center'
-                  style={{
-                    color: Colors.primary[500],
-                    textAlign: 'center',
-                  }}
-                >
-                  {subtitle}
-                </Text>
-                
-                {totalSteps > 1 && renderProgressIndicators()}
-              </View>
-
-              <View style={{ gap: 20 }}>
-                {children}
-              </View>
-
-              {error && (
-                <View style={{ 
-                  backgroundColor: Colors.error[50], 
-                  borderWidth: 1, 
-                  borderColor: Colors.error[200],
-                  borderRadius: 8,
-                  padding: 12,
-                  marginBottom: 16,
-                  marginTop: 16
-                }}>
-                  <Text className="text-sm font-medium" style={{ color: Colors.error[700] }}>
-                    Error
-                  </Text>
-                  <Text className="text-sm font-regular" style={{ color: Colors.error[600], marginTop: 4 }}>
-                    {error}
-                  </Text>
+        <View style={{ flex: 1 }}>
+          <ScrollView
+            style={{
+              flex: 1,
+              paddingBottom: isKeyboardVisible ? keyboardHeight + 20 : 0
+            }}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 120 }}
+          >
+            <View style={{ flex: 1, paddingHorizontal: 24, paddingTop: height * 0.1 }}>
+              {showLogo && (
+                <View style={{ alignItems: 'center', marginBottom: 10 }}>
+                  <PatrimoreIcon width={140} height={50} color={Colors.secondary[500]} />
                 </View>
               )}
 
-              <View style={{ marginTop: 32, gap: 12 }}>
-                {onNext && (
-                  <Button
-                    title={isLoading ? _loadingText : _nextTitle}
-                    onPress={onNext}
-                    disabled={isLoading || isNextDisabled}
-                    loading={isLoading}
-                    variant="primary"
-                    fullWidth
-                  />
-                )}
-                
-                {onPrevious && currentStep > 1 && (
-                  <Button
-                    title={_prevTitle}
-                    onPress={onPrevious}
-                    disabled={isLoading}
-                    variant="ghost"
-                    fullWidth
-                  />
-                )}
+              <Card style={{ padding: 24, marginBottom: 40 }}>
+                <View style={{ marginBottom: 24 }}>
+                  <Text className='font-medium text-2xl'
+                    style={{
+                      color: Colors.primary[700],
+                      textAlign: 'center',
+                      marginBottom: 8,
+                    }}
+                  >
+                    {title}
+                  </Text>
+                  <Text className='text-base font-regular text-center'
+                    style={{
+                      color: Colors.primary[500],
+                      textAlign: 'center',
+                    }}
+                  >
+                    {subtitle}
+                  </Text>
+                  
+                  {totalSteps > 1 && renderProgressIndicators()}
+                </View>
 
-                {onCancel && (
-                  <Button
-                    title={_cancelTitle}
-                    onPress={onCancel}
-                    disabled={isLoading}
-                    variant="ghost"
-                    fullWidth
-                  />
+                <View style={{ gap: 20 }}>
+                  {children}
+                </View>
+
+                {error && (
+                  <View style={{ 
+                    backgroundColor: Colors.error[50], 
+                    borderWidth: 1, 
+                    borderColor: Colors.error[200],
+                    borderRadius: 8,
+                    padding: 12,
+                    marginBottom: 16,
+                    marginTop: 16
+                  }}>
+                    <Text className="text-sm font-medium" style={{ color: Colors.error[700] }}>
+                      Error
+                    </Text>
+                    <Text className="text-sm font-regular" style={{ color: Colors.error[600], marginTop: 4 }}>
+                      {error}
+                    </Text>
+                  </View>
                 )}
-              </View>
-            </Card>
+              </Card>
+            </View>
+          </ScrollView>
+          <View style={{
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            backgroundColor: '#fff',
+            paddingHorizontal: 24,
+            paddingVertical: 10,
+            paddingBottom: isKeyboardVisible ? keyboardHeight + 10 : 16,
+            gap: 10,
+          }}>
+            {onNext && (
+              <Button
+                title={isLoading ? _loadingText : _nextTitle}
+                onPress={onNext}
+                disabled={isLoading || isNextDisabled}
+                loading={isLoading}
+                variant="primary"
+                fullWidth
+              />
+            )}
+            
+            {onPrevious && currentStep > 1 && (
+              <Button
+                title={_prevTitle}
+                onPress={onPrevious}
+                disabled={isLoading}
+                variant="ghost"
+                fullWidth
+              />
+            )}
+
+            {onCancel && (
+              <Button
+                title={_cancelTitle}
+                onPress={onCancel}
+                disabled={isLoading}
+                variant="ghost"
+                fullWidth
+              />
+            )}
           </View>
-        </ScrollView>
+        </View>
       </Container>
     </KeyboardAwareContainer>
   );
