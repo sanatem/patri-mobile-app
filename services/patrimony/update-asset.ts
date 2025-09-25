@@ -2,12 +2,37 @@ import config from '@/config/constants';
 
 export interface UpdateAssetRequest {
   asset: {
-    name: string;
-    asset_category_id: number;
-    commercial_value: string;
-    unit: string;
-    kind: string;
+    name?: string;
+    asset_category_id?: number;
+    commercial_value?: string;
+    unit?: string;
+    kind?: string;
     comments?: string;
+    location?: string;
+    square_mts?: number;
+    apartment_number?: string;
+    number_of_bedrooms?: number;
+    number_of_bathrooms?: number;
+    total_amount?: number;
+    annual_return_rate?: number;
+    crowdfunding_institution_id?: number;
+    crowdfunding_credit_id?: string;
+    period_return_rate?: number;
+    due_date?: string;
+    fund_kind?: string;
+    fund_id?: string;
+    fund_series_id?: string;
+    mutual_fund_manager_id?: number;
+    broker_id?: number;
+    bank_id?: number;
+    deposit_kind?: string;
+    start_date?: string;
+    end_date?: string;
+    afp_institution_id?: number;
+    apv_institution_id?: number;
+    tax_regime?: string;
+    funds?: Record<string, any>;
+    [key: string]: any;
   };
 }
 

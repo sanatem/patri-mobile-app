@@ -253,19 +253,20 @@ export default function AddAssetScreen() {
             setLoading(false);
           }
         } else {
-          const assetType = formData.property_kind === 'own' ? 'main_home' : 'investment_property';
-
-          const assetData = {
-            asset: {
-              location: formData.location,
-              commercial_value: formData.commercial_value.replace(/[^\d]/g, ''),
-              unit: formData.unit,
-              square_mts: parseInt(formData.square_mts),
-              ...(formData.property_kind === 'investment' && { apartment_number: '' }),
+          const propertyData = {
+            property_type: formData.property_kind === 'own' ? 'main_home' as const : 'investment' as const,
+            property: {
+              kind: formData.property_kind === 'own' ? 'own' as const : '' as const,
+              property_attributes: {
+                location: formData.location,
+                commercial_value: formData.commercial_value.replace(/[^\d]/g, ''),
+                unit: formData.unit,
+                square_mts: parseInt(formData.square_mts),
+              }
             }
           };
 
-          const response = await createAsset(assetData, accessToken, assetType);
+          const response = await createProperty(propertyData, accessToken);
 
           if (response.success) {
             setLoading(false);
@@ -551,13 +552,90 @@ export default function AddAssetScreen() {
           return;
         }
 
-        const response = await createSavingInstrument(payload, accessToken);
-        
+        let response;
+        if (isEditMode && params.rawData) {
+          const originalData = JSON.parse(params.rawData as string);
+
+          const buildUpdatePayload = (savingInstrument: any) => {
+            const basePayload: any = {
+              name: savingInstrument.name,
+              total_amount: savingInstrument.total_amount,
+              unit: savingInstrument.unit,
+            };
+
+            switch (formData.investment_type) {
+              case 'crowdfunding':
+                return {
+                  ...basePayload,
+                  crowdfunding_institution_id: savingInstrument.crowdfunding_institution_id,
+                  crowdfunding_credit_id: savingInstrument.crowdfunding_credit_id,
+                  ...(savingInstrument.period_return_rate && { period_return_rate: savingInstrument.period_return_rate }),
+                  ...(savingInstrument.due_date && { due_date: savingInstrument.due_date }),
+                };
+              case 'mutual_fund_instrument':
+                return {
+                  ...basePayload,
+                  fund_kind: savingInstrument.fund_kind,
+                  fund_id: savingInstrument.fund_id,
+                  ...(savingInstrument.fund_series_id && { fund_series_id: savingInstrument.fund_series_id }),
+                  ...(savingInstrument.mutual_fund_manager_id && { mutual_fund_manager_id: savingInstrument.mutual_fund_manager_id }),
+                  ...(savingInstrument.comments && { comments: savingInstrument.comments }),
+                };
+              case 'cash_account':
+                return {
+                  ...basePayload,
+                  broker_id: savingInstrument.broker_id,
+                };
+              case 'checking_account':
+              case 'saving_account':
+                return {
+                  ...basePayload,
+                  bank_id: savingInstrument.bank_id,
+                };
+              case 'fixed_term_deposit':
+                return {
+                  ...basePayload,
+                  bank_id: savingInstrument.bank_id,
+                  deposit_kind: savingInstrument.deposit_kind,
+                  ...(savingInstrument.start_date && { start_date: savingInstrument.start_date }),
+                  ...(savingInstrument.end_date && { end_date: savingInstrument.end_date }),
+                };
+              case 'afp_account_two':
+                return {
+                  ...basePayload,
+                  afp_institution_id: savingInstrument.afp_institution_id,
+                  ...(savingInstrument.tax_regime && { tax_regime: savingInstrument.tax_regime }),
+                  ...(savingInstrument.funds && { funds: savingInstrument.funds }),
+                };
+              case 'apv_account':
+                return {
+                  ...basePayload,
+                  apv_institution_id: savingInstrument.apv_institution_id,
+                  ...(savingInstrument.tax_regime && { tax_regime: savingInstrument.tax_regime }),
+                  ...(savingInstrument.funds && { funds: savingInstrument.funds }),
+                };
+              default:
+                return {
+                  ...basePayload,
+                  ...(savingInstrument.comments && { comments: savingInstrument.comments }),
+                };
+            }
+          };
+
+          const updatePayload = {
+            asset: buildUpdatePayload(payload.saving_instrument)
+          };
+
+          response = await updateAsset(originalData.id, updatePayload, accessToken, 'saving_instrument');
+        } else {
+          response = await createSavingInstrument(payload, accessToken);
+        }
+
         if (response.success) {
           setLoading(false);
           router.push('/(tabs)/patrimony');
         } else {
-          console.error('Saving instrument creation failed:', response.error);
+          console.error('Saving instrument operation failed:', response.error);
           setErrors([response.error || t('addAssetScreen.errors.savingCreationError')]);
           setLoading(false);
         }

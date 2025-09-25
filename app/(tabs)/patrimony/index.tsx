@@ -397,6 +397,8 @@ export default function PatrimonyScreen() {
         refetchDebts();
       }
 
+      await loadPatrimonyData();
+
       setShowDeleteModal(false);
       setItemToDelete(null);
     } catch (error) {
