@@ -8,7 +8,6 @@ export interface CreateAssetRequest {
     unit?: string;
     kind?: string;
     comments?: string;
-    // Properties fields
     location?: string;
     square_mts?: number;
     apartment_number?: string;
