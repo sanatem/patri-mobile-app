@@ -347,7 +347,26 @@ export default function PatrimonyScreen() {
 
     try {
       if (activeTab === 'assets') {
-        const response = await deleteAsset(itemToDelete.rawData.id, accessToken!);
+        const getAssetType = (assetData: any, itemTitle: string) => {
+          if (assetData.type && assetData.type.startsWith('SavingInstruments::')) {
+            return 'saving_instrument';
+          }
+
+          if (assetData.location || assetData.square_mts || assetData.apartment_number !== undefined) {
+            if (itemTitle.startsWith('Casa ')) {
+              return 'main_home';
+            }
+            if (itemTitle.startsWith('Propiedad ')) {
+              return 'investment_property';
+            }
+          }
+
+          return 'fixed_asset';
+        };
+
+        const assetType = getAssetType(itemToDelete.rawData, itemToDelete.title);
+        const response = await deleteAsset(itemToDelete.rawData.id, accessToken!, assetType);
+
         if (response.success) {
           Alert.alert('Éxito', 'Activo eliminado correctamente');
         } else {

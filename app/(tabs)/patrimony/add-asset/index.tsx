@@ -228,46 +228,53 @@ export default function AddAssetScreen() {
     setLoading(true);
     try {
       if (formData.kind === 'property') {
-        const propertyData = {
-          property_type: formData.property_kind === 'own' ? 'main_home' as const : 'investment' as const,
-          property: {
-            kind: formData.property_kind === 'own' ? 'own' as const : '' as const,
-            property_attributes: {
+        if (isEditMode && params.rawData) {
+          const originalData = JSON.parse(params.rawData as string);
+          const assetType = formData.property_kind === 'own' ? 'main_home' : 'investment_property';
+
+          const updatePayload = {
+            asset: {
               location: formData.location,
               commercial_value: formData.commercial_value.replace(/[^\d]/g, ''),
               unit: formData.unit,
               square_mts: parseInt(formData.square_mts),
-            }
-          }
-        };
-        
-        const propertyResponse = await createProperty(propertyData, accessToken);
-        
-        if (propertyResponse.success) {
-          const assetData = {
-            asset: {
-              name: formData.name,
-              asset_category_id: 2,
-              commercial_value: formData.commercial_value.replace(/[^\d]/g, ''),
-              unit: formData.unit,
-              kind: formData.kind,
+              ...(formData.property_kind === 'investment' && { apartment_number: '' }),
             }
           };
-          
-          const response = await createAsset(assetData, accessToken);
-          
+
+          const response = await updateAsset(originalData.id, updatePayload, accessToken, assetType);
+
           if (response.success) {
             setLoading(false);
             router.push('/(tabs)/patrimony');
           } else {
-            console.error('Asset creation failed:', response.error);
+            console.error('Property update failed:', response.error);
             setErrors([response.error || t('addAssetScreen.errors.assetCreationError')]);
             setLoading(false);
           }
         } else {
-          console.error('Property creation failed:', propertyResponse.error);
-          setErrors([propertyResponse.error || t('addAssetScreen.errors.propertyCreationError')]);
-          setLoading(false);
+          const assetType = formData.property_kind === 'own' ? 'main_home' : 'investment_property';
+
+          const assetData = {
+            asset: {
+              location: formData.location,
+              commercial_value: formData.commercial_value.replace(/[^\d]/g, ''),
+              unit: formData.unit,
+              square_mts: parseInt(formData.square_mts),
+              ...(formData.property_kind === 'investment' && { apartment_number: '' }),
+            }
+          };
+
+          const response = await createAsset(assetData, accessToken, assetType);
+
+          if (response.success) {
+            setLoading(false);
+            router.push('/(tabs)/patrimony');
+          } else {
+            console.error('Property creation failed:', response.error);
+            setErrors([response.error || t('addAssetScreen.errors.propertyCreationError')]);
+            setLoading(false);
+          }
         }
       } else if (formData.kind === 'fixed_asset') {
         const assetData = {
@@ -283,7 +290,19 @@ export default function AddAssetScreen() {
         let response;
         if (isEditMode && params.rawData) {
           const originalData = JSON.parse(params.rawData as string);
-          response = await updateAsset(originalData.id, assetData, accessToken);
+
+          const getAssetType = (originalData: any) => {
+            if (originalData.type && originalData.type.startsWith('SavingInstruments::')) {
+              return 'saving_instrument';
+            }
+            if (originalData.location || originalData.square_mts || originalData.apartment_number !== undefined) {
+              return 'investment_property';
+            }
+            return 'fixed_asset';
+          };
+
+          const assetType = getAssetType(originalData);
+          response = await updateAsset(originalData.id, assetData, accessToken, assetType);
         } else {
           response = await createAsset(assetData, accessToken);
         }

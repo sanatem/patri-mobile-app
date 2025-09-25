@@ -2,12 +2,19 @@ import config from '@/config/constants';
 
 export interface CreateAssetRequest {
   asset: {
-    name: string;
-    asset_category_id: number;
-    commercial_value: string;
-    unit: string;
-    kind: string;
+    name?: string;
+    asset_category_id?: number;
+    commercial_value?: string;
+    unit?: string;
+    kind?: string;
     comments?: string;
+    // Properties fields
+    location?: string;
+    square_mts?: number;
+    apartment_number?: string;
+    number_of_bedrooms?: number;
+    number_of_bathrooms?: number;
+    [key: string]: any;
   };
 }
 
@@ -27,9 +34,13 @@ export interface CreateAssetResponse {
   error?: string;
 }
 
-export const createAsset = async (data: CreateAssetRequest, token: string): Promise<CreateAssetResponse> => {
+export const createAsset = async (data: CreateAssetRequest, token: string, assetType?: string): Promise<CreateAssetResponse> => {
   try {
-    const url = `${config.apiBaseUrl}/api/v2/networth/assets`;
+    let url = `${config.apiBaseUrl}/api/v2/networth/assets`;
+
+    if (assetType) {
+      url += `?asset_type=${assetType}`;
+    }
 
     const response = await fetch(url, {
       method: 'POST',

@@ -27,9 +27,13 @@ export interface UpdateAssetResponse {
   error?: string;
 }
 
-export const updateAsset = async (id: number, data: UpdateAssetRequest, token: string): Promise<UpdateAssetResponse> => {
+export const updateAsset = async (id: number, data: UpdateAssetRequest, token: string, assetType?: string): Promise<UpdateAssetResponse> => {
   try {
-    const url = `${config.apiBaseUrl}/api/v2/networth/assets/${id}`;
+    let url = `${config.apiBaseUrl}/api/v2/networth/assets/${id}`;
+
+    if (assetType) {
+      url += `?asset_type=${assetType}`;
+    }
 
     const response = await fetch(url, {
       method: 'PATCH',

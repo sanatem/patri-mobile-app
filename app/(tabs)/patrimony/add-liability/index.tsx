@@ -258,7 +258,24 @@ export default function AddLiabilityScreen() {
       let response;
       if (isEditMode && params.rawData) {
         const originalData = JSON.parse(params.rawData as string);
-        response = await updateDebt(originalData.id, debtData, accessToken);
+
+        const getDebtType = (debtCategoryId: string) => {
+          const categoryMap: Record<string, string> = {
+            '1': 'credit_card',
+            '2': 'consumer_credit',
+            '3': 'automotive_credit',
+            '4': 'commercial_credit',
+            '5': 'mortgage_credit',
+            '6': 'mortgage',
+            '7': 'credit_line',
+            '8': 'family_loan',
+            '9': 'other'
+          };
+          return categoryMap[debtCategoryId] || 'other';
+        };
+
+        const debtType = getDebtType(formData.debt_category_id);
+        response = await updateDebt(originalData.id, debtData, accessToken, debtType);
       } else {
         response = await createDebt(debtData, accessToken);
       }
