@@ -105,24 +105,20 @@ export default function ConfirmationStep({
 
       const result = await createSaleService.createSale(saleData, accessToken);
 
-      if (typeof window !== 'undefined') {
-        onFinish();
-      } else {
-        Alert.alert(
-          '',
-          'La solicitud de retiro ha sido creada exitosamente',
-          [{
-            text: 'OK',
-            onPress: () => {
-              try {
-                onFinish();
-              } catch (error) {
-                console.error('Navigation error:', error);
-              }
+      Alert.alert(
+        '',
+        'La solicitud de retiro ha sido creada exitosamente',
+        [{
+          text: 'OK',
+          onPress: () => {
+            try {
+              onFinish();
+            } catch (error) {
+              console.error('Navigation error:', error);
             }
-          }]
-        );
-      }
+          }
+        }]
+      );
 
     } catch (error) {
       console.error('Error creating sale:', error);
