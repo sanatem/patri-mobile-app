@@ -138,6 +138,8 @@ export default function InvestmentMovementFlow() {
 
   const handleFintocExit = () => {
     setShowFintocWidget(false);
+    Keyboard.dismiss();
+    router.push('/(tabs)/investment/portfolio');
   };
 
   const handleCancel = () => {

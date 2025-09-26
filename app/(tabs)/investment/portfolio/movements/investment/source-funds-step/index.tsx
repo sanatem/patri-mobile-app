@@ -89,7 +89,7 @@ function SourceFundsStep({
       totalSteps={2}
       onNext={handleContinue}
       onPrevious={handlePrevious}
-      nextButtonTitle={t('common.finish')}
+      nextButtonTitle={selectedOption === 'fintoc' ? t('common.continue') : t('common.finish')}
       previousButtonTitle={t('common.back')}
       isNextDisabled={!selectedOption || loading}
       isLoading={loading}
