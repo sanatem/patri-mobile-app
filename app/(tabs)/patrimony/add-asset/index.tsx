@@ -85,12 +85,28 @@ export default function AddAssetScreen() {
           }
         };
 
-        setFormData({
+        const mapSavingInstrumentType = (type: string) => {
+          switch(type) {
+            case 'SavingInstruments::CheckingAccount': return 'checking_account';
+            case 'SavingInstruments::SavingAccount': return 'saving_account';
+            case 'SavingInstruments::FixedTermDeposit': return 'fixed_term_deposit';
+            case 'SavingInstruments::AfpAccountTwo': return 'afp_account_two';
+            case 'SavingInstruments::ApvAccount': return 'apv_account';
+            case 'SavingInstruments::Crowdfunding': return 'crowdfunding';
+            case 'SavingInstruments::Cryptocurrency': return 'cryptocurrency';
+            case 'SavingInstruments::Share': return 'investment_fund';
+            case 'SavingInstruments::OtherSavingInstrument': return 'other';
+            default: return '';
+          }
+        };
+
+        let assetKind = 'fixed_asset';
+        let baseFormData = {
           name: assetData.name || '',
           asset_category_id: assetData.asset_category_id?.toString() || getCategoryId(assetData.category || ''),
-          commercial_value: assetData.commercial_value?.toString() || '',
+          commercial_value: assetData.commercial_value?.toString() || assetData.total_amount?.toString() || '',
           unit: assetData.unit || 'clp',
-          kind: assetData.kind === 'in_use' ? 'fixed_asset' : (assetData.kind || 'fixed_asset'),
+          kind: 'fixed_asset',
           property_kind: 'own',
           location: '',
           square_mts: '',
@@ -119,7 +135,35 @@ export default function AddAssetScreen() {
           series: '',
           mutual_fund_manager_id: '',
           comments: assetData.comments || '',
-        });
+        };
+
+        if (assetData.type && assetData.type.startsWith('SavingInstruments::')) {
+          assetKind = 'investment';
+          baseFormData.kind = 'investment';
+          baseFormData.investment_type = mapSavingInstrumentType(assetData.type);
+          baseFormData.commercial_value = assetData.total_amount?.toString() || '';
+        }
+        else if (assetData.location !== undefined || assetData.square_mts !== undefined) {
+          assetKind = 'property';
+          baseFormData.kind = 'property';
+          baseFormData.location = assetData.location || '';
+          baseFormData.square_mts = assetData.square_mts?.toString() || '';
+          baseFormData.commercial_value = assetData.commercial_value?.toString() || '';
+
+          if (assetData.property_type) {
+            baseFormData.property_kind = assetData.property_type === 'own' ? 'own' : 'rent';
+          } else {
+            baseFormData.property_kind = assetData.kind === 'leased' || assetData.kind === 'own' ? 'own' : 'rent';
+          }
+        }
+        
+        else if (assetData.kind === 'in_use' || assetData.category) {
+          assetKind = 'fixed_asset';
+          baseFormData.kind = 'fixed_asset';
+          baseFormData.commercial_value = assetData.commercial_value?.toString() || '';
+        }
+
+        setFormData(baseFormData);
       } catch (error) {
         console.error('Error parsing asset data:', error);
       }
@@ -160,7 +204,7 @@ export default function AddAssetScreen() {
   const validateForm = () => {
     const newErrors: string[] = [];
 
-    if (!formData.name.trim()) {
+    if (!formData.name.trim() && formData.kind !== 'property') {
       newErrors.push(t('addAssetScreen.errors.nameRequired'));
     }
     if (!formData.kind) {
@@ -661,22 +705,24 @@ export default function AddAssetScreen() {
       isNextDisabled={errors.length > 0}
       error={errors.length > 0 ? errors[0] : null}
     >
-      <View>
-        <Text className='text-base font-medium'
-          style={{
-            color: Colors.primary[500],
-            marginBottom: 8,
-          }}
-        >
-          {t('addAssetScreen.fields.name_label')}
-        </Text>
-        <Input
-          placeholder={t('addAssetScreen.fields.name_placeholder')}
-          value={formData.name}
-          onChangeText={(value) => handleInputChange('name', value)}
-          autoCapitalize="words"
-        />
-      </View>
+      {formData.kind !== 'property' && (
+        <View>
+          <Text className='text-base font-medium'
+            style={{
+              color: Colors.primary[500],
+              marginBottom: 8,
+            }}
+          >
+            {t('addAssetScreen.fields.name_label')}
+          </Text>
+          <Input
+            placeholder={t('addAssetScreen.fields.name_placeholder')}
+            value={formData.name}
+            onChangeText={(value) => handleInputChange('name', value)}
+            autoCapitalize="words"
+          />
+        </View>
+      )}
 
       <View>
         <Select

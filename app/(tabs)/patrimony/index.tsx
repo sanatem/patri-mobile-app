@@ -316,7 +316,7 @@ export default function PatrimonyScreen() {
   const handleItemPress = (item: any) => {
     if (activeTab === 'assets') {
       router.push({
-        pathname: '/patrimony/add-asset',
+        pathname: '/(tabs)/patrimony/add-asset',
         params: {
           editMode: 'true',
           assetId: item.id,
@@ -325,7 +325,7 @@ export default function PatrimonyScreen() {
       });
     } else {
       router.push({
-        pathname: '/patrimony/add-liability',
+        pathname: '/(tabs)/patrimony/add-liability',
         params: {
           editMode: 'true',
           debtId: item.id,
@@ -501,7 +501,7 @@ export default function PatrimonyScreen() {
           text: '0.00%',
           variant: 'positive' as const
         },
-        rawData: asset
+        rawData: { ...asset, property_type: 'investment' }
       })),
 
       ...apiAssets.assets.main_homes.map(asset => ({
@@ -519,7 +519,7 @@ export default function PatrimonyScreen() {
           text: '0.00%',
           variant: 'positive' as const
         },
-        rawData: asset
+        rawData: { ...asset, property_type: 'own' }
       }))
     ];
 
