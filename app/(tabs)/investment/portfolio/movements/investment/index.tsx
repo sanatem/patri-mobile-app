@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Keyboard } from 'react-native';
+import { Keyboard, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Container } from '@/components/ui/Container';
 import GoalSelectionStep from './goal-step';
@@ -78,10 +78,23 @@ export default function InvestmentMovementFlow() {
 
       const result = await createPurchase(purchaseData);
 
-      Keyboard.dismiss();
-      router.push('/(tabs)/investment/portfolio')
+      Alert.alert(
+        '',
+        'El depósito ha sido creado exitosamente',
+        [{
+          text: 'OK',
+          onPress: () => {
+            Keyboard.dismiss();
+            router.push('/(tabs)/investment/portfolio');
+          }
+        }]
+      );
     } catch (error) {
       console.error('Error al crear la compra:', error);
+      Alert.alert(
+        'Error',
+        error instanceof Error ? error.message : 'Ocurrió un error al crear la compra'
+      );
     }
   };
 
@@ -123,10 +136,23 @@ export default function InvestmentMovementFlow() {
         return;
       }
 
-      Keyboard.dismiss();
-      router.push('/(tabs)/investment/portfolio')
+      Alert.alert(
+        '',
+        'El depósito ha sido creado exitosamente',
+        [{
+          text: 'OK',
+          onPress: () => {
+            Keyboard.dismiss();
+            router.push('/(tabs)/investment/portfolio');
+          }
+        }]
+      );
     } catch (error) {
       console.error('Error al crear el depósito:', error);
+      Alert.alert(
+        'Error',
+        error instanceof Error ? error.message : 'Ocurrió un error al crear el depósito'
+      );
     }
   };
 
@@ -138,6 +164,8 @@ export default function InvestmentMovementFlow() {
 
   const handleFintocExit = () => {
     setShowFintocWidget(false);
+    Keyboard.dismiss();
+    router.push('/(tabs)/investment/portfolio');
   };
 
   const handleCancel = () => {

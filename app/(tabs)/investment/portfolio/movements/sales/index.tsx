@@ -128,11 +128,11 @@ export default function SalesFlow() {
     return [
       {
         label: t('salesFlow.bankAccount'),
-        value: 'cuenta-bancaria'
+        value: 'bank-account'
       },
       {
         label: t('salesFlow.cashBalance'),
-        value: 'saldo-caja'
+        value: 'cash-balance'
       }
     ];
   }, [goal, t]);
@@ -142,14 +142,14 @@ export default function SalesFlow() {
       title: t('salesFlow.quickOptions'),
       assets: [
         {
-          id: 'portfolio-completo',
+          id: 'all-portfolio',
           title: t('salesFlow.allPortfolio'),
           subtitle: '',
           description: t('salesFlow.sellAllShares'),
           value: 0,
         },
         {
-          id: 'retiro-proporcional',
+          id: 'proportional-withdrawal',
           title: t('salesFlow.proportionalWithdrawal'),
           subtitle: '',
           description: t('salesFlow.maintainStructure'),
@@ -179,11 +179,11 @@ export default function SalesFlow() {
   const activos: { label: string; value: string }[] = [
     {
       label: t('salesFlow.allPortfolio'),
-      value: 'portfolio-completo'
+      value: 'all-portfolio'
     },
     {
       label: t('salesFlow.proportionalWithdrawal'),
-      value: 'retiro-proporcional'
+      value: 'proportional-withdrawal'
     },
     ...assetSections.flatMap(section =>
       section.assets.map(asset => ({

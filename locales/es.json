@@ -384,7 +384,7 @@
       "openWidget": "Conectar mi banco",
       "info": {
         "title": "Transferencia bancaria segura",
-        "description": "Conecta tu banco de forma segura para transferir directamente sin salir de Patrimore.",
+        "description": "Monto: {{amount}}\n\nSerá redirigido a Fintoc para completar su transferencia. Al completarla puede que se demore unos minutos la confirmación de la misma.",
         "amountLabel": "Monto a transferir"
       },
       "success": {

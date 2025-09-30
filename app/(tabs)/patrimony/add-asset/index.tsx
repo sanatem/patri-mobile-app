@@ -85,12 +85,28 @@ export default function AddAssetScreen() {
           }
         };
 
-        setFormData({
+        const mapSavingInstrumentType = (type: string) => {
+          switch(type) {
+            case 'SavingInstruments::CheckingAccount': return 'checking_account';
+            case 'SavingInstruments::SavingAccount': return 'saving_account';
+            case 'SavingInstruments::FixedTermDeposit': return 'fixed_term_deposit';
+            case 'SavingInstruments::AfpAccountTwo': return 'afp_account_two';
+            case 'SavingInstruments::ApvAccount': return 'apv_account';
+            case 'SavingInstruments::Crowdfunding': return 'crowdfunding';
+            case 'SavingInstruments::Cryptocurrency': return 'cryptocurrency';
+            case 'SavingInstruments::Share': return 'investment_fund';
+            case 'SavingInstruments::OtherSavingInstrument': return 'other';
+            default: return '';
+          }
+        };
+
+        let assetKind = 'fixed_asset';
+        let baseFormData = {
           name: assetData.name || '',
           asset_category_id: assetData.asset_category_id?.toString() || getCategoryId(assetData.category || ''),
-          commercial_value: assetData.commercial_value?.toString() || '',
+          commercial_value: assetData.commercial_value?.toString() || assetData.total_amount?.toString() || '',
           unit: assetData.unit || 'clp',
-          kind: assetData.kind === 'in_use' ? 'fixed_asset' : (assetData.kind || 'fixed_asset'),
+          kind: 'fixed_asset',
           property_kind: 'own',
           location: '',
           square_mts: '',
@@ -119,7 +135,35 @@ export default function AddAssetScreen() {
           series: '',
           mutual_fund_manager_id: '',
           comments: assetData.comments || '',
-        });
+        };
+
+        if (assetData.type && assetData.type.startsWith('SavingInstruments::')) {
+          assetKind = 'investment';
+          baseFormData.kind = 'investment';
+          baseFormData.investment_type = mapSavingInstrumentType(assetData.type);
+          baseFormData.commercial_value = assetData.total_amount?.toString() || '';
+        }
+        else if (assetData.location !== undefined || assetData.square_mts !== undefined) {
+          assetKind = 'property';
+          baseFormData.kind = 'property';
+          baseFormData.location = assetData.location || '';
+          baseFormData.square_mts = assetData.square_mts?.toString() || '';
+          baseFormData.commercial_value = assetData.commercial_value?.toString() || '';
+
+          if (assetData.property_type) {
+            baseFormData.property_kind = assetData.property_type === 'own' ? 'own' : 'rent';
+          } else {
+            baseFormData.property_kind = assetData.kind === 'leased' || assetData.kind === 'own' ? 'own' : 'rent';
+          }
+        }
+        
+        else if (assetData.kind === 'in_use' || assetData.category) {
+          assetKind = 'fixed_asset';
+          baseFormData.kind = 'fixed_asset';
+          baseFormData.commercial_value = assetData.commercial_value?.toString() || '';
+        }
+
+        setFormData(baseFormData);
       } catch (error) {
         console.error('Error parsing asset data:', error);
       }
@@ -160,7 +204,7 @@ export default function AddAssetScreen() {
   const validateForm = () => {
     const newErrors: string[] = [];
 
-    if (!formData.name.trim()) {
+    if (!formData.name.trim() && formData.kind !== 'property') {
       newErrors.push(t('addAssetScreen.errors.nameRequired'));
     }
     if (!formData.kind) {
@@ -228,46 +272,54 @@ export default function AddAssetScreen() {
     setLoading(true);
     try {
       if (formData.kind === 'property') {
-        const propertyData = {
-          property_type: formData.property_kind === 'own' ? 'main_home' as const : 'investment' as const,
-          property: {
-            kind: formData.property_kind === 'own' ? 'own' as const : '' as const,
-            property_attributes: {
+        if (isEditMode && params.rawData) {
+          const originalData = JSON.parse(params.rawData as string);
+          const assetType = formData.property_kind === 'own' ? 'main_home' : 'investment_property';
+
+          const updatePayload = {
+            asset: {
               location: formData.location,
               commercial_value: formData.commercial_value.replace(/[^\d]/g, ''),
               unit: formData.unit,
               square_mts: parseInt(formData.square_mts),
-            }
-          }
-        };
-        
-        const propertyResponse = await createProperty(propertyData, accessToken);
-        
-        if (propertyResponse.success) {
-          const assetData = {
-            asset: {
-              name: formData.name,
-              asset_category_id: 2,
-              commercial_value: formData.commercial_value.replace(/[^\d]/g, ''),
-              unit: formData.unit,
-              kind: formData.kind,
+              ...(formData.property_kind === 'investment' && { apartment_number: '' }),
             }
           };
-          
-          const response = await createAsset(assetData, accessToken);
-          
+
+          const response = await updateAsset(originalData.id, updatePayload, accessToken, assetType);
+
           if (response.success) {
             setLoading(false);
             router.push('/(tabs)/patrimony');
           } else {
-            console.error('Asset creation failed:', response.error);
+            console.error('Property update failed:', response.error);
             setErrors([response.error || t('addAssetScreen.errors.assetCreationError')]);
             setLoading(false);
           }
         } else {
-          console.error('Property creation failed:', propertyResponse.error);
-          setErrors([propertyResponse.error || t('addAssetScreen.errors.propertyCreationError')]);
-          setLoading(false);
+          const propertyData = {
+            property_type: formData.property_kind === 'own' ? 'main_home' as const : 'investment' as const,
+            property: {
+              kind: formData.property_kind === 'own' ? 'own' as const : '' as const,
+              property_attributes: {
+                location: formData.location,
+                commercial_value: formData.commercial_value.replace(/[^\d]/g, ''),
+                unit: formData.unit,
+                square_mts: parseInt(formData.square_mts),
+              }
+            }
+          };
+
+          const response = await createProperty(propertyData, accessToken);
+
+          if (response.success) {
+            setLoading(false);
+            router.push('/(tabs)/patrimony');
+          } else {
+            console.error('Property creation failed:', response.error);
+            setErrors([response.error || t('addAssetScreen.errors.propertyCreationError')]);
+            setLoading(false);
+          }
         }
       } else if (formData.kind === 'fixed_asset') {
         const assetData = {
@@ -283,7 +335,19 @@ export default function AddAssetScreen() {
         let response;
         if (isEditMode && params.rawData) {
           const originalData = JSON.parse(params.rawData as string);
-          response = await updateAsset(originalData.id, assetData, accessToken);
+
+          const getAssetType = (originalData: any) => {
+            if (originalData.type && originalData.type.startsWith('SavingInstruments::')) {
+              return 'saving_instrument';
+            }
+            if (originalData.location || originalData.square_mts || originalData.apartment_number !== undefined) {
+              return 'investment_property';
+            }
+            return 'fixed_asset';
+          };
+
+          const assetType = getAssetType(originalData);
+          response = await updateAsset(originalData.id, assetData, accessToken, assetType);
         } else {
           response = await createAsset(assetData, accessToken);
         }
@@ -532,13 +596,90 @@ export default function AddAssetScreen() {
           return;
         }
 
-        const response = await createSavingInstrument(payload, accessToken);
-        
+        let response;
+        if (isEditMode && params.rawData) {
+          const originalData = JSON.parse(params.rawData as string);
+
+          const buildUpdatePayload = (savingInstrument: any) => {
+            const basePayload: any = {
+              name: savingInstrument.name,
+              total_amount: savingInstrument.total_amount,
+              unit: savingInstrument.unit,
+            };
+
+            switch (formData.investment_type) {
+              case 'crowdfunding':
+                return {
+                  ...basePayload,
+                  crowdfunding_institution_id: savingInstrument.crowdfunding_institution_id,
+                  crowdfunding_credit_id: savingInstrument.crowdfunding_credit_id,
+                  ...(savingInstrument.period_return_rate && { period_return_rate: savingInstrument.period_return_rate }),
+                  ...(savingInstrument.due_date && { due_date: savingInstrument.due_date }),
+                };
+              case 'mutual_fund_instrument':
+                return {
+                  ...basePayload,
+                  fund_kind: savingInstrument.fund_kind,
+                  fund_id: savingInstrument.fund_id,
+                  ...(savingInstrument.fund_series_id && { fund_series_id: savingInstrument.fund_series_id }),
+                  ...(savingInstrument.mutual_fund_manager_id && { mutual_fund_manager_id: savingInstrument.mutual_fund_manager_id }),
+                  ...(savingInstrument.comments && { comments: savingInstrument.comments }),
+                };
+              case 'cash_account':
+                return {
+                  ...basePayload,
+                  broker_id: savingInstrument.broker_id,
+                };
+              case 'checking_account':
+              case 'saving_account':
+                return {
+                  ...basePayload,
+                  bank_id: savingInstrument.bank_id,
+                };
+              case 'fixed_term_deposit':
+                return {
+                  ...basePayload,
+                  bank_id: savingInstrument.bank_id,
+                  deposit_kind: savingInstrument.deposit_kind,
+                  ...(savingInstrument.start_date && { start_date: savingInstrument.start_date }),
+                  ...(savingInstrument.end_date && { end_date: savingInstrument.end_date }),
+                };
+              case 'afp_account_two':
+                return {
+                  ...basePayload,
+                  afp_institution_id: savingInstrument.afp_institution_id,
+                  ...(savingInstrument.tax_regime && { tax_regime: savingInstrument.tax_regime }),
+                  ...(savingInstrument.funds && { funds: savingInstrument.funds }),
+                };
+              case 'apv_account':
+                return {
+                  ...basePayload,
+                  apv_institution_id: savingInstrument.apv_institution_id,
+                  ...(savingInstrument.tax_regime && { tax_regime: savingInstrument.tax_regime }),
+                  ...(savingInstrument.funds && { funds: savingInstrument.funds }),
+                };
+              default:
+                return {
+                  ...basePayload,
+                  ...(savingInstrument.comments && { comments: savingInstrument.comments }),
+                };
+            }
+          };
+
+          const updatePayload = {
+            asset: buildUpdatePayload(payload.saving_instrument)
+          };
+
+          response = await updateAsset(originalData.id, updatePayload, accessToken, 'saving_instrument');
+        } else {
+          response = await createSavingInstrument(payload, accessToken);
+        }
+
         if (response.success) {
           setLoading(false);
           router.push('/(tabs)/patrimony');
         } else {
-          console.error('Saving instrument creation failed:', response.error);
+          console.error('Saving instrument operation failed:', response.error);
           setErrors([response.error || t('addAssetScreen.errors.savingCreationError')]);
           setLoading(false);
         }
@@ -564,22 +705,24 @@ export default function AddAssetScreen() {
       isNextDisabled={errors.length > 0}
       error={errors.length > 0 ? errors[0] : null}
     >
-      <View>
-        <Text className='text-base font-medium'
-          style={{
-            color: Colors.primary[500],
-            marginBottom: 8,
-          }}
-        >
-          {t('addAssetScreen.fields.name_label')}
-        </Text>
-        <Input
-          placeholder={t('addAssetScreen.fields.name_placeholder')}
-          value={formData.name}
-          onChangeText={(value) => handleInputChange('name', value)}
-          autoCapitalize="words"
-        />
-      </View>
+      {formData.kind !== 'property' && (
+        <View>
+          <Text className='text-base font-medium'
+            style={{
+              color: Colors.primary[500],
+              marginBottom: 8,
+            }}
+          >
+            {t('addAssetScreen.fields.name_label')}
+          </Text>
+          <Input
+            placeholder={t('addAssetScreen.fields.name_placeholder')}
+            value={formData.name}
+            onChangeText={(value) => handleInputChange('name', value)}
+            autoCapitalize="words"
+          />
+        </View>
+      )}
 
       <View>
         <Select
