@@ -149,7 +149,7 @@ const SwipeableItem = ({
                 alignItems: 'center',
               }}
             >
-              <Trash2 size={20} color={Colors.gray[600]} />
+              <Trash2 size={20} color={Colors.primary[500]} />
             </TouchableOpacity>
           </View>
         )}
@@ -172,7 +172,7 @@ const SwipeableItem = ({
                   {item.icon.component ? (
                     item.icon.component
                   ) : (
-                    <Text style={listItemStyles.iconText}>
+                    <Text className="text-base font-medium" style={listItemStyles.iconText}>
                       {item.icon.text || item.title.charAt(0)}
                     </Text>
                   )}
@@ -183,13 +183,14 @@ const SwipeableItem = ({
                 <View style={listItemStyles.info}>
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                     <View style={{ flex: 1 }}>
-                      <Text style={listItemStyles.title}>{item.title}</Text>
+                      <Text className="text-base font-regular" style={listItemStyles.title}>{item.title}</Text>
                       {item.subtitleLines && item.subtitleLines.map((line, lineIndex) => (
                         <Text
                           key={lineIndex}
+                          className="text-sm font-regular"
                           style={[
                             listItemStyles.subtitle,
-                            item.mediumSubtitleIndex === lineIndex && { fontFamily: 'Poppins-Medium' },
+                            item.mediumSubtitleIndex === lineIndex && { fontFamily: 'Poppins-regular' },
                             lineIndex > 0 && { marginTop: 2 }
                           ]}
                         >
@@ -197,12 +198,12 @@ const SwipeableItem = ({
                         </Text>
                       ))}
                       {item.subtitle && !item.subtitleLines && (
-                        <Text style={listItemStyles.subtitle}>{item.subtitle}</Text>
+                        <Text className="text-sm font-regular" style={listItemStyles.subtitle}>{item.subtitle}</Text>
                       )}
                     </View>
 
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                      <Text style={listItemStyles.value}>
+                      <Text className="text-lg font-medium" style={listItemStyles.value}>
                         {typeof item.value === 'number'
                           ? `$${Math.abs(item.value).toLocaleString('es-CL')}`
                           : item.value
@@ -211,7 +212,7 @@ const SwipeableItem = ({
                       {(item.onPress || onPress) && (
                         <ChevronRight
                           size={20}
-                          color={Colors.gray[400]}
+                          color={Colors.primary[500]}
                           style={{ marginLeft: 8 }}
                         />
                       )}
@@ -220,9 +221,9 @@ const SwipeableItem = ({
                 </View>
               ) : (
                 <View style={listItemStyles.info}>
-                  <Text style={listItemStyles.title}>{item.title}</Text>
+                  <Text className="text-base font-regular" style={listItemStyles.title}>{item.title}</Text>
                   {item.subtitle && (
-                    <Text style={listItemStyles.subtitle}>{item.subtitle}</Text>
+                    <Text className="text-sm font-regular" style={listItemStyles.subtitle}>{item.subtitle}</Text>
                   )}
                 </View>
               )}
@@ -230,7 +231,7 @@ const SwipeableItem = ({
               {!item.customLayout && (
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                   <View style={listItemStyles.valueContainer}>
-                    <Text style={listItemStyles.value}>
+                    <Text className="text-lg font-regular" style={listItemStyles.value}>
                       {typeof item.value === 'number'
                         ? `$${Math.abs(item.value).toLocaleString('es-CL')}`
                         : item.value
@@ -248,6 +249,7 @@ const SwipeableItem = ({
                         ]}
                       >
                         <Text
+                          className="text-sm font-regular"
                           style={
                             item.badge.variant === 'positive'
                               ? listItemStyles.badgeArrowPositive
@@ -259,7 +261,8 @@ const SwipeableItem = ({
                           {item.badge.variant === 'positive' ? '↑' : item.badge.variant === 'negative' ? '↓' : ''}
                         </Text>
                         <Text
-                          style={
+                          className="text-sm font-regular"
+                            style={
                             item.badge.variant === 'positive'
                               ? listItemStyles.badgeTextPositive
                               : item.badge.variant === 'negative'
@@ -275,7 +278,7 @@ const SwipeableItem = ({
                   {(item.onPress || onPress) && (
                     <ChevronRight
                       size={20}
-                      color={Colors.gray[400]}
+                      color={Colors.primary[500]}
                       style={{ marginLeft: 8 }}
                     />
                   )}
