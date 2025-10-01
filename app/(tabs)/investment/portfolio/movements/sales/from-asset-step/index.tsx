@@ -1,13 +1,13 @@
-import React, { useMemo, useEffect } from 'react';
+import React, { useMemo, useEffect, useRef } from 'react';
 import { View } from 'react-native';
 import FormLayout from '@/components/ui/FormLayout';
 import { useTranslation } from 'react-i18next';
 import AssetSelectionList from '@/components/investment/portfolio/AssetSelectionList';
-import CashSaleForm from '@/components/investment/movements/sales/CashSaleForm';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { usePortfolioDetails } from '@/hooks/investment/usePortfolioDetails';
 import { useFormatValue } from '@/hooks/common/useFormatValue';
+import { useKeyboardHandler } from '@/hooks/common/useKeyboardHandler';
 
 interface FromAssetStepProps {
   activo: string | undefined;
@@ -47,8 +47,10 @@ export default function FromAssetStep({
   cuentas
 }: FromAssetStepProps) {
   const { t } = useTranslation();
-  const { formatValue } = useFormatValue();
+  const { formatValue, cleanNumericValue } = useFormatValue();
   const { metaDetails, loading: portfolioLoading } = usePortfolioDetails({ goalId });
+  const { dismissKeyboard } = useKeyboardHandler();
+  const inputRef = useRef(null);
 
   const assetData = useMemo(() => {
     if (!metaDetails) {
@@ -67,14 +69,14 @@ export default function FromAssetStep({
 
     const portfolioOptions = [
       {
-        id: 'portfolio-completo',
+        id: 'all-portfolio',
         title: t('salesFlow.allPortfolio'),
         subtitle: '',
         description: '',
         value: totalAvailable
       },
       {
-        id: 'retiro-proporcional',
+        id: 'proportional-withdrawal',
         title: t('salesFlow.proportionalWithdrawal'),
         subtitle: '',
         description: t('salesFlow.maintainStructure'),
@@ -99,19 +101,20 @@ export default function FromAssetStep({
     };
   }, [metaDetails, t, formatValue]);
 
-  // Auto-set amount for portfolio-completo
   useEffect(() => {
-    if (activo === 'portfolio-completo' && assetData.totalAvailable > 0) {
+    if (activo === 'all-portfolio' && assetData.totalAvailable > 0) {
       setAssetAmount(assetData.totalAvailable.toString());
+    } else if (activo && activo !== 'all-portfolio') {
+      setAssetAmount('');
     }
   }, [activo, assetData.totalAvailable, setAssetAmount]);
 
-  const requiresAmountInput = activo && activo !== 'portfolio-completo';
+  const requiresAmountInput = activo && activo !== 'all-portfolio';
   const isNextDisabled = !activo ||
     (requiresAmountInput && (!assetAmount || parseFloat(assetAmount) <= 0)) ||
-    (requiresAmountInput && destino === 'cuenta-bancaria' && (!assetBankAccount || loadingBankAccounts)) ||
-    (activo === 'portfolio-completo' && destino === 'cuenta-bancaria' && (!assetBankAccount || loadingBankAccounts)) ||
-    (activo === 'portfolio-completo' && (!assetAmount || parseFloat(assetAmount) <= 0));
+    (requiresAmountInput && destino === 'bank-account' && (!assetBankAccount || loadingBankAccounts)) ||
+    (activo === 'all-portfolio' && destino === 'bank-account' && (!assetBankAccount || loadingBankAccounts)) ||
+    (activo === 'all-portfolio' && (!assetAmount || parseFloat(assetAmount) <= 0));
 
   return (
     <FormLayout
@@ -137,20 +140,21 @@ export default function FromAssetStep({
       />
 
       {requiresAmountInput && (
-        <View style={{ marginTop: -10}}>
+        <View style={{ marginTop: -10, marginBottom: 20 }}>
           <Input
             label={t('salesFlow.cashSale.amountLabel')}
             value={assetAmount ? formatValue(assetAmount) : ''}
             onChangeText={(value) => {
-              const cleaned = value.replace(/[^\d]/g, '');
+              const cleaned = cleanNumericValue(value);
               setAssetAmount(cleaned);
             }}
+            onBlur={dismissKeyboard}
             placeholder="$0"
             keyboardType="numeric"
             className="mb-4"
           />
 
-          {destino === 'cuenta-bancaria' && (
+          {destino === 'bank-account' && (
             <Select
               label={t('salesFlow.cashSale.bankAccountLabel')}
               options={bankAccounts}
@@ -162,7 +166,7 @@ export default function FromAssetStep({
         </View>
       )}
 
-      {activo === 'portfolio-completo' && destino === 'cuenta-bancaria' && (
+      {activo === 'all-portfolio' && destino === 'bank-account' && (
         <View style={{ marginTop: -10}}>
           <Select
             label={t('salesFlow.cashSale.bankAccountLabel')}

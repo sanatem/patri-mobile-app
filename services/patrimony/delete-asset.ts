@@ -5,9 +5,13 @@ export interface DeleteAssetResponse {
   error?: string;
 }
 
-export const deleteAsset = async (id: number, token: string): Promise<DeleteAssetResponse> => {
+export const deleteAsset = async (id: number, token: string, assetType?: string): Promise<DeleteAssetResponse> => {
   try {
-    const url = `${config.apiBaseUrl}/api/v2/networth/assets/${id}`;
+    let url = `${config.apiBaseUrl}/api/v2/networth/assets/${id}`;
+
+    if (assetType) {
+      url += `?asset_type=${assetType}`;
+    }
 
     const response = await fetch(url, {
       method: 'DELETE',

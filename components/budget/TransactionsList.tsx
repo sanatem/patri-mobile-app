@@ -43,7 +43,6 @@ export default function TransactionsList({
                         floidTransactions.length > 0;
     
     if (hasFloidData) {
-      // Ya no filtramos por tipo aquí porque debe venir filtrado del servidor
       const filteredBySearch = searchQuery 
         ? floidTransactions!.filter(transaction =>
             transaction.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -133,9 +132,7 @@ export default function TransactionsList({
   if (transactionsData.length === 0) {
     return (
       <View style={{ padding: 40, alignItems: 'center' }}>
-        <Text style={{ 
-          fontSize: 16,
-          fontFamily: 'Poppins-SemiBold',
+        <Text className="text-base font-medium" style={{ 
           color: Colors.gray[600],
           textAlign: 'center',
           marginBottom: 8,
@@ -147,9 +144,7 @@ export default function TransactionsList({
               : t(`transactions_list.no_${type}_title`)
           }
         </Text>
-        <Text style={{ 
-          fontSize: 14,
-          fontFamily: 'Poppins-Regular',
+        <Text className="text-sm font-regular" style={{ 
           color: Colors.gray[500],
           textAlign: 'center',
           lineHeight: 20,

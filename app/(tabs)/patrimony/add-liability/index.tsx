@@ -124,9 +124,25 @@ export default function AddLiabilityScreen() {
     if (isEditMode && params.rawData) {
       try {
         const debtData = JSON.parse(params.rawData as string);
+
+        const getDebtCategoryId = (categoryName: string) => {
+          switch(categoryName?.toLowerCase()) {
+            case 'automotriz': return '1';
+            case 'caja de compensación': return '2';
+            case 'consumo': return '3';
+            case 'crédito universitario': return '4';
+            case 'hipotecario de uso': return '5';
+            case 'hipotecario de inversión': return '6';
+            case 'línea de crédito': return '7';
+            case 'préstamos familiares o amigos': return '8';
+            case 'tarjeta de crédito': return '9';
+            default: return '1';
+          }
+        };
+
         setFormData({
           name: debtData.name || '',
-          debt_category_id: debtData.debt_category_id?.toString() || '',
+          debt_category_id: debtData.debt_category_id?.toString() || getDebtCategoryId(debtData.debt_category || ''),
           amount: debtData.amount?.toString() || '',
           unit: debtData.unit || 'clp',
           installments_quantity: debtData.installments_quantity?.toString() || '',
@@ -258,7 +274,24 @@ export default function AddLiabilityScreen() {
       let response;
       if (isEditMode && params.rawData) {
         const originalData = JSON.parse(params.rawData as string);
-        response = await updateDebt(originalData.id, debtData, accessToken);
+
+        const getDebtType = (debtCategoryId: string) => {
+          const categoryMap: Record<string, string> = {
+            '1': 'credit_card',
+            '2': 'consumer_credit',
+            '3': 'automotive_credit',
+            '4': 'commercial_credit',
+            '5': 'mortgage_credit',
+            '6': 'mortgage',
+            '7': 'credit_line',
+            '8': 'family_loan',
+            '9': 'other'
+          };
+          return categoryMap[debtCategoryId] || 'other';
+        };
+
+        const debtType = getDebtType(formData.debt_category_id);
+        response = await updateDebt(originalData.id, debtData, accessToken, debtType);
       } else {
         response = await createDebt(debtData, accessToken);
       }

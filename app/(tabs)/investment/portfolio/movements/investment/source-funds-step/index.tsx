@@ -89,7 +89,7 @@ function SourceFundsStep({
       totalSteps={2}
       onNext={handleContinue}
       onPrevious={handlePrevious}
-      nextButtonTitle={t('common.finish')}
+      nextButtonTitle={selectedOption === 'fintoc' ? t('common.continue') : t('common.finish')}
       previousButtonTitle={t('common.back')}
       isNextDisabled={!selectedOption || loading}
       isLoading={loading}
@@ -102,11 +102,20 @@ function SourceFundsStep({
         placeholder={t('sourceFunds.placeholder')}
       />
 
+      {selectedOption === 'fintoc' && (
+        <View style={{ marginTop: 2 }}>
+          <View style={{ padding: 2, backgroundColor: 'white'}}>
+            <Text className="text-sm font-regular mb-2" style={{ color: Colors.primary[600] }}>
+              {t('sourceFunds.fintocTransfer.info.description', { amount: formatValue(amount.toString()) })}
+            </Text>
+          </View>
+        </View>
+      )}
+
       {selectedOption === 'bank' && (
         <BankTransfer amount={amount} />
       )}
-      
-      
+
       {selectedOption === 'check' && (
         <CheckDeposit amount={amount} />
       )}

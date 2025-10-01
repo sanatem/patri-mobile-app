@@ -10,7 +10,6 @@ import {
 import { useAuth } from '@/providers/AuthProvider';
 import AreaChart from '@/components/patrimony/AreaChart';
 import { PatrimonySummary } from '@/components/patrimony/PatrimonySummary';
-import LiabilityCard from '@/components/patrimony/LiabilityCard';
 import { useChartRangeStore, RangeSize } from '@/store/chartRangeStore';
 import { Asset, Liability } from '@/types';
 import { patrimonyService } from '@/services/patrimony/get-patrimony';
@@ -28,7 +27,6 @@ import {
   Button,
   ConfirmModal,
 } from '@/components/ui';
-import { SwipeableListItem } from '@/components/ui/SwipeableListItem';
 import { deleteAsset } from '@/services/patrimony/delete-asset';
 import { deleteDebt } from '@/services/patrimony/delete-debt';
 import { SkeletonBase } from '@/components/ui/SkeletonBase';
@@ -316,7 +314,7 @@ export default function PatrimonyScreen() {
   const handleItemPress = (item: any) => {
     if (activeTab === 'assets') {
       router.push({
-        pathname: '/patrimony/add-asset',
+        pathname: '/(tabs)/patrimony/add-asset',
         params: {
           editMode: 'true',
           assetId: item.id,
@@ -325,7 +323,7 @@ export default function PatrimonyScreen() {
       });
     } else {
       router.push({
-        pathname: '/patrimony/add-liability',
+        pathname: '/(tabs)/patrimony/add-liability',
         params: {
           editMode: 'true',
           debtId: item.id,
@@ -347,7 +345,26 @@ export default function PatrimonyScreen() {
 
     try {
       if (activeTab === 'assets') {
-        const response = await deleteAsset(itemToDelete.rawData.id, accessToken!);
+        const getAssetType = (assetData: any, itemTitle: string) => {
+          if (assetData.type && assetData.type.startsWith('SavingInstruments::')) {
+            return 'saving_instrument';
+          }
+
+          if (assetData.location || assetData.square_mts || assetData.apartment_number !== undefined) {
+            if (itemTitle.startsWith('Casa ')) {
+              return 'main_home';
+            }
+            if (itemTitle.startsWith('Propiedad ')) {
+              return 'investment_property';
+            }
+          }
+
+          return 'fixed_asset';
+        };
+
+        const assetType = getAssetType(itemToDelete.rawData, itemToDelete.title);
+        const response = await deleteAsset(itemToDelete.rawData.id, accessToken!, assetType);
+
         if (response.success) {
           Alert.alert('Éxito', 'Activo eliminado correctamente');
         } else {
@@ -377,6 +394,8 @@ export default function PatrimonyScreen() {
       } else {
         refetchDebts();
       }
+
+      await loadPatrimonyData();
 
       setShowDeleteModal(false);
       setItemToDelete(null);
@@ -480,7 +499,7 @@ export default function PatrimonyScreen() {
           text: '0.00%',
           variant: 'positive' as const
         },
-        rawData: asset
+        rawData: { ...asset, property_type: 'rent' }
       })),
 
       ...apiAssets.assets.main_homes.map(asset => ({
@@ -498,7 +517,7 @@ export default function PatrimonyScreen() {
           text: '0.00%',
           variant: 'positive' as const
         },
-        rawData: asset
+        rawData: { ...asset, property_type: 'own' }
       }))
     ];
 
@@ -805,10 +824,10 @@ export default function PatrimonyScreen() {
                  onTabChange={handleTabChange}
                />
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingBottom: 20, paddingTop: 12, borderBottomWidth: 1, borderBottomColor: Colors.gray[200] }}>
-                <Text style={{ color: Colors.gray[700], fontSize: 18, fontFamily: 'Poppins-medium' }}>
+                <Text className="font-medium text-lg" style={{ color: Colors.gray[700]}}>
                   {activeTab === 'assets' ? t('labels.patrimony.total_assets') : t('labels.patrimony.total_liabilities')}
                 </Text>
-                <Text style={{ color: Colors.gray[700], fontSize: 18, fontFamily: 'Poppins-medium' }}>
+                <Text className="font-medium text-lg" style={{ color: Colors.gray[700]}}>
                   {activeTab === 'assets' ? '+' : '-'}${currentTabTotal.toLocaleString('es-CL')}
                 </Text>
               </View>
@@ -862,10 +881,8 @@ export default function PatrimonyScreen() {
                 </Animated.View>
               ) : currentError ? (
                 <View style={{ padding: 40, alignItems: 'center' }}>
-                  <Text style={{ 
+                  <Text className="font-regular text-base" style={{ 
                     color: Colors.error[500], 
-                    fontSize: 16, 
-                    fontFamily: 'Poppins-regular',
                     textAlign: 'center',
                     marginBottom: 12
                   }}>
@@ -879,24 +896,20 @@ export default function PatrimonyScreen() {
                       }
                     }}
                   >
-                    <Text className="text-white">Reintentar</Text>
+                    <Text className="text-white font-regular text-base">Reintentar</Text>
                   </TouchableOpacity>
                 </View>
               ) : hasNoCurrentData ? (
                 <View style={{ padding: 40, alignItems: 'center' }}>
-                  <Text style={{ 
-                    color: Colors.gray[500], 
-                    fontSize: 16, 
-                    fontFamily: 'Poppins-regular',
+                  <Text className="font-regular text-base" style={{ 
+                    color: Colors.primary[500], 
                     textAlign: 'center',
                     marginBottom: 8
                   }}>
                     {t(`patrimony.empty.${activeTab}.title`)}
                   </Text>
-                  <Text style={{ 
-                    color: Colors.gray[400], 
-                    fontSize: 14, 
-                    fontFamily: 'Poppins-regular',
+                  <Text className="font-regular text-sm" style={{ 
+                    color: Colors.gray[500], 
                     textAlign: 'center',
                     marginBottom: 12
                   }}>
@@ -964,7 +977,7 @@ export default function PatrimonyScreen() {
                 </Animated.View>
               ) : (
                                  <>
-                   <SwipeableListItem
+                   <ListItem
                      key={`${activeTab}-${showDeleteModal}`}
                      data={paginatedData}
                      showLoadMore={false}

@@ -36,9 +36,13 @@ export interface UpdateDebtResponse {
   error?: string;
 }
 
-export const updateDebt = async (id: number, data: UpdateDebtRequest, token: string): Promise<UpdateDebtResponse> => {
+export const updateDebt = async (id: number, data: UpdateDebtRequest, token: string, debtType?: string): Promise<UpdateDebtResponse> => {
   try {
-    const url = `${config.apiBaseUrl}/api/v2/networth/debts/${id}`;
+    let url = `${config.apiBaseUrl}/api/v2/networth/debts/${id}`;
+
+    if (debtType) {
+      url += `?debt_type=${debtType}`;
+    }
 
     const response = await fetch(url, {
       method: 'PATCH',

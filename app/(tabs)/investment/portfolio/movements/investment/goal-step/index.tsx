@@ -168,9 +168,7 @@ export default function GoalSelectionStep({
       onCancel={onCancel}
       nextButtonTitle={t('common.continue')}
       cancelButtonTitle={t('common.cancel')}
-      isNextDisabled={!selectedGoal || !amount || goalsLoading}
-      isLoading={goalsLoading}
-      error={goalsError}
+      isNextDisabled={!selectedGoal || !amount}
       showLogo={false}
     >
       <Select
@@ -178,8 +176,7 @@ export default function GoalSelectionStep({
         options={goalOptions}
         value={selectedGoal}
         onSelect={handleGoalSelect}
-        placeholder={goalsLoading ? t('common.loading') : t('fromGoalStep.goalPlaceholder')}
-        disabled={goalsLoading}
+        placeholder={t('fromGoalStep.goalPlaceholder')}
       />
 
       {selectedGoal && (
