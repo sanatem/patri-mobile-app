@@ -27,7 +27,7 @@ export default function InvestmentIndex() {
     if (!isLoading && hasInvestmentAccount) {
       const timer = setTimeout(() => {
         try {
-          router.replace('/investment/portfolio')
+          router.replace('/(tabs)/investment/portfolio')
         } catch (error) {
           Alert.alert('Error', 'No se pudo navegar a la pantalla solicitada')
         }
