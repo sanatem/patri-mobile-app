@@ -229,9 +229,10 @@ export default function GoalSelectionStep({
           <Animated.View style={[
             selectStyles.overlay,
             {
-              backgroundColor: overlayAnim.interpolate({
+              backgroundColor: 'black',
+              opacity: overlayAnim.interpolate({
                 inputRange: [0, 1],
-                outputRange: ['rgba(0,0,0,0)', 'rgba(0,0,0,0.45)'],
+                outputRange: [0, 0.45],
               }),
             },
           ]}>
