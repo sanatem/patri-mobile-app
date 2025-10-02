@@ -34,10 +34,12 @@ interface FormLayoutProps {
   previousButtonTitle?: string;
   cancelButtonTitle?: string;
   isLoading?: boolean;
+  isSaved?: boolean;
   isNextDisabled?: boolean;
   error?: string | null;
   showLogo?: boolean;
   loadingText?: string;
+  savedText?: string;
 }
 
 export default function FormLayout({
@@ -53,10 +55,12 @@ export default function FormLayout({
   previousButtonTitle,
   cancelButtonTitle,
   isLoading = false,
+  isSaved = false,
   isNextDisabled = false,
   error = null,
   showLogo = true,
-  loadingText
+  loadingText,
+  savedText
 }: FormLayoutProps) {
   const { t } = useTranslation();
   const { keyboardHeight, isKeyboardVisible } = useKeyboardHandler();
@@ -65,6 +69,7 @@ export default function FormLayout({
   const _prevTitle = previousButtonTitle ?? t('common.back');
   const _cancelTitle = cancelButtonTitle ?? t('common.cancel');
   const _loadingText = loadingText ?? t('common.saving');
+  const _savedText = savedText ?? t('common.saved');
 
   const renderProgressIndicators = () => {
     return (
@@ -168,10 +173,11 @@ export default function FormLayout({
             }}>
               {onNext && (
                 <Button
-                  title={isLoading ? _loadingText : _nextTitle}
+                  title={isSaved ? _savedText : (isLoading ? _loadingText : _nextTitle)}
                   onPress={onNext}
-                  disabled={isLoading || isNextDisabled}
+                  disabled={isLoading || isNextDisabled || isSaved}
                   loading={isLoading}
+                  saved={isSaved}
                   variant="primary"
                   fullWidth
                 />

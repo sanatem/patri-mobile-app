@@ -16,14 +16,18 @@ import { useAuth } from '@/providers/AuthProvider';
 import { useFormatValue } from '@/hooks/common/useFormatValue';
 import { ApiProperty } from '@/types/api';
 import { useTranslation } from 'react-i18next';
+import { useAssetEditStore } from '@/store/assetEditStore';
 
 const cleanIntegerValue = (value: string) => value.replace(/[^\d]/g, '');
 
 export default function AddLiabilityScreen() {
   const { t } = useTranslation();
   const params = useLocalSearchParams();
-  const isEditMode = !!(params.editMode && params.rawData);
-  const debtId = params.debtId ? parseInt(params.debtId as string) : undefined;
+  const { editData, clearEditData } = useAssetEditStore();
+
+  const isEditMode = !!(editData?.editMode || params.editMode);
+  const debtId = editData?.itemId || (params.debtId ? parseInt(params.debtId as string) : undefined);
+  const debtTypeParam = editData?.itemType;
 
   const DEBT_CATEGORY_OPTIONS = [
     { label: t('addLiabilityScreen.debtCategoryOptions.1'), value: '1' },
@@ -60,6 +64,7 @@ export default function AddLiabilityScreen() {
     property_square_mts: '',
   });
   const [loading, setLoading] = useState(false);
+  const [saved, setSaved] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
   const [serverError, setServerError] = useState<string | null>(null);
   const [properties, setProperties] = useState<ApiProperty[]>([]);
@@ -123,11 +128,22 @@ export default function AddLiabilityScreen() {
   }, [formData.property_associated, accessToken]);
 
   useEffect(() => {
+    return () => {
+      clearEditData();
+    };
+  }, [clearEditData]);
+
+  useEffect(() => {
     const loadDebtDetail = async () => {
-      if (!isEditMode || !params.rawData || !debtId || !accessToken) return;
+      if (!isEditMode || !debtId || !accessToken || !debtTypeParam) return;
 
       try {
-        const debtData = JSON.parse(params.rawData as string);
+        const debtData = await getDebtDetail(accessToken, debtId, debtTypeParam as any);
+
+        if (!debtData) {
+          console.error('No debt data returned');
+          return;
+        }
 
         const getDebtCategoryId = (categoryName: string) => {
           switch(categoryName?.toLowerCase()) {
@@ -161,7 +177,7 @@ export default function AddLiabilityScreen() {
 
         let baseFormData = {
           name: debtData.name || '',
-          debt_category_id: debtData.debt_category_id?.toString() || getDebtCategoryId(debtData.debt_category || ''),
+          debt_category_id: getDebtCategoryId(debtData.debt_category || ''),
           amount: debtData.amount?.toString() || '',
           unit: debtData.unit || 'clp',
           installments_quantity: debtData.installments_quantity?.toString() || '',
@@ -176,7 +192,7 @@ export default function AddLiabilityScreen() {
         };
 
         try {
-          const categoryId = debtData.debt_category_id?.toString() || getDebtCategoryId(debtData.debt_category || '');
+          const categoryId = getDebtCategoryId(debtData.debt_category || '');
           const debtType = getDebtType(categoryId) as any;
 
           const detailData = await getDebtDetail(accessToken, debtId, debtType);
@@ -207,8 +223,10 @@ export default function AddLiabilityScreen() {
       }
     };
 
-    loadDebtDetail();
-  }, [isEditMode, params.rawData, debtId, accessToken]);
+    if (isEditMode) {
+      loadDebtDetail();
+    }
+  }, []);
 
   const validateForm = () => {
     const newErrors: string[] = [];
@@ -283,6 +301,7 @@ export default function AddLiabilityScreen() {
   };
 
   const handleCancel = () => {
+    clearEditData();
     router.push('/(tabs)/patrimony');
   };
 
@@ -321,8 +340,8 @@ export default function AddLiabilityScreen() {
       }
 
       let response;
-      if (isEditMode && params.rawData && debtId) {
-        const originalData = JSON.parse(params.rawData as string);
+      if (isEditMode && debtId && debtTypeParam) {
+        const originalData = await getDebtDetail(accessToken!, debtId, debtTypeParam as any);
 
         const getDebtType = (debtCategoryId: string) => {
           const categoryMap: Record<string, string> = {
@@ -340,13 +359,24 @@ export default function AddLiabilityScreen() {
         };
 
         const debtType = getDebtType(formData.debt_category_id);
-        response = await updateDebt(debtId, debtData, accessToken, debtType);
+        [response] = await Promise.all([
+          updateDebt(debtId, debtData, accessToken, debtType),
+          new Promise(resolve => setTimeout(resolve, 1000))
+        ]);
       } else {
-        response = await createDebt(debtData, accessToken);
+        [response] = await Promise.all([
+          createDebt(debtData, accessToken),
+          new Promise(resolve => setTimeout(resolve, 1000))
+        ]);
       }
 
       if (response.success) {
-        router.push('/(tabs)/patrimony');
+        setLoading(false);
+        setSaved(true);
+        setTimeout(() => {
+          clearEditData();
+          router.push('/(tabs)/patrimony');
+        }, 2500);
       } else {
         setServerError(response.error || t('addLiabilityScreen.errors.creationError'));
       }
@@ -369,6 +399,9 @@ export default function AddLiabilityScreen() {
       onCancel={handleCancel}
       nextButtonTitle={isEditMode ? t('editLiabilityScreen.save_button', 'Guardar cambios') : t('addLiabilityScreen.nextButton')}
       isLoading={loading}
+      isSaved={saved}
+      loadingText={isEditMode ? t('common.saving') : t('common.creating')}
+      savedText={isEditMode ? t('common.saved') : t('common.created')}
       isNextDisabled={errors.length > 0}
       error={serverError || (errors.length > 0 ? errors[0] : null)}
     >

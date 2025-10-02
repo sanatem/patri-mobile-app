@@ -16,13 +16,16 @@ import { useAuth } from '@/providers/AuthProvider';
 import { useFormatValue } from '@/hooks/common/useFormatValue';
 import { FixedAssetFields, PropertyFields, SavingInstrumentFields } from '@/components/patrimony/add-asset';
 import { useTranslation } from 'react-i18next';
+import { useAssetEditStore } from '@/store/assetEditStore';
 
 export default function AddAssetScreen() {
   const { t } = useTranslation();
   const params = useLocalSearchParams();
-  const isEditMode = !!(params.editMode && params.rawData);
-  const assetId = params.assetId ? parseInt(params.assetId as string) : undefined;
-  const assetTypeParam = params.assetType as string | undefined;
+  const { editData, clearEditData } = useAssetEditStore();
+
+  const isEditMode = !!(editData?.editMode || params.editMode);
+  const assetId = editData?.itemId || (params.assetId ? parseInt(params.assetId as string) : undefined);
+  const assetTypeParam = editData?.itemType || (params.assetType as string | undefined);
 
   const ASSET_KIND_OPTIONS = [
     { label: t('addAssetScreen.asset_kind_options.fixed_asset'), value: 'fixed_asset' },
@@ -67,6 +70,7 @@ export default function AddAssetScreen() {
     comments: '',
   });
   const [loading, setLoading] = useState(false);
+  const [saved, setSaved] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
 
   useEffect(() => {
@@ -76,18 +80,35 @@ export default function AddAssetScreen() {
   }, [errors, loading]);
 
   useEffect(() => {
+    return () => {
+      clearEditData();
+    };
+  }, [clearEditData]);
+
+  useEffect(() => {
     const loadAssetDetail = async () => {
-      if (!isEditMode || !params.rawData || !assetId || !accessToken) return;
+      if (!isEditMode || !assetId || !accessToken || !assetTypeParam) return;
 
       try {
-        const assetData = JSON.parse(params.rawData as string);
+        let assetData;
+
+        if (assetTypeParam === 'saving_instrument') {
+          assetData = await getSavingInstrumentDetail(accessToken, assetId);
+        } else {
+          assetData = await getAssetDetail(accessToken, assetId, assetTypeParam as any);
+        }
+
+        if (!assetData) {
+          console.error('No asset data returned');
+          return;
+        }
 
         const getCategoryId = (categoryName: string) => {
           switch(categoryName) {
             case 'Auto o moto': return '1';
-            case 'Joyería': return '2';
-            case 'Electrónicos': return '3';
-            default: return '1';
+            case 'Terreno': return '2';
+            case 'Otros': return '3';
+            default: return '3';
           }
         };
 
@@ -262,8 +283,10 @@ export default function AddAssetScreen() {
       }
     };
 
-    loadAssetDetail();
-  }, [isEditMode, params.rawData, assetId, accessToken]);
+    if (isEditMode) {
+      loadAssetDetail();
+    }
+  }, []);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
@@ -355,6 +378,7 @@ export default function AddAssetScreen() {
   };
 
   const handleCancel = () => {
+    clearEditData();
     router.back();
   };
 
@@ -367,9 +391,8 @@ export default function AddAssetScreen() {
     setLoading(true);
     try {
       if (formData.kind === 'property') {
-        if (isEditMode && params.rawData && assetId) {
-          const originalData = JSON.parse(params.rawData as string);
-          const assetType = formData.property_kind === 'own' ? 'main_home' : 'investment_property';
+        if (isEditMode && assetId && assetTypeParam) {
+          const assetType = assetTypeParam === 'main_home' ? 'main_home' : 'investment_property';
 
           const updatePayload = {
             asset: {
@@ -381,11 +404,18 @@ export default function AddAssetScreen() {
             }
           };
 
-          const response = await updateAsset(assetId, updatePayload, accessToken, assetType);
+          const [response] = await Promise.all([
+            updateAsset(assetId, updatePayload, accessToken, assetType),
+            new Promise(resolve => setTimeout(resolve, 1000))
+          ]);
 
           if (response.success) {
             setLoading(false);
-            router.push('/(tabs)/patrimony');
+            setSaved(true);
+            setTimeout(() => {
+              clearEditData();
+              router.push('/(tabs)/patrimony');
+            }, 1500);
           } else {
             console.error('Property update failed:', response.error);
             setErrors([response.error || t('addAssetScreen.errors.assetCreationError')]);
@@ -405,11 +435,18 @@ export default function AddAssetScreen() {
             }
           };
 
-          const response = await createProperty(propertyData, accessToken);
+          const [response] = await Promise.all([
+            createProperty(propertyData, accessToken),
+            new Promise(resolve => setTimeout(resolve, 1000))
+          ]);
 
           if (response.success) {
             setLoading(false);
-            router.push('/(tabs)/patrimony');
+            setSaved(true);
+            setTimeout(() => {
+              clearEditData();
+              router.push('/(tabs)/patrimony');
+            }, 2500);
           } else {
             console.error('Property creation failed:', response.error);
             setErrors([response.error || t('addAssetScreen.errors.propertyCreationError')]);
@@ -427,29 +464,20 @@ export default function AddAssetScreen() {
           }
         };
 
-        let response;
-        if (isEditMode && params.rawData && assetId) {
-          const originalData = JSON.parse(params.rawData as string);
-
-          const getAssetType = (originalData: any) => {
-            if (originalData.type && originalData.type.startsWith('SavingInstruments::')) {
-              return 'saving_instrument';
-            }
-            if (originalData.location || originalData.square_mts || originalData.apartment_number !== undefined) {
-              return 'investment_property';
-            }
-            return 'fixed_asset';
-          };
-
-          const assetType = getAssetType(originalData);
-          response = await updateAsset(assetId, assetData, accessToken, assetType);
-        } else {
-          response = await createAsset(assetData, accessToken);
-        }
+        const [response] = await Promise.all([
+          isEditMode && assetId && assetTypeParam
+            ? updateAsset(assetId, assetData, accessToken, assetTypeParam as any)
+            : createAsset(assetData, accessToken),
+          new Promise(resolve => setTimeout(resolve, 1000))
+        ]);
 
         if (response.success) {
           setLoading(false);
-          router.push('/(tabs)/patrimony');
+          setSaved(true);
+          setTimeout(() => {
+            clearEditData();
+            router.push('/(tabs)/patrimony');
+          }, 2500);
         } else {
           console.error('Asset operation failed:', response.error);
           setErrors([response.error || t('addAssetScreen.errors.assetCreationError')]);
@@ -692,9 +720,7 @@ export default function AddAssetScreen() {
         }
 
         let response;
-        if (isEditMode && params.rawData && assetId) {
-          const originalData = JSON.parse(params.rawData as string);
-
+        if (isEditMode && assetId) {
           const buildUpdatePayload = (savingInstrument: any) => {
             const basePayload: any = {
               name: savingInstrument.name,
@@ -765,14 +791,24 @@ export default function AddAssetScreen() {
             asset: buildUpdatePayload(payload.saving_instrument)
           };
 
-          response = await updateAsset(assetId, updatePayload, accessToken, 'saving_instrument');
+          [response] = await Promise.all([
+            updateAsset(assetId, updatePayload, accessToken, 'saving_instrument'),
+            new Promise(resolve => setTimeout(resolve, 1000))
+          ]);
         } else {
-          response = await createSavingInstrument(payload, accessToken);
+          [response] = await Promise.all([
+            createSavingInstrument(payload, accessToken),
+            new Promise(resolve => setTimeout(resolve, 1000))
+          ]);
         }
 
         if (response.success) {
           setLoading(false);
-          router.push('/(tabs)/patrimony');
+          setSaved(true);
+          setTimeout(() => {
+            clearEditData();
+            router.push('/(tabs)/patrimony');
+          }, 2500);
         } else {
           console.error('Saving instrument operation failed:', response.error);
           setErrors([response.error || t('addAssetScreen.errors.savingCreationError')]);
@@ -797,6 +833,9 @@ export default function AddAssetScreen() {
       onCancel={handleCancel}
       nextButtonTitle={isEditMode ? t('editAssetScreen.save_button', 'Guardar cambios') : t('addAssetScreen.next_button')}
       isLoading={loading}
+      isSaved={saved}
+      loadingText={isEditMode ? t('common.saving') : t('common.creating')}
+      savedText={isEditMode ? t('common.saved') : t('common.created')}
       isNextDisabled={errors.length > 0}
       error={errors.length > 0 ? errors[0] : null}
     >
@@ -826,6 +865,7 @@ export default function AddAssetScreen() {
           value={formData.kind}
           onSelect={(value) => handleSelectChange('kind', value)}
           placeholder={t('addAssetScreen.fields.asset_kind_placeholder')}
+          disabled={isEditMode}
         />
       </View>
 
@@ -847,6 +887,7 @@ export default function AddAssetScreen() {
           asset_category_id={formData.asset_category_id}
           commercial_value={formData.commercial_value}
           unit={formData.unit}
+          isEditMode={isEditMode}
           onSelectChange={handleSelectChange}
           onNumericInputChange={handleNumericInputChange}
           formatValue={formatValue}

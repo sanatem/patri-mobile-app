@@ -2,12 +2,14 @@ import React from 'react';
 import { TouchableOpacity, Text, ActivityIndicator, View, StyleSheet } from 'react-native';
 import { cn } from '@/lib/utils';
 import Colors from '@/constants/Colors';
+import { CheckCircle } from 'lucide-react-native';
 
 type ButtonProps = {
   title: string;
   onPress: () => void;
-  variant?: 'primary' | 'outline' | 'ghost' | 'disabled';
+  variant?: 'primary' | 'outline' | 'ghost' | 'disabled' | 'success';
   loading?: boolean;
+  saved?: boolean;
   disabled?: boolean;
   fullWidth?: boolean;
   size?: 'small' | 'medium' | 'large';
@@ -43,6 +45,10 @@ const buttonStyles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 16,
   },
+  saved: {
+    backgroundColor: Colors.success[500],
+    borderRadius: 16,
+  },
 });
 
 export function Button({
@@ -50,6 +56,7 @@ export function Button({
   onPress,
   variant = 'primary',
   loading = false,
+  saved = false,
   disabled = false,
   fullWidth = false,
   icon = null,
@@ -70,11 +77,16 @@ export function Button({
       return 'text-gray-500 border border-gray-300';
     }
     
+    if (saved) {
+      return 'text-white';
+    }
+
     const variants: Record<typeof variant, string> = {
       primary: 'bg-primary-500 text-white',
       outline: 'border border-primary-500 text-primary-500 bg-white',
       ghost: 'bg-transparent text-primary-500 underline',
-      disabled: 'border border-gray-300 text-gray-400 bg-white'
+      disabled: 'border border-gray-300 text-gray-400 bg-white',
+      success: 'text-white'
     };
     return variants[variant];
   };
@@ -92,8 +104,12 @@ export function Button({
   };
 
   const getDisabledStyle = () => {
+    if (saved) {
+      return buttonStyles.saved;
+    }
+
     if (!disabled) return {};
-    
+
     if (variant === 'primary') {
       return buttonStyles.disabledPrimary;
     }
@@ -119,7 +135,7 @@ export function Button({
   return (
     <TouchableOpacity
       onPress={onPress}
-      disabled={disabled || loading}
+      disabled={disabled || loading || saved}
       style={[buttonStyles.base, getDisabledStyle()]}
       className={cn(
         baseStyles,
@@ -130,6 +146,13 @@ export function Button({
     >
       {loading ? (
         <ActivityIndicator color={variant === 'primary' ? '#fff' : Colors.secondary[500]} />
+      ) : saved ? (
+        <View className="flex-row items-center">
+          <CheckCircle size={20} color="#fff" style={{ marginRight: 8 }} />
+          <Text className={cn('text-sm font-medium text-white')}>
+            {title}
+          </Text>
+        </View>
       ) : (
         <View className="flex-row items-center">
           {icon && (
@@ -145,7 +168,7 @@ export function Button({
                 : icon}
             </View>
           )}
-          <Text 
+          <Text
             className={cn('text-sm font-medium', getTextColor())}
             style={getDisabledTextStyle()}
           >

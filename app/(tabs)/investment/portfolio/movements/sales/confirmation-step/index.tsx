@@ -50,6 +50,7 @@ export default function ConfirmationStep({
   const { accessToken, user } = useAuth();
   const { goals } = useGoals();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
 
   const handleFinish = async () => {
     if (!accessToken || !user) {
@@ -103,22 +104,30 @@ export default function ConfirmationStep({
         ...(destino === 'bank-account' ? { bank_account_id: bankAccountId } : {})
       };
 
-      const result = await createSaleService.createSale(saleData, accessToken);
+      await Promise.all([
+        createSaleService.createSale(saleData, accessToken),
+        new Promise(resolve => setTimeout(resolve, 1000))
+      ]);
 
-      Alert.alert(
-        '',
-        'La solicitud de retiro ha sido creada exitosamente',
-        [{
-          text: 'OK',
-          onPress: () => {
-            try {
-              onFinish();
-            } catch (error) {
-              console.error('Navigation error:', error);
+      setIsSubmitting(false);
+      setIsSaved(true);
+
+      setTimeout(() => {
+        Alert.alert(
+          '',
+          'La solicitud de retiro ha sido creada exitosamente',
+          [{
+            text: 'OK',
+            onPress: () => {
+              try {
+                onFinish();
+              } catch (error) {
+                console.error('Navigation error:', error);
+              }
             }
-          }
-        }]
-      );
+          }]
+        );
+      }, 2500);
 
     } catch (error) {
       console.error('Error creating sale:', error);
@@ -172,7 +181,11 @@ export default function ConfirmationStep({
         onPrevious={onPrev}
         nextButtonTitle={t('salesFlow.finish')}
         previousButtonTitle={t('salesFlow.previous')}
-        isNextDisabled={isSubmitting}
+        isLoading={isSubmitting}
+        isSaved={isSaved}
+        loadingText={t('common.creatingRequest')}
+        savedText={t('common.requestCreated')}
+        isNextDisabled={isSubmitting || isSaved}
         showLogo={false}
       >
         <Card className="bg-gray-50 rounded-xl p-4">
@@ -221,7 +234,11 @@ export default function ConfirmationStep({
       onPrevious={onPrev}
       nextButtonTitle={t('salesFlow.finish')}
       previousButtonTitle={t('salesFlow.previous')}
-      isNextDisabled={isSubmitting}
+      isLoading={isSubmitting}
+      isSaved={isSaved}
+      loadingText={t('common.creatingRequest')}
+      savedText={t('common.requestCreated')}
+      isNextDisabled={isSubmitting || isSaved}
       showLogo={false}
     >
       <Card className="bg-gray-50 rounded-xl p-4">

@@ -11,6 +11,7 @@ import { useAuth } from '@/providers/AuthProvider';
 import AreaChart from '@/components/patrimony/AreaChart';
 import { PatrimonySummary } from '@/components/patrimony/PatrimonySummary';
 import { useChartRangeStore, RangeSize } from '@/store/chartRangeStore';
+import { useAssetEditStore } from '@/store/assetEditStore';
 import { Asset, Liability } from '@/types';
 import { patrimonyService } from '@/services/patrimony/get-patrimony';
 import { useAssets, useDebts } from '@/hooks/patrimony';
@@ -46,6 +47,7 @@ export default function PatrimonyScreen() {
   const { shouldBlockTab, loading: subscriptionLoading } = useSubscriptionStatus();
   const { userData, loading: userLoading } = useUserData();
   const { rangeSize, setRangeSize } = useChartRangeStore();
+  const { setEditData } = useAssetEditStore();
   const router = useRouter();
   const { t } = useTranslation();
 
@@ -76,6 +78,7 @@ export default function PatrimonyScreen() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<any>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isLoadingDetail, setIsLoadingDetail] = useState(false);
 
   const overlayAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(0)).current;  
@@ -311,49 +314,28 @@ export default function PatrimonyScreen() {
     setShowAddModal(false);
   };
 
-  const handleItemPress = async (item: any) => {
-    if (!accessToken) return;
+  const handleItemPress = (item: any) => {
+    if (!accessToken || isLoadingDetail) return;
 
     try {
       if (activeTab === 'assets') {
-        let assetDetail;
-
-        if (item.type === 'saving_instrument') {
-          const { getSavingInstrumentDetail } = await import('@/services/investment/saving-instruments/get-saving-instrument-detail');
-          assetDetail = await getSavingInstrumentDetail(accessToken, item.id);
-        } else {
-          const { getAssetDetail } = await import('@/services/patrimony/get-asset-detail');
-          assetDetail = await getAssetDetail(accessToken, item.id, item.type);
-        }
-
-        if (assetDetail) {
-          router.push({
-            pathname: '/(tabs)/patrimony/add-asset',
-            params: {
-              editMode: 'true',
-              assetId: item.id,
-              assetType: item.type,
-              rawData: JSON.stringify(assetDetail)
-            }
-          });
-        }
+        setEditData({
+          editMode: true,
+          itemId: parseInt(item.id),
+          itemType: item.type
+        });
+        router.push('/(tabs)/patrimony/add-asset');
       } else {
-        const { getDebtDetail } = await import('@/services/patrimony/get-debt-detail');
-        const debtDetail = await getDebtDetail(accessToken, item.id, item.type);
-
-        if (debtDetail) {
-          router.push({
-            pathname: '/(tabs)/patrimony/add-liability',
-            params: {
-              editMode: 'true',
-              debtId: item.id,
-              rawData: JSON.stringify(debtDetail)
-            }
-          });
-        }
+        setEditData({
+          editMode: true,
+          itemId: parseInt(item.id),
+          itemType: item.type
+        });
+        router.push('/(tabs)/patrimony/add-liability');
       }
     } catch (error) {
-      console.error('Error fetching item detail:', error);
+      console.error('Error navigating to edit:', error);
+      Alert.alert('Error', 'Ocurrió un error. Por favor intenta nuevamente.');
     }
   };
 
@@ -1073,9 +1055,10 @@ export default function PatrimonyScreen() {
               left: 0,
               right: 0,
               bottom: 0,
-              backgroundColor: overlayAnim.interpolate({
+              backgroundColor: 'black',
+              opacity: overlayAnim.interpolate({
                 inputRange: [0, 1],
-                outputRange: ['rgba(0,0,0,0)', 'rgba(0,0,0,0.45)'],
+                outputRange: [0, 0.45],
               }),
             }}
           >
@@ -1139,6 +1122,30 @@ export default function PatrimonyScreen() {
               </TouchableOpacity>
             ))}
           </Animated.View>
+        </View>
+      )}
+
+      {isLoadingDetail && (
+        <View style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.3)',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 2000
+        }}>
+          <View style={{
+            backgroundColor: 'white',
+            borderRadius: 12,
+            padding: 24,
+            alignItems: 'center'
+          }}>
+            <ActivityIndicator size="large" color={Colors.primary[500]} />
+            <Text style={{ marginTop: 12, color: Colors.primary[500] }}>Cargando...</Text>
+          </View>
         </View>
       )}
     </Container>
