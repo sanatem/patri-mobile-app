@@ -340,8 +340,9 @@ export interface ApiDebt {
   installment_amount: number;
   installments_quantity: number;
   unit: string;
-  cae_percentage: number;
-  comments: string;
+  cae_percentage: number | string;
+  comments: string | null;
+  property_id?: number | null;
   created_at: string;
   updated_at: string;
 }

@@ -10,6 +10,8 @@ import Colors from '@/constants/Colors';
 import { createAsset } from '@/services/patrimony/create-asset';
 import { updateAsset } from '@/services/patrimony/update-asset';
 import { createProperty } from '@/services/properties/create-property';
+import { getAssetDetail } from '@/services/patrimony/get-asset-detail';
+import { getSavingInstrumentDetail } from '@/services/investment/saving-instruments/get-saving-instrument-detail';
 import { useAuth } from '@/providers/AuthProvider';
 import { useFormatValue } from '@/hooks/common/useFormatValue';
 import { FixedAssetFields, PropertyFields, SavingInstrumentFields } from '@/components/patrimony/add-asset';
@@ -19,6 +21,8 @@ export default function AddAssetScreen() {
   const { t } = useTranslation();
   const params = useLocalSearchParams();
   const isEditMode = !!(params.editMode && params.rawData);
+  const assetId = params.assetId ? parseInt(params.assetId as string) : undefined;
+  const assetTypeParam = params.assetType as string | undefined;
 
   const ASSET_KIND_OPTIONS = [
     { label: t('addAssetScreen.asset_kind_options.fixed_asset'), value: 'fixed_asset' },
@@ -72,7 +76,9 @@ export default function AddAssetScreen() {
   }, [errors, loading]);
 
   useEffect(() => {
-    if (isEditMode && params.rawData) {
+    const loadAssetDetail = async () => {
+      if (!isEditMode || !params.rawData || !assetId || !accessToken) return;
+
       try {
         const assetData = JSON.parse(params.rawData as string);
 
@@ -92,9 +98,11 @@ export default function AddAssetScreen() {
             case 'SavingInstruments::FixedTermDeposit': return 'fixed_term_deposit';
             case 'SavingInstruments::AfpAccountTwo': return 'afp_account_two';
             case 'SavingInstruments::ApvAccount': return 'apv_account';
+            case 'SavingInstruments::CashAccount': return 'cash_account';
             case 'SavingInstruments::Crowdfunding': return 'crowdfunding';
             case 'SavingInstruments::Cryptocurrency': return 'cryptocurrency';
             case 'SavingInstruments::Share': return 'investment_fund';
+            case 'SavingInstruments::InvestmentFund': return 'mutual_fund_instrument';
             case 'SavingInstruments::OtherSavingInstrument': return 'other';
             default: return '';
           }
@@ -142,33 +150,120 @@ export default function AddAssetScreen() {
           baseFormData.kind = 'investment';
           baseFormData.investment_type = mapSavingInstrumentType(assetData.type);
           baseFormData.commercial_value = assetData.total_amount?.toString() || '';
-        }
-        else if (assetData.location !== undefined || assetData.square_mts !== undefined) {
-          assetKind = 'property';
-          baseFormData.kind = 'property';
-          baseFormData.location = assetData.location || '';
-          baseFormData.square_mts = assetData.square_mts?.toString() || '';
-          baseFormData.commercial_value = assetData.commercial_value?.toString() || '';
 
-          if (assetData.property_type) {
-            baseFormData.property_kind = assetData.property_type === 'own' ? 'own' : 'rent';
-          } else {
-            baseFormData.property_kind = assetData.kind === 'leased' || assetData.kind === 'own' ? 'own' : 'rent';
+          try {
+            const detailData = await getSavingInstrumentDetail(accessToken, assetId);
+            if (detailData) {
+              baseFormData.name = detailData.name || baseFormData.name;
+              baseFormData.commercial_value = detailData.total_amount?.toString() || baseFormData.commercial_value;
+              baseFormData.unit = detailData.unit || baseFormData.unit;
+
+              const actable = detailData.actable;
+
+              if (actable.crowdfunding_institution_id) {
+                baseFormData.crowdfunding_institution = actable.crowdfunding_institution_id?.toString() || '';
+                baseFormData.crowdfunding_credit_id = actable.crowdfunding_credit_id?.toString() || '';
+                baseFormData.period_return_rate = actable.period_return_rate?.toString() || '';
+                baseFormData.due_date = actable.due_date || '';
+              }
+
+              if (actable.afp_institution_id || actable.apv_institution_id) {
+                baseFormData.institution = (actable.afp_institution_id || actable.apv_institution_id)?.toString() || '';
+                baseFormData.tax_regime = actable.tax_regime || '';
+
+                if (actable.funds) {
+                  const fundEntries = Object.entries(actable.funds);
+                  if (fundEntries.length > 0) {
+                    const [fund1Code, fund1Percentage] = fundEntries[0];
+                    baseFormData.fund1 = `fondo_${fund1Code.toLowerCase()}`;
+                    baseFormData.fund1_percentage = fund1Percentage?.toString() || '';
+                  }
+                  if (fundEntries.length > 1) {
+                    const [fund2Code, fund2Percentage] = fundEntries[1];
+                    baseFormData.fund2 = `fondo_${fund2Code.toLowerCase()}`;
+                    baseFormData.fund2_percentage = fund2Percentage?.toString() || '';
+                  }
+                }
+              }
+
+              if (actable.bank_id) {
+                baseFormData.bank = actable.bank_id?.toString() || '';
+                baseFormData.deposit_type = actable.deposit_kind || '';
+                baseFormData.opening_date = actable.start_date || '';
+                baseFormData.maturity_date = actable.end_date || '';
+              }
+
+              if (actable.broker_id) {
+                baseFormData.brokerage = actable.broker_id?.toString() || '';
+              }
+
+              const comments = actable.comments || detailData.comments || '';
+              if (comments) {
+                baseFormData.comments = comments;
+                baseFormData.description = comments;
+              }
+            }
+          } catch (error) {
+            console.error('Error fetching saving instrument detail:', error);
           }
         }
-        
+        else if (assetData.location !== undefined || assetData.square_mts !== undefined || assetTypeParam === 'main_home' || assetTypeParam === 'investment_property') {
+          assetKind = 'property';
+          baseFormData.kind = 'property';
+
+          let assetType: 'main_home' | 'investment_property' = 'main_home';
+          if (assetTypeParam === 'main_home' || assetTypeParam === 'investment_property') {
+            assetType = assetTypeParam;
+          } else if (assetData.property_type) {
+            assetType = assetData.property_type === 'own' ? 'main_home' : 'investment_property';
+          } else {
+            assetType = assetData.kind === 'leased' || assetData.kind === 'own' ? 'main_home' : 'investment_property';
+          }
+
+          try {
+            const detailData = await getAssetDetail(accessToken, assetId, assetType);
+            if (detailData && 'location' in detailData) {
+              baseFormData.location = detailData.location || '';
+              baseFormData.square_mts = detailData.square_mts?.toString() || '';
+              baseFormData.commercial_value = detailData.commercial_value?.toString() || '';
+              baseFormData.property_kind = assetType === 'main_home' ? 'own' : 'rent';
+            }
+          } catch (error) {
+            console.error('Error fetching property detail:', error);
+            baseFormData.location = assetData.location || '';
+            baseFormData.square_mts = assetData.square_mts?.toString() || '';
+            baseFormData.commercial_value = assetData.commercial_value?.toString() || '';
+            baseFormData.property_kind = assetType === 'main_home' ? 'own' : 'rent';
+          }
+        }
         else if (assetData.kind === 'in_use' || assetData.category) {
           assetKind = 'fixed_asset';
           baseFormData.kind = 'fixed_asset';
-          baseFormData.commercial_value = assetData.commercial_value?.toString() || '';
+
+          try {
+            const detailData = await getAssetDetail(accessToken, assetId, 'fixed_asset');
+            if (detailData && 'category' in detailData) {
+              baseFormData.name = detailData.name || '';
+              baseFormData.commercial_value = detailData.commercial_value?.toString() || '';
+              baseFormData.unit = detailData.unit || 'clp';
+              baseFormData.comments = detailData.comments || '';
+              baseFormData.asset_category_id = getCategoryId(detailData.category);
+            }
+          } catch (error) {
+            console.error('Error fetching fixed asset detail:', error);
+            console.log(error);
+            baseFormData.commercial_value = assetData.commercial_value?.toString() || '';
+          }
         }
 
         setFormData(baseFormData);
       } catch (error) {
         console.error('Error parsing asset data:', error);
       }
-    }
-  }, [isEditMode, params.rawData]);
+    };
+
+    loadAssetDetail();
+  }, [isEditMode, params.rawData, assetId, accessToken]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
@@ -272,7 +367,7 @@ export default function AddAssetScreen() {
     setLoading(true);
     try {
       if (formData.kind === 'property') {
-        if (isEditMode && params.rawData) {
+        if (isEditMode && params.rawData && assetId) {
           const originalData = JSON.parse(params.rawData as string);
           const assetType = formData.property_kind === 'own' ? 'main_home' : 'investment_property';
 
@@ -286,7 +381,7 @@ export default function AddAssetScreen() {
             }
           };
 
-          const response = await updateAsset(originalData.id, updatePayload, accessToken, assetType);
+          const response = await updateAsset(assetId, updatePayload, accessToken, assetType);
 
           if (response.success) {
             setLoading(false);
@@ -333,7 +428,7 @@ export default function AddAssetScreen() {
         };
 
         let response;
-        if (isEditMode && params.rawData) {
+        if (isEditMode && params.rawData && assetId) {
           const originalData = JSON.parse(params.rawData as string);
 
           const getAssetType = (originalData: any) => {
@@ -347,7 +442,7 @@ export default function AddAssetScreen() {
           };
 
           const assetType = getAssetType(originalData);
-          response = await updateAsset(originalData.id, assetData, accessToken, assetType);
+          response = await updateAsset(assetId, assetData, accessToken, assetType);
         } else {
           response = await createAsset(assetData, accessToken);
         }
@@ -597,7 +692,7 @@ export default function AddAssetScreen() {
         }
 
         let response;
-        if (isEditMode && params.rawData) {
+        if (isEditMode && params.rawData && assetId) {
           const originalData = JSON.parse(params.rawData as string);
 
           const buildUpdatePayload = (savingInstrument: any) => {
@@ -670,7 +765,7 @@ export default function AddAssetScreen() {
             asset: buildUpdatePayload(payload.saving_instrument)
           };
 
-          response = await updateAsset(originalData.id, updatePayload, accessToken, 'saving_instrument');
+          response = await updateAsset(assetId, updatePayload, accessToken, 'saving_instrument');
         } else {
           response = await createSavingInstrument(payload, accessToken);
         }
@@ -741,6 +836,7 @@ export default function AddAssetScreen() {
           property_kind={formData.property_kind}
           commercial_value={formData.commercial_value}
           unit={formData.unit}
+          isEditMode={isEditMode}
           onInputChange={handleInputChange}
           onSelectChange={handleSelectChange}
           onNumericInputChange={handleNumericInputChange}
@@ -781,6 +877,7 @@ export default function AddAssetScreen() {
           fund={formData.fund}
           series={formData.series}
           comments={formData.comments}
+          isEditMode={isEditMode}
           onInputChange={handleInputChange}
           onSelectChange={handleSelectChange}
           onNumericInputChange={handleNumericInputChange}

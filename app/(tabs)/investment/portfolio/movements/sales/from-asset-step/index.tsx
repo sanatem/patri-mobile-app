@@ -58,7 +58,11 @@ export default function FromAssetStep({
         totalAvailable: 0,
         portfolioOptions: [],
         individualFunds: [],
-        brokerPortfoliosCount: 0
+        brokerPortfoliosCount: 0,
+        minimumProportionalAmount: 0,
+        maximumProportionalAmount: 0,
+        fundMinimums: {},
+        fundMaximums: {}
       };
     }
 
@@ -66,6 +70,19 @@ export default function FromAssetStep({
       sum + (asset.value || 0), 0) || 0;
 
     const brokerPortfoliosCount = metaDetails.assets?.length || 0;
+
+    const minimumProportionalAmount = metaDetails.assets?.reduce((sum: number, asset) =>
+      sum + (asset.quotaValue || 0), 0) || 0;
+
+    const maximumProportionalAmount = metaDetails.assets?.reduce((sum: number, asset) =>
+      sum + (asset.value || 0), 0) || 0;
+
+    const fundMinimums: Record<string, number> = {};
+    const fundMaximums: Record<string, number> = {};
+    metaDetails.assets?.forEach((asset) => {
+      fundMinimums[`fund-${asset.id}`] = asset.quotaValue || 0;
+      fundMaximums[`fund-${asset.id}`] = asset.value || 0;
+    });
 
     const portfolioOptions = [
       {
@@ -97,7 +114,11 @@ export default function FromAssetStep({
       totalAvailable,
       portfolioOptions,
       individualFunds,
-      brokerPortfoliosCount
+      brokerPortfoliosCount,
+      minimumProportionalAmount,
+      maximumProportionalAmount,
+      fundMinimums,
+      fundMaximums
     };
   }, [metaDetails, t, formatValue]);
 
@@ -110,8 +131,35 @@ export default function FromAssetStep({
   }, [activo, assetData.totalAvailable, setAssetAmount]);
 
   const requiresAmountInput = activo && activo !== 'all-portfolio';
+
+  const getMinimumAmount = () => {
+    if (activo === 'proportional-withdrawal') {
+      return assetData.minimumProportionalAmount;
+    }
+    if (activo && activo.startsWith('fund-')) {
+      return assetData.fundMinimums[activo] || 0;
+    }
+    return 0;
+  };
+
+  const getMaximumAmount = () => {
+    if (activo === 'proportional-withdrawal') {
+      return assetData.maximumProportionalAmount;
+    }
+    if (activo && activo.startsWith('fund-')) {
+      return assetData.fundMaximums[activo] || 0;
+    }
+    return 0;
+  };
+
+  const minimumAmount = getMinimumAmount();
+  const maximumAmount = getMaximumAmount();
+  const currentAmount = parseFloat(assetAmount) || 0;
+
   const isNextDisabled = !activo ||
-    (requiresAmountInput && (!assetAmount || parseFloat(assetAmount) <= 0)) ||
+    (requiresAmountInput && (!assetAmount || currentAmount <= 0)) ||
+    (requiresAmountInput && currentAmount < minimumAmount) ||
+    (requiresAmountInput && currentAmount > maximumAmount) ||
     (requiresAmountInput && destino === 'bank-account' && (!assetBankAccount || loadingBankAccounts)) ||
     (activo === 'all-portfolio' && destino === 'bank-account' && (!assetBankAccount || loadingBankAccounts)) ||
     (activo === 'all-portfolio' && (!assetAmount || parseFloat(assetAmount) <= 0));
@@ -152,6 +200,14 @@ export default function FromAssetStep({
             placeholder="$0"
             keyboardType="numeric"
             className="mb-4"
+            maxLength={18}
+            error={
+              currentAmount > 0 && currentAmount < minimumAmount
+                ? `Monto mínimo: ${formatValue(minimumAmount.toString())}`
+                : currentAmount > maximumAmount
+                ? `Monto máximo: ${formatValue(maximumAmount.toString())}`
+                : undefined
+            }
           />
 
           {destino === 'bank-account' && (

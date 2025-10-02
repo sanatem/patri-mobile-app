@@ -83,7 +83,7 @@ export default function AssetSelectionList({
             showRadioButton={true}
             isExpandable={false}
             showDate={option.id === 'portfolio-completo'}
-            showValue={option.id !== 'retiro-proporcional'}
+            showValue={option.id !== 'proportional-withdrawal'}
           />
         ))}
       </View>

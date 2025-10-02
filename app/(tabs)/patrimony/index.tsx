@@ -311,25 +311,49 @@ export default function PatrimonyScreen() {
     setShowAddModal(false);
   };
 
-  const handleItemPress = (item: any) => {
-    if (activeTab === 'assets') {
-      router.push({
-        pathname: '/(tabs)/patrimony/add-asset',
-        params: {
-          editMode: 'true',
-          assetId: item.id,
-          rawData: JSON.stringify(item.rawData)
+  const handleItemPress = async (item: any) => {
+    if (!accessToken) return;
+
+    try {
+      if (activeTab === 'assets') {
+        let assetDetail;
+
+        if (item.type === 'saving_instrument') {
+          const { getSavingInstrumentDetail } = await import('@/services/investment/saving-instruments/get-saving-instrument-detail');
+          assetDetail = await getSavingInstrumentDetail(accessToken, item.id);
+        } else {
+          const { getAssetDetail } = await import('@/services/patrimony/get-asset-detail');
+          assetDetail = await getAssetDetail(accessToken, item.id, item.type);
         }
-      });
-    } else {
-      router.push({
-        pathname: '/(tabs)/patrimony/add-liability',
-        params: {
-          editMode: 'true',
-          debtId: item.id,
-          rawData: JSON.stringify(item.rawData)
+
+        if (assetDetail) {
+          router.push({
+            pathname: '/(tabs)/patrimony/add-asset',
+            params: {
+              editMode: 'true',
+              assetId: item.id,
+              assetType: item.type,
+              rawData: JSON.stringify(assetDetail)
+            }
+          });
         }
-      });
+      } else {
+        const { getDebtDetail } = await import('@/services/patrimony/get-debt-detail');
+        const debtDetail = await getDebtDetail(accessToken, item.id, item.type);
+
+        if (debtDetail) {
+          router.push({
+            pathname: '/(tabs)/patrimony/add-liability',
+            params: {
+              editMode: 'true',
+              debtId: item.id,
+              rawData: JSON.stringify(debtDetail)
+            }
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching item detail:', error);
     }
   };
 
@@ -464,6 +488,7 @@ export default function PatrimonyScreen() {
           text: '0.00%',
           variant: 'positive' as const
         },
+        type: 'fixed_asset',
         rawData: asset
       })),
 
@@ -480,6 +505,7 @@ export default function PatrimonyScreen() {
             text: '0.00%',
             variant: 'positive' as const
           },
+          type: 'saving_instrument',
           rawData: asset
         };
       }),
@@ -499,6 +525,7 @@ export default function PatrimonyScreen() {
           text: '0.00%',
           variant: 'positive' as const
         },
+        type: 'investment_property',
         rawData: { ...asset, property_type: 'rent' }
       })),
 
@@ -517,6 +544,7 @@ export default function PatrimonyScreen() {
           text: '0.00%',
           variant: 'positive' as const
         },
+        type: 'main_home',
         rawData: { ...asset, property_type: 'own' }
       }))
     ];
@@ -527,6 +555,21 @@ export default function PatrimonyScreen() {
     );
 
     return filteredAssets;
+  };
+
+  const getDebtTypeFromCategory = (categoryName: string): string => {
+    const nameMap: Record<string, string> = {
+      'automotriz': 'automotive_credit',
+      'caja de compensación': 'consumer_credit',
+      'consumo': 'consumer_credit',
+      'crédito universitario': 'commercial_credit',
+      'hipotecario de uso': 'mortgage_credit',
+      'hipotecario de inversión': 'mortgage',
+      'línea de crédito': 'credit_line',
+      'préstamos familiares o amigos': 'family_loan',
+      'tarjeta de crédito': 'credit_card'
+    };
+    return nameMap[categoryName?.toLowerCase()] || 'other';
   };
 
   const transformApiDebts = () => {
@@ -545,6 +588,7 @@ export default function PatrimonyScreen() {
         text: `${debt.cae_percentage}% CAE`,
         variant: 'negative' as const
       },
+      type: getDebtTypeFromCategory(debt.debt_category),
       rawData: debt
     })).filter(debt =>
       debt.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
