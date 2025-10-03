@@ -346,6 +346,10 @@ export default function PatrimonyScreen() {
 
   const handleConfirmDelete = async () => {
     if (!itemToDelete) return;
+    if (!accessToken) {
+      Alert.alert('Error', 'Sesión no disponible. Intenta nuevamente.');
+      return;
+    }
 
     setIsDeleting(true);
 
@@ -369,7 +373,7 @@ export default function PatrimonyScreen() {
         };
 
         const assetType = getAssetType(itemToDelete.rawData, itemToDelete.title);
-        const response = await deleteAsset(itemToDelete.rawData.id, accessToken!, assetType);
+        const response = await deleteAsset(itemToDelete.rawData.id, accessToken, assetType);
 
         if (response.success) {
           Alert.alert('Éxito', 'Activo eliminado correctamente');
@@ -382,7 +386,7 @@ export default function PatrimonyScreen() {
           return;
         }
       } else {
-        const response = await deleteDebt(itemToDelete.rawData.id, accessToken!);
+        const response = await deleteDebt(itemToDelete.rawData.id, accessToken);
         if (response.success) {
           Alert.alert('Éxito', 'Pasivo eliminado correctamente');
         } else {
