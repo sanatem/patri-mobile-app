@@ -80,7 +80,14 @@ export default function ConfirmationStep({
         ? parseInt(cashBankAccount || '0')
         : parseInt(assetBankAccount || '0');
 
-      // Determinar wallet_container basado en el activo seleccionado
+      if (
+        destino === 'bank-account' &&
+        (Number.isNaN(bankAccountId) || bankAccountId <= 0)
+      ) {
+        Alert.alert('Error', 'Debes seleccionar una cuenta bancaria válida');
+        return;
+      }
+
       let walletContainer: string | number;
       if (activo === 'all-portfolio') {
         walletContainer = 'all';
