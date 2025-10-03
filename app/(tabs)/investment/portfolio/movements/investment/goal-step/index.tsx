@@ -144,6 +144,9 @@ export default function GoalSelectionStep({
     }
   };
 
+  const MINIMUM_DEPOSIT_AMOUNT = 10000;
+  const currentAmount = parseFloat(amount) || 0;
+
   const handleContinue = () => {
     if (onContinue) {
       onContinue();
@@ -168,7 +171,7 @@ export default function GoalSelectionStep({
       onCancel={onCancel}
       nextButtonTitle={t('common.continue')}
       cancelButtonTitle={t('common.cancel')}
-      isNextDisabled={!selectedGoal || !amount}
+      isNextDisabled={!selectedGoal || !amount || currentAmount < MINIMUM_DEPOSIT_AMOUNT}
       showLogo={false}
     >
       <Select
@@ -211,6 +214,8 @@ export default function GoalSelectionStep({
           onChangeText={handleAmountChange}
           keyboardType="number-pad"
           placeholder={t('amountStep.placeholder')}
+          maxLength={18}
+          error={currentAmount > 0 && currentAmount < MINIMUM_DEPOSIT_AMOUNT ? `Monto mínimo: ${formatValue(MINIMUM_DEPOSIT_AMOUNT.toString())}` : undefined}
         />
       </View>
 
@@ -224,9 +229,10 @@ export default function GoalSelectionStep({
           <Animated.View style={[
             selectStyles.overlay,
             {
-              backgroundColor: overlayAnim.interpolate({
+              backgroundColor: 'black',
+              opacity: overlayAnim.interpolate({
                 inputRange: [0, 1],
-                outputRange: ['rgba(0,0,0,0)', 'rgba(0,0,0,0.45)'],
+                outputRange: [0, 0.45],
               }),
             },
           ]}>

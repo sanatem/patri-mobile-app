@@ -128,7 +128,7 @@ export function Input({
         )}
       </Animated.View>
 
-      {error && <Text className="text-sm text-[#DC2626] mt-1 font-regular">{error}</Text>}
+      {error && <Text className="font-regular text-xs mt-1" style={{ color: Colors.primary[500] }}>{error}</Text>}
     </View>
   );
 }

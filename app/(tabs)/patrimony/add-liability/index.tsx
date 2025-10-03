@@ -10,18 +10,24 @@ import { HypothecaryFields } from '@/components/patrimony/add-liability';
 import Colors from '@/constants/Colors';
 import { createDebt } from '@/services/patrimony/create-debt';
 import { updateDebt } from '@/services/patrimony/update-debt';
+import { getDebtDetail } from '@/services/patrimony/get-debt-detail';
 import { getProperties  } from '@/services/properties/get-properties';
 import { useAuth } from '@/providers/AuthProvider';
 import { useFormatValue } from '@/hooks/common/useFormatValue';
 import { ApiProperty } from '@/types/api';
 import { useTranslation } from 'react-i18next';
+import { useAssetEditStore } from '@/store/assetEditStore';
 
 const cleanIntegerValue = (value: string) => value.replace(/[^\d]/g, '');
 
 export default function AddLiabilityScreen() {
   const { t } = useTranslation();
   const params = useLocalSearchParams();
-  const isEditMode = !!(params.editMode && params.rawData);
+  const { editData, clearEditData } = useAssetEditStore();
+
+  const isEditMode = !!(editData?.editMode || params.editMode);
+  const debtId = editData?.itemId || (params.debtId ? parseInt(params.debtId as string) : undefined);
+  const debtTypeParam = editData?.itemType;
 
   const DEBT_CATEGORY_OPTIONS = [
     { label: t('addLiabilityScreen.debtCategoryOptions.1'), value: '1' },
@@ -58,6 +64,7 @@ export default function AddLiabilityScreen() {
     property_square_mts: '',
   });
   const [loading, setLoading] = useState(false);
+  const [saved, setSaved] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
   const [serverError, setServerError] = useState<string | null>(null);
   const [properties, setProperties] = useState<ApiProperty[]>([]);
@@ -121,9 +128,22 @@ export default function AddLiabilityScreen() {
   }, [formData.property_associated, accessToken]);
 
   useEffect(() => {
-    if (isEditMode && params.rawData) {
+    return () => {
+      clearEditData();
+    };
+  }, [clearEditData]);
+
+  useEffect(() => {
+    const loadDebtDetail = async () => {
+      if (!isEditMode || !debtId || !accessToken || !debtTypeParam) return;
+
       try {
-        const debtData = JSON.parse(params.rawData as string);
+        const debtData = await getDebtDetail(accessToken, debtId, debtTypeParam as any);
+
+        if (!debtData) {
+          console.error('No debt data returned');
+          return;
+        }
 
         const getDebtCategoryId = (categoryName: string) => {
           switch(categoryName?.toLowerCase()) {
@@ -140,9 +160,24 @@ export default function AddLiabilityScreen() {
           }
         };
 
-        setFormData({
+        const getDebtType = (debtCategoryId: string) => {
+          const categoryMap: Record<string, string> = {
+            '1': 'automotive_credit',
+            '2': 'consumer_credit',
+            '3': 'consumer_credit',
+            '4': 'commercial_credit',
+            '5': 'mortgage_credit',
+            '6': 'mortgage',
+            '7': 'credit_line',
+            '8': 'family_loan',
+            '9': 'credit_card'
+          };
+          return categoryMap[debtCategoryId] || 'other';
+        };
+
+        let baseFormData = {
           name: debtData.name || '',
-          debt_category_id: debtData.debt_category_id?.toString() || getDebtCategoryId(debtData.debt_category || ''),
+          debt_category_id: getDebtCategoryId(debtData.debt_category || ''),
           amount: debtData.amount?.toString() || '',
           unit: debtData.unit || 'clp',
           installments_quantity: debtData.installments_quantity?.toString() || '',
@@ -154,12 +189,44 @@ export default function AddLiabilityScreen() {
           property_commercial_value: '',
           property_unit: 'clp',
           property_square_mts: '',
-        });
+        };
+
+        try {
+          const categoryId = getDebtCategoryId(debtData.debt_category || '');
+          const debtType = getDebtType(categoryId) as any;
+
+          const detailData = await getDebtDetail(accessToken, debtId, debtType);
+          if (detailData) {
+            baseFormData.name = detailData.name || baseFormData.name;
+            baseFormData.amount = detailData.amount?.toString() || baseFormData.amount;
+            baseFormData.unit = detailData.unit || baseFormData.unit;
+            baseFormData.installments_quantity = detailData.installments_quantity?.toString() || baseFormData.installments_quantity;
+            baseFormData.installment_amount = detailData.installment_amount?.toString() || baseFormData.installment_amount;
+
+            if (detailData.property_id) {
+              baseFormData.property_associated = 'yes';
+              baseFormData.property_id = detailData.property_id.toString();
+            } else {
+              if (categoryId === '5' || categoryId === '6') {
+                baseFormData.property_associated = 'no';
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Error fetching debt detail:', error);
+          console.log(error);
+        }
+
+        setFormData(baseFormData);
       } catch (error) {
         console.error('Error parsing debt data:', error);
       }
+    };
+
+    if (isEditMode) {
+      loadDebtDetail();
     }
-  }, [isEditMode, params.rawData]);
+  }, []);
 
   const validateForm = () => {
     const newErrors: string[] = [];
@@ -234,6 +301,7 @@ export default function AddLiabilityScreen() {
   };
 
   const handleCancel = () => {
+    clearEditData();
     router.push('/(tabs)/patrimony');
   };
 
@@ -272,32 +340,43 @@ export default function AddLiabilityScreen() {
       }
 
       let response;
-      if (isEditMode && params.rawData) {
-        const originalData = JSON.parse(params.rawData as string);
+      if (isEditMode && debtId && debtTypeParam) {
+        const originalData = await getDebtDetail(accessToken!, debtId, debtTypeParam as any);
 
         const getDebtType = (debtCategoryId: string) => {
           const categoryMap: Record<string, string> = {
-            '1': 'credit_card',
+            '1': 'automotive_credit',
             '2': 'consumer_credit',
-            '3': 'automotive_credit',
+            '3': 'consumer_credit',
             '4': 'commercial_credit',
             '5': 'mortgage_credit',
             '6': 'mortgage',
             '7': 'credit_line',
             '8': 'family_loan',
-            '9': 'other'
+            '9': 'credit_card'
           };
           return categoryMap[debtCategoryId] || 'other';
         };
 
         const debtType = getDebtType(formData.debt_category_id);
-        response = await updateDebt(originalData.id, debtData, accessToken, debtType);
+        [response] = await Promise.all([
+          updateDebt(debtId, debtData, accessToken, debtType),
+          new Promise(resolve => setTimeout(resolve, 1000))
+        ]);
       } else {
-        response = await createDebt(debtData, accessToken);
+        [response] = await Promise.all([
+          createDebt(debtData, accessToken),
+          new Promise(resolve => setTimeout(resolve, 1000))
+        ]);
       }
 
       if (response.success) {
-        router.push('/(tabs)/patrimony');
+        setLoading(false);
+        setSaved(true);
+        setTimeout(() => {
+          clearEditData();
+          router.push('/(tabs)/patrimony');
+        }, 2500);
       } else {
         setServerError(response.error || t('addLiabilityScreen.errors.creationError'));
       }
@@ -320,6 +399,9 @@ export default function AddLiabilityScreen() {
       onCancel={handleCancel}
       nextButtonTitle={isEditMode ? t('editLiabilityScreen.save_button', 'Guardar cambios') : t('addLiabilityScreen.nextButton')}
       isLoading={loading}
+      isSaved={saved}
+      loadingText={isEditMode ? t('common.saving') : t('common.creating')}
+      savedText={isEditMode ? t('common.saved') : t('common.created')}
       isNextDisabled={errors.length > 0}
       error={serverError || (errors.length > 0 ? errors[0] : null)}
     >
@@ -347,6 +429,7 @@ export default function AddLiabilityScreen() {
           value={formData.debt_category_id}
           onSelect={(value) => handleSelectChange('debt_category_id', value)}
           placeholder={t('addLiabilityScreen.fields.debtCategoryPlaceholder')}
+          disabled={isEditMode}
         />
       </View>
 

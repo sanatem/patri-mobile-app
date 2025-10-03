@@ -11,6 +11,7 @@ import { useAuth } from '@/providers/AuthProvider';
 import AreaChart from '@/components/patrimony/AreaChart';
 import { PatrimonySummary } from '@/components/patrimony/PatrimonySummary';
 import { useChartRangeStore, RangeSize } from '@/store/chartRangeStore';
+import { useAssetEditStore } from '@/store/assetEditStore';
 import { Asset, Liability } from '@/types';
 import { patrimonyService } from '@/services/patrimony/get-patrimony';
 import { useAssets, useDebts } from '@/hooks/patrimony';
@@ -46,6 +47,7 @@ export default function PatrimonyScreen() {
   const { shouldBlockTab, loading: subscriptionLoading } = useSubscriptionStatus();
   const { userData, loading: userLoading } = useUserData();
   const { rangeSize, setRangeSize } = useChartRangeStore();
+  const { setEditData } = useAssetEditStore();
   const router = useRouter();
   const { t } = useTranslation();
 
@@ -76,6 +78,7 @@ export default function PatrimonyScreen() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<any>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isLoadingDetail, setIsLoadingDetail] = useState(false);
 
   const overlayAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(0)).current;  
@@ -312,24 +315,27 @@ export default function PatrimonyScreen() {
   };
 
   const handleItemPress = (item: any) => {
-    if (activeTab === 'assets') {
-      router.push({
-        pathname: '/(tabs)/patrimony/add-asset',
-        params: {
-          editMode: 'true',
-          assetId: item.id,
-          rawData: JSON.stringify(item.rawData)
-        }
-      });
-    } else {
-      router.push({
-        pathname: '/(tabs)/patrimony/add-liability',
-        params: {
-          editMode: 'true',
-          debtId: item.id,
-          rawData: JSON.stringify(item.rawData)
-        }
-      });
+    if (!accessToken || isLoadingDetail) return;
+
+    try {
+      if (activeTab === 'assets') {
+        setEditData({
+          editMode: true,
+          itemId: parseInt(item.id),
+          itemType: item.type
+        });
+        router.push('/(tabs)/patrimony/add-asset');
+      } else {
+        setEditData({
+          editMode: true,
+          itemId: parseInt(item.id),
+          itemType: item.type
+        });
+        router.push('/(tabs)/patrimony/add-liability');
+      }
+    } catch (error) {
+      console.error('Error navigating to edit:', error);
+      Alert.alert('Error', 'Ocurrió un error. Por favor intenta nuevamente.');
     }
   };
 
@@ -464,6 +470,7 @@ export default function PatrimonyScreen() {
           text: '0.00%',
           variant: 'positive' as const
         },
+        type: 'fixed_asset',
         rawData: asset
       })),
 
@@ -480,6 +487,7 @@ export default function PatrimonyScreen() {
             text: '0.00%',
             variant: 'positive' as const
           },
+          type: 'saving_instrument',
           rawData: asset
         };
       }),
@@ -499,6 +507,7 @@ export default function PatrimonyScreen() {
           text: '0.00%',
           variant: 'positive' as const
         },
+        type: 'investment_property',
         rawData: { ...asset, property_type: 'rent' }
       })),
 
@@ -517,6 +526,7 @@ export default function PatrimonyScreen() {
           text: '0.00%',
           variant: 'positive' as const
         },
+        type: 'main_home',
         rawData: { ...asset, property_type: 'own' }
       }))
     ];
@@ -527,6 +537,21 @@ export default function PatrimonyScreen() {
     );
 
     return filteredAssets;
+  };
+
+  const getDebtTypeFromCategory = (categoryName: string): string => {
+    const nameMap: Record<string, string> = {
+      'automotriz': 'automotive_credit',
+      'caja de compensación': 'consumer_credit',
+      'consumo': 'consumer_credit',
+      'crédito universitario': 'commercial_credit',
+      'hipotecario de uso': 'mortgage_credit',
+      'hipotecario de inversión': 'mortgage',
+      'línea de crédito': 'credit_line',
+      'préstamos familiares o amigos': 'family_loan',
+      'tarjeta de crédito': 'credit_card'
+    };
+    return nameMap[categoryName?.toLowerCase()] || 'other';
   };
 
   const transformApiDebts = () => {
@@ -545,6 +570,7 @@ export default function PatrimonyScreen() {
         text: `${debt.cae_percentage}% CAE`,
         variant: 'negative' as const
       },
+      type: getDebtTypeFromCategory(debt.debt_category),
       rawData: debt
     })).filter(debt =>
       debt.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -1029,9 +1055,10 @@ export default function PatrimonyScreen() {
               left: 0,
               right: 0,
               bottom: 0,
-              backgroundColor: overlayAnim.interpolate({
+              backgroundColor: 'black',
+              opacity: overlayAnim.interpolate({
                 inputRange: [0, 1],
-                outputRange: ['rgba(0,0,0,0)', 'rgba(0,0,0,0.45)'],
+                outputRange: [0, 0.45],
               }),
             }}
           >
@@ -1095,6 +1122,30 @@ export default function PatrimonyScreen() {
               </TouchableOpacity>
             ))}
           </Animated.View>
+        </View>
+      )}
+
+      {isLoadingDetail && (
+        <View style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.3)',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 2000
+        }}>
+          <View style={{
+            backgroundColor: 'white',
+            borderRadius: 12,
+            padding: 24,
+            alignItems: 'center'
+          }}>
+            <ActivityIndicator size="large" color={Colors.primary[500]} />
+            <Text style={{ marginTop: 12, color: Colors.primary[500] }}>Cargando...</Text>
+          </View>
         </View>
       )}
     </Container>

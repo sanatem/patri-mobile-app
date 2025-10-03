@@ -65,6 +65,7 @@ export default function AddBankAccountPage() {
     is_default: 'false',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
@@ -119,21 +120,29 @@ export default function AddBankAccountPage() {
         }
       };
 
-      const response = await createBankAccount(requestData, accessToken);
+      const [response] = await Promise.all([
+        createBankAccount(requestData, accessToken),
+        new Promise(resolve => setTimeout(resolve, 1000))
+      ]);
 
       if (response.success) {
-        Alert.alert(
-          'Éxito',
-          'Cuenta bancaria agregada correctamente',
-          [{ text: 'OK', onPress: () => router.back() }]
-        );
+        setIsSubmitting(false);
+        setIsSaved(true);
+
+        setTimeout(() => {
+          Alert.alert(
+            'Éxito',
+            'Cuenta bancaria agregada correctamente',
+            [{ text: 'OK', onPress: () => router.back() }]
+          );
+        }, 2500);
       } else {
         Alert.alert('Error', response.message || 'No se pudo agregar la cuenta');
+        setIsSubmitting(false);
       }
     } catch (error) {
       console.error('Error creating bank account:', error);
       Alert.alert('Error', 'Ocurrió un error al agregar la cuenta');
-    } finally {
       setIsSubmitting(false);
     }
   };
@@ -155,7 +164,11 @@ export default function AddBankAccountPage() {
         onCancel={handleCancel}
         nextButtonTitle={t('settings.bankAccounts.addForm.save')}
         cancelButtonTitle={t('common.cancel')}
-        isNextDisabled={!isFormValid || isSubmitting}
+        isLoading={isSubmitting}
+        isSaved={isSaved}
+        loadingText={t('common.addingAccount')}
+        savedText={t('common.accountAdded')}
+        isNextDisabled={!isFormValid || isSubmitting || isSaved}
         showLogo={false}
       >
         <View className="space-y-4">

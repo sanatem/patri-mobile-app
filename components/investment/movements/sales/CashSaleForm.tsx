@@ -37,6 +37,7 @@ export default function CashSaleForm({
         placeholder="$0"
         keyboardType="numeric"
         className="mb-4"
+        maxLength={18}
       />
 
       <Select

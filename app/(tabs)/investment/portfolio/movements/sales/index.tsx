@@ -93,13 +93,18 @@ export default function SalesFlow() {
       ...goalsData.savings.longTerm,
     ];
 
-    const goalOptions = allGoals.map(goal => {
-      const amount = goal.availableValueForRetirement ?? goal.goalWallet ?? goal.currentAmount ?? 0;
-      return {
-        label: `${goal.name} (${formatValue(amount.toString())})`,
-        value: goal.id
-      };
-    });
+    const goalOptions = allGoals
+      .filter(goal => {
+        const amount = goal.availableValueForRetirement ?? goal.goalWallet ?? goal.currentAmount ?? 0;
+        return amount > 0;
+      })
+      .map(goal => {
+        const amount = goal.availableValueForRetirement ?? goal.goalWallet ?? goal.currentAmount ?? 0;
+        return {
+          label: `${goal.name} (${formatValue(amount.toString())})`,
+          value: goal.id
+        };
+      });
 
     if (cashData) {
       const availableAmount = typeof cashData.available_amount === 'string'
