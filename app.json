@@ -46,7 +46,9 @@
       [
         "onesignal-expo-plugin",
         {
-          "mode": "production"
+          "mode": "production",
+          "devTeam": "JJ55Y59DRG",
+          "iPhoneDeploymentTarget": "12.0"
         }
       ],
       "expo-router",
