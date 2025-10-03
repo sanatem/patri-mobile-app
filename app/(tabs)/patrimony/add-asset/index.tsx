@@ -400,7 +400,7 @@ export default function AddAssetScreen() {
               commercial_value: formData.commercial_value.replace(/[^\d]/g, ''),
               unit: formData.unit,
               square_mts: parseInt(formData.square_mts),
-              ...(formData.property_kind === 'investment' && { apartment_number: '' }),
+              ...(assetType === 'investment_property' && { apartment_number: '' }),
             }
           };
 
