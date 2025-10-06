@@ -169,7 +169,9 @@ export default function AddAssetScreen() {
         if (assetData.type && assetData.type.startsWith('SavingInstruments::')) {
           assetKind = 'investment';
           baseFormData.kind = 'investment';
+          console.log('🔍 Asset type from API:', assetData.type);
           baseFormData.investment_type = mapSavingInstrumentType(assetData.type);
+          console.log('🔍 Mapped investment_type:', baseFormData.investment_type);
           baseFormData.commercial_value = assetData.total_amount?.toString() || '';
 
           try {
@@ -216,6 +218,33 @@ export default function AddAssetScreen() {
 
               if (actable.broker_id) {
                 baseFormData.brokerage = actable.broker_id?.toString() || '';
+              }
+
+              if (actable.mutual_fund_id || actable.investment_fund_id) {
+                const assetClass = actable.mutual_fund_asset_class || 'mutual';
+                const fundId = actable.mutual_fund_id || actable.investment_fund_id;
+                const seriesId = actable.mutual_fund_series_id || actable.investment_fund_series_id;
+
+                console.log('🔍 Loading mutual fund data:', {
+                  assetClass,
+                  fundId,
+                  seriesId,
+                  actable,
+                });
+
+                if (fundId) {
+                  baseFormData.fund_id = `${assetClass}@${fundId}`;
+                  baseFormData.fund = `${assetClass}@${fundId}`;
+                  baseFormData.fund_kind = assetClass;
+                  baseFormData.fund_series_id = seriesId?.toString() || '';
+                  baseFormData.series = seriesId?.toString() || '';
+                  baseFormData.mutual_fund_manager_id = actable.mutual_fund_manager_id?.toString() || '';
+
+                  console.log('🔍 Set baseFormData:', {
+                    fund: baseFormData.fund,
+                    series: baseFormData.series,
+                  });
+                }
               }
 
               const comments = actable.comments || detailData.comments || '';
