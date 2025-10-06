@@ -62,8 +62,8 @@ export default function ConfirmationStep({
 
     try {
       const amount = Math.round(goal === 'cash-balance'
-        ? parseFloat(cashAmount.replace(/[^0-9.]/g, '')) || 0
-        : parseFloat(assetAmount) || 0);
+        ? parseFloat(cashAmount.replace(/[^0-9]/g, '')) || 0
+        : parseFloat(assetAmount.replace(/[^0-9]/g, '')) || 0);
 
       if (amount <= 0) {
         Alert.alert('Error', 'El monto debe ser mayor a 0');

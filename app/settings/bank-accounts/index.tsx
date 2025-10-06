@@ -22,8 +22,12 @@ export default function BankAccountsPage() {
   const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
+    if (!accessToken) {
+      setLoading(false);
+      return;
+    }
     loadBankAccounts();
-  }, []);
+  }, [accessToken]);
 
   const loadBankAccounts = async () => {
     if (!accessToken) return;
@@ -216,7 +220,7 @@ export default function BankAccountsPage() {
         onClose={handleCancelDelete}
         onConfirm={handleConfirmDelete}
         title="Eliminar cuenta bancaria"
-        itemName={accountToDelete?.account_number}
+        itemName={accountToDelete?.account_number ? `****${accountToDelete.account_number.slice(-4)}` : ''}
         message="¿Estás seguro de que deseas eliminar esta cuenta bancaria? Esta acción no se puede deshacer."
         isDeleting={isDeleting}
         cancelButtonText={t('common.cancel')}

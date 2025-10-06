@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, ActivityIndicator } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import {
   FormLayout,
@@ -23,9 +23,16 @@ export default function AddAssetScreen() {
   const params = useLocalSearchParams();
   const { editData, clearEditData } = useAssetEditStore();
 
-  const isEditMode = !!(editData?.editMode || params.editMode);
-  const assetId = editData?.itemId || (params.assetId ? parseInt(params.assetId as string) : undefined);
-  const assetTypeParam = editData?.itemType || (params.assetType as string | undefined);
+  const rawEditMode = (editData?.editMode ?? params.editMode);
+  const isEditMode =
+    rawEditMode === true ||
+    rawEditMode === 'true' ||
+    rawEditMode === '1';
+  const assetId =
+    editData?.itemId ?? (typeof params.assetId === 'string' ? Number(params.assetId) : undefined);
+  const assetTypeParam =
+    (editData?.itemType as string | undefined) ??
+    (typeof params.assetType === 'string' ? params.assetType : undefined);
 
   const ASSET_KIND_OPTIONS = [
     { label: t('addAssetScreen.asset_kind_options.fixed_asset'), value: 'fixed_asset' },
@@ -72,6 +79,7 @@ export default function AddAssetScreen() {
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
+  const [loadingInitialData, setLoadingInitialData] = useState(false);
 
   useEffect(() => {
     if (errors.length === 0 && loading) {
@@ -89,6 +97,13 @@ export default function AddAssetScreen() {
     const loadAssetDetail = async () => {
       if (!isEditMode || !assetId || !accessToken || !assetTypeParam) return;
 
+      const validDebtTypes = ['credit_card', 'consumer_credit', 'automotive_credit', 'commercial_credit', 'mortgage_credit', 'mortgage', 'credit_line', 'family_loan', 'other'];
+      if (validDebtTypes.includes(assetTypeParam)) {
+        console.log('Tipo no válido para asset, ignorando carga:', assetTypeParam);
+        return;
+      }
+
+      setLoadingInitialData(true);
       try {
         let assetData;
 
@@ -296,13 +311,15 @@ export default function AddAssetScreen() {
         setFormData(baseFormData);
       } catch (error) {
         console.error('Error parsing asset data:', error);
+      } finally {
+        setLoadingInitialData(false);
       }
     };
 
     if (isEditMode) {
       loadAssetDetail();
     }
-  }, []);
+  }, [isEditMode, assetId, accessToken, assetTypeParam]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
@@ -855,7 +872,13 @@ export default function AddAssetScreen() {
       isNextDisabled={errors.length > 0}
       error={errors.length > 0 ? errors[0] : null}
     >
-      {formData.kind !== 'property' && (
+      {loadingInitialData ? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', minHeight: 300 }}>
+          <ActivityIndicator size="large" color={Colors.secondary[500]} />
+        </View>
+      ) : (
+        <>
+          {formData.kind !== 'property' && (
         <View>
           <Text className='text-base font-medium'
             style={{
@@ -941,6 +964,8 @@ export default function AddAssetScreen() {
           formatValue={formatValue}
         />
       ) : null}
+        </>
+      )}
     </FormLayout>
   );
 } 

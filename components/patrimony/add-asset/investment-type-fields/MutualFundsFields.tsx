@@ -146,12 +146,6 @@ export default function MutualFundsFields({
           ...(response.data.mutual_funds || []).map(f => ({ ...f, kind: 'mutual' as const }))
         ];
 
-        console.log('📊 All funds loaded:', allFunds.length);
-        console.log('📊 Investment funds:', response.data.investment_funds?.length || 0);
-        console.log('📊 Mutual funds:', response.data.mutual_funds?.length || 0);
-        console.log('📊 Sample investment fund:', response.data.investment_funds?.[0]);
-        console.log('📊 Sample mutual fund:', response.data.mutual_funds?.[0]);
-
         if (allFunds.length === 0) {
           setFundsError('No hay fondos disponibles');
           return;
@@ -175,19 +169,16 @@ export default function MutualFundsFields({
     value: `${fundItem.kind}@${fundItem.id}`,
   }));
 
+  type FundKind = 'investment' | 'mutual';
+
   const selectedFund = useMemo(() => {
-    console.log('🔍 MutualFundsFields - fund prop:', fund);
-    console.log('🔍 MutualFundsFields - funds loaded:', funds.length);
     if (!fund) return undefined;
-    const [kind, id] = fund.includes('@') ? fund.split('@') : ['mutual', fund];
-    console.log('🔍 MutualFundsFields - looking for:', { kind, id });
-    console.log('🔍 Available funds with kind:', funds.filter(f => f.kind === kind).map(f => ({ id: f.id, name: f.name, kind: f.kind })));
-    const found = funds.find((f) => f.id.toString() === id && f.kind === (kind as any));
-    console.log('🔍 MutualFundsFields - found fund:', found);
-    if (!found) {
-      console.log('❌ Fund not found. All funds:', funds.map(f => ({ id: f.id, name: f.name, kind: f.kind })));
+    if (!fund.includes('@')) {
+      console.warn('Invalid fund format, expected "kind@id":', fund);
+      return undefined;
     }
-    return found;
+    const [kind, id] = fund.split('@') as [FundKind, string];
+    return funds.find((f) => f.id.toString() === id && f.kind === kind);
   }, [funds, fund]);
   const [seriesOptions, setSeriesOptions] = useState<Array<{ label: string; value: string }>>([]);
 

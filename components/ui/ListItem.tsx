@@ -93,8 +93,13 @@ const SwipeableItem = ({
           toValue: -80,
           useNativeDriver: false,
         }).start(() => {
-          currentOffset.current = -80;
           onDelete?.(item);
+          Animated.spring(translateX, {
+            toValue: 0,
+            useNativeDriver: false,
+          }).start(() => {
+            currentOffset.current = 0;
+          });
         });
       } else {
         Animated.spring(translateX, {
@@ -113,6 +118,12 @@ const SwipeableItem = ({
       useNativeDriver: false,
     }).start(() => {
       onDelete?.(item);
+      Animated.spring(translateX, {
+        toValue: 0,
+        useNativeDriver: false,
+      }).start(() => {
+        currentOffset.current = 0;
+      });
     });
   };
 

@@ -12,6 +12,7 @@ import AreaChart from '@/components/patrimony/AreaChart';
 import { PatrimonySummary } from '@/components/patrimony/PatrimonySummary';
 import { useChartRangeStore, RangeSize } from '@/store/chartRangeStore';
 import { useAssetEditStore } from '@/store/assetEditStore';
+import { useLiabilityEditStore } from '@/store/liabilityEditStore';
 import { Asset, Liability } from '@/types';
 import { patrimonyService } from '@/services/patrimony/get-patrimony';
 import { useAssets, useDebts } from '@/hooks/patrimony';
@@ -47,7 +48,8 @@ export default function PatrimonyScreen() {
   const { shouldBlockTab, loading: subscriptionLoading } = useSubscriptionStatus();
   const { userData, loading: userLoading } = useUserData();
   const { rangeSize, setRangeSize } = useChartRangeStore();
-  const { setEditData } = useAssetEditStore();
+  const { setEditData: setAssetEditData } = useAssetEditStore();
+  const { setEditData: setLiabilityEditData } = useLiabilityEditStore();
   const router = useRouter();
   const { t } = useTranslation();
 
@@ -319,14 +321,14 @@ export default function PatrimonyScreen() {
 
     try {
       if (activeTab === 'assets') {
-        setEditData({
+        setAssetEditData({
           editMode: true,
           itemId: parseInt(item.id),
           itemType: item.type
         });
         router.push('/(tabs)/patrimony/add-asset');
       } else {
-        setEditData({
+        setLiabilityEditData({
           editMode: true,
           itemId: parseInt(item.id),
           itemType: item.type
