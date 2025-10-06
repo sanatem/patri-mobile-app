@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { SkeletonBase } from '@/components/ui/SkeletonBase';
 import { View, ActivityIndicator, Text } from 'react-native';
 import { useChartRangeStore } from '@/store/chartRangeStore';
@@ -14,21 +14,15 @@ export default function AreaChart() {
   const { rangeSize } = useChartRangeStore();
   const { chartWidth } = useChartDimensions(CHART_CONFIG.margin);
 
-  const { 
-    historicData, 
-    loading, 
+  const {
+    historicData,
+    loading,
     error,
     loadMore,
-    hasMore 
+    hasMore
   } = useNetworthHistoric();
-    
-  useEffect(() => {
-    if (hasMore) {
-      loadMore();
-    }
-  }, [hasMore, loadMore]);
 
-  const filteredChartData = (() => {
+  const filteredChartData = useMemo(() => {
     if (!historicData?.historic.timeline || historicData.historic.timeline.length === 0) {
       return [];
     }
@@ -45,9 +39,9 @@ export default function AreaChart() {
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
+
     let startDate = new Date(today);
-    
+
     switch (rangeSize) {
       case '1m':
         startDate.setMonth(today.getMonth() - 1);
@@ -72,7 +66,7 @@ export default function AreaChart() {
       x: entry.date,
       y: entry.value
     }));
-  })();
+  }, [historicData, rangeSize]);
 
   const formatPatrimonyValue = (value: number): string => {
     return `${value.toLocaleString('es-CL')}`;
@@ -122,11 +116,11 @@ export default function AreaChart() {
         />
       );
     }
-    
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     let startDate = new Date(today);
-    
+
     switch (rangeSize) {
       case '1m':
         startDate.setMonth(today.getMonth() - 1);
@@ -160,6 +154,17 @@ export default function AreaChart() {
         showDateLabels={true}
         cardStyle={areaChartCardStyles.card}
       />
+    );
+  }
+
+  // FIX: InteractiveChart crashes with empty data, use fallback
+  if (filteredChartData.length === 0) {
+    return (
+      <View style={[CHART_STYLES.defaultCardStyle, areaChartCardStyles.card]}>
+        <Text style={{ textAlign: 'center', padding: 20, color: Colors.gray[500] }}>
+          No hay datos disponibles para el rango seleccionado
+        </Text>
+      </View>
     );
   }
 
