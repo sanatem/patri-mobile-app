@@ -470,7 +470,7 @@
     "finish": "Finalizar",
     "cashBalance": "Saldo en caja",
     "bankAccount": "Mi cuenta bancaria",
-    "cashBalanceInfo": "El dinero quedará disponible en tu saldo en caja.",
+    "cashBalanceInfo": "Recibirás el dinero en tu cuenta bancaria",
     "fromGoalStep": {
     "title": "Solicitud de retiro 💸"
     },

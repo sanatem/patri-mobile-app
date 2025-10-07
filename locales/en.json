@@ -460,7 +460,7 @@
     "finish": "Finish",
     "cashBalance": "Cash balance",
     "bankAccount": "My bank account",
-    "cashBalanceInfo": "You will receive the money in your bank account.",
+    "cashBalanceInfo": "You will receive the money in your bank account",
     "fromGoalStep": {
       "title": "Withdrawal request 💸"
     },
