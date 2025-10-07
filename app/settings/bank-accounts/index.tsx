@@ -9,7 +9,7 @@ import { getBankAccounts, type BankAccount } from '@/services/investment/bank-ac
 import { deleteBankAccount } from '@/services/investment/bank-accounts/delete-bank-account';
 import { setDefaultBankAccount } from '@/services/investment/bank-accounts/set-default-bank-account';
 import { useAuth } from '@/providers/AuthProvider';
-import { Plus, ArrowLeft, X, Trash2, Star } from 'lucide-react-native';
+import { Plus, ArrowLeft, X, Star, Banknote } from 'lucide-react-native';
 
 export default function BankAccountsPage() {
   const { t } = useTranslation();
@@ -167,11 +167,9 @@ export default function BankAccountsPage() {
 
   const renderEmptyState = () => (
     <View style={styles.emptyState}>
-      <Text style={styles.emptyStateTitle}>
+      <Banknote size={24} color={Colors.gray[500]} /> 
+      <Text className="font-medium text-sm" style={styles.emptyStateTitle}>
         {t('settings.bankAccounts.noAccounts')}
-      </Text>
-      <Text style={styles.emptyStateSubtitle}>
-        Agrega una cuenta bancaria para facilitar tus transacciones
       </Text>
     </View>
   );
@@ -286,7 +284,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   buttonContainer: {
-    marginTop: 20,
+    marginTop: 10,
   },
   accountCard: {
     backgroundColor: 'white',
@@ -340,16 +338,9 @@ const styles = StyleSheet.create({
     paddingTop: 60,
   },
   emptyStateTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: Colors.primary[700],
+    color: Colors.gray[500],
     marginBottom: 8,
-  },
-  emptyStateSubtitle: {
-    fontSize: 14,
-    color: Colors.gray[600],
     textAlign: 'center',
-    marginBottom: 24,
   },
   deleteButton: {
     padding: 8,
