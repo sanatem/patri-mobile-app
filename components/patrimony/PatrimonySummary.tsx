@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Animated, StyleSheet } from 'react-native';
 import { ChevronDown, TrendingUp, TrendingDown } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
-import { useNetworth } from '@/hooks/patrimony/useNetworth';
-import { useNetworthHistoric } from '@/hooks/patrimony/useNetworthHistoric';
 import { SkeletonBase } from '@/components/ui/SkeletonBase';
 import { useTranslation } from 'react-i18next';
 
@@ -29,16 +27,14 @@ export function PatrimonySummary({
   const [showContent, setShowContent] = useState(false);
   const { t } = useTranslation();
 
-  const { networthData, loading, error } = useNetworth();
-  const { historicData, loading: historicLoading } = useNetworthHistoric();
-
   useEffect(() => {
     const timer = setTimeout(() => setShowContent(true), 3000);
     return () => clearTimeout(timer);
-  }, []); 
-  if (loading || historicLoading || !showContent) {
+  }, []);
+
+  if (!showContent) {
     return (
-      <View style={[styles.gradient, { alignItems: 'center', justifyContent: 'center' }]}> 
+      <View style={[styles.gradient, { alignItems: 'center', justifyContent: 'center' }]}>
         <View style={{
           backgroundColor: 'white',
           borderRadius: 24,
@@ -81,13 +77,13 @@ export function PatrimonySummary({
 
   const toggleExpanded = () => {
     const toValue = isExpanded ? 0 : 1;
-    
+
     Animated.timing(rotateAnim, {
       toValue,
       duration: 200,
       useNativeDriver: true,
     }).start();
-    
+
     setIsExpanded(!isExpanded);
   };
 
@@ -102,35 +98,17 @@ export function PatrimonySummary({
     ],
   };
 
-  let displayData;
-  if (networthData && !error && !loading) {
-    displayData = {
-      totalNetWorth: Number(networthData.networth.patrimony_value) || 0,
-      totalAssets: Number(networthData.networth.total_assets) || 0,
-      totalLiabilities: Number(networthData.networth.total_debts) || 0,
-    };
-  } else {
-    displayData = {
-      totalNetWorth: Number(totalNetWorth) || 0,
-      totalAssets: Number(totalAssets) || 0,
-      totalLiabilities: Number(totalLiabilities) || 0,
-    };
-  }
+  const displayData = {
+    totalNetWorth: Number(totalNetWorth) || 0,
+    totalAssets: Number(totalAssets) || 0,
+    totalLiabilities: Number(totalLiabilities) || 0,
+  };
 
-  let variationData;
-  if (historicData && !historicLoading && 'last_month_variation' in historicData.historic.variation) {
-    variationData = {
-      variation: historicData.historic.variation.last_month_variation.absolute_change,
-      variationPercentage: historicData.historic.variation.last_month_variation.percentage_change,
-      isPositive: historicData.historic.variation.last_month_variation.trend === 'positive'
-    };
-  } else {
-    variationData = {
-      variation,
-      variationPercentage,
-      isPositive: variation >= 0
-    };
-  }
+  const variationData = {
+    variation,
+    variationPercentage,
+    isPositive: variation >= 0
+  };
 
   return (
     <View style={styles.gradient}>
@@ -138,7 +116,7 @@ export function PatrimonySummary({
         <Text style={styles.title}>
           {t('patrimony.netWorthTitle')}
         </Text>
-        
+
         <TouchableOpacity
           onPress={toggleExpanded}
           style={styles.headerContainer}
@@ -146,7 +124,7 @@ export function PatrimonySummary({
           <Text style={styles.amount}>
             {formatCurrency(displayData.totalNetWorth)}
           </Text>
-          
+
           <Animated.View style={[rotateStyle]}>
             <ChevronDown
               size={24}
@@ -154,7 +132,7 @@ export function PatrimonySummary({
             />
           </Animated.View>
         </TouchableOpacity>
-        
+
         {isExpanded && (
           <View style={styles.expandedContainer}>
             <View style={styles.itemRow}>
@@ -167,7 +145,7 @@ export function PatrimonySummary({
               <Text style={[styles.itemValue, { color: Colors.success[500] }]}>
                 +{formatCurrency(displayData.totalAssets)}
               </Text>
-            </View> 
+            </View>
             <View style={styles.itemRow}>
               <View style={styles.itemLeft}>
                 <TrendingDown size={16} color={Colors.error[400]} />
@@ -181,7 +159,7 @@ export function PatrimonySummary({
             </View>
           </View>
         )}
-        
+
         <View style={styles.variationContainer}>
           <Text style={[
             styles.variationText,

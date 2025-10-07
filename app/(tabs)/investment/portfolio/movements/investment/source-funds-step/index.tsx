@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import React, { useState, useMemo, useEffect } from 'react';
+import { View, Text } from 'react-native';
 import FormLayout from '@/components/ui/FormLayout';
 import { Select } from '@/components/ui/Select';
 import { BankTransfer, CheckDeposit, FintocTransfer } from '@/components/investment/movements/investment/source-funds';
@@ -57,6 +57,13 @@ function SourceFundsStep({
 
     return options;
   }, [amount, availableCashAmount, formatValue, t]);
+
+  useEffect(() => {
+    if (selectedOption && !sourceOptions.some(option => option.value === selectedOption)) {
+      setSelectedOption('');
+      onSourceSelect?.('');
+    }
+  }, [selectedOption, sourceOptions, onSourceSelect]);
 
   const handleOptionSelect = (value: string) => {
     setSelectedOption(value);
