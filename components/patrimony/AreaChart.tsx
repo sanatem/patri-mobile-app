@@ -9,17 +9,17 @@ import Colors from '@/constants/Colors';
 import data from '@/data/mock/patrimony-daily.json';
 import { CHART_CONFIG, CHART_STYLES } from '@/constants/ChartConfig';
 import { useChartDimensions } from '@/hooks/chart/useChartDimensions';
+import { useTranslation } from 'react-i18next';
 
 export default function AreaChart() {
   const { rangeSize } = useChartRangeStore();
   const { chartWidth } = useChartDimensions(CHART_CONFIG.margin);
+  const { t } = useTranslation();
 
   const {
     historicData,
     loading,
-    error,
-    loadMore,
-    hasMore
+    error
   } = useNetworthHistoric();
 
   const filteredChartData = useMemo(() => {
@@ -157,12 +157,26 @@ export default function AreaChart() {
     );
   }
 
-  // FIX: InteractiveChart crashes with empty data, use fallback
+  // FIX: InteractiveChart crashes with empty data or insufficient data points
   if (filteredChartData.length === 0) {
     return (
       <View style={[CHART_STYLES.defaultCardStyle, areaChartCardStyles.card]}>
         <Text style={{ textAlign: 'center', padding: 20, color: Colors.gray[500] }}>
-          No hay datos disponibles para el rango seleccionado
+          {t('patrimony.chart.noData')}
+        </Text>
+      </View>
+    );
+  }
+
+  // CRITICAL: Chart requires at least 2 data points to render properly
+  if (filteredChartData.length < 2) {
+    return (
+      <View style={[CHART_STYLES.defaultCardStyle, areaChartCardStyles.card]}>
+        <Text style={{ textAlign: 'center', padding: 20, color: Colors.gray[500], fontSize: 14 }}>
+          {t('patrimony.chart.buildingHistory')}{'\n\n'}
+          <Text style={{ fontSize: 12, color: Colors.gray[400] }}>
+            {t('patrimony.chart.buildingHistorySubtitle')}
+          </Text>
         </Text>
       </View>
     );

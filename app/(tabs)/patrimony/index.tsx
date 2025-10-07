@@ -3,9 +3,9 @@ import { View, Text, ScrollView, TouchableOpacity, Animated, Dimensions, Activit
 import { Settings, Plus, Trash2 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
-import { 
+import {
 
-  TAB_CONFIG 
+  TAB_CONFIG
 } from '@/constants/AppConstants';
 import { useAuth } from '@/providers/AuthProvider';
 import AreaChart from '@/components/patrimony/AreaChart';
@@ -15,6 +15,7 @@ import { useAssetEditStore } from '@/store/assetEditStore';
 import { Asset, Liability } from '@/types';
 import { patrimonyService } from '@/services/patrimony/get-patrimony';
 import { useAssets, useDebts } from '@/hooks/patrimony';
+import { useNetworthHistoric } from '@/hooks/patrimony/useNetworthHistoric';
 import {
   SearchBar,
   Tabs,
@@ -81,7 +82,7 @@ export default function PatrimonyScreen() {
   const [isLoadingDetail, setIsLoadingDetail] = useState(false);
 
   const overlayAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(0)).current;  
+  const slideAnim = useRef(new Animated.Value(0)).current;
   const skeletonFadeAnim = useRef(new Animated.Value(1)).current;
 
   const { assets: apiAssets, loading: assetsLoading, error: assetsError, refetch: refetchAssets } = useAssets({
@@ -93,6 +94,8 @@ export default function PatrimonyScreen() {
     page: 1,
     per_page: 100
   }, true);
+
+  const { historicData, loading: historicLoading, error: historicError } = useNetworthHistoric();
 
   useEffect(() => {
     setVisibleCount(5);
@@ -119,11 +122,11 @@ export default function PatrimonyScreen() {
           return;
 
         }
-        const apiKey = Platform.OS === 'android' 
+        const apiKey = Platform.OS === 'android'
           ? process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_KEY
-          : Platform.OS === 'ios' 
-          ? process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY
-          : null;
+          : Platform.OS === 'ios'
+            ? process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY
+            : null;
         if (!apiKey) {
           throw new Error(`RevenueCat API key not found for platform: ${Platform.OS}`);
         }
@@ -236,9 +239,9 @@ export default function PatrimonyScreen() {
       'SavingInstruments::Other': { backgroundColor: '#6B7280', text: '?' },
     };
 
-    return iconMapping[type] || { 
-      backgroundColor: '#EA4335', 
-      text: name.charAt(0) 
+    return iconMapping[type] || {
+      backgroundColor: '#EA4335',
+      text: name.charAt(0)
     };
   };
 
@@ -259,7 +262,7 @@ export default function PatrimonyScreen() {
   const onRefresh = async () => {
     setRefreshing(true);
     try {
-      await loadPatrimonyData(); 
+      await loadPatrimonyData();
     } catch (error) {
       console.error('Error during refresh:', error);
     } finally {
@@ -271,7 +274,7 @@ export default function PatrimonyScreen() {
     try {
       if (userData?.user?.personal_information) {
         const { first_name, last_name } = userData.user.personal_information;
-        
+
         if (first_name && last_name) {
           const firstInitial = first_name.charAt(0).toUpperCase();
           const lastInitial = last_name.charAt(0).toUpperCase();
@@ -415,13 +418,13 @@ export default function PatrimonyScreen() {
   const currentAssets = ownerView === 'mine' ? myAssets : ownerView === 'partner' ? partnerAssets : combinedAssets;
   const currentLiabilities = ownerView === 'mine' ? myLiabilities : ownerView === 'partner' ? partnerLiabilities : combinedLiabilities;
 
-  const filteredAssets = currentAssets.filter((a) => 
-    a.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+  const filteredAssets = currentAssets.filter((a) =>
+    a.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     a.type.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const filteredLiabilities = currentLiabilities.filter((l) => 
-    l.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+  const filteredLiabilities = currentLiabilities.filter((l) =>
+    l.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     l.type.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -517,8 +520,8 @@ export default function PatrimonyScreen() {
       }))
     ];
 
-    const filteredAssets = allAssets.filter(asset => 
-      asset.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    const filteredAssets = allAssets.filter(asset =>
+      asset.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       asset.subtitle.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
@@ -660,7 +663,7 @@ export default function PatrimonyScreen() {
       : (apiDebts ? apiDebtsData.length : 0)
     ).toString()
   }));
-  
+
 
   const currentData = activeTab === 'assets' ? assetsData : liabilitiesData;
   const paginatedData = getPaginatedData(currentData);
@@ -686,7 +689,7 @@ export default function PatrimonyScreen() {
 
   if (shouldBlockTab("Patrimonio")) {
     return <LockedTabOverlay tabName={t('tabs.networth')} />;
-  } 
+  }
 
   if (isLoading) {
     return (
@@ -712,7 +715,7 @@ export default function PatrimonyScreen() {
         />
         <View className="flex-1 items-center justify-center">
           <Text className="text-red-600 mb-2">{error}</Text>
-          <TouchableOpacity 
+          <TouchableOpacity
             className="bg-primary px-4 py-2 rounded-lg"
             onPress={() => {
               setError(null);
@@ -746,7 +749,7 @@ export default function PatrimonyScreen() {
         }
         rightAction={
           <View className="flex-row items-center">
-            <TouchableOpacity 
+            <TouchableOpacity
               onPress={() => setShowAddModal(true)}
               className="mr-3"
             >
@@ -759,8 +762,8 @@ export default function PatrimonyScreen() {
         }
       />
       <KeyboardAwareContainer>
-        <ScrollView 
-          className="flex-1" 
+        <ScrollView
+          className="flex-1"
           showsVerticalScrollIndicator={false}
           refreshControl={
             <RefreshControl
@@ -773,7 +776,7 @@ export default function PatrimonyScreen() {
         >
           <PatrimonySummary
             totalNetWorth={netWorth}
-            totalAssets={totalAssets} 
+            totalAssets={totalAssets}
             totalLiabilities={totalLiabilities}
             variation={netWorth}
             variationPercentage={0}
@@ -806,40 +809,40 @@ export default function PatrimonyScreen() {
             )}
           </Container>
           <AreaChart />
-            <Container variant="content" className="mb-4">
-              {showSkeletons ? (
-                <Animated.View style={{ opacity: skeletonFadeAnim }}>
-                  <SkeletonBase
-                    width={380}
-                    height={56}
-                    x={0}
-                    y={0}
-                    rows={1}
-                    rowHeight={56}
-                    rowWidth={380}
-                    borderRadius={16}
-                  />
-                </Animated.View>
-              ) : (
-                <SearchBar
-                  placeholder={t('labels.patrimony.search_placeholder')}
-                  value={searchQuery}
-                  onChangeText={setSearchQuery}
+          <Container variant="content" className="mb-4">
+            {showSkeletons ? (
+              <Animated.View style={{ opacity: skeletonFadeAnim }}>
+                <SkeletonBase
+                  width={380}
+                  height={56}
+                  x={0}
+                  y={0}
+                  rows={1}
+                  rowHeight={56}
+                  rowWidth={380}
+                  borderRadius={16}
                 />
-              )}
-            </Container>
+              </Animated.View>
+            ) : (
+              <SearchBar
+                placeholder={t('labels.patrimony.search_placeholder')}
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+              />
+            )}
+          </Container>
           <Container variant="content">
             <View style={listItemStyles.cardContainer}>
-                             <Tabs
-                 tabs={tabs}
-                 activeTab={activeTab}
-                 onTabChange={handleTabChange}
-               />
+              <Tabs
+                tabs={tabs}
+                activeTab={activeTab}
+                onTabChange={handleTabChange}
+              />
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingBottom: 20, paddingTop: 12, borderBottomWidth: 1, borderBottomColor: Colors.gray[200] }}>
-                <Text className="font-medium text-lg" style={{ color: Colors.gray[700]}}>
+                <Text className="font-medium text-lg" style={{ color: Colors.gray[700] }}>
                   {activeTab === 'assets' ? t('labels.patrimony.total_assets') : t('labels.patrimony.total_liabilities')}
                 </Text>
-                <Text className="font-medium text-lg" style={{ color: Colors.gray[700]}}>
+                <Text className="font-medium text-lg" style={{ color: Colors.gray[700] }}>
                   {activeTab === 'assets' ? '+' : '-'}${currentTabTotal.toLocaleString('es-CL')}
                 </Text>
               </View>
@@ -847,12 +850,12 @@ export default function PatrimonyScreen() {
               {isLoadingData ? (
                 <Animated.View style={{ padding: 20, opacity: skeletonFadeAnim }}>
                   {Array.from({ length: 6 }).map((_, index) => (
-                    <View key={index} style={{ 
-                      flexDirection: 'row', 
-                      alignItems: 'center', 
-                      paddingVertical: 16, 
-                      borderBottomWidth: 1, 
-                      borderBottomColor: '#f3f4f6' 
+                    <View key={index} style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      paddingVertical: 16,
+                      borderBottomWidth: 1,
+                      borderBottomColor: '#f3f4f6'
                     }}>
                       <SkeletonBase
                         width={48}
@@ -893,14 +896,14 @@ export default function PatrimonyScreen() {
                 </Animated.View>
               ) : currentError ? (
                 <View style={{ padding: 40, alignItems: 'center' }}>
-                  <Text className="font-regular text-base" style={{ 
-                    color: Colors.error[500], 
+                  <Text className="font-regular text-base" style={{
+                    color: Colors.error[500],
                     textAlign: 'center',
                     marginBottom: 12
                   }}>
                     {currentError}
                   </Text>
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     className="bg-primary px-4 py-2 rounded-lg"
                     onPress={() => {
                       if (activeTab === 'assets') {
@@ -913,42 +916,42 @@ export default function PatrimonyScreen() {
                 </View>
               ) : hasNoCurrentData ? (
                 <View style={{ padding: 40, alignItems: 'center' }}>
-                  <Text className="font-regular text-base" style={{ 
-                    color: Colors.primary[500], 
+                  <Text className="font-regular text-base" style={{
+                    color: Colors.primary[500],
                     textAlign: 'center',
                     marginBottom: 8
                   }}>
                     {t(`patrimony.empty.${activeTab}.title`)}
                   </Text>
-                  <Text className="font-regular text-sm" style={{ 
-                    color: Colors.gray[500], 
+                  <Text className="font-regular text-sm" style={{
+                    color: Colors.gray[500],
                     textAlign: 'center',
                     marginBottom: 12
                   }}>
                     {t(`patrimony.empty.${activeTab}.subtitle`)}
                   </Text>
                   <Button className="mt-4"
-                     variant="primary"
-                     onPress={() => {
-                       if (activeTab === 'assets') {
-                         router.push('/patrimony/add-asset');
-                       } else {
-                         router.push('/patrimony/add-liability');
-                       }
-                     }}
-                     title={activeTab === 'assets' ? t('patrimony.createAsset') : t('patrimony.createLiability')}
-                     icon={<Plus size={20} color="white" />}
-                   />
+                    variant="primary"
+                    onPress={() => {
+                      if (activeTab === 'assets') {
+                        router.push('/patrimony/add-asset');
+                      } else {
+                        router.push('/patrimony/add-liability');
+                      }
+                    }}
+                    title={activeTab === 'assets' ? t('patrimony.createAsset') : t('patrimony.createLiability')}
+                    icon={<Plus size={20} color="white" />}
+                  />
                 </View>
               ) : showSkeletons ? (
                 <Animated.View style={{ padding: 20, opacity: skeletonFadeAnim }}>
                   {Array.from({ length: 6 }).map((_, index) => (
-                    <View key={index} style={{ 
-                      flexDirection: 'row', 
-                      alignItems: 'center', 
-                      paddingVertical: 16, 
-                      borderBottomWidth: 1, 
-                      borderBottomColor: '#f3f4f6' 
+                    <View key={index} style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      paddingVertical: 16,
+                      borderBottomWidth: 1,
+                      borderBottomColor: '#f3f4f6'
                     }}>
                       <SkeletonBase
                         width={48}
@@ -988,26 +991,26 @@ export default function PatrimonyScreen() {
                   ))}
                 </Animated.View>
               ) : (
-                                 <>
-                   <ListItem
-                     key={`${activeTab}-${showDeleteModal}`}
-                     data={paginatedData}
-                     showLoadMore={false}
-                     showContainer={false}
-                     onItemPress={handleItemPress}
-                     onItemDelete={handleItemDelete}
-                   />
+                <>
+                  <ListItem
+                    key={`${activeTab}-${showDeleteModal}`}
+                    data={paginatedData}
+                    showLoadMore={false}
+                    showContainer={false}
+                    onItemPress={handleItemPress}
+                    onItemDelete={handleItemDelete}
+                  />
 
-                    {(hasMoreData(currentData) && !isExpanded) && (
-                      <View style={{ padding: 20, alignItems: 'center' }}>
-                        <Button
-                          variant="ghost"
-                          onPress={handleToggleExpand}
-                          title={isExpanded ? t('common.viewLess') : t('common.viewMore')}
-                        />
-                      </View>
-                    )}
-                 </>
+                  {(hasMoreData(currentData) && !isExpanded) && (
+                    <View style={{ padding: 20, alignItems: 'center' }}>
+                      <Button
+                        variant="ghost"
+                        onPress={handleToggleExpand}
+                        title={isExpanded ? t('common.viewLess') : t('common.viewMore')}
+                      />
+                    </View>
+                  )}
+                </>
               )}
             </View>
           </Container>
@@ -1023,7 +1026,7 @@ export default function PatrimonyScreen() {
         isDeleting={isDeleting}
       />
       {modalVisible && (
-        <View 
+        <View
           style={{
             position: 'absolute',
             top: 0,
@@ -1048,13 +1051,13 @@ export default function PatrimonyScreen() {
               }),
             }}
           >
-            <TouchableOpacity 
-              style={{ flex: 1 }} 
+            <TouchableOpacity
+              style={{ flex: 1 }}
               onPress={closeModal}
               activeOpacity={1}
             />
           </Animated.View>
-          <Animated.View 
+          <Animated.View
             style={{
               backgroundColor: '#fff',
               borderTopLeftRadius: 20,
@@ -1085,12 +1088,12 @@ export default function PatrimonyScreen() {
                   paddingVertical: 16,
                   flexDirection: 'row',
                   alignItems: 'center',
-                  borderBottomWidth: 0, 
+                  borderBottomWidth: 0,
                   borderColor: '#F3F4F6',
                 }}
                 onPress={() => {
                   closeModal();
-                  switch(option.value) {
+                  switch (option.value) {
                     case 'activo': router.push('/patrimony/add-asset'); break;
                     case 'pasivo': router.push('/patrimony/add-liability'); break;
                   }
