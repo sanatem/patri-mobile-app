@@ -51,7 +51,7 @@ export default function RootLayout() {
       const oneSignalAppId = process.env.EXPO_PUBLIC_ONESIGNAL_APP_ID;
       if (oneSignalAppId) {
         OneSignal.initialize(oneSignalAppId);
-        OneSignal.Notifications.requestPermission(true);
+        OneSignal.Notifications.requestPermission(false);
       } else {
         console.error('OneSignal App ID is not configured. Please set EXPO_PUBLIC_ONESIGNAL_APP_ID in your environment.');
       }
