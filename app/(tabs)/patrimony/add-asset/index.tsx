@@ -448,7 +448,7 @@ export default function AddAssetScreen() {
             setTimeout(() => {
               clearEditData();
               router.push('/(tabs)/patrimony');
-            }, 1500);
+            }, 2000);
           } else {
             console.error('Property update failed:', response.error);
             setErrors([response.error || t('addAssetScreen.errors.assetCreationError')]);
@@ -479,7 +479,7 @@ export default function AddAssetScreen() {
             setTimeout(() => {
               clearEditData();
               router.push('/(tabs)/patrimony');
-            }, 2500);
+            }, 2000);
           } else {
             console.error('Property creation failed:', response.error);
             setErrors([response.error || t('addAssetScreen.errors.propertyCreationError')]);

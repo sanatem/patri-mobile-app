@@ -16,6 +16,8 @@ interface SourceFundsStepProps {
   amount: number;
   availableCashAmount: number;
   loading?: boolean;
+  isSubmitting?: boolean;
+  isSaved?: boolean;
 }
 
 function SourceFundsStep({
@@ -27,6 +29,8 @@ function SourceFundsStep({
   amount,
   availableCashAmount,
   loading = false,
+  isSubmitting = false,
+  isSaved = false,
 }: SourceFundsStepProps) {
   const [selectedOption, setSelectedOption] = useState(selectedSource);
   const { t } = useTranslation();
@@ -98,8 +102,11 @@ function SourceFundsStep({
       onPrevious={handlePrevious}
       nextButtonTitle={selectedOption === 'fintoc' ? t('common.continue') : t('common.finish')}
       previousButtonTitle={t('common.back')}
-      isNextDisabled={!selectedOption || loading}
-      isLoading={loading}
+      isNextDisabled={!selectedOption || loading || isSubmitting || isSaved}
+      isLoading={isSubmitting}
+      isSaved={isSaved}
+      loadingText={t('common.creatingDeposit')}
+      savedText={t('common.depositCreated')}
       showLogo={false}
     >
       <Select

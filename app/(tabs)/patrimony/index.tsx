@@ -360,7 +360,7 @@ export default function PatrimonyScreen() {
         const response = await deleteAsset(itemToDelete.rawData.id, accessToken, itemToDelete.type);
 
         if (response.success) {
-          Alert.alert('Éxito', 'Activo eliminado correctamente');
+          // Asset deleted successfully
         } else {
           console.error('Delete asset failed:', response.error);
           Alert.alert('Error', response.error || 'No se pudo eliminar el activo');
@@ -372,7 +372,7 @@ export default function PatrimonyScreen() {
       } else {
         const response = await deleteDebt(itemToDelete.rawData.id, accessToken);
         if (response.success) {
-          Alert.alert('Éxito', 'Pasivo eliminado correctamente');
+          // Debt deleted successfully
         } else {
           console.error('Delete debt failed:', response.error);
           Alert.alert('Error', response.error || 'No se pudo eliminar el pasivo');

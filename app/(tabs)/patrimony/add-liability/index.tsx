@@ -387,7 +387,7 @@ export default function AddLiabilityScreen() {
         setTimeout(() => {
           clearEditData();
           router.push('/(tabs)/patrimony');
-        }, 2500);
+        }, 2000);
       } else {
         setServerError(response.error || t('addLiabilityScreen.errors.creationError'));
       }

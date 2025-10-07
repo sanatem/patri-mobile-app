@@ -130,12 +130,8 @@ export default function AddBankAccountPage() {
         setIsSaved(true);
 
         setTimeout(() => {
-          Alert.alert(
-            'Éxito',
-            'Cuenta bancaria agregada correctamente',
-            [{ text: 'OK', onPress: () => router.back() }]
-          );
-        }, 2500);
+          router.back();
+        }, 2000);
       } else {
         Alert.alert('Error', response.message || 'No se pudo agregar la cuenta');
         setIsSubmitting(false);

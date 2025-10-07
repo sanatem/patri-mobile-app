@@ -107,7 +107,6 @@ export default function BankAccountsPage() {
         setBankAccounts(sortedAccounts);
         setShowDeleteModal(false);
         setAccountToDelete(null);
-        Alert.alert('Éxito', 'Cuenta bancaria eliminada correctamente');
       } else {
         Alert.alert('Error', response.message || 'No se pudo eliminar la cuenta');
       }
