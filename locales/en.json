@@ -75,6 +75,7 @@
     "per_month": "/month",
     "already_subscribed": "Already subscribed",
     "active": "Active",
+    "purchased": "Purchased",
     "from": "From",
     "select": "Select...",
     "search_placeholder": "Search...",
@@ -771,7 +772,9 @@
       "title": "Personalized Consulting",
       "price": "$120.000",
       "description": "Schedule a 1-hour session with a certified financial advisor to solve your doubts and create your personalized plan.",
-      "button": "Schedule session"
+      "button": "Schedule session",
+      "oneHourAvailable": "1 hour available",
+      "hoursAvailable": "{{count}} hours available"
     },
     "general": {
       "title": "Plans",

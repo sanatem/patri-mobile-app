@@ -84,6 +84,7 @@
     "per_month": "/mes",
     "already_subscribed": "Ya suscrito",
     "active": "Activo",
+    "purchased": "Comprado",
     "from": "Desde",
     "select": "Seleccionar...",
     "search_placeholder": "Buscar...",
@@ -782,7 +783,9 @@
       "title": "Asesoría Personalizada",
       "price": "$120.000",
       "description": "Agenda una sesión de 1 hora con un asesor financiero certificado para resolver tus dudas y crear tu plan personalizado.",
-      "button": "Agendar hora"
+      "button": "Agendar hora",
+      "oneHourAvailable": "1 hora disponible",
+      "hoursAvailable": "{{count}} horas disponibles"
     },
     "general": {
       "title": "Planes",

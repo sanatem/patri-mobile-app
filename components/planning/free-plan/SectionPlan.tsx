@@ -25,9 +25,10 @@ interface PlanCardData {
 interface SectionPlanProps {
   onCardPress?: (card: PlanCardData) => void;
   isSubscribed?: boolean;
+  consultingHoursAvailable?: number;
 }
 
-const SectionPlan: React.FC<SectionPlanProps> = ({ onCardPress, isSubscribed }) => {
+const SectionPlan: React.FC<SectionPlanProps> = ({ onCardPress, isSubscribed, consultingHoursAvailable = 0 }) => {
   const { t } = useTranslation();
   const planCardsData: PlanCardData[] = [
     {
@@ -61,17 +62,38 @@ const SectionPlan: React.FC<SectionPlanProps> = ({ onCardPress, isSubscribed }) 
     <View className="mb-6 px-4">
       {planCardsData.map((item) => {
         const isSubscriptionCard = item.id === '1';
-        const modifiedItem = isSubscriptionCard && isSubscribed 
-          ? {
-              ...item,
-              buttonText: t('common.already_subscribed'),
-              badge: {
-                text: t('common.active'),
-                bgColor: '#ff6501',
-                textColor: '#FFFFFF'
-              }
+        const isConsultingCard = item.id === 'consulting';
+        
+        let modifiedItem = item;
+
+        if (isSubscriptionCard && isSubscribed) {
+          modifiedItem = {
+            ...item,
+            buttonText: t('common.already_subscribed'),
+            badge: {
+              text: t('common.active'),
+              bgColor: '#ff6501',
+              textColor: '#FFFFFF'
             }
-          : item;
+          };
+        }
+
+        if (isConsultingCard && consultingHoursAvailable > 0) {
+          const hoursText = consultingHoursAvailable === 1 
+            ? t('plans.consulting.oneHourAvailable')
+            : t('plans.consulting.hoursAvailable', { count: consultingHoursAvailable });
+          
+          modifiedItem = {
+            ...item,
+            badge: {
+              text: hoursText,
+              bgColor: '#22c55e',
+              textColor: '#FFFFFF'
+            }
+          };
+        }
+
+        const isDisabled = isSubscriptionCard && isSubscribed;
 
         return (
           <View key={item.id} className="mb-4">
@@ -86,11 +108,11 @@ const SectionPlan: React.FC<SectionPlanProps> = ({ onCardPress, isSubscribed }) 
               minDuration={modifiedItem.minDuration}
               badge={modifiedItem.badge}
               onPress={() => {
-                if (!isSubscriptionCard || !isSubscribed) {
+                if (!isDisabled) {
                   onCardPress?.(item);
                 }
               }}
-              disabled={isSubscriptionCard && isSubscribed}
+              disabled={isDisabled}
             />
           </View>
         );
