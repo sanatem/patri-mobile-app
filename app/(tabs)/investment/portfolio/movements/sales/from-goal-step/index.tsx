@@ -32,7 +32,6 @@ export default function FromGoalStep({
 }: FromGoalStepProps) {
   const { t } = useTranslation();
 
-  // Validación: deshabilitar si no hay metas con saldo y el saldo en caja es 0
   const cannotWithdraw = !hasGoalsWithBalance && cashBalance === 0;
   const isNextDisabled = !goal || (goal !== 'cash-balance' && !destino) || cannotWithdraw;
 
