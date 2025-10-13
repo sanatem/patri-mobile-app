@@ -514,7 +514,8 @@
       "noGoalId": "Goal ID not provided",
       "noToken": "Authentication token not available",
       "unknown": "Unknown error"
-    }
+    },
+    "noAssets": "No assets associated with this goal"
   },
   "portfolio": {
     "title": "Portfolio",

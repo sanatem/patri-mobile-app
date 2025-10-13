@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, FlatList } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, TouchableOpacity, FlatList, PanResponder, Animated } from 'react-native';
 import { ChevronLeft, ArrowUp, ArrowDown } from 'lucide-react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Header } from '@/components/ui/Header';
 import { Container } from '@/components/ui/Container';
 import { Card } from '@/components/ui/Card';
+import { Pagination } from '@/components/ui/Pagination';
 import { getMovementsByGoal, Movement } from '@/services/investment/portfolio/movements/get-movements';
 import { useAuth } from '@/providers/AuthProvider';
 import Colors from '@/constants/Colors';
@@ -15,11 +16,18 @@ export default function MovementsScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const { goalId, goalName } = useLocalSearchParams<{ goalId: string; goalName: string }>();
-  
+
   const { accessToken } = useAuth();
   const [movements, setMovements] = useState<Movement[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const ITEMS_PER_PAGE = 10;
+  const totalPages = Math.ceil(movements.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const visibleMovements = movements.slice(startIndex, endIndex);
 
   const handleBackPress = () => {
     if (!goalId || goalId.trim() === '') {
@@ -45,9 +53,10 @@ export default function MovementsScreen() {
       try {
         setLoading(true);
         setError(null);
-        
+
         const movementsData = await getMovementsByGoal(goalId, accessToken || undefined);
         setMovements(movementsData);
+        setCurrentPage(1);
       } catch (err) {
         console.error('Error loading movements:', err);
         setError(err instanceof Error ? err.message : 'Error cargando movimientos')
@@ -58,6 +67,35 @@ export default function MovementsScreen() {
 
     loadMovements();
   }, [goalId, accessToken]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => false,
+      onStartShouldSetPanResponderCapture: () => false,
+      onMoveShouldSetPanResponder: (_, gestureState) => {
+        const isHorizontalSwipe = Math.abs(gestureState.dx) > Math.abs(gestureState.dy) * 2;
+        const hasMinimumDistance = Math.abs(gestureState.dx) > 30;
+        return isHorizontalSwipe && hasMinimumDistance;
+      },
+      onMoveShouldSetPanResponderCapture: () => false,
+      onPanResponderTerminationRequest: () => false,
+      onPanResponderGrant: () => {},
+      onPanResponderRelease: (_, gestureState) => {
+        const SWIPE_THRESHOLD = 50;
+
+        if (gestureState.dx < -SWIPE_THRESHOLD && currentPage < totalPages) {
+          handlePageChange(currentPage + 1);
+        }
+        else if (gestureState.dx > SWIPE_THRESHOLD && currentPage > 1) {
+          handlePageChange(currentPage - 1);
+        }
+      },
+    })
+  ).current;
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('es-CO', {
@@ -211,15 +249,27 @@ export default function MovementsScreen() {
           </TouchableOpacity>
         }
       />
-      <View className="flex-1 px-4 py-2">
+      <View style={{ flex: 1, paddingHorizontal: 16, paddingVertical: 8 }}>
         {movements.length > 0 ? (
-          <FlatList
-            data={movements}
-            renderItem={renderMovementItem}
-            keyExtractor={(item) => item.id}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 20 }}
-          />
+          <View style={{ flex: 1 }} {...panResponder.panHandlers}>
+            <View style={{ flex: 1 }}>
+              <FlatList
+                data={visibleMovements}
+                renderItem={renderMovementItem}
+                keyExtractor={(item) => item.id}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingBottom: 20 }}
+                scrollEnabled={true}
+              />
+            </View>
+            <View style={{ minHeight: 68 }}>
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+              />
+            </View>
+          </View>
         ) : (
           <View className="flex-1 justify-center items-center py-8">
             <Text className="text-lg font-semibold text-gray-900 mb-2">

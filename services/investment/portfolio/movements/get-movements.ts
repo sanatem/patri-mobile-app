@@ -24,15 +24,15 @@ export interface Movement {
 
 const getMovementType = (apiType: string): 'deposit' | 'withdrawal' => {
   const lowerType = apiType.toLowerCase();
-  
-  if (lowerType === 'deposit_intention' || lowerType === 'open') {
+
+  if (lowerType === 'deposit_intention' || lowerType === 'opening') {
     return 'deposit';
   }
-  
-  if (lowerType === 'closing' || lowerType === 'retirement') {
+
+  if (lowerType === 'retirement' || lowerType === 'retirement_from_goal' || lowerType === 'closing') {
     return 'withdrawal';
   }
-  
+
   return 'deposit';
 };
 

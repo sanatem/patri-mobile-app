@@ -27,3 +27,4 @@ export { Textarea } from './Textarea';
 export { default as RadioButton } from './RadioButton';
 export { SyncModal } from './SyncModal';
 export { ConfirmModal } from './ConfirmModal';
+export { Pagination } from './Pagination';

@@ -509,6 +509,7 @@
   },
   "portfolioDetails": {
     "title": "Detalles de la meta",
+    "noAssets": "No hay activos asociados a esta meta",
     "summary": {
       "strategy": "Estrategia",
       "riskLevel": "Nivel de riesgo",
