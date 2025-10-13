@@ -107,7 +107,7 @@ export default function FromAssetStep({
       subtitle: asset.subtitle || '',
       description: `${t('salesFlow.availableShares')}: ${asset.availableQuotas || 0}`,
       value: asset.value || 0,
-      additionalInfo: `${t('salesFlow.pricePerShare')}: ${formatValue(asset.quotaValue?.toString() || '0')}`
+      additionalInfo: `${t('salesFlow.pricePerShare')}: ${formatValue(String(asset.quotaValue || 0))}`
     })) || [];
 
     return {
