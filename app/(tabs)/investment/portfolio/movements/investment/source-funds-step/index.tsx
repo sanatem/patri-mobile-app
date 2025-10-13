@@ -37,11 +37,16 @@ function SourceFundsStep({
   const { formatValue } = useFormatValue();
 
   const sourceOptions = useMemo(() => {
-    const options = [
-      {
+    const options: { label: string; value: string }[] = [];
+
+    if (amount >= 100000) {
+      options.push({
         label: t('sourceFunds.options.fintoc'),
         value: 'fintoc',
-      },
+      });
+    }
+
+    options.push(
       {
         label: t('sourceFunds.options.bank'),
         value: 'bank',
@@ -49,8 +54,8 @@ function SourceFundsStep({
       {
         label: t('sourceFunds.options.check'),
         value: 'check',
-      },
-    ];
+      }
+    );
 
     if (amount > 0 && amount <= availableCashAmount) {
       options.push({
