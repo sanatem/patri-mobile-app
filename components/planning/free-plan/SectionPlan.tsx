@@ -40,6 +40,14 @@ const SectionPlan: React.FC<SectionPlanProps> = ({ onCardPress, isSubscribed }) 
       iconType: 'coins' as const
     },
     {
+      id: 'consulting',
+      title: t('plans.consulting.title'),
+      price: t('plans.consulting.price'),
+      description: t('plans.consulting.description'),
+      buttonText: t('plans.consulting.button'),
+      iconType: 'calendar' as const
+    },
+    {
       id: '2',
       title: t('plans.general.title'),
       description: t('plans.general.description'),

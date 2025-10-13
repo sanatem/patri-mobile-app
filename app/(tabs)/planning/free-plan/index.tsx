@@ -55,6 +55,13 @@ export default function FreePlan({ onPurchase, isSubscribed = false }: FreePlanP
     
     if (card.title === t('planning.cardTitles.premiumMobile')) {
       await handlePurchase();
+    } else if (card.id === 'consulting') {
+      // TODO: Integrar con RevenueCat para compra de hora de asesoría
+      Alert.alert(
+        'Asesoría Personalizada',
+        'La funcionalidad de compra de asesoría estará disponible próximamente.',
+        [{ text: 'OK' }]
+      );
     } else if (card.title === t('planning.cardTitles.plans')) {
       Linking.openURL('https://patrimore.com/planes').catch(err =>
         console.error('Error al abrir la URL:', err)

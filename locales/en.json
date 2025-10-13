@@ -608,6 +608,16 @@
       "subscription": "There was an issue with the subscription. Please try again.",
       "unexpected": "An unexpected error occurred. Please try again."
     },
+    "consulting": {
+      "success": {
+        "title": "Purchase successful!",
+        "message": "Your consulting session has been confirmed. We will contact you shortly to schedule."
+      },
+      "error": {
+        "purchase": "There was an issue with the purchase. Please try again.",
+        "unexpected": "An unexpected error occurred. Please try again."
+      }
+    },
     "cardTitles": {
       "premiumMobile": "Premium Subscription",
       "plans": "Plans"
@@ -756,6 +766,12 @@
       "duration": "/month",
       "description": "Access all premium features and advanced financial planning tools.",
       "button": "Subscribe"
+    },
+    "consulting": {
+      "title": "Personalized Consulting",
+      "price": "$120.000",
+      "description": "Schedule a 1-hour session with a certified financial advisor to solve your doubts and create your personalized plan.",
+      "button": "Schedule session"
     },
     "general": {
       "title": "Plans",
