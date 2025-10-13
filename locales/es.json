@@ -504,8 +504,7 @@
   },
   "movements": {
     "title": "Movimientos",
-    "emptyTitle": "No hay movimientos",
-    "emptySubtitle": "Aún no hay movimientos registrados para esta meta"
+    "emptyTitle": "Aún no hay movimientos registrados para esta meta"
   },
   "portfolioDetails": {
     "title": "Detalles de la meta",

@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, FlatList, PanResponder, Animated } from 'react-native';
-import { ChevronLeft, ArrowUp, ArrowDown } from 'lucide-react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, FlatList } from 'react-native';
+import { ChevronLeft, ArrowUp, ArrowDown, ArrowLeftRight } from 'lucide-react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Header } from '@/components/ui/Header';
 import { Container } from '@/components/ui/Container';
@@ -71,31 +71,6 @@ export default function MovementsScreen() {
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
-
-  const panResponder = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => false,
-      onStartShouldSetPanResponderCapture: () => false,
-      onMoveShouldSetPanResponder: (_, gestureState) => {
-        const isHorizontalSwipe = Math.abs(gestureState.dx) > Math.abs(gestureState.dy) * 2;
-        const hasMinimumDistance = Math.abs(gestureState.dx) > 30;
-        return isHorizontalSwipe && hasMinimumDistance;
-      },
-      onMoveShouldSetPanResponderCapture: () => false,
-      onPanResponderTerminationRequest: () => false,
-      onPanResponderGrant: () => {},
-      onPanResponderRelease: (_, gestureState) => {
-        const SWIPE_THRESHOLD = 50;
-
-        if (gestureState.dx < -SWIPE_THRESHOLD && currentPage < totalPages) {
-          handlePageChange(currentPage + 1);
-        }
-        else if (gestureState.dx > SWIPE_THRESHOLD && currentPage > 1) {
-          handlePageChange(currentPage - 1);
-        }
-      },
-    })
-  ).current;
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('es-CO', {
@@ -251,7 +226,7 @@ export default function MovementsScreen() {
       />
       <View style={{ flex: 1, paddingHorizontal: 16, paddingVertical: 8 }}>
         {movements.length > 0 ? (
-          <View style={{ flex: 1 }} {...panResponder.panHandlers}>
+          <View style={{ flex: 1 }}>
             <View style={{ flex: 1 }}>
               <FlatList
                 data={visibleMovements}
@@ -272,11 +247,11 @@ export default function MovementsScreen() {
           </View>
         ) : (
           <View className="flex-1 justify-center items-center py-8">
-            <Text className="text-lg font-semibold text-gray-900 mb-2">
+            <View className="w-16 h-16 rounded-full bg-gray-100 justify-center items-center mb-4">
+              <ArrowLeftRight size={32} color={Colors.gray[400]} />
+            </View>
+            <Text className="text-center font-medium" style={{ color: Colors.gray[400] }}>
               {t('movements.emptyTitle')}
-            </Text>
-            <Text className="text-sm text-gray-600 text-center">
-              {t('movements.emptySubtitle')}
             </Text>
           </View>
         )}

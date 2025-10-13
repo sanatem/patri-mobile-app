@@ -494,8 +494,7 @@
   },
   "movements": {
     "title": "Movements",
-    "emptyTitle": "No movements",
-    "emptySubtitle": "No transactions recorded for this goal yet"
+    "emptyTitle": "No transactions recorded for this goal yet"
   },
   "portfolioDetails": {
     "title": "Goal details",
