@@ -27,6 +27,8 @@ export default function InvestmentMovementFlow() {
     webhook_url: string;
   } | null>(null);
   const [showFintocWidget, setShowFintocWidget] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
 
   const { cash } = useCash();
   const { goals } = useGoals();
@@ -57,6 +59,8 @@ export default function InvestmentMovementFlow() {
         return;
       }
 
+      setIsSubmitting(true);
+
       const accountInfo = goals.investment.accountInfo;
       if (!accountInfo) {
         throw new Error('No se encontró información de la cuenta de inversión')
@@ -76,25 +80,31 @@ export default function InvestmentMovementFlow() {
         source: selectedSource,
       };
 
-      const result = await createPurchase(purchaseData);
+      await Promise.all([
+        createPurchase(purchaseData),
+        new Promise(resolve => setTimeout(resolve, 1000))
+      ]);
 
-      Alert.alert(
-        '',
-        'El depósito ha sido creado exitosamente',
-        [{
-          text: 'OK',
-          onPress: () => {
-            Keyboard.dismiss();
-            router.push('/(tabs)/investment/portfolio');
-          }
-        }]
-      );
+      setIsSubmitting(false);
+      setIsSaved(true);
+
+      setTimeout(() => {
+        try {
+          Keyboard.dismiss();
+          router.push('/(tabs)/investment/portfolio');
+        } catch (error) {
+          console.error('Navigation error:', error);
+        }
+      }, 2000);
+
     } catch (error) {
       console.error('Error al crear la compra:', error);
       Alert.alert(
         'Error',
         error instanceof Error ? error.message : 'Ocurrió un error al crear la compra'
       );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -104,6 +114,8 @@ export default function InvestmentMovementFlow() {
       if (!user?.backendUserId || !selectedGoal || !amount) {
         return;
       }
+
+      setIsSubmitting(true);
 
       const accountInfo = goals.investment.accountInfo;
       if (!accountInfo) {
@@ -124,35 +136,42 @@ export default function InvestmentMovementFlow() {
         source: source,
       };
 
-      const result = await createPurchase(purchaseData);
+      const result = await Promise.all([
+        createPurchase(purchaseData),
+        new Promise(resolve => setTimeout(resolve, 1000))
+      ]);
 
-      if (source === 'fintoc' && result?.fintoc_widget) {
+      if (source === 'fintoc' && result[0]?.fintoc_widget) {
         setFintocConfig({
-          widget_token: result.fintoc_widget.widget_token,
-          public_key: result.fintoc_widget.fintoc_public_key,
-          webhook_url: result.fintoc_widget.webhook_url,
+          widget_token: result[0].fintoc_widget.widget_token,
+          public_key: result[0].fintoc_widget.fintoc_public_key,
+          webhook_url: result[0].fintoc_widget.webhook_url,
         });
         setShowFintocWidget(true);
+        setIsSubmitting(false);
         return;
       }
 
-      Alert.alert(
-        '',
-        'El depósito ha sido creado exitosamente',
-        [{
-          text: 'OK',
-          onPress: () => {
-            Keyboard.dismiss();
-            router.push('/(tabs)/investment/portfolio');
-          }
-        }]
-      );
+      setIsSubmitting(false);
+      setIsSaved(true);
+
+      setTimeout(() => {
+        try {
+          Keyboard.dismiss();
+          router.push('/(tabs)/investment/portfolio');
+        } catch (error) {
+          console.error('Navigation error:', error);
+        }
+      }, 2000);
+
     } catch (error) {
       console.error('Error al crear el depósito:', error);
       Alert.alert(
         'Error',
         error instanceof Error ? error.message : 'Ocurrió un error al crear el depósito'
       );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -208,6 +227,8 @@ export default function InvestmentMovementFlow() {
           onConfirm={handleConfirm}
           onPrevious={handleSourceStepPrevious}
           loading={purchaseLoading}
+          isSubmitting={isSubmitting}
+          isSaved={isSaved}
         />
       )}
     </Container>

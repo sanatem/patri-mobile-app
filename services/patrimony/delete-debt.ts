@@ -7,6 +7,20 @@ export interface DeleteDebtResponse {
 
 export const deleteDebt = async (id: number, token: string): Promise<DeleteDebtResponse> => {
   try {
+    if (!id || id <= 0) {
+      return {
+        success: false,
+        error: 'ID de pasivo inválido'
+      };
+    }
+
+    if (!token) {
+      return {
+        success: false,
+        error: 'Token de autenticación requerido'
+      };
+    }
+
     const url = `${config.apiBaseUrl}/api/v2/networth/debts/${id}`;
 
     const response = await fetch(url, {

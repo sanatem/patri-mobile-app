@@ -470,7 +470,7 @@
     "finish": "Finalizar",
     "cashBalance": "Saldo en caja",
     "bankAccount": "Mi cuenta bancaria",
-    "cashBalanceInfo": "Recibirás el dinero en tu cuenta bancaria.",
+    "cashBalanceInfo": "Recibirás el dinero en tu cuenta bancaria",
     "fromGoalStep": {
     "title": "Solicitud de retiro 💸"
     },
@@ -504,11 +504,11 @@
   },
   "movements": {
     "title": "Movimientos",
-    "emptyTitle": "No hay movimientos",
-    "emptySubtitle": "Aún no hay movimientos registrados para esta meta"
+    "emptyTitle": "Aún no hay movimientos registrados para esta meta"
   },
   "portfolioDetails": {
     "title": "Detalles de la meta",
+    "noAssets": "No hay activos asociados a esta meta",
     "summary": {
       "strategy": "Estrategia",
       "riskLevel": "Nivel de riesgo",

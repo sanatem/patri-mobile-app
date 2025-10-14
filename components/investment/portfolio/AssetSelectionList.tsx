@@ -82,7 +82,7 @@ export default function AssetSelectionList({
             onSelect={() => onAssetSelect(option.id)}
             showRadioButton={true}
             isExpandable={false}
-            showDate={option.id === 'portfolio-completo'}
+            showDate={option.id === 'all-portfolio'}
             showValue={option.id !== 'proportional-withdrawal'}
           />
         ))}

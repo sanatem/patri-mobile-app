@@ -13,7 +13,7 @@ export async function getDebtDetail(token: string, id: number, debtType: DebtTyp
       throw new Error('No hay token de autenticación disponible');
     }
 
-    const url = `${config.apiBaseUrl}/api/v2/networth/debts/${id}?debt_type=${debtType}`;
+    const url = `${config.apiBaseUrl}/api/v2/networth/debts/${id}?debt_type=${encodeURIComponent(debtType)}`;
 
     const response = await fetch(url, {
       method: 'GET',

@@ -13,6 +13,7 @@ import { useFormatValue } from '@/hooks/common/useFormatValue';
 import { useAuth } from '@/providers/AuthProvider';
 import { getCash } from '@/services/cash/get-cash';
 import { getBankAccounts, type BankAccount } from '@/services/investment/bank-accounts/get-bank-account';
+import { getPortfolioDetails } from '@/services/investment/portfolio/portfolio-details/get-portfolio-details';
 import type { Goal } from '@/types/api';
 import type { Cash } from '@/services/cash/get-cash';
 
@@ -24,6 +25,7 @@ export default function SalesFlow() {
   const [cashData, setCashData] = useState<Cash | null>(null);
   const [bankAccounts, setBankAccounts] = useState<{ label: string; value: string }[]>([]);
   const [loadingBankAccounts, setLoadingBankAccounts] = useState(false);
+  const [goalsAvailableValues, setGoalsAvailableValues] = useState<Record<string, number>>({});
 
   const router = useRouter();
   const [step, setStep] = useState(1);
@@ -41,16 +43,14 @@ export default function SalesFlow() {
       if (!accessToken) return;
 
       try {
-        // Load cash data
         const cashResponse = await getCash(accessToken);
         setCashData(cashResponse?.cash?.investment || cashResponse?.cash?.savings || null);
 
-        // Load bank accounts
         setLoadingBankAccounts(true);
         const bankResponse = await getBankAccounts(accessToken);
 
         if (bankResponse.success) {
-          // Solo mostrar la cuenta predeterminada en el flujo de ventas
+      
           const defaultAccount = bankResponse.accounts.find(account => account.is_default);
 
           if (defaultAccount) {
@@ -59,8 +59,7 @@ export default function SalesFlow() {
               value: defaultAccount.value
             }];
             setBankAccounts(formattedAccounts);
-
-            // Auto-seleccionar inmediatamente la cuenta predeterminada
+        
             setCashBankAccount(defaultAccount.value);
             setAssetBankAccount(defaultAccount.value);
           } else {
@@ -82,6 +81,42 @@ export default function SalesFlow() {
     loadData();
   }, [accessToken]);
 
+  useEffect(() => {
+    const loadGoalsAvailableValues = async () => {
+      if (!accessToken || goalsLoading) return;
+
+      const allGoals: Goal[] = [
+        ...goalsData.investment.shortTerm,
+        ...goalsData.investment.mediumTerm,
+        ...goalsData.investment.longTerm,
+        ...goalsData.savings.shortTerm,
+        ...goalsData.savings.mediumTerm,
+        ...goalsData.savings.longTerm,
+      ];
+
+      const valuesMap: Record<string, number> = {};
+
+      await Promise.all(
+        allGoals.map(async (goal) => {
+          try {
+            const details = await getPortfolioDetails(goal.id, accessToken);
+            if (details?.assets) {
+              const totalAvailable = details.assets.reduce((sum, asset) => sum + (asset.value || 0), 0);
+              valuesMap[goal.id] = totalAvailable;
+            }
+          } catch (error) {
+            console.error(`Error loading details for goal ${goal.id}:`, error);
+            valuesMap[goal.id] = goal.goalWallet ?? goal.currentAmount ?? 0;
+          }
+        })
+      );
+
+      setGoalsAvailableValues(valuesMap);
+    };
+
+    loadGoalsAvailableValues();
+  }, [accessToken, goalsData, goalsLoading]);
+
 
   const goals = useMemo(() => {
     const allGoals: Goal[] = [
@@ -95,13 +130,13 @@ export default function SalesFlow() {
 
     const goalOptions = allGoals
       .filter(goal => {
-        const amount = goal.availableValueForRetirement ?? goal.goalWallet ?? goal.currentAmount ?? 0;
+        const amount = goalsAvailableValues[goal.id] ?? 0;
         return amount > 0;
       })
       .map(goal => {
-        const amount = goal.availableValueForRetirement ?? goal.goalWallet ?? goal.currentAmount ?? 0;
+        const amount = goalsAvailableValues[goal.id] ?? 0;
         return {
-          label: `${goal.name} (${formatValue(amount.toString())})`,
+          label: `${goal.name} (${formatValue(String(amount))})`,
           value: goal.id
         };
       });
@@ -112,7 +147,7 @@ export default function SalesFlow() {
         : cashData.available_amount;
 
       goalOptions.push({
-        label: `${t('salesFlow.cashBalance')} (${formatValue(availableAmount.toString())})`,
+        label: `${t('salesFlow.cashBalance')} (${formatValue(String(availableAmount))})`,
         value: 'cash-balance'
       });
     } else {
@@ -123,7 +158,7 @@ export default function SalesFlow() {
     }
 
     return goalOptions;
-  }, [goalsData, formatValue, t, cashData]);
+  }, [goalsData, formatValue, t, cashData, goalsAvailableValues]);
 
   const destinos = useMemo(() => {
     if (!goal || goal === 'cash-balance') {
@@ -199,6 +234,30 @@ export default function SalesFlow() {
   ];
   const cuentas: { label: string; value: string }[] = [];
 
+  const hasGoalsWithBalance = useMemo(() => {
+    const allGoals: Goal[] = [
+      ...goalsData.investment.shortTerm,
+      ...goalsData.investment.mediumTerm,
+      ...goalsData.investment.longTerm,
+      ...goalsData.savings.shortTerm,
+      ...goalsData.savings.mediumTerm,
+      ...goalsData.savings.longTerm,
+    ];
+
+    return allGoals.some(goal => {
+      const amount = goal.availableValueForRetirement ?? goal.goalWallet ?? goal.currentAmount ?? 0;
+      return amount > 0;
+    });
+  }, [goalsData]);
+
+  const cashBalance = useMemo(() => {
+    if (!cashData) return 0;
+    const availableAmount = typeof cashData.available_amount === 'string'
+      ? parseFloat(cashData.available_amount)
+      : cashData.available_amount;
+    return availableAmount || 0;
+  }, [cashData]);
+
   const handleGoalChange = (newGoal: string) => {
     setGoal(newGoal);
     if (newGoal === 'cash-balance') {
@@ -225,6 +284,8 @@ export default function SalesFlow() {
           setDestino={setDestino}
           goals={goals}
           destinos={destinos}
+          cashBalance={cashBalance}
+          hasGoalsWithBalance={hasGoalsWithBalance}
           onNext={() => goal === 'cash-balance' ? setStep(2) : setStep(2)}
           onCancel={handleCancel}
         />

@@ -21,6 +21,22 @@ export interface SavingInstrumentActable {
   return_rate?: number | null;
   tax_regime?: string;
   funds?: Record<string, number>;
+  fund_id?: number;
+  fund_kind?: 'investment' | 'mutual';
+  fund_series_id?: number;
+  mutual_fund_manager_id?: number;
+  mutual_fund_manager_name?: string;
+  mutual_fund_id?: number;
+  mutual_fund_name?: string;
+  mutual_fund_rent_kind?: 'fixed' | 'variable' | 'mutual';
+  mutual_fund_asset_class?: 'mutual' | 'investment';
+  mutual_fund_series_id?: number;
+  mutual_fund_series_name?: string;
+  mutual_fund_series_initial_quote?: number;
+  investment_fund_id?: number;
+  investment_fund_name?: string;
+  investment_fund_series_id?: number;
+  investment_fund_series_name?: string;
   comments?: string;
 }
 

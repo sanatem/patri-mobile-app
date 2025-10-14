@@ -460,7 +460,7 @@
     "finish": "Finish",
     "cashBalance": "Cash balance",
     "bankAccount": "My bank account",
-    "cashBalanceInfo": "You will receive the money in your bank account.",
+    "cashBalanceInfo": "You will receive the money in your bank account",
     "fromGoalStep": {
       "title": "Withdrawal request 💸"
     },
@@ -494,8 +494,7 @@
   },
   "movements": {
     "title": "Movements",
-    "emptyTitle": "No movements",
-    "emptySubtitle": "No transactions recorded for this goal yet"
+    "emptyTitle": "No transactions recorded for this goal yet"
   },
   "portfolioDetails": {
     "title": "Goal details",
@@ -514,7 +513,8 @@
       "noGoalId": "Goal ID not provided",
       "noToken": "Authentication token not available",
       "unknown": "Unknown error"
-    }
+    },
+    "noAssets": "No assets associated with this goal"
   },
   "portfolio": {
     "title": "Portfolio",

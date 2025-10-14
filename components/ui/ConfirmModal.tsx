@@ -31,7 +31,12 @@ export function ConfirmModal({
     : '¿Estás seguro de que deseas eliminar este elemento? Esta acción no se puede deshacer.';
 
   return (
-    <Modal visible={visible} transparent animationType="fade">
+    <Modal
+      visible={visible}
+      transparent
+      animationType="fade"
+      onRequestClose={onClose}
+    >
       <View style={{
         flex: 1,
         justifyContent: 'center',

@@ -14,20 +14,27 @@ interface FromGoalStepProps {
   onCancel: () => void;
   goals: { label: string; value: string }[];
   destinos: { label: string; value: string }[];
+  cashBalance: number;
+  hasGoalsWithBalance: boolean;
 }
 
-export default function FromGoalStep({ 
-  goal, 
-  setGoal, 
-  destino, 
-  setDestino, 
-  onNext, 
+export default function FromGoalStep({
+  goal,
+  setGoal,
+  destino,
+  setDestino,
+  onNext,
   onCancel,
   goals,
-  destinos 
+  destinos,
+  cashBalance,
+  hasGoalsWithBalance
 }: FromGoalStepProps) {
   const { t } = useTranslation();
-  
+
+  const cannotWithdraw = !hasGoalsWithBalance && cashBalance === 0;
+  const isNextDisabled = !goal || (goal !== 'cash-balance' && !destino) || cannotWithdraw;
+
   return (
     <FormLayout
       title={t('salesFlow.fromGoalStep.title')}
@@ -37,7 +44,7 @@ export default function FromGoalStep({
       onNext={onNext}
       onCancel={onCancel}
       nextButtonTitle={t('salesFlow.next')}
-      isNextDisabled={!goal || (goal !== 'cash-balance' && !destino)}
+      isNextDisabled={isNextDisabled}
       showLogo={false}
     >
       <Select

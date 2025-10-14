@@ -142,8 +142,8 @@ export default function MutualFundsFields({
         }
 
         const allFunds = [
-          ...(response.data.investment_funds || []),
-          ...(response.data.mutual_funds || [])
+          ...(response.data.investment_funds || []).map(f => ({ ...f, kind: 'investment' as const })),
+          ...(response.data.mutual_funds || []).map(f => ({ ...f, kind: 'mutual' as const }))
         ];
 
         if (allFunds.length === 0) {
@@ -169,10 +169,16 @@ export default function MutualFundsFields({
     value: `${fundItem.kind}@${fundItem.id}`,
   }));
 
+  type FundKind = 'investment' | 'mutual';
+
   const selectedFund = useMemo(() => {
     if (!fund) return undefined;
-    const [kind, id] = fund.includes('@') ? fund.split('@') : ['mutual', fund];
-    return funds.find((f) => f.id.toString() === id && f.kind === (kind as any));
+    if (!fund.includes('@')) {
+      console.warn('Invalid fund format, expected "kind@id":', fund);
+      return undefined;
+    }
+    const [kind, id] = fund.split('@') as [FundKind, string];
+    return funds.find((f) => f.id.toString() === id && f.kind === kind);
   }, [funds, fund]);
   const [seriesOptions, setSeriesOptions] = useState<Array<{ label: string; value: string }>>([]);
 

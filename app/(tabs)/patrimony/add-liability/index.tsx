@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, ActivityIndicator } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import {
   FormLayout,
@@ -16,18 +16,25 @@ import { useAuth } from '@/providers/AuthProvider';
 import { useFormatValue } from '@/hooks/common/useFormatValue';
 import { ApiProperty } from '@/types/api';
 import { useTranslation } from 'react-i18next';
-import { useAssetEditStore } from '@/store/assetEditStore';
+import { useLiabilityEditStore } from '@/store/liabilityEditStore';
 
 const cleanIntegerValue = (value: string) => value.replace(/[^\d]/g, '');
 
 export default function AddLiabilityScreen() {
   const { t } = useTranslation();
   const params = useLocalSearchParams();
-  const { editData, clearEditData } = useAssetEditStore();
+  const { editData, clearEditData } = useLiabilityEditStore();
 
-  const isEditMode = !!(editData?.editMode || params.editMode);
-  const debtId = editData?.itemId || (params.debtId ? parseInt(params.debtId as string) : undefined);
-  const debtTypeParam = editData?.itemType;
+  const rawEditMode = (editData?.editMode ?? params.editMode);
+  const isEditMode =
+    rawEditMode === true ||
+    rawEditMode === 'true' ||
+    rawEditMode === '1';
+  const debtId =
+    editData?.itemId ?? (typeof params.debtId === 'string' ? Number(params.debtId) : undefined);
+  const debtTypeParam =
+    (editData?.itemType as string | undefined) ??
+    (typeof params.debtType === 'string' ? params.debtType : undefined);
 
   const DEBT_CATEGORY_OPTIONS = [
     { label: t('addLiabilityScreen.debtCategoryOptions.1'), value: '1' },
@@ -69,6 +76,7 @@ export default function AddLiabilityScreen() {
   const [serverError, setServerError] = useState<string | null>(null);
   const [properties, setProperties] = useState<ApiProperty[]>([]);
   const [loadingProperties, setLoadingProperties] = useState(false);
+  const [loadingInitialData, setLoadingInitialData] = useState(false);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
@@ -137,6 +145,7 @@ export default function AddLiabilityScreen() {
     const loadDebtDetail = async () => {
       if (!isEditMode || !debtId || !accessToken || !debtTypeParam) return;
 
+      setLoadingInitialData(true);
       try {
         const debtData = await getDebtDetail(accessToken, debtId, debtTypeParam as any);
 
@@ -220,13 +229,15 @@ export default function AddLiabilityScreen() {
         setFormData(baseFormData);
       } catch (error) {
         console.error('Error parsing debt data:', error);
+      } finally {
+        setLoadingInitialData(false);
       }
     };
 
     if (isEditMode) {
       loadDebtDetail();
     }
-  }, []);
+  }, [isEditMode, debtId, accessToken, debtTypeParam]);
 
   const validateForm = () => {
     const newErrors: string[] = [];
@@ -376,7 +387,7 @@ export default function AddLiabilityScreen() {
         setTimeout(() => {
           clearEditData();
           router.push('/(tabs)/patrimony');
-        }, 2500);
+        }, 2000);
       } else {
         setServerError(response.error || t('addLiabilityScreen.errors.creationError'));
       }
@@ -405,7 +416,13 @@ export default function AddLiabilityScreen() {
       isNextDisabled={errors.length > 0}
       error={serverError || (errors.length > 0 ? errors[0] : null)}
     >
-      <View>
+      {loadingInitialData ? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', minHeight: 300 }}>
+          <ActivityIndicator size="large" color={Colors.secondary[500]} />
+        </View>
+      ) : (
+        <>
+          <View>
         <Text className='text-base font-medium'
           style={{
             color: Colors.primary[500],
@@ -512,6 +529,8 @@ export default function AddLiabilityScreen() {
           onNumericInputChange={handleNumericInputChange}
           formatValue={formatValue}
         />
+      )}
+        </>
       )}
     </FormLayout>
   );

@@ -62,8 +62,8 @@ export default function ConfirmationStep({
 
     try {
       const amount = Math.round(goal === 'cash-balance'
-        ? parseFloat(cashAmount.replace(/[^0-9.]/g, '')) || 0
-        : parseFloat(assetAmount) || 0);
+        ? parseFloat(cashAmount.replace(/[^0-9]/g, '')) || 0
+        : parseFloat(assetAmount.replace(/[^0-9]/g, '')) || 0);
 
       if (amount <= 0) {
         Alert.alert('Error', 'El monto debe ser mayor a 0');
@@ -120,21 +120,12 @@ export default function ConfirmationStep({
       setIsSaved(true);
 
       setTimeout(() => {
-        Alert.alert(
-          '',
-          'La solicitud de retiro ha sido creada exitosamente',
-          [{
-            text: 'OK',
-            onPress: () => {
-              try {
-                onFinish();
-              } catch (error) {
-                console.error('Navigation error:', error);
-              }
-            }
-          }]
-        );
-      }, 2500);
+        try {
+          onFinish();
+        } catch (error) {
+          console.error('Navigation error:', error);
+        }
+      }, 2000);
 
     } catch (error) {
       console.error('Error creating sale:', error);
