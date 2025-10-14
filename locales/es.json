@@ -84,6 +84,7 @@
     "per_month": "/mes",
     "already_subscribed": "Ya suscrito",
     "active": "Activo",
+    "purchased": "Comprado",
     "from": "Desde",
     "select": "Seleccionar...",
     "search_placeholder": "Buscar...",
@@ -618,6 +619,16 @@
       "subscription": "Hubo un problema con la suscripción. Intenta nuevamente.",
       "unexpected": "Hubo un problema inesperado. Intenta nuevamente."
     },
+    "consulting": {
+      "success": {
+        "title": "¡Compra exitosa!",
+        "message": "Tu hora de asesoría ha sido confirmada. En breve nos contactaremos contigo para agendar."
+      },
+      "error": {
+        "purchase": "Hubo un problema con la compra. Intenta nuevamente.",
+        "unexpected": "Ocurrió un error inesperado. Intenta nuevamente."
+      }
+    },
     "cardTitles": {
       "premiumMobile": "Suscripción Premium",
       "plans": "Planes"
@@ -767,6 +778,14 @@
       "duration": "/mes",
       "description": "Accede a todas las funcionalidades premium y herramientas avanzadas de planificación financiera.",
       "button": "Suscribirme"
+    },
+    "consulting": {
+      "title": "Asesoría Personalizada",
+      "price": "$120.000",
+      "description": "Agenda una sesión de 1 hora con un asesor financiero certificado para resolver tus dudas y crear tu plan personalizado.",
+      "button": "Agendar hora",
+      "oneHourAvailable": "1 hora disponible",
+      "hoursAvailable": "{{count}} horas disponibles"
     },
     "general": {
       "title": "Planes",
