@@ -38,7 +38,7 @@ export interface CreateDebtResponse {
 
 export const createDebt = async (data: CreateDebtRequest, token: string): Promise<CreateDebtResponse> => {
   try {
-    const url = `${config.apiBaseUrl}/api/v2/networth/create_debt`;
+    const url = `${config.apiBaseUrl}/api/v2/networth/debts`;
 
     const response = await fetch(url, {
       method: 'POST',

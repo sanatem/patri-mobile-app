@@ -1,10 +1,12 @@
 import React from 'react';
-import { 
-  View, 
-  Text, 
-  ScrollView, 
-  Dimensions, 
-  ActivityIndicator 
+import {
+  View,
+  Text,
+  ScrollView,
+  Dimensions,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform
 } from 'react-native';
 import { 
   Button, 
@@ -32,10 +34,12 @@ interface FormLayoutProps {
   previousButtonTitle?: string;
   cancelButtonTitle?: string;
   isLoading?: boolean;
+  isSaved?: boolean;
   isNextDisabled?: boolean;
   error?: string | null;
   showLogo?: boolean;
   loadingText?: string;
+  savedText?: string;
 }
 
 export default function FormLayout({
@@ -51,10 +55,12 @@ export default function FormLayout({
   previousButtonTitle,
   cancelButtonTitle,
   isLoading = false,
+  isSaved = false,
   isNextDisabled = false,
   error = null,
   showLogo = true,
-  loadingText
+  loadingText,
+  savedText
 }: FormLayoutProps) {
   const { t } = useTranslation();
   const { keyboardHeight, isKeyboardVisible } = useKeyboardHandler();
@@ -63,6 +69,7 @@ export default function FormLayout({
   const _prevTitle = previousButtonTitle ?? t('common.back');
   const _cancelTitle = cancelButtonTitle ?? t('common.cancel');
   const _loadingText = loadingText ?? t('common.saving');
+  const _savedText = savedText ?? t('common.saved');
 
   const renderProgressIndicators = () => {
     return (
@@ -90,101 +97,114 @@ export default function FormLayout({
   return (
     <KeyboardAwareContainer>
       <Container variant="secondaryPage">
-        <ScrollView
-          style={{
-            flex: 1,
-            paddingBottom: isKeyboardVisible ? keyboardHeight + 20 : 0
-          }}
-          showsVerticalScrollIndicator={false}
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
         >
-          <View style={{ flex: 1, paddingHorizontal: 24, paddingTop: height * 0.1 }}>
-            {showLogo && (
-              <View style={{ alignItems: 'center', marginBottom: 10 }}>
-                <PatrimoreIcon width={140} height={50} color={Colors.secondary[500]} />
-              </View>
-            )}
+          <View style={{ flex: 1 }}>
+            <ScrollView
+              style={{ flex: 1 }}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{ paddingBottom: 120 }}
+              keyboardShouldPersistTaps="handled"
+            >
+              <View style={{ flex: 1, paddingHorizontal: 24, paddingTop: height * 0.1 }}>
+                {showLogo && (
+                  <View style={{ alignItems: 'center', marginBottom: 10 }}>
+                    <PatrimoreIcon width={140} height={50} color={Colors.secondary[500]} />
+                  </View>
+                )}
 
-            <Card style={{ padding: 24, marginBottom: 24 }}>
-              <View style={{ marginBottom: 24 }}>
-                <Text className='font-medium text-2xl'
-                  style={{
-                    color: Colors.primary[700],
-                    textAlign: 'center',
-                    marginBottom: 8,
-                  }}
-                >
-                  {title}
-                </Text>
-                <Text className='text-base font-regular text-center'
-                  style={{
-                    color: Colors.primary[500],
-                    textAlign: 'center',
-                  }}
-                >
-                  {subtitle}
-                </Text>
-                
-                {totalSteps > 1 && renderProgressIndicators()}
-              </View>
+                <Card style={{ padding: 24, marginBottom: 40 }}>
+                  <View style={{ marginBottom: 24 }}>
+                    <Text className='font-medium text-2xl'
+                      style={{
+                        color: Colors.primary[700],
+                        textAlign: 'center',
+                        marginBottom: 8,
+                      }}
+                    >
+                      {title}
+                    </Text>
+                    <Text className='text-base font-regular text-center'
+                      style={{
+                        color: Colors.primary[500],
+                        textAlign: 'center',
+                      }}
+                    >
+                      {subtitle}
+                    </Text>
 
-              <View style={{ gap: 20 }}>
-                {children}
-              </View>
+                    {totalSteps > 1 && renderProgressIndicators()}
+                  </View>
 
-              {error && (
-                <View style={{ 
-                  backgroundColor: Colors.error[50], 
-                  borderWidth: 1, 
-                  borderColor: Colors.error[200],
-                  borderRadius: 8,
-                  padding: 12,
-                  marginBottom: 16,
-                  marginTop: 16
-                }}>
-                  <Text className="text-sm font-medium" style={{ color: Colors.error[700] }}>
-                    Error
-                  </Text>
-                  <Text className="text-sm font-regular" style={{ color: Colors.error[600], marginTop: 4 }}>
-                    {error}
-                  </Text>
-                </View>
+                  <View style={{ gap: 20 }}>
+                    {children}
+                  </View>
+
+                  {error && (
+                    <View style={{
+                      backgroundColor: Colors.error[50],
+                      borderWidth: 1,
+                      borderColor: Colors.error[200],
+                      borderRadius: 8,
+                      padding: 12,
+                      marginBottom: 16,
+                      marginTop: 16
+                    }}>
+                      <Text className="text-sm font-medium" style={{ color: Colors.error[700] }}>
+                        Error
+                      </Text>
+                      <Text className="text-sm font-regular" style={{ color: Colors.error[600], marginTop: 4 }}>
+                        {error}
+                      </Text>
+                    </View>
+                  )}
+                </Card>
+              </View>
+            </ScrollView>
+
+            <View style={{
+              backgroundColor: '#fff',
+              paddingHorizontal: 24,
+              paddingVertical: 16,
+              gap: 10,
+            }}>
+              {onNext && (
+                <Button
+                  title={isSaved ? _savedText : (isLoading ? _loadingText : _nextTitle)}
+                  onPress={onNext}
+                  disabled={isLoading || isNextDisabled || isSaved}
+                  loading={isLoading}
+                  saved={isSaved}
+                  variant="primary"
+                  fullWidth
+                />
               )}
 
-              <View style={{ marginTop: 32, gap: 12 }}>
-                {onNext && (
-                  <Button
-                    title={isLoading ? _loadingText : _nextTitle}
-                    onPress={onNext}
-                    disabled={isLoading || isNextDisabled}
-                    loading={isLoading}
-                    variant="primary"
-                    fullWidth
-                  />
-                )}
-                
-                {onPrevious && currentStep > 1 && (
-                  <Button
-                    title={_prevTitle}
-                    onPress={onPrevious}
-                    disabled={isLoading}
-                    variant="ghost"
-                    fullWidth
-                  />
-                )}
+              {onPrevious && currentStep > 1 && (
+                <Button
+                  title={_prevTitle}
+                  onPress={onPrevious}
+                  disabled={isLoading}
+                  variant="ghost"
+                  fullWidth
+                />
+              )}
 
-                {onCancel && (
-                  <Button
-                    title={_cancelTitle}
-                    onPress={onCancel}
-                    disabled={isLoading}
-                    variant="ghost"
-                    fullWidth
-                  />
-                )}
-              </View>
-            </Card>
+              {onCancel && (
+                <Button
+                  title={_cancelTitle}
+                  onPress={onCancel}
+                  disabled={isLoading}
+                  variant="ghost"
+                  fullWidth
+                />
+              )}
+            </View>
           </View>
-        </ScrollView>
+        </KeyboardAvoidingView>
       </Container>
     </KeyboardAwareContainer>
   );

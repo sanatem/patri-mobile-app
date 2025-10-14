@@ -4,6 +4,9 @@ import type { ApiSavingInstrumentsFundsResponse } from '@/types/api';
 export interface GetSavingInstrumentsFundsParams {
   page?: number;
   per_page?: number;
+  kind?: 'investment' | 'mutual';
+  search?: string;
+  id?: number;
 }
 
 export async function getSavingInstrumentsFunds(
@@ -16,25 +19,33 @@ export async function getSavingInstrumentsFunds(
     }
 
     const queryParams = new URLSearchParams();
-    
+
     if (params.page) {
       queryParams.append('page', params.page.toString());
     }
-    
+
     if (params.per_page) {
       queryParams.append('per_page', params.per_page.toString());
     }
 
-    // Verificar si la URL base está configurada
+    if (params.kind) {
+      queryParams.append('kind', params.kind);
+    }
+
+    if (params.search) {
+      queryParams.append('search', params.search);
+    }
+
+    if (params.id) {
+      queryParams.append('id', params.id.toString());
+    }
+
     if (!config.apiBaseUrl) {
       console.error('❌ API base URL not configured');
       throw new Error('URL base de la API no configurada');
     }
 
     const url = `${config.apiBaseUrl}/api/v2/saving_instruments/funds${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
-    
-    console.log('🌐 Fetching funds from URL:', url);
-    console.log('🔧 API Base URL:', config.apiBaseUrl);
 
     const response = await fetch(url, {
       method: 'GET',
@@ -44,7 +55,6 @@ export async function getSavingInstrumentsFunds(
       },
     });
 
-    console.log('📡 Response status:', response.status, response.statusText);
 
     if (!response.ok) {
       if (response.status === 401) {
@@ -60,7 +70,6 @@ export async function getSavingInstrumentsFunds(
     }
 
     const data: ApiSavingInstrumentsFundsResponse = await response.json();
-    console.log('📊 Service response data:', data);
     return data;
 
   } catch (error) {

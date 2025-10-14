@@ -8,18 +8,20 @@ interface FixedAssetFieldsProps {
   asset_category_id: string;
   commercial_value: string;
   unit: string;
+  isEditMode?: boolean;
   onSelectChange: (field: string, value: string) => void;
   onNumericInputChange: (field: string, value: string) => void;
   formatValue: (value: string) => string;
 }
 
-export default function FixedAssetFields({ 
-  asset_category_id, 
-  commercial_value, 
-  unit, 
-  onSelectChange, 
-  onNumericInputChange, 
-  formatValue 
+export default function FixedAssetFields({
+  asset_category_id,
+  commercial_value,
+  unit,
+  isEditMode = false,
+  onSelectChange,
+  onNumericInputChange,
+  formatValue
 }: FixedAssetFieldsProps) {
   const { t } = useTranslation();
   const ASSET_CATEGORY_OPTIONS = [
@@ -42,6 +44,7 @@ export default function FixedAssetFields({
           value={asset_category_id}
           onSelect={(value) => onSelectChange('asset_category_id', value)}
           placeholder={t('fixedAssetFields.assetCategoryPlaceholder')}
+          disabled={isEditMode}
         />
       </View>
 

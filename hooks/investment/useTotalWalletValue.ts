@@ -1,4 +1,4 @@
-// hooks/investment/useTotalWalletValue.ts
+
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/providers/AuthProvider';
 import config from '@/config/constants';
@@ -6,6 +6,8 @@ import { getCash } from '@/services/cash/get-cash';
 
 interface UseTotalWalletValueReturn {
   totalWalletValue: number;
+  investmentWalletValue: number;
+  savingsWalletValue: number;
   loading: boolean;
   error: string | null;
   refetch: () => Promise<void>;
@@ -14,6 +16,8 @@ interface UseTotalWalletValueReturn {
 export function useTotalWalletValue(): UseTotalWalletValueReturn {
   const { accessToken } = useAuth();
   const [totalWalletValue, setTotalWalletValue] = useState<number>(0);
+  const [investmentWalletValue, setInvestmentWalletValue] = useState<number>(0);
+  const [savingsWalletValue, setSavingsWalletValue] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -29,43 +33,28 @@ export function useTotalWalletValue(): UseTotalWalletValueReturn {
       
       const cashData = await getCash(accessToken);
       
-      const totalAmount = cashData?.cash?.total_amount;
+      const investmentAmount = cashData?.cash?.investment?.total_amount;
+      const investmentValue = investmentAmount 
+        ? (typeof investmentAmount === 'string' ? parseFloat(investmentAmount) : investmentAmount)
+        : 0;
+      const finalInvestmentValue = !isNaN(investmentValue) ? Math.round(investmentValue) : 0;
       
-      if (totalAmount !== undefined && totalAmount !== null) {
-        const numericValue = typeof totalAmount === 'string' ? parseFloat(totalAmount) : totalAmount;
-        if (!isNaN(numericValue)) {
-          setTotalWalletValue(Math.round(numericValue));
-          return;
-        }
-      }
+      const savingsAmount = cashData?.cash?.savings?.total_amount;
+      const savingsValue = savingsAmount 
+        ? (typeof savingsAmount === 'string' ? parseFloat(savingsAmount) : savingsAmount)
+        : 0;
+      const finalSavingsValue = !isNaN(savingsValue) ? Math.round(savingsValue) : 0;
+      const total = finalInvestmentValue + finalSavingsValue;
       
-      const url = `${config.apiBaseUrl}/api/v2/goals`;
-      const response = await fetch(url, {
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        const goals = data.goals || [];
-        let total = 0;
-        
-        goals.forEach((goal: any) => {
-          const walletValue = Math.round(Number(goal.wallet_value) || 0);
-          total += walletValue;
-        });
-
-        setTotalWalletValue(Math.round(total));
-      } else {
-        setTotalWalletValue(0);
-      }
+      setInvestmentWalletValue(finalInvestmentValue);
+      setSavingsWalletValue(finalSavingsValue);
+      setTotalWalletValue(total);
 
     } catch (err) {
-      console.error('❌ Error in fetchTotalWalletValue:', err);
       setError(err instanceof Error ? err.message : 'Error desconocido');
       setTotalWalletValue(0);
+      setInvestmentWalletValue(0);
+      setSavingsWalletValue(0);
     } finally {
       setLoading(false);
     }
@@ -77,6 +66,8 @@ export function useTotalWalletValue(): UseTotalWalletValueReturn {
 
   return {
     totalWalletValue,
+    investmentWalletValue,
+    savingsWalletValue,
     loading,
     error,
     refetch: fetchTotalWalletValue,

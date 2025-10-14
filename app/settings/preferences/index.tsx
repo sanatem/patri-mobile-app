@@ -5,7 +5,7 @@ import { useRouter } from 'expo-router';
 import { ArrowLeft, Languages } from 'lucide-react-native';
 
 import { Select } from '@/components/ui/Select';
-import { setAppLanguage, LANGUAGE_KEY } from '../lib/i18n';
+import { setAppLanguage, LANGUAGE_KEY } from '@/lib/i18n';
 import Colors from '@/constants/Colors';
 import { useTranslation } from 'react-i18next';
 import { useMemo } from 'react';

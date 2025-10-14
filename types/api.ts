@@ -183,7 +183,8 @@ export interface ApiGoal {
   target_date: string;
   unit: string;
   created_at: string;
-  wallet_value: number;
+  goal_wallet: number;
+  available_value_for_retirement?: number;
   investment_account_id: number;
 }
 
@@ -202,6 +203,8 @@ export interface Goal {
   unit: string;
   createdAt: string;
   currentAmount: number;
+  goalWallet?: number;
+  availableValueForRetirement?: number;
   investmentAccountId: number;
   progress: number;
 }
@@ -337,8 +340,9 @@ export interface ApiDebt {
   installment_amount: number;
   installments_quantity: number;
   unit: string;
-  cae_percentage: number;
-  comments: string;
+  cae_percentage: number | string;
+  comments: string | null;
+  property_id?: number | null;
   created_at: string;
   updated_at: string;
 }

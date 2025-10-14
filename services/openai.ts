@@ -1,11 +1,16 @@
-import OpenAI from 'openai';
+import { Platform } from 'react-native';
 import chatbotContext from '@/data/mock/chatbot-context.json';
 
-// Configuración de OpenAI
-const openai = new OpenAI({
-  apiKey: process.env.EXPO_PUBLIC_OPENAI_API_KEY || '',
-  dangerouslyAllowBrowser: true, // Solo para desarrollo, en producción usar un backend
-});
+// Solo importar OpenAI en plataformas nativas (no web)
+let OpenAI: any = null;
+let openai: any = null;
+
+if (Platform.OS !== 'web') {
+  OpenAI = require('openai').default;
+  openai = new OpenAI({
+    apiKey: process.env.EXPO_PUBLIC_OPENAI_API_KEY || '',
+  });
+}
 
 export interface Message {
   id: string;
@@ -106,22 +111,26 @@ RECUERDA: Responde SIEMPRE en texto plano sin ningún formato especial. Usa toda
   }
 
   async sendMessage(context: CopilotContext): Promise<OpenAIResponse> {
+    // En web, usar respuestas mock
+    if (Platform.OS === 'web' || !openai) {
+      return this.getMockResponse(context);
+    }
+
     try {
       // Construir el contexto completo para OpenAI
       const contextMessage = this.buildContextMessage(context);
 
       // Convertir mensajes al formato de OpenAI
-      const openAIMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] =
-        [
-          {
-            role: 'system',
-            content: this.systemPrompt,
-          },
-          {
-            role: 'system',
-            content: contextMessage,
-          },
-        ];
+      const openAIMessages: any[] = [
+        {
+          role: 'system',
+          content: this.systemPrompt,
+        },
+        {
+          role: 'system',
+          content: contextMessage,
+        },
+      ];
 
       // Agregar los mensajes de la conversación
       context.messages.forEach((msg) => {
@@ -151,20 +160,51 @@ RECUERDA: Responde SIEMPRE en texto plano sin ningún formato especial. Usa toda
         completion.choices[0]?.message?.content ||
         'Lo siento, no pude procesar tu consulta en este momento.';
 
-      // TODO: Implementar detección de acciones si es necesario
       return {
         content: response,
-        // action: este campo se puede implementar más adelante si necesitas que OpenAI ejecute acciones específicas
       };
     } catch (error) {
       console.error('Error calling OpenAI API:', error);
 
-      // Fallback para errores
       return {
         content:
           'Lo siento, hubo un problema al procesar tu consulta. Por favor intenta de nuevo en unos momentos.',
       };
     }
+  }
+
+  private getMockResponse(context: CopilotContext): Promise<OpenAIResponse> {
+    const lastMessage = context.messages[context.messages.length - 1]?.content?.toLowerCase() || '';
+
+    let response = '';
+
+    if (lastMessage.includes('patrimonio') || lastMessage.includes('dinero')) {
+      response = `Basándome en tus datos financieros actuales:
+
+Tu patrimonio neto total es de $${chatbotContext.patrimony.totals.totalNetWorth.toLocaleString('es-CL')} CLP.
+
+Esto se compone de:
+• Activos totales: $${chatbotContext.patrimony.totals.totalAssets.toLocaleString('es-CL')} CLP
+• Pasivos totales: $${chatbotContext.patrimony.totals.totalLiabilities.toLocaleString('es-CL')} CLP
+
+Tu mayor activo son las Inversiones Vector que representan una parte muy significativa de tu patrimonio.`;
+    } else if (lastMessage.includes('ahorro') || lastMessage.includes('gasto')) {
+      response = `Según tu análisis de gastos e ingresos:
+
+Tu tasa de ahorro actual es del ${chatbotContext.monthlyTrends.incomeVsExpenses.savingsRate}%.
+
+Esta es una excelente tasa de ahorro que te permite construir patrimonio de manera consistente. Te sugiero mantener este ritmo y considerar diversificar tus inversiones.`;
+    } else {
+      response = `Hola! Soy tu Copiloto financiero. Puedo ayudarte a analizar tu patrimonio, revisar tus gastos e ingresos, y darte consejos personalizados.
+
+Tu patrimonio actual es de $${chatbotContext.patrimony.totals.totalNetWorth.toLocaleString('es-CL')} CLP.
+
+¿En qué puedo ayudarte específicamente?`;
+    }
+
+    return Promise.resolve({
+      content: response + '\n\n(Nota: Funcionalidad limitada en web. Para funciones completas usa la app móvil.)'
+    });
   }
 
   private buildContextMessage(context: CopilotContext): string {

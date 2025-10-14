@@ -56,16 +56,14 @@ const BudgetChart: React.FC<BudgetChartProps> = ({
     }
   };
 
-  // ✅ FUNCIÓN PARA OBTENER COLOR DINÁMICO DEL GRÁFICO
   const getGraphColor = () => {
     if (balance >= 0) {
-      return Colors.success[500]; // ✅ Verde para balance positivo
+      return Colors.success[500];
     } else {
-      return Colors.secondary[500]; // ✅ Secondary (naranja/azul) para balance negativo
+      return Colors.secondary[500];
     }
   };
 
-  // ✅ ESTADO DE CARGA
   if (isLoading) {
     return (
       <View style={[styles.container, { minHeight: chartSize }]}>
@@ -99,7 +97,6 @@ const BudgetChart: React.FC<BudgetChartProps> = ({
     );
   }
 
-  // ✅ ESTADO SIN DATOS
   if (!hasRealData || (totalIncome === 0 && totalExpenses === 0)) {
     return (
       <Animated.View style={[styles.container, { minHeight: chartSize, opacity: fadeAnim }]}>
@@ -127,13 +124,12 @@ const BudgetChart: React.FC<BudgetChartProps> = ({
     );
   }
 
-  // ✅ ESTADO CON DATOS REALES - Color dinámico del gráfico
   const chartData = {
     budgetData: [
       {
         label: t('budget_chart.total_expenses'),
         value: totalExpenses,
-        color: getGraphColor(), // ✅ Color dinámico según el balance
+        color: getGraphColor(),
         percentage: remainingBudget > 0 ? (totalExpenses / remainingBudget) * 100 : 0
       }
     ],
@@ -174,7 +170,6 @@ const BudgetChart: React.FC<BudgetChartProps> = ({
     <Animated.View style={[styles.container, { opacity: fadeAnim }]}>
       <View style={[styles.chartContainer, { width: chartSize, height: chartSize }]}>
         <Svg width={chartSize} height={chartSize}>
-          {/* Círculo base */}
           <Circle
             cx={center}
             cy={center}
@@ -184,7 +179,6 @@ const BudgetChart: React.FC<BudgetChartProps> = ({
             strokeWidth={25}
           />
           
-          {/* ✅ Arcos con color dinámico */}
           {arcs.map((arc, index) => (
             <Circle
               key={index}
@@ -192,7 +186,7 @@ const BudgetChart: React.FC<BudgetChartProps> = ({
               cy={center}
               r={radius}
               fill="none"
-              stroke={arc.color} // ✅ Color dinámico aplicado aquí
+              stroke={arc.color}
               strokeWidth={25}
               strokeDasharray={arc.strokeDasharray}
               strokeDashoffset={-(arc.circumference * 0.25)}

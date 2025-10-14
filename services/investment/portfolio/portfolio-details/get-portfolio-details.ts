@@ -1,6 +1,4 @@
 import config from '@/config/constants';
-import mockData from '@/data/mock/mock-data.json';
-import { apiService } from '@/services/api';
 import { safeCurrencyToNumber } from '@/lib/utils';
 
 export interface MetaDetails {
@@ -26,6 +24,8 @@ export interface MetaDetails {
     title: string;
     subtitle: string;
     value: number;
+    availableQuotas: number;
+    quotaValue: number;
     badge: {
       text: string;
       variant: 'positive' | 'negative' | 'neutral';
@@ -43,7 +43,7 @@ interface ApiGoalDetails {
     target_date: string;
     unit: string;
     created_at: string;
-    wallet_value: number;
+    goal_wallet: number;
     investment_account_id: number;
   };
   presenter_data?: {
@@ -60,6 +60,8 @@ interface ApiGoalDetails {
       quotas: number;
       available_quotas_for_retirement: number;
       current_value: number;
+      available_value_for_retirement: number;
+      quota_value: number;
       percentage: number;
     }>;
     broker_portfolio: {
@@ -79,6 +81,10 @@ const formatSafeDate = (dateString: string): string => {
   if (!dateString) return 'Fecha no disponible';
   
   try {
+    if (dateString.includes('En menos de') || dateString.includes('año') || dateString.includes('mes')) {
+      return dateString;
+    }
+    
     if (dateString.includes('/')) {
       const parts = dateString.split('/');
       if (parts.length === 3) {
@@ -125,7 +131,7 @@ const transformApiGoalToMetaDetails = (apiData: ApiGoalDetails): MetaDetails => 
   const { goal, presenter_data } = apiData;
   
   const targetAmount = getSafeNumber(goal.target_amount, 0);
-  const currentAmount = getSafeNumber(goal.wallet_value, 0);
+  const currentAmount = getSafeNumber(goal.goal_wallet, 0);
   
   const progress = targetAmount > 0 
     ? currentAmount / targetAmount 
@@ -152,18 +158,20 @@ const transformApiGoalToMetaDetails = (apiData: ApiGoalDetails): MetaDetails => 
 
   const summary = {
     estrategia: 'Recomendación de Algoritmo',
-    riesgo: getRiskLabel(presenter_data?.goal_last_portfolio_risk_profile),
+    riesgo: getRiskLabel(presenter_data?.broker_portfolio?.risk_profile || presenter_data?.goal_last_portfolio_risk_profile),
     aportes: getSafeNumber(presenter_data?.deposit_sum, 0),
     rescates: getSafeNumber(presenter_data?.retirement_sum, 0),
     variacion: calculateVariation(),
-    variacionPesos: currentAmount - getSafeNumber(presenter_data?.deposit_sum, 0) + getSafeNumber(presenter_data?.retirement_sum, 0),
+    variacionPesos: getSafeNumber(presenter_data?.variation, 0),
   };
 
   const assets = (presenter_data?.wallet_containers || []).map((container, index) => ({
     id: getSafeNumber(container.wallet_container_id, index + 1).toString(),
     title: container.broker_product_name || 'Producto',
     subtitle: container.broker_product_code || 'Código',
-    value: getSafeNumber(container.current_value, 0),
+    value: getSafeNumber(container.available_value_for_retirement, 0),
+    availableQuotas: getSafeNumber(container.available_quotas_for_retirement, 0),
+    quotaValue: getSafeNumber(container.quota_value, 0),
     badge: {
       text: formatPercentage(presenter_data?.variation),
       variant: getSafeNumber(presenter_data?.variation, 0) >= 0 ? 'positive' as const : 'negative' as const
@@ -176,6 +184,8 @@ const transformApiGoalToMetaDetails = (apiData: ApiGoalDetails): MetaDetails => 
       title: goal.name || 'Meta',
       subtitle: goal.kind_name || 'Meta',
       value: currentAmount,
+      availableQuotas: 0,
+      quotaValue: 0,
       badge: {
         text: formatPercentage(0),
         variant: 'positive' as const
@@ -231,72 +241,13 @@ export async function getPortfolioDetails(goalId: string, token: string): Promis
     try {
       return transformApiGoalToMetaDetails(data);
     } catch (transformError) {
-      console.error('❌ Error transforming API data:', transformError);
+      console.error('Error transforming API data:', transformError);
       throw transformError;
     }
 
   } catch (error) {
-    console.error('❌ Portfolio Details Service: Error fetching goal details from API:', error);
+    console.error('Portfolio Details Service: Error fetching goal details from API:', error);
     
-    if (__DEV__) {
-      await new Promise(resolve => setTimeout(resolve, 300));
-      
-      const investment = mockData.investmentPortfolio.investments.find(
-        inv => inv.id === goalId
-      );
-      
-      if (!investment) {
-        return null;
-      }
-      
-      const progress = investment.currentAmount / investment.targetAmount;
-      
-      const createdAt = '13/08/2024';
-      const goalDate = '18/06/2025';
-      const yearsRange = 'Entre 3 y 5 años';
-      
-      const summary = {
-        estrategia: 'Recomendación de Algoritmo',
-        riesgo: investment.riskLevel === 'muy-conservador' ? 'Muy Conservador' : 
-                investment.riskLevel === 'conservador' ? 'Conservador' : 
-                investment.riskLevel === 'moderado' ? 'Moderado' : 'Arriesgado',
-        aportes: investment.investmentDetails?.depositedAmount || 0,
-        rescates: 0,
-        variacion: '2.45%',
-        variacionPesos: investment.investmentDetails?.depositedAmount || 0,
-      };
-      
-              const assets = [
-          {
-            id: '1',
-            title: 'Singular S&P 500',
-            subtitle: 'CFISP500',
-            value: Math.floor(investment.currentAmount * 0.3),
-            badge: { text: '0.35%', variant: 'positive' as const }
-          },
-          {
-            id: '2',
-            title: 'Singular Nasdaq 100',
-            subtitle: 'CFINASDAQ',
-            value: Math.floor(investment.currentAmount * 0.7),
-            badge: { text: '0.12%', variant: 'positive' as const }
-          }
-        ];
-      
-      return {
-        id: investment.id,
-        name: investment.title,
-        createdAt,
-        goal: investment.targetAmount,
-        goalDate,
-        yearsRange,
-        progress,
-        current: investment.currentAmount,
-        currency: 'CLP',
-        summary,
-        assets
-      };
-    }
     
     throw error;
   }

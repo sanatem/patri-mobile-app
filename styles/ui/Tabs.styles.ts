@@ -30,13 +30,10 @@ export const tabsStyles = StyleSheet.create({
     borderBottomColor: Colors.gray[300],
   },
   tabText: {
-    fontSize: 18,
-    fontFamily: 'Poppins-medium',
-    color: Colors.gray[700],
+    color: Colors.primary[500],
   },
   tabTextInactive: {
     color: Colors.gray[300],
-    fontFamily: 'Poppins-medium',
   },
   badge: {
     minWidth: 28,

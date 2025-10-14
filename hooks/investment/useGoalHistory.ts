@@ -39,7 +39,6 @@ const getDateRange = (period: '1M' | '3M' | '6M' | '1Y' | 'ALL' = '1M') => {
       startDate.setFullYear(endDate.getFullYear() - 1);
       break;
     case 'ALL':
-      // Para 'ALL', usamos una fecha muy antigua para asegurar que obtenemos todo el histórico
       startDate = new Date('2020-01-01');
       break;
   }
@@ -53,14 +52,6 @@ const getDateRange = (period: '1M' | '3M' | '6M' | '1Y' | 'ALL' = '1M') => {
 export function useGoalHistory(props: UseGoalHistoryProps): UseGoalHistoryReturn {
   const { goalId, period = '1M', startDate, endDate, page = 1, perPage = 30 } = props;
   
-  console.log('🔄 useGoalHistory - Iniciando con props:', {
-    goalId,
-    period,
-    startDate,
-    endDate,
-    page,
-    perPage
-  });
   
   const [historyData, setHistoryData] = useState<GoalHistoryData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -75,17 +66,12 @@ export function useGoalHistory(props: UseGoalHistoryProps): UseGoalHistoryReturn
       }
       setError(null);
       
+      
       if (!accessToken) {
-        console.warn('❌ useGoalHistory - No hay token disponible');
         throw new Error('No hay token de autenticación disponible');
       }
 
-      console.log('📡 useGoalHistory - Iniciando fetch con token:', accessToken.substring(0, 10) + '...');
-
-      // Si se proporcionan fechas específicas, las usamos; si no, usamos el período
       const dateRange = startDate && endDate ? { startDate, endDate } : getDateRange(period);
-      
-      console.log('📅 useGoalHistory - Usando rango de fechas:', dateRange);
 
       const params: GoalHistoryParams = {
         goalId,
@@ -95,13 +81,10 @@ export function useGoalHistory(props: UseGoalHistoryProps): UseGoalHistoryReturn
         perPage
       };
 
+
       const data = await goalHistoryService.getGoalHistory(params, accessToken);
-      console.log('✅ useGoalHistory - Datos recibidos:', {
-        goalId: data.goalId,
-        totalPoints: data.historicValues.length,
-        firstPoint: data.historicValues[0],
-        lastPoint: data.historicValues[data.historicValues.length - 1]
-      });
+      
+
       
       if (append && historyData) {
         setHistoryData({
@@ -114,10 +97,12 @@ export function useGoalHistory(props: UseGoalHistoryProps): UseGoalHistoryReturn
       
       setCurrentPage(pageNum);
     } catch (err) {
-      console.error('❌ useGoalHistory - Error detallado:', {
+      console.error('useGoalHistory - Error detallado:', {
         message: err instanceof Error ? err.message : 'Error desconocido',
+        stack: err instanceof Error ? err.stack : undefined,
         goalId,
-        dateRange: startDate && endDate ? { startDate, endDate } : getDateRange(period)
+        dateRange: startDate && endDate ? { startDate, endDate } : getDateRange(period),
+        fullError: err
       });
       setError(err instanceof Error ? err.message : 'Error desconocido');
     } finally {
@@ -136,7 +121,6 @@ export function useGoalHistory(props: UseGoalHistoryProps): UseGoalHistoryReturn
     }
   };
 
-  // Filtrar datos según el período seleccionado solo si no se proporcionaron fechas específicas
   const filteredData = useMemo(() => {
     if (!historyData) return null;
     if (startDate && endDate) return historyData; // Si hay fechas específicas, no filtramos

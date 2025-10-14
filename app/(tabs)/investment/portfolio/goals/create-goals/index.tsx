@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   View,
   Text,
@@ -16,11 +16,11 @@ import { useTranslation } from 'react-i18next';
 export default function CreateGoalsScreen() {
   const router = useRouter();
   const { t } = useTranslation();
-  const [goalName, setGoalName] = useState('');
-  const [accountType, setAccountType] = useState('inversion');
+  const [goalName, setGoalName] = useState('')
+  const [accountType, setAccountType] = useState('inversion')
 
   const handleCreate = () => {
-    router.push('/investment/portfolio/portfolio' as any);
+    router.push('/(tabs)/investment/portfolio/portfolio' as any)
   };
 
   return (
