@@ -46,6 +46,25 @@ export function usePaywall() {
     try {
       setIsLoading(true);
       
+      const isConfigured = await Purchases.isConfigured();
+      
+      if (!isConfigured) {
+        const paywallResult: PAYWALL_RESULT = await RevenueCatUI.presentPaywall();
+        
+        switch (paywallResult) {
+          case PAYWALL_RESULT.NOT_PRESENTED:
+          case PAYWALL_RESULT.ERROR:
+            return { success: false, cancelled: false, error: 'Error presenting paywall' };
+          case PAYWALL_RESULT.CANCELLED:
+            return { success: false, cancelled: true };
+          case PAYWALL_RESULT.PURCHASED:
+          case PAYWALL_RESULT.RESTORED:
+            return { success: true, cancelled: false };
+          default:
+            return { success: false, cancelled: false, error: 'Unknown result' };
+        }
+      }
+      
       const offerings = await Purchases.getOfferings();
       const targetOffering = offerings.all[offeringId];
       
