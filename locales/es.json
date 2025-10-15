@@ -627,6 +627,20 @@
       "error": {
         "purchase": "Hubo un problema con la compra. Intenta nuevamente.",
         "unexpected": "Ocurrió un error inesperado. Intenta nuevamente."
+      },
+      "schedule": {
+        "title": "Agendar reunión",
+        "subtitle": "Selecciona fecha y hora para tu asesoría",
+        "success": {
+          "title": "¡Reunión agendada!",
+          "message": "Tu sesión de asesoría ha sido confirmada exitosamente"
+        },
+        "error": {
+          "title": "No disponible",
+          "unknown": "No se pudo verificar tu disponibilidad",
+          "validation": "Ocurrió un error al validar tu compra",
+          "widget": "No se pudo cargar el sistema de agendamiento"
+        }
       }
     },
     "cardTitles": {
@@ -782,10 +796,12 @@
     "consulting": {
       "title": "Asesoría Personalizada",
       "price": "$120.000",
-      "description": "Agenda una sesión de 1 hora con un asesor financiero certificado para resolver tus dudas y crear tu plan personalizado.",
+      "description": "Agenda una sesión de 45 minutos con un asesor financiero certificado para resolver tus dudas y crear tu plan personalizado.",
       "button": "Agendar hora",
-      "oneHourAvailable": "1 hora disponible",
-      "hoursAvailable": "{{count}} horas disponibles"
+      "payButton": "Pagar Reunión",
+      "scheduleButton": "Agendar Reunión",
+      "oneHourAvailable": "45 minutos disponibles",
+      "hoursAvailable": "{{count}} hora disponible"
     },
     "general": {
       "title": "Planes",

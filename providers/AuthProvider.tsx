@@ -11,6 +11,44 @@ import Purchases from 'react-native-purchases';
 
 WebBrowser.maybeCompleteAuthSession();
 
+
+const initializeRevenueCat = async (backendUserId: number, email?: string) => {
+  try {
+    const isConfigured = await Purchases.isConfigured();
+
+    if (isConfigured) {
+      await Purchases.logIn(backendUserId.toString());
+      if (email) {
+        await Purchases.setEmail(email);
+      }
+      return;
+    }
+
+    const apiKey = Platform.OS === 'android'
+      ? process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_KEY
+      : Platform.OS === 'ios'
+      ? process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY
+      : null;
+
+    if (!apiKey) {
+      console.warn(`RevenueCat API key not found for platform: ${Platform.OS}`);
+      return;
+    }
+
+    await Purchases.configure({
+      apiKey,
+      appUserID: backendUserId.toString(),
+    });
+
+    if (email) {
+      await Purchases.setEmail(email);
+    }
+
+  } catch (error) {
+    console.error('Error configuring RevenueCat:', error);
+  }
+};
+
 type BackendUserResponse = {
   user_id: number;
   email: string;
@@ -142,12 +180,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           
           try {
             const backendUser = await validateWithBackend(token);
-            
+
             const completeUser = {
               ...userInfo,
               backendUserId: backendUser.user_id,
             };
             setUser(completeUser);
+
+            await initializeRevenueCat(backendUser.user_id, userInfo.email);
           } catch (error) {
             await logout();
           }
@@ -214,6 +254,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         setUser(completeUser);
         await AsyncStorage.setItem('backend_user_data', JSON.stringify(backendUser));
+
+        await initializeRevenueCat(backendUser.user_id, userInfo.email);
+
         try {
           await AsyncStorage.setItem('splash_seen', 'true');
         } catch {}

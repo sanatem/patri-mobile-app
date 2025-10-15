@@ -45,7 +45,7 @@ const SectionPlan: React.FC<SectionPlanProps> = ({ onCardPress, isSubscribed, co
       title: t('plans.consulting.title'),
       price: t('plans.consulting.price'),
       description: t('plans.consulting.description'),
-      buttonText: t('plans.consulting.button'),
+      buttonText: t('plans.consulting.payButton'),
       iconType: 'calendar' as const
     },
     {
@@ -79,12 +79,14 @@ const SectionPlan: React.FC<SectionPlanProps> = ({ onCardPress, isSubscribed, co
         }
 
         if (isConsultingCard && consultingHoursAvailable > 0) {
-          const hoursText = consultingHoursAvailable === 1 
+          const hoursText = consultingHoursAvailable === 1
             ? t('plans.consulting.oneHourAvailable')
             : t('plans.consulting.hoursAvailable', { count: consultingHoursAvailable });
-          
+
           modifiedItem = {
             ...item,
+            id: 'schedule_consulting',
+            buttonText: t('plans.consulting.scheduleButton'),
             badge: {
               text: hoursText,
               bgColor: '#22c55e',
@@ -109,7 +111,7 @@ const SectionPlan: React.FC<SectionPlanProps> = ({ onCardPress, isSubscribed, co
               badge={modifiedItem.badge}
               onPress={() => {
                 if (!isDisabled) {
-                  onCardPress?.(item);
+                  onCardPress?.(modifiedItem);
                 }
               }}
               disabled={isDisabled}

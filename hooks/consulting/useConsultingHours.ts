@@ -3,6 +3,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const CONSULTING_HOURS_KEY = '@patrimore_consulting_hours';
 
+interface ScheduledSession {
+  bookingId: string;
+  scheduledDate: string;
+  advisorName: string;
+  scheduledAt: string;
+}
+
 interface ConsultingHoursData {
   totalPurchased: number;
   totalUsed: number;
@@ -11,6 +18,9 @@ interface ConsultingHoursData {
     date: string;
     transactionId?: string;
   }[];
+  scheduledSessions: ScheduledSession[];
+  lastScheduledDate?: string;
+  lastPurchaseDate?: string;
 }
 
 export function useConsultingHours() {
@@ -18,11 +28,13 @@ export function useConsultingHours() {
     totalPurchased: 0,
     totalUsed: 0,
     availableHours: 0,
-    purchaseHistory: []
+    purchaseHistory: [],
+    scheduledSessions: [],
+    lastScheduledDate: undefined,
+    lastPurchaseDate: undefined
   });
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load data on mount
   useEffect(() => {
     loadData();
   }, []);
@@ -52,7 +64,30 @@ export function useConsultingHours() {
     }
   };
 
+  const canPurchaseThisYear = (): boolean => {
+    if (!data.lastPurchaseDate) {
+      return true;
+    }
+
+    const lastPurchase = new Date(data.lastPurchaseDate);
+    const oneYearAgo = new Date();
+    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+
+    return lastPurchase <= oneYearAgo;
+  };
+
   const addPurchase = async (transactionId?: string) => {
+    if (!canPurchaseThisYear()) {
+      const lastPurchase = new Date(data.lastPurchaseDate!);
+      const nextAvailableDate = new Date(lastPurchase);
+      nextAvailableDate.setFullYear(nextAvailableDate.getFullYear() + 1);
+
+      throw new Error(
+        `Ya compraste una hora este año. Podrás comprar nuevamente el ${nextAvailableDate.toLocaleDateString()}`
+      );
+    }
+
+    const now = new Date().toISOString();
     const newData: ConsultingHoursData = {
       totalPurchased: data.totalPurchased + 1,
       totalUsed: data.totalUsed,
@@ -60,10 +95,13 @@ export function useConsultingHours() {
       purchaseHistory: [
         ...data.purchaseHistory,
         {
-          date: new Date().toISOString(),
+          date: now,
           transactionId
         }
-      ]
+      ],
+      scheduledSessions: data.scheduledSessions,
+      lastScheduledDate: data.lastScheduledDate,
+      lastPurchaseDate: now
     };
     await saveData(newData);
     return newData;
@@ -88,9 +126,40 @@ export function useConsultingHours() {
       totalPurchased: 0,
       totalUsed: 0,
       availableHours: 0,
-      purchaseHistory: []
+      purchaseHistory: [],
+      scheduledSessions: [],
+      lastScheduledDate: undefined,
+      lastPurchaseDate: undefined
     };
     await saveData(emptyData);
+  };
+
+  const scheduleSession = async (sessionInfo: Omit<ScheduledSession, 'scheduledAt'>) => {
+    const newSession: ScheduledSession = {
+      ...sessionInfo,
+      scheduledAt: new Date().toISOString()
+    };
+
+    const newData: ConsultingHoursData = {
+      ...data,
+      scheduledSessions: [...data.scheduledSessions, newSession],
+      lastScheduledDate: new Date().toISOString()
+    };
+
+    await saveData(newData);
+    return newSession;
+  };
+
+  const canScheduleThisYear = (): boolean => {
+    if (!data.lastScheduledDate) {
+      return true;
+    }
+
+    const lastScheduled = new Date(data.lastScheduledDate);
+    const oneYearAgo = new Date();
+    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+
+    return lastScheduled <= oneYearAgo;
   };
 
   return {
@@ -98,11 +167,17 @@ export function useConsultingHours() {
     totalUsed: data.totalUsed,
     availableHours: data.availableHours,
     purchaseHistory: data.purchaseHistory,
+    scheduledSessions: data.scheduledSessions,
+    lastScheduledDate: data.lastScheduledDate,
+    lastPurchaseDate: data.lastPurchaseDate,
     hasAvailableHours: data.availableHours > 0,
+    canScheduleThisYear: canScheduleThisYear(),
+    canPurchaseThisYear: canPurchaseThisYear(),
     isLoading,
     addPurchase,
     useHour,
     resetData,
+    scheduleSession,
     refresh: loadData
   };
 }
