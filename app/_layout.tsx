@@ -10,7 +10,7 @@ import { CopilotProvider } from '@/providers/CopilotProvider';
 import { FloidSyncProvider } from '@/providers/FloidSyncProvider';
 import { useFrameworkReady } from '@/hooks/common/useFrameworkReady';
 import { i18nInitPromise } from '../lib/i18n';
-import { OneSignal, LogLevel } from 'react-native-onesignal';
+import { OneSignal } from 'react-native-onesignal';
 import { Platform } from 'react-native';
 
 SplashScreen.preventAutoHideAsync();
@@ -47,11 +47,10 @@ export default function RootLayout() {
   useEffect(() => {
     // Only initialize OneSignal on mobile platforms
     if (Platform.OS === 'ios' || Platform.OS === 'android') {
-      OneSignal.Debug.setLogLevel(LogLevel.Verbose);
       const oneSignalAppId = process.env.EXPO_PUBLIC_ONESIGNAL_APP_ID;
       if (oneSignalAppId) {
         OneSignal.initialize(oneSignalAppId);
-        OneSignal.Notifications.requestPermission(false);
+        // Don't request permission here - let it be done during login
       } else {
         console.error('OneSignal App ID is not configured. Please set EXPO_PUBLIC_ONESIGNAL_APP_ID in your environment.');
       }

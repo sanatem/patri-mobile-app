@@ -77,28 +77,40 @@ const discovery = {
 
 const validateWithBackend = async (token: string): Promise<BackendUserResponse> => {
   try {
-    // Request push permissions before getting device info
-    await requestPushPermissions();
-
-    // Get device information including OneSignal player ID
-    const deviceInfo = await getDeviceInfo();
-
     const baseUrl = config.apiBaseUrl;
-    const response = await fetch(`${baseUrl}/api/v2/auth/validate`, {
+
+    // Try to get device info but don't let it break auth
+    let deviceInfo: Awaited<ReturnType<typeof getDeviceInfo>> | null = null;
+    try {
+      await requestPushPermissions();
+      deviceInfo = await getDeviceInfo();
+    } catch (error) {
+      console.warn('Failed to get device info:', error);
+    }
+
+    // Build request options
+    const requestOptions: RequestInit = {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        code: token,
-        platform: deviceInfo.platform,
-        device_model: deviceInfo.device_model,
-        os_version: deviceInfo.os_version,
-        app_version: deviceInfo.app_version,
-        ...(deviceInfo.push_token && { push_token: deviceInfo.push_token })
-      })
-    });
+      }
+    };
+
+    // Only add body if we have device info
+    if (deviceInfo) {
+      requestOptions.body = JSON.stringify({
+        device: {
+          platform: deviceInfo.platform,
+          device_model: deviceInfo.device_model,
+          os_version: deviceInfo.os_version,
+          app_version: deviceInfo.app_version,
+          ...(deviceInfo.push_token && { push_token: deviceInfo.push_token })
+        }
+      });
+    }
+
+    const response = await fetch(`${baseUrl}/api/v2/auth/validate`, requestOptions);
 
     if (!response.ok) {
       const errorText = await response.text();
