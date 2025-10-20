@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, Text } from 'react-native';
-import { Star } from 'lucide-react-native';
 import { Card } from '@/components/ui';
 import { SkeletonBase } from '@/components/ui/SkeletonBase';
 import Colors from '@/constants/Colors';
@@ -112,16 +111,6 @@ const PlanSubscriptionCard: React.FC<PlanSubscriptionCardProps> = ({
       <View className="py-4 px-4">
         <View className="flex-row items-center justify-between mb-4">
           <View className="flex-row items-center flex-1">
-            <View 
-              className="rounded-full mr-3 justify-center items-center"
-              style={{ 
-                backgroundColor: Colors.primary[50],
-                width: 40,
-                height: 40
-              }}
-            >
-              <Star size={20} color={Colors.primary[600]} />
-            </View>
             <Text className="text-lg font-medium" style={{ color: Colors.primary[600] }}>
               {planName}
             </Text>

@@ -631,7 +631,7 @@
         "rejected": "Rejected",
         "authorized": "Authorized",
         "cancelled": "Cancelled",
-        "refund": "Refunded"
+        "refunded": "Refunded"
       }
     }
   },

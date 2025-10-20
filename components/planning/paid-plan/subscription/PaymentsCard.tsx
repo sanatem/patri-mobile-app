@@ -1,12 +1,12 @@
 import React from 'react';
 import { View, Text } from 'react-native';
-import { Receipt, CheckCircle, Clock, XCircle, AlertCircle } from 'lucide-react-native';
+import { CheckCircle, Clock, XCircle, AlertCircle } from 'lucide-react-native';
 import { Card } from '@/components/ui';
 import { SkeletonBase } from '@/components/ui/SkeletonBase';
 import Colors from '@/constants/Colors';
 import { useTranslation } from 'react-i18next';
 
-type PaymentState = 'approved' | 'pending' | 'rejected' | 'authorized' | 'cancelled' | 'refund';
+type PaymentState = 'approved' | 'pending' | 'rejected' | 'authorized' | 'cancelled' | 'refunded';
 
 interface Payment {
   amount: string;
@@ -42,13 +42,13 @@ const PaymentsCard: React.FC<PaymentsCardProps> = ({ payments, loading = false }
       case 'pending':
         return {
           icon: <Clock size={16} color="#FFFFFF" />,
-          badgeBgColor: Colors.gray[500],
+          badgeBgColor: Colors.gray[300],
           badgeTextColor: '#FFFFFF',
         };
-      case 'refund':
+      case 'refunded':
         return {
-          icon: <AlertCircle size={16} color="#FFFFFF" />,
-          badgeBgColor: Colors.gray[500],
+          icon: <CheckCircle size={16} color="#FFFFFF" />,
+          badgeBgColor: Colors.warning[600],
           badgeTextColor: '#FFFFFF',
         };
       default:
@@ -145,16 +145,6 @@ const PaymentsCard: React.FC<PaymentsCardProps> = ({ payments, loading = false }
     <Card variant="elevated" className="mb-2">
       <View className="py-4 px-4">
         <View className="flex-row items-center mb-4">
-          <View 
-            className="rounded-full mr-3 justify-center items-center"
-            style={{ 
-              backgroundColor: Colors.primary[50],
-              width: 40,
-              height: 40
-            }}
-          >
-            <Receipt size={20} color={Colors.primary[600]} />
-          </View>
           <View className="flex-1">
             <Text className="text-lg font-medium" style={{ color: Colors.primary[600] }}>
               {t('planning.subscription.paymentsTitle')}
