@@ -613,7 +613,24 @@
             "plans": "Planes"
         },
         "top_title": "Comienza tu planificación financiera",
-        "top_subtitle": "Accede a herramientas profesionales y asesoría experta para alcanzar tus metas financieras"
+        "top_subtitle": "Accede a herramientas profesionales y asesoría experta para alcanzar tus metas financieras",
+    "subscription": {
+      "currentPlan": "Plan actual",
+      "benefitsUntil": "Tendrás los beneficios de este plan hasta el {{date}}",
+      "unlimited": "Ilimitado",
+      "unlimitedBenefits": "Tendrás los beneficios de este plan de forma ilimitada",
+      "totalAmount": "Monto total",
+      "paymentsTitle": "Pagos",
+      "noPayments": "No hay pagos registrados",
+      "paymentStates": {
+        "approved": "Aprobado",
+        "pending": "Pendiente",
+        "rejected": "Rechazado",
+        "authorized": "Autorizado",
+        "cancelled": "Cancelado",
+        "refund": "Reembolsado"
+      }
+    }
     },
     "onboarding": {
         "title": "Información Personal",

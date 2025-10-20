@@ -613,7 +613,24 @@
       "plans": "Plans"
     },
     "top_title": "Start your financial planning",
-    "top_subtitle": "Access expert tools and advice to reach your financial goals"
+    "top_subtitle": "Access expert tools and advice to reach your financial goals",
+    "subscription": {
+      "currentPlan": "Current plan",
+      "benefitsUntil": "You will have the benefits of this plan until {{date}}",
+      "unlimited": "Unlimited",
+      "unlimitedBenefits": "You will have the benefits of this plan indefinitely",
+      "totalAmount": "Total amount",
+      "paymentsTitle": "Payments",
+      "noPayments": "No payments registered",
+      "paymentStates": {
+        "approved": "Approved",
+        "pending": "Pending",
+        "rejected": "Rejected",
+        "authorized": "Authorized",
+        "cancelled": "Cancelled",
+        "refund": "Refunded"
+      }
+    }
   },
   "onboarding": {
     "title": "Personal Information",
