@@ -12,6 +12,7 @@ export interface SubscriptionData {
   annual_payment: boolean;
   end_date: string | null;
   proceed_with_cancellation_on: string | null;
+  next_payment_on: string | null;
   payments: Payment[];
 }
 
@@ -89,6 +90,7 @@ export async function getSubscription(token: string): Promise<SubscriptionRespon
         annual_payment: apiData.data.subscription.annual_payment,
         end_date: apiData.data.dates.end_date,
         proceed_with_cancellation_on: apiData.data.dates.proceed_with_cancellation_on,
+        next_payment_on: apiData.data.dates.next_payment_on,
         payments: apiData.data.payment ? [apiData.data.payment] : [],
       }
     };

@@ -10,8 +10,7 @@ interface SubscriptionSectionProps {
   planName: string;
   totalAmount: number;
   annualPayment: boolean;
-  endDate: string | null;
-  proceedWithCancellationOn: string | null;
+  nextPaymentOn: string | null;
   payments: Payment[];
   loading?: boolean;
 }
@@ -20,8 +19,7 @@ const SubscriptionSection: React.FC<SubscriptionSectionProps> = ({
   planName,
   totalAmount,
   annualPayment,
-  endDate,
-  proceedWithCancellationOn,
+  nextPaymentOn,
   payments,
   loading = false
 }) => {
@@ -62,9 +60,7 @@ const SubscriptionSection: React.FC<SubscriptionSectionProps> = ({
     return t(`planning.subscription.paymentStates.${state}`);
   };
 
-  const benefitEndDate = proceedWithCancellationOn || endDate;
-  const formattedEndDate = benefitEndDate ? formatDate(benefitEndDate) : null;
-  const isUnlimited = !benefitEndDate;
+  const formattedNextPaymentDate = nextPaymentOn ? formatDate(nextPaymentOn) : null;
 
   const paymentsData = payments
     .filter(payment => payment != null)
@@ -94,8 +90,7 @@ const SubscriptionSection: React.FC<SubscriptionSectionProps> = ({
         planName={`Plan ${planName}`}
         totalAmount={formatAmount(totalAmount)}
         annualPayment={annualPayment}
-        endDate={formattedEndDate}
-        isUnlimited={isUnlimited}
+        nextPaymentDate={formattedNextPaymentDate}
         completedPayments={completedPayments}
         totalPayments={payments.length}
         loading={loading}
