@@ -616,7 +616,7 @@
     "top_subtitle": "Access expert tools and advice to reach your financial goals",
     "subscription": {
       "currentPlan": "Current plan",
-      "benefitsUntil": "You will have the benefits of this plan until {{date}}",
+      "benefitsUntilText": "You will have the benefits of this plan until",
       "unlimited": "Unlimited",
       "unlimitedBenefits": "You will have the benefits of this plan indefinitely",
       "totalAmount": "Total amount",

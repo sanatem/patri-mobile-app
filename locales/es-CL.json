@@ -616,7 +616,7 @@
         "top_subtitle": "Accede a herramientas profesionales y asesoría experta para alcanzar tus metas financieras",
     "subscription": {
       "currentPlan": "Plan actual",
-      "benefitsUntil": "Tendrás los beneficios de este plan hasta el {{date}}",
+      "benefitsUntilText": "Tendrás los beneficios de este plan hasta el",
       "unlimited": "Ilimitado",
       "unlimitedBenefits": "Tendrás los beneficios de este plan de forma ilimitada",
       "totalAmount": "Monto total",
