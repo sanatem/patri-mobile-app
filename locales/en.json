@@ -622,6 +622,8 @@
       "totalAmount": "Total amount",
       "paymentsTitle": "Payments",
       "noPayments": "No payments registered",
+      "of": "of",
+      "payments": "payments",
       "paymentStates": {
         "approved": "Approved",
         "pending": "Pending",

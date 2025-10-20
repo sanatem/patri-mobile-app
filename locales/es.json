@@ -632,6 +632,8 @@
       "totalAmount": "Monto total",
       "paymentsTitle": "Pagos",
       "noPayments": "No hay pagos registrados",
+      "of": "de",
+      "payments": "pagos",
       "paymentStates": {
         "approved": "Aprobado",
         "pending": "Pendiente",
