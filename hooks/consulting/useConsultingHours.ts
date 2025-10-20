@@ -135,6 +135,16 @@ export function useConsultingHours() {
   };
 
   const scheduleSession = async (sessionInfo: Omit<ScheduledSession, 'scheduledAt'>) => {
+    if (!canScheduleThisYear()) {
+      const lastScheduled = new Date(data.lastScheduledDate!);
+      const nextAvailableDate = new Date(lastScheduled);
+      nextAvailableDate.setFullYear(nextAvailableDate.getFullYear() + 1);
+
+      throw new Error(
+        `Ya agendaste una sesión este año. Podrás agendar nuevamente el ${nextAvailableDate.toLocaleDateString()}`
+      );
+    }
+
     const newSession: ScheduledSession = {
       ...sessionInfo,
       scheduledAt: new Date().toISOString()

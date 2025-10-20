@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { View, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { Header, Container } from '@/components/ui';
@@ -6,6 +6,7 @@ import { useAuth0 } from 'react-native-auth0';
 import { useConsultingHours } from '@/hooks/consulting/useConsultingHours';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import { canScheduleSession } from '@/services/consulting/validate-purchase';
 import Colors from '@/constants/Colors';
 
 export default function ScheduleMeeting() {
@@ -13,12 +14,52 @@ export default function ScheduleMeeting() {
   const { user } = useAuth0();
   const router = useRouter();
   const webViewRef = useRef<WebView>(null);
-  const { scheduleSession } = useConsultingHours();
+  const { scheduleSession, lastScheduledDate } = useConsultingHours();
   const [loading, setLoading] = useState(true);
+  const [canProceed, setCanProceed] = useState(false);
 
   const ZOHO_SERVICE_ID = '3991565000012163274';
 
   const zohoWidgetUrl = `https://patrimore.zohobookings.com/portal-embed#/${ZOHO_SERVICE_ID}?name=${encodeURIComponent(user?.name || '')}&email=${encodeURIComponent(user?.email || '')}`;
+
+  useEffect(() => {
+    const validateAccess = async () => {
+      try {
+        const validation = await canScheduleSession(lastScheduledDate);
+
+        if (!validation.canSchedule) {
+          Alert.alert(
+            t('planning.consulting.schedule.error.title'),
+            validation.reason || t('planning.consulting.schedule.error.unknown'),
+            [
+              {
+                text: 'OK',
+                onPress: () => router.back()
+              }
+            ]
+          );
+          setCanProceed(false);
+        } else {
+          setCanProceed(true);
+        }
+      } catch (error) {
+        console.error('Error validando acceso a agendamiento:', error);
+        Alert.alert(
+          t('common.error'),
+          t('planning.consulting.schedule.error.validation'),
+          [
+            {
+              text: 'OK',
+              onPress: () => router.back()
+            }
+          ]
+        );
+        setCanProceed(false);
+      }
+    };
+
+    validateAccess();
+  }, [lastScheduledDate]);
 
   const handleMessage = async (event: any) => {
     try {
@@ -76,24 +117,26 @@ export default function ScheduleMeeting() {
       />
 
       <View style={styles.container}>
-        {loading && (
+        {(!canProceed || loading) && (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color={Colors.primary[500]} />
           </View>
         )}
 
-        <WebView
-          ref={webViewRef}
-          source={{ uri: zohoWidgetUrl }}
-          style={styles.webview}
-          onMessage={handleMessage}
-          onError={handleError}
-          onLoadStart={() => setLoading(true)}
-          onLoadEnd={() => setLoading(false)}
-          javaScriptEnabled={true}
-          domStorageEnabled={true}
-          startInLoadingState={true}
-        />
+        {canProceed && (
+          <WebView
+            ref={webViewRef}
+            source={{ uri: zohoWidgetUrl }}
+            style={styles.webview}
+            onMessage={handleMessage}
+            onError={handleError}
+            onLoadStart={() => setLoading(true)}
+            onLoadEnd={() => setLoading(false)}
+            javaScriptEnabled={true}
+            domStorageEnabled={true}
+            startInLoadingState={true}
+          />
+        )}
       </View>
     </Container>
   );

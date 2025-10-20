@@ -800,6 +800,8 @@
       "button": "Agendar hora",
       "payButton": "Pagar Reunión",
       "scheduleButton": "Agendar Reunión",
+      "alreadyScheduled": "Ya agendada",
+      "scheduledThisYear": "Reunión agendada este año",
       "oneHourAvailable": "45 minutos disponibles",
       "hoursAvailable": "{{count}} hora disponible"
     },

@@ -773,6 +773,10 @@
             "price": "$120.000",
             "description": "Agenda una sesión de 1 hora con un asesor financiero certificado para resolver tus dudas y crear tu plan personalizado.",
             "button": "Agendar hora",
+            "payButton": "Pagar Reunión",
+            "scheduleButton": "Agendar Reunión",
+            "alreadyScheduled": "Ya agendada",
+            "scheduledThisYear": "Reunión agendada este año",
             "oneHourAvailable": "1 hora disponible",
             "hoursAvailable": "{{count}} horas disponibles"
         },

@@ -24,6 +24,7 @@ export default function FreePlan({ onPurchase, isSubscribed = false }: FreePlanP
     addPurchase,
     lastScheduledDate,
     canPurchaseThisYear,
+    canScheduleThisYear,
     lastPurchaseDate,
     resetData
   } = useConsultingHours();
@@ -207,6 +208,7 @@ export default function FreePlan({ onPurchase, isSubscribed = false }: FreePlanP
             onCardPress={handleCardPress}
             isSubscribed={isSubscribed}
             consultingHoursAvailable={availableHours}
+            canScheduleThisYear={canScheduleThisYear}
           />
         </ScrollView>
       </Container>

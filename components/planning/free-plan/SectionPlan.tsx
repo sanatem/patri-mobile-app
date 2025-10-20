@@ -26,9 +26,10 @@ interface SectionPlanProps {
   onCardPress?: (card: PlanCardData) => void;
   isSubscribed?: boolean;
   consultingHoursAvailable?: number;
+  canScheduleThisYear?: boolean;
 }
 
-const SectionPlan: React.FC<SectionPlanProps> = ({ onCardPress, isSubscribed, consultingHoursAvailable = 0 }) => {
+const SectionPlan: React.FC<SectionPlanProps> = ({ onCardPress, isSubscribed, consultingHoursAvailable = 0, canScheduleThisYear = true }) => {
   const { t } = useTranslation();
   const planCardsData: PlanCardData[] = [
     {
@@ -83,19 +84,33 @@ const SectionPlan: React.FC<SectionPlanProps> = ({ onCardPress, isSubscribed, co
             ? t('plans.consulting.oneHourAvailable')
             : t('plans.consulting.hoursAvailable', { count: consultingHoursAvailable });
 
-          modifiedItem = {
-            ...item,
-            id: 'schedule_consulting',
-            buttonText: t('plans.consulting.scheduleButton'),
-            badge: {
-              text: hoursText,
-              bgColor: '#22c55e',
-              textColor: '#FFFFFF'
-            }
-          };
+          // Solo permitir agendar si no se ha agendado en el último año
+          if (canScheduleThisYear) {
+            modifiedItem = {
+              ...item,
+              id: 'schedule_consulting',
+              buttonText: t('plans.consulting.scheduleButton'),
+              badge: {
+                text: hoursText,
+                bgColor: '#22c55e',
+                textColor: '#FFFFFF'
+              }
+            };
+          } else {
+            // Ya se agendó este año - mostrar como no disponible
+            modifiedItem = {
+              ...item,
+              buttonText: t('plans.consulting.alreadyScheduled'),
+              badge: {
+                text: t('plans.consulting.scheduledThisYear'),
+                bgColor: '#94a3b8',
+                textColor: '#FFFFFF'
+              }
+            };
+          }
         }
 
-        const isDisabled = isSubscriptionCard && isSubscribed;
+        const isDisabled = (isSubscriptionCard && isSubscribed) || (isConsultingCard && !canScheduleThisYear && consultingHoursAvailable > 0);
 
         return (
           <View key={item.id} className="mb-4">

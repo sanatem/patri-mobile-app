@@ -773,6 +773,10 @@
       "price": "$120.000",
       "description": "Schedule a 1-hour session with a certified financial advisor to solve your doubts and create your personalized plan.",
       "button": "Schedule session",
+      "payButton": "Pay for Meeting",
+      "scheduleButton": "Schedule Meeting",
+      "alreadyScheduled": "Already scheduled",
+      "scheduledThisYear": "Meeting scheduled this year",
       "oneHourAvailable": "1 hour available",
       "hoursAvailable": "{{count}} hours available"
     },
