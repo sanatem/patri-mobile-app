@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text } from 'react-native';
 import { Receipt, CheckCircle, Clock, XCircle, AlertCircle } from 'lucide-react-native';
 import { Card } from '@/components/ui';
+import { SkeletonBase } from '@/components/ui/SkeletonBase';
 import Colors from '@/constants/Colors';
 import { useTranslation } from 'react-i18next';
 
@@ -16,9 +17,10 @@ interface Payment {
 
 interface PaymentsCardProps {
   payments: Payment[];
+  loading?: boolean;
 }
 
-const PaymentsCard: React.FC<PaymentsCardProps> = ({ payments }) => {
+const PaymentsCard: React.FC<PaymentsCardProps> = ({ payments, loading = false }) => {
   const { t } = useTranslation();
 
   const getStateConfig = (state: PaymentState) => {
@@ -58,6 +60,87 @@ const PaymentsCard: React.FC<PaymentsCardProps> = ({ payments }) => {
     }
   };
 
+  if (loading) {
+    return (
+      <Card variant="elevated" className="mb-2">
+        <View className="py-4 px-4">
+          <View className="flex-row items-center mb-4">
+            <SkeletonBase
+              width={40}
+              height={40}
+              x={0}
+              y={0}
+              rows={1}
+              rowHeight={40}
+              rowWidth={40}
+              borderRadius={20}
+              style={{ marginRight: 12 }}
+            />
+            <SkeletonBase
+              width={120}
+              height={20}
+              x={0}
+              y={0}
+              rows={1}
+              rowHeight={20}
+              rowWidth={120}
+              borderRadius={4}
+            />
+          </View>
+
+          <View className="w-full mb-4" style={{ backgroundColor: Colors.gray[100], height: 0.5 }} />
+
+          <View>
+            {[1, 2, 3].map((item, index) => (
+              <View key={item}>
+                <View className="flex-row items-center justify-between py-3">
+                  <View className="flex-1">
+                    <SkeletonBase
+                      width={100}
+                      height={18}
+                      x={0}
+                      y={0}
+                      rows={1}
+                      rowHeight={18}
+                      rowWidth={100}
+                      borderRadius={4}
+                      style={{ marginBottom: 8 }}
+                    />
+                    <SkeletonBase
+                      width={140}
+                      height={16}
+                      x={0}
+                      y={0}
+                      rows={1}
+                      rowHeight={16}
+                      rowWidth={140}
+                      borderRadius={4}
+                    />
+                  </View>
+
+                  <SkeletonBase
+                    width={80}
+                    height={28}
+                    x={0}
+                    y={0}
+                    rows={1}
+                    rowHeight={28}
+                    rowWidth={80}
+                    borderRadius={14}
+                  />
+                </View>
+                
+                {index < 2 && (
+                  <View className="w-full my-2" style={{ backgroundColor: Colors.gray[100], height: 1 }} />
+                )}
+              </View>
+            ))}
+          </View>
+        </View>
+      </Card>
+    );
+  }
+
   return (
     <Card variant="elevated" className="mb-2">
       <View className="py-4 px-4">
@@ -79,7 +162,7 @@ const PaymentsCard: React.FC<PaymentsCardProps> = ({ payments }) => {
           </View>
         </View>
 
-        <View className="w-full mb-4" style={{ backgroundColor: Colors.gray[200], height: 1 }} />
+        <View className="w-full mb-4" style={{ backgroundColor: Colors.gray[100], height: 0.5 }} />
 
         {payments.length === 0 ? (
           <View className="py-6">

@@ -1,4 +1,4 @@
-import { ScrollView, View, Text, ActivityIndicator } from 'react-native';
+import { ScrollView, View, Text } from 'react-native';
 import {
   Header,
   Container,
@@ -43,25 +43,22 @@ export default function PaidPlan() {
       <ScrollView className="flex-1 mx-2" showsVerticalScrollIndicator={false} style={{ marginTop: 10 }}>
         <AdvisorSection onSchedule={handleSchedulePress} onChat={handleChatPress} />
 
-        {subscriptionLoading ? (
-          <View className="py-8 items-center">
-            <ActivityIndicator size="large" color={Colors.secondary[500]} />
-          </View>
-        ) : subscriptionError ? (
+        {subscriptionError ? (
           <View className="py-4 px-4 mb-4 rounded-lg" style={{ backgroundColor: Colors.error[50] }}>
             <Text className="text-sm text-center" style={{ color: Colors.error[700] }}>
               {subscriptionError}
             </Text>
           </View>
-        ) : subscriptionData?.success && subscriptionData.data ? (
+        ) : (
           <SubscriptionSection
-            planName={subscriptionData.data.plan_name}
-            totalAmount={subscriptionData.data.total_amount}
-            annualPayment={subscriptionData.data.annual_payment}
-            endDate={subscriptionData.data.end_date}
-            payments={subscriptionData.data.payments || []}
+            planName={subscriptionData?.data?.plan_name || ''}
+            totalAmount={subscriptionData?.data?.total_amount || 0}
+            annualPayment={subscriptionData?.data?.annual_payment || false}
+            endDate={subscriptionData?.data?.end_date || null}
+            payments={subscriptionData?.data?.payments || []}
+            loading={subscriptionLoading}
           />
-        ) : null}
+        )}
 
         {false && <PlanningCarousel onCardPress={handleCarouselCardPress} onAIPress={handleAIPress} />}
       </ScrollView>

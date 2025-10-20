@@ -12,6 +12,7 @@ interface SubscriptionSectionProps {
   annualPayment: boolean;
   endDate: string | null;
   payments: Payment[];
+  loading?: boolean;
 }
 
 const SubscriptionSection: React.FC<SubscriptionSectionProps> = ({
@@ -19,7 +20,8 @@ const SubscriptionSection: React.FC<SubscriptionSectionProps> = ({
   totalAmount,
   annualPayment,
   endDate,
-  payments
+  payments,
+  loading = false
 }) => {
   const { t } = useTranslation();
   const [currentPage, setCurrentPage] = useState(1);
@@ -69,6 +71,10 @@ const SubscriptionSection: React.FC<SubscriptionSectionProps> = ({
       stateLabel: getPaymentStateLabel(payment.state),
     }));
 
+  const completedPayments = payments.filter(
+    payment => payment && (payment.state === 'approved' || payment.state === 'authorized')
+  ).length;
+
   const totalPages = Math.ceil(paymentsData.length / PAYMENTS_PER_PAGE);
   const startIndex = (currentPage - 1) * PAYMENTS_PER_PAGE;
   const endIndex = startIndex + PAYMENTS_PER_PAGE;
@@ -85,11 +91,14 @@ const SubscriptionSection: React.FC<SubscriptionSectionProps> = ({
         totalAmount={formatAmount(totalAmount)}
         annualPayment={annualPayment}
         description={planDescription}
+        completedPayments={completedPayments}
+        totalPayments={payments.length}
+        loading={loading}
       />
 
-      <PaymentsCard payments={paginatedPayments} />
+      <PaymentsCard payments={paginatedPayments} loading={loading} />
       
-      {totalPages > 1 && (
+      {!loading && totalPages > 1 && (
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
