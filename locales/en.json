@@ -616,7 +616,8 @@
     "top_subtitle": "Access expert tools and advice to reach your financial goals",
     "subscription": {
       "currentPlan": "Current plan",
-      "benefitsUntilText": "You will have the benefits of this plan until",
+      "nextPayment": "Next payment:",
+      "noNextPayment": "No upcoming payment scheduled",
       "unlimited": "Unlimited",
       "unlimitedBenefits": "You will have the benefits of this plan indefinitely",
       "totalAmount": "Total amount",

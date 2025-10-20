@@ -626,7 +626,8 @@
     "top_subtitle": "Accede a herramientas profesionales y asesoría experta para alcanzar tus metas financieras",
     "subscription": {
       "currentPlan": "Plan actual",
-      "benefitsUntilText": "Tendrás los beneficios de este plan hasta el",
+      "nextPayment": "Próximo cobro:",
+      "noNextPayment": "No hay próximo cobro programado",
       "unlimited": "Ilimitado",
       "unlimitedBenefits": "Tendrás los beneficios de este plan de forma ilimitada",
       "totalAmount": "Monto total",
