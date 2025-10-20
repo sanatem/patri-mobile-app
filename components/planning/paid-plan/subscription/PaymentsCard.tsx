@@ -162,7 +162,7 @@ const PaymentsCard: React.FC<PaymentsCardProps> = ({ payments, loading = false }
           </View>
         </View>
 
-        <View className="w-full mb-4" style={{ backgroundColor: Colors.gray[100], height: 0.5 }} />
+        <View className="w-full mb-4" style={{ backgroundColor: Colors.gray[200], height: 0.5 }} />
 
         {payments.length === 0 ? (
           <View className="py-6">

@@ -10,7 +10,8 @@ interface PlanSubscriptionCardProps {
   planName: string;
   totalAmount: string;
   annualPayment: boolean;
-  description: string;
+  endDate: string | null;
+  isUnlimited: boolean;
   completedPayments: number;
   totalPayments: number;
   loading?: boolean;
@@ -20,7 +21,8 @@ const PlanSubscriptionCard: React.FC<PlanSubscriptionCardProps> = ({
   planName,
   totalAmount,
   annualPayment,
-  description,
+  endDate,
+  isUnlimited,
   completedPayments,
   totalPayments,
   loading = false,
@@ -135,11 +137,20 @@ const PlanSubscriptionCard: React.FC<PlanSubscriptionCardProps> = ({
             </Text>
           </View>
         </View>
-        <View className="w-full mb-4" style={{ backgroundColor: Colors.gray[100], height: 0.5 }} />
+        <View className="w-full mb-4" style={{ backgroundColor: Colors.gray[200], height: 0.5 }} />
 
-        <Text className="text-sm font-regular leading-6 mb-4" style={{ color: Colors.gray[600] }}>
-          {description}
-        </Text>
+        {isUnlimited ? (
+          <Text className="text-sm font-regular leading-6 mb-4" style={{ color: Colors.gray[600] }}>
+            {t('planning.subscription.unlimitedBenefits')}
+          </Text>
+        ) : (
+          <Text className="text-sm font-regular leading-6 mb-4" style={{ color: Colors.gray[600] }}>
+            {t('planning.subscription.benefitsUntilText')}{' '}
+            <Text className="font-medium" style={{ color: Colors.primary[600] }}>
+              {endDate}
+            </Text>
+          </Text>
+        )}
 
         <View>
           <Text className="text-sm font-medium mb-2" style={{ color: Colors.primary[600] }}>

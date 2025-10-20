@@ -55,6 +55,7 @@ export default function PaidPlan() {
             totalAmount={subscriptionData?.data?.total_amount || 0}
             annualPayment={subscriptionData?.data?.annual_payment || false}
             endDate={subscriptionData?.data?.end_date || null}
+            proceedWithCancellationOn={subscriptionData?.data?.proceed_with_cancellation_on || null}
             payments={subscriptionData?.data?.payments || []}
             loading={subscriptionLoading}
           />

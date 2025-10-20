@@ -93,7 +93,7 @@ const SectionPlanCard: React.FC<SectionPlanCardProps> = ({
           </View>
         )}
       </View>
-      <View className="w-full mb-4" style={{ backgroundColor: Colors.gray[100], height: 0.5 }} />
+      <View className="w-full mb-4" style={{ backgroundColor: Colors.gray[200], height: 0.5 }} />
       {price && (
         <View className="flex-row items-center justify-between mb-4">
           <Text className="text-lg font-medium" style={{ color: Colors.primary[600] }}>

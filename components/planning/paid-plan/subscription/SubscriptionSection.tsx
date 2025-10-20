@@ -11,6 +11,7 @@ interface SubscriptionSectionProps {
   totalAmount: number;
   annualPayment: boolean;
   endDate: string | null;
+  proceedWithCancellationOn: string | null;
   payments: Payment[];
   loading?: boolean;
 }
@@ -20,6 +21,7 @@ const SubscriptionSection: React.FC<SubscriptionSectionProps> = ({
   totalAmount,
   annualPayment,
   endDate,
+  proceedWithCancellationOn,
   payments,
   loading = false
 }) => {
@@ -30,7 +32,8 @@ const SubscriptionSection: React.FC<SubscriptionSectionProps> = ({
   const formatDate = (dateString: string | null) => {
     if (!dateString) return t('planning.subscription.unlimited');
 
-    const date = new Date(dateString);
+    const [year, month, day] = dateString.split('T')[0].split('-');
+    const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
     return date.toLocaleDateString('es-CL', {
       day: '2-digit',
       month: 'long',
@@ -46,7 +49,8 @@ const SubscriptionSection: React.FC<SubscriptionSectionProps> = ({
   };
 
   const formatPaymentDate = (dateString: string) => {
-    const date = new Date(dateString);
+    const [year, month, day] = dateString.split('T')[0].split('-');
+    const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
     return date.toLocaleDateString('es-CL', {
       day: '2-digit',
       month: 'long',
@@ -58,9 +62,9 @@ const SubscriptionSection: React.FC<SubscriptionSectionProps> = ({
     return t(`planning.subscription.paymentStates.${state}`);
   };
 
-  const planDescription = endDate
-    ? t('planning.subscription.benefitsUntil', { date: formatDate(endDate) })
-    : t('planning.subscription.unlimitedBenefits');
+  const benefitEndDate = proceedWithCancellationOn || endDate;
+  const formattedEndDate = benefitEndDate ? formatDate(benefitEndDate) : null;
+  const isUnlimited = !benefitEndDate;
 
   const paymentsData = payments
     .filter(payment => payment != null)
@@ -90,7 +94,8 @@ const SubscriptionSection: React.FC<SubscriptionSectionProps> = ({
         planName={`Plan ${planName}`}
         totalAmount={formatAmount(totalAmount)}
         annualPayment={annualPayment}
-        description={planDescription}
+        endDate={formattedEndDate}
+        isUnlimited={isUnlimited}
         completedPayments={completedPayments}
         totalPayments={payments.length}
         loading={loading}
