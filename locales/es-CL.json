@@ -589,7 +589,12 @@
         "netWorthTitle": "Patrimonio Neto",
         "assets": "Activos",
         "liabilities": "Pasivos",
-        "comparedToLastMonth": "vs último mes"
+        "comparedToLastMonth": "vs último mes",
+        "chart": {
+            "noData": "No hay datos disponibles para el rango seleccionado.\nTus datos históricos comenzarán a acumularse a medida que uses la app.",
+            "buildingHistory": "Estamos construyendo tu historial",
+            "buildingHistorySubtitle": "A medida que uses Patrimore, verás aquí la evolución de tu patrimonio en el tiempo."
+        }
     },
     "tabs": {
         "networth": "Patrimonio",
