@@ -802,8 +802,8 @@
       "scheduleButton": "Agendar Reunión",
       "alreadyScheduled": "Ya agendada",
       "scheduledThisYear": "Reunión agendada este año",
-      "oneHourAvailable": "45 minutos disponibles",
-      "hoursAvailable": "{{count}} hora disponible"
+      "oneHourAvailable": "1 reunión disponible",
+      "hoursAvailable": "{{count}} reuniones disponibles"
     },
     "general": {
       "title": "Planes",

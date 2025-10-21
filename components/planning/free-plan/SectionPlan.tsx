@@ -31,6 +31,7 @@ interface SectionPlanProps {
 
 const SectionPlan: React.FC<SectionPlanProps> = ({ onCardPress, isSubscribed, consultingHoursAvailable = 0, canScheduleThisYear = true }) => {
   const { t } = useTranslation();
+
   const planCardsData: PlanCardData[] = [
     {
       id: '1',
@@ -97,15 +98,9 @@ const SectionPlan: React.FC<SectionPlanProps> = ({ onCardPress, isSubscribed, co
               }
             };
           } else {
-            // Ya se agendó este año - mostrar como no disponible
             modifiedItem = {
               ...item,
-              buttonText: t('plans.consulting.alreadyScheduled'),
-              badge: {
-                text: t('plans.consulting.scheduledThisYear'),
-                bgColor: '#94a3b8',
-                textColor: '#FFFFFF'
-              }
+              buttonText: t('plans.consulting.alreadyScheduled')
             };
           }
         }

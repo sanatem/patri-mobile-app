@@ -14,7 +14,7 @@ export default function ScheduleMeeting() {
   const { user } = useAuth0();
   const router = useRouter();
   const webViewRef = useRef<WebView>(null);
-  const { scheduleSession, lastScheduledDate } = useConsultingHours();
+  const { scheduleSession, lastScheduledDate, availableHours, canScheduleThisYear } = useConsultingHours();
   const [loading, setLoading] = useState(true);
   const [canProceed, setCanProceed] = useState(false);
 
@@ -25,6 +25,25 @@ export default function ScheduleMeeting() {
   useEffect(() => {
     const validateAccess = async () => {
       try {
+        if (__DEV__ && availableHours > 0) {
+          if (!canScheduleThisYear) {
+            Alert.alert(
+              t('planning.consulting.schedule.error.title'),
+              t('planning.consulting.schedule.error.alreadyScheduled'),
+              [
+                {
+                  text: 'OK',
+                  onPress: () => router.back()
+                }
+              ]
+            );
+            setCanProceed(false);
+          } else {
+            setCanProceed(true);
+          }
+          return;
+        }
+
         const validation = await canScheduleSession(lastScheduledDate);
 
         if (!validation.canSchedule) {
@@ -43,7 +62,6 @@ export default function ScheduleMeeting() {
           setCanProceed(true);
         }
       } catch (error) {
-        console.error('Error validando acceso a agendamiento:', error);
         Alert.alert(
           t('common.error'),
           t('planning.consulting.schedule.error.validation'),
@@ -59,14 +77,13 @@ export default function ScheduleMeeting() {
     };
 
     validateAccess();
-  }, [lastScheduledDate]);
+  }, [lastScheduledDate, availableHours, canScheduleThisYear]);
 
   const handleMessage = async (event: any) => {
     try {
       const data = JSON.parse(event.nativeEvent.data);
 
       if (data.type === 'booking_success') {
-
         await scheduleSession({
           bookingId: data.booking_id,
           scheduledDate: data.scheduled_date || new Date().toISOString(),
@@ -80,21 +97,17 @@ export default function ScheduleMeeting() {
             {
               text: 'OK',
               onPress: () => {
-                router.back();
+                router.replace('/(tabs)/planning');
               },
             },
           ]
         );
       }
     } catch (error) {
-      console.error('Error procesando mensaje del widget:', error);
     }
   };
 
   const handleError = (syntheticEvent: any) => {
-    const { nativeEvent } = syntheticEvent;
-    console.error('Error en WebView:', nativeEvent);
-
     Alert.alert(
       t('common.error'),
       t('planning.consulting.schedule.error.widget'),

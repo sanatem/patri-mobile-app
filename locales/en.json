@@ -777,8 +777,8 @@
       "scheduleButton": "Schedule Meeting",
       "alreadyScheduled": "Already scheduled",
       "scheduledThisYear": "Meeting scheduled this year",
-      "oneHourAvailable": "1 hour available",
-      "hoursAvailable": "{{count}} hours available"
+      "oneHourAvailable": "1 meeting available",
+      "hoursAvailable": "{{count}} meetings available"
     },
     "general": {
       "title": "Plans",

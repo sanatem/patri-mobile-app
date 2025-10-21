@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const CONSULTING_HOURS_KEY = '@patrimore_consulting_hours';
@@ -35,11 +35,7 @@ export function useConsultingHours() {
   });
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setIsLoading(true);
       const storedData = await AsyncStorage.getItem(CONSULTING_HOURS_KEY);
@@ -48,36 +44,43 @@ export function useConsultingHours() {
         setData(parsed);
       }
     } catch (error) {
-      console.error('Error loading consulting hours data:', error);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
-  const saveData = async (newData: ConsultingHoursData) => {
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  const saveData = useCallback(async (newData: ConsultingHoursData) => {
     try {
       await AsyncStorage.setItem(CONSULTING_HOURS_KEY, JSON.stringify(newData));
       setData(newData);
     } catch (error) {
-      console.error('Error saving consulting hours data:', error);
       throw error;
     }
-  };
+  }, []);
 
-  const canPurchaseThisYear = (): boolean => {
-    if (!data.lastPurchaseDate) {
-      return true;
-    }
-
+  const canPurchaseThisYear = useMemo(() => {
+    if (!data.lastPurchaseDate) return true;
     const lastPurchase = new Date(data.lastPurchaseDate);
     const oneYearAgo = new Date();
     oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
-
     return lastPurchase <= oneYearAgo;
-  };
+  }, [data.lastPurchaseDate]);
 
-  const addPurchase = async (transactionId?: string) => {
-    if (!canPurchaseThisYear()) {
+  const canScheduleThisYear = useMemo(() => {
+    if (!data.lastScheduledDate) return true;
+    const lastScheduled = new Date(data.lastScheduledDate);
+    const oneYearAgo = new Date();
+    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+    return lastScheduled <= oneYearAgo;
+  }, [data.lastScheduledDate]);
+
+
+  const addPurchase = useCallback(async (transactionId?: string) => {
+    if (!canPurchaseThisYear) {
       const lastPurchase = new Date(data.lastPurchaseDate!);
       const nextAvailableDate = new Date(lastPurchase);
       nextAvailableDate.setFullYear(nextAvailableDate.getFullYear() + 1);
@@ -105,9 +108,9 @@ export function useConsultingHours() {
     };
     await saveData(newData);
     return newData;
-  };
+  }, [canPurchaseThisYear, data, saveData]);
 
-  const useHour = async () => {
+  const useHour = useCallback(async () => {
     if (data.availableHours <= 0) {
       throw new Error('No available consulting hours');
     }
@@ -119,9 +122,9 @@ export function useConsultingHours() {
     };
     await saveData(newData);
     return newData;
-  };
+  }, [data, saveData]);
 
-  const resetData = async () => {
+  const resetData = useCallback(async () => {
     const emptyData: ConsultingHoursData = {
       totalPurchased: 0,
       totalUsed: 0,
@@ -132,16 +135,16 @@ export function useConsultingHours() {
       lastPurchaseDate: undefined
     };
     await saveData(emptyData);
-  };
+  }, [saveData]);
 
-  const scheduleSession = async (sessionInfo: Omit<ScheduledSession, 'scheduledAt'>) => {
-    if (!canScheduleThisYear()) {
+  const scheduleSession = useCallback(async (sessionInfo: Omit<ScheduledSession, 'scheduledAt'>) => {
+    if (!canScheduleThisYear) {
       const lastScheduled = new Date(data.lastScheduledDate!);
       const nextAvailableDate = new Date(lastScheduled);
       nextAvailableDate.setFullYear(nextAvailableDate.getFullYear() + 1);
 
       throw new Error(
-        `Ya agendaste una sesión este año. Podrás agendar nuevamente el ${nextAvailableDate.toLocaleDateString()}`
+        `Puedes comprar y agendar sólo una sesión este año.`
       );
     }
 
@@ -150,27 +153,17 @@ export function useConsultingHours() {
       scheduledAt: new Date().toISOString()
     };
 
+    const now = new Date().toISOString();
     const newData: ConsultingHoursData = {
       ...data,
       scheduledSessions: [...data.scheduledSessions, newSession],
-      lastScheduledDate: new Date().toISOString()
+      lastScheduledDate: now
     };
 
     await saveData(newData);
+
     return newSession;
-  };
-
-  const canScheduleThisYear = (): boolean => {
-    if (!data.lastScheduledDate) {
-      return true;
-    }
-
-    const lastScheduled = new Date(data.lastScheduledDate);
-    const oneYearAgo = new Date();
-    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
-
-    return lastScheduled <= oneYearAgo;
-  };
+  }, [canScheduleThisYear, data, saveData]);
 
   return {
     totalPurchased: data.totalPurchased,
@@ -181,8 +174,8 @@ export function useConsultingHours() {
     lastScheduledDate: data.lastScheduledDate,
     lastPurchaseDate: data.lastPurchaseDate,
     hasAvailableHours: data.availableHours > 0,
-    canScheduleThisYear: canScheduleThisYear(),
-    canPurchaseThisYear: canPurchaseThisYear(),
+    canScheduleThisYear,
+    canPurchaseThisYear,
     isLoading,
     addPurchase,
     useHour,

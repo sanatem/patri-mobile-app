@@ -1,6 +1,6 @@
 import React from 'react';
-import { View, ScrollView, Linking, Alert, TouchableOpacity, Text } from 'react-native';
-import { useRouter } from 'expo-router';
+import { View, ScrollView, Linking, Alert } from 'react-native';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { Header, Container } from '@/components/ui';
 import { SectionPlan, TopTitle } from '@/components/planning/free-plan';
 import { usePaywall } from '@/hooks/common/usePaywall';
@@ -26,22 +26,15 @@ export default function FreePlan({ onPurchase, isSubscribed = false }: FreePlanP
     canPurchaseThisYear,
     canScheduleThisYear,
     lastPurchaseDate,
-    resetData
+    refresh
   } = useConsultingHours();
   const { t } = useTranslation();
 
-  const handleResetConsultingData = async () => {
-    try {
-      await resetData();
-      Alert.alert(
-        '✅ Datos limpiados',
-        'Se han eliminado todas las horas de consultoría del almacenamiento local.'
-      );
-    } catch (error) {
-      console.error('Error limpiando datos:', error);
-      Alert.alert('❌ Error', 'No se pudieron limpiar los datos');
-    }
-  };
+  useFocusEffect(
+    React.useCallback(() => {
+      refresh();
+    }, [refresh])
+  );
 
 
   const handlePurchase = async () => {
@@ -64,7 +57,6 @@ export default function FreePlan({ onPurchase, isSubscribed = false }: FreePlanP
         );
       }
     } catch (error) {
-      console.error('Error in handlePurchase:', error);
       Alert.alert(
         t('planning.error.title'),
         t('planning.error.unexpected'),
@@ -110,9 +102,8 @@ export default function FreePlan({ onPurchase, isSubscribed = false }: FreePlanP
             // });
           }
         } catch (consumeError) {
-          console.error('Error al procesar la compra:', consumeError);
         }
-        
+
         await forceRefresh();
         
         Alert.alert(
@@ -128,7 +119,6 @@ export default function FreePlan({ onPurchase, isSubscribed = false }: FreePlanP
         );
       }
     } catch (error) {
-      console.error('Error in handleConsultingPurchase:', error);
       Alert.alert(
         t('planning.error.title'),
         t('planning.consulting.error.unexpected'),
@@ -139,6 +129,18 @@ export default function FreePlan({ onPurchase, isSubscribed = false }: FreePlanP
 
   const handleSchedulePress = async () => {
     try {
+      if (__DEV__ && availableHours > 0) {
+        if (!canScheduleThisYear) {
+          Alert.alert(
+            t('planning.consulting.schedule.error.title'),
+            t('planning.consulting.schedule.error.alreadyScheduled')
+          );
+          return;
+        }
+        router.push('/planning/schedule-meeting');
+        return;
+      }
+
       const validation = await canScheduleSession(lastScheduledDate);
 
       if (!validation.canSchedule) {
@@ -151,7 +153,6 @@ export default function FreePlan({ onPurchase, isSubscribed = false }: FreePlanP
 
       router.push('/planning/schedule-meeting');
     } catch (error) {
-      console.error('Error al validar agendamiento:', error);
       Alert.alert(
         t('common.error'),
         t('planning.consulting.schedule.error.validation')
@@ -168,9 +169,7 @@ export default function FreePlan({ onPurchase, isSubscribed = false }: FreePlanP
     } else if (card.id === 'schedule_consulting') {
       await handleSchedulePress();
     } else if (card.title === t('planning.cardTitles.plans')) {
-      Linking.openURL('https://patrimore.com/planes').catch(err =>
-        console.error('Error al abrir la URL:', err)
-      );
+      Linking.openURL('https://patrimore.com/planes');
     }
   };
   return (
@@ -185,24 +184,6 @@ export default function FreePlan({ onPurchase, isSubscribed = false }: FreePlanP
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 20 }}
         >
-          {__DEV__ && (
-            <View style={{ margin: 16, marginBottom: 0 }}>
-              <TouchableOpacity
-                onPress={handleResetConsultingData}
-                style={{
-                  backgroundColor: '#dc2626',
-                  padding: 16,
-                  borderRadius: 8,
-                  alignItems: 'center',
-                }}
-              >
-                <Text style={{ color: 'white', fontSize: 16, fontWeight: '600' }}>
-                  🧹 [DEV] Limpiar datos de consultoría
-                </Text>
-              </TouchableOpacity>
-            </View>
-          )}
-
           <TopTitle onPurchase={handlePurchase} />
           <SectionPlan
             onCardPress={handleCardPress}
