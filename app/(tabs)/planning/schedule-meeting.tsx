@@ -14,7 +14,7 @@ export default function ScheduleMeeting() {
   const { user } = useAuth0();
   const router = useRouter();
   const webViewRef = useRef<WebView>(null);
-  const { scheduleSession, lastScheduledDate, availableHours, canScheduleThisYear } = useConsultingHours();
+  const { scheduleSession, lastScheduledDate, availableHours, canScheduleThisYear, refresh } = useConsultingHours();
   const [loading, setLoading] = useState(true);
   const [canProceed, setCanProceed] = useState(false);
 
@@ -89,6 +89,8 @@ export default function ScheduleMeeting() {
           scheduledDate: data.scheduled_date || new Date().toISOString(),
           advisorName: data.staff_name || 'Asesor Patrimore',
         });
+
+        await refresh();
 
         Alert.alert(
           t('planning.consulting.schedule.success.title'),

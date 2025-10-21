@@ -1,7 +1,10 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Purchases from 'react-native-purchases';
+import { validateConsultingPurchase, canPurchaseConsultingHour } from '@/services/consulting/validate-purchase';
 
 const CONSULTING_HOURS_KEY = '@patrimore_consulting_hours';
+const LAST_SCHEDULED_DATE_ATTRIBUTE = 'consulting_last_scheduled_date';
 
 interface ScheduledSession {
   bookingId: string;
@@ -34,15 +37,25 @@ export function useConsultingHours() {
     lastPurchaseDate: undefined
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [revenueCatPurchaseDate, setRevenueCatPurchaseDate] = useState<Date | null>(null);
 
   const loadData = useCallback(async () => {
     try {
       setIsLoading(true);
+
       const storedData = await AsyncStorage.getItem(CONSULTING_HOURS_KEY);
       if (storedData) {
         const parsed = JSON.parse(storedData);
         setData(parsed);
       }
+
+      const purchaseValidation = await validateConsultingPurchase();
+      if (purchaseValidation.hasPurchased) {
+        setRevenueCatPurchaseDate(purchaseValidation.purchaseDate!);
+      } else {
+        setRevenueCatPurchaseDate(null);
+      }
+
     } catch (error) {
     } finally {
       setIsLoading(false);
@@ -62,67 +75,80 @@ export function useConsultingHours() {
     }
   }, []);
 
-  const canPurchaseThisYear = useMemo(() => {
-    if (!data.lastPurchaseDate) return true;
-    const lastPurchase = new Date(data.lastPurchaseDate);
+  const availableHours = useMemo(() => {
+    if (!revenueCatPurchaseDate) {
+      console.log('[availableHours] No purchase date → 0 hours');
+      return 0;
+    }
+
     const oneYearAgo = new Date();
     oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
-    return lastPurchase <= oneYearAgo;
-  }, [data.lastPurchaseDate]);
+
+    if (revenueCatPurchaseDate <= oneYearAgo) {
+      console.log('[availableHours] Purchase expired → 0 hours');
+      return 0;
+    }
+
+    if (data.lastScheduledDate) {
+      const lastScheduled = new Date(data.lastScheduledDate);
+      console.log('[availableHours] Checking scheduled:', {
+        lastScheduled: lastScheduled.toISOString(),
+        purchaseDate: revenueCatPurchaseDate.toISOString(),
+        scheduledAfterPurchase: lastScheduled >= revenueCatPurchaseDate
+      });
+
+      if (lastScheduled >= revenueCatPurchaseDate) {
+        console.log('[availableHours] Already scheduled → 0 hours');
+        return 0;
+      }
+    }
+
+    console.log('[availableHours] Has available hour → 1 hour');
+    return 1;
+  }, [revenueCatPurchaseDate, data.lastScheduledDate]);
+
+  const canPurchaseThisYear = useMemo(() => {
+    if (!revenueCatPurchaseDate) return true;
+
+    const oneYearAgo = new Date();
+    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+
+    return revenueCatPurchaseDate <= oneYearAgo;
+  }, [revenueCatPurchaseDate]);
 
   const canScheduleThisYear = useMemo(() => {
-    if (!data.lastScheduledDate) return true;
-    const lastScheduled = new Date(data.lastScheduledDate);
+    
+    if (!revenueCatPurchaseDate) return true;
+
     const oneYearAgo = new Date();
     oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
-    return lastScheduled <= oneYearAgo;
-  }, [data.lastScheduledDate]);
+
+    if (revenueCatPurchaseDate <= oneYearAgo) return true;
+
+    if (data.lastScheduledDate) {
+      const lastScheduled = new Date(data.lastScheduledDate);
+      if (lastScheduled >= revenueCatPurchaseDate) {
+        return false;
+      }
+    }
+
+    return true;
+  }, [revenueCatPurchaseDate, data.lastScheduledDate]);
+
+  const hasActivePurchase = useMemo(() => {
+    if (!revenueCatPurchaseDate) return false;
+
+    const oneYearAgo = new Date();
+    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+
+    return revenueCatPurchaseDate > oneYearAgo;
+  }, [revenueCatPurchaseDate]);
 
 
   const addPurchase = useCallback(async (transactionId?: string) => {
-    if (!canPurchaseThisYear) {
-      const lastPurchase = new Date(data.lastPurchaseDate!);
-      const nextAvailableDate = new Date(lastPurchase);
-      nextAvailableDate.setFullYear(nextAvailableDate.getFullYear() + 1);
+    await loadData();
+  }, [loadData]);
 
-      throw new Error(
-        `Ya compraste una hora este año. Podrás comprar nuevamente el ${nextAvailableDate.toLocaleDateString()}`
-      );
-    }
-
-    const now = new Date().toISOString();
-    const newData: ConsultingHoursData = {
-      totalPurchased: data.totalPurchased + 1,
-      totalUsed: data.totalUsed,
-      availableHours: data.availableHours + 1,
-      purchaseHistory: [
-        ...data.purchaseHistory,
-        {
-          date: now,
-          transactionId
-        }
-      ],
-      scheduledSessions: data.scheduledSessions,
-      lastScheduledDate: data.lastScheduledDate,
-      lastPurchaseDate: now
-    };
-    await saveData(newData);
-    return newData;
-  }, [canPurchaseThisYear, data, saveData]);
-
-  const useHour = useCallback(async () => {
-    if (data.availableHours <= 0) {
-      throw new Error('No available consulting hours');
-    }
-
-    const newData: ConsultingHoursData = {
-      ...data,
-      totalUsed: data.totalUsed + 1,
-      availableHours: data.availableHours - 1
-    };
-    await saveData(newData);
-    return newData;
-  }, [data, saveData]);
 
   const resetData = useCallback(async () => {
     const emptyData: ConsultingHoursData = {
@@ -162,23 +188,30 @@ export function useConsultingHours() {
 
     await saveData(newData);
 
+    try {
+      await Purchases.setAttributes({
+        [LAST_SCHEDULED_DATE_ATTRIBUTE]: now
+      });
+    } catch (error) {
+    }
+
     return newSession;
   }, [canScheduleThisYear, data, saveData]);
 
   return {
     totalPurchased: data.totalPurchased,
     totalUsed: data.totalUsed,
-    availableHours: data.availableHours,
+    availableHours,
     purchaseHistory: data.purchaseHistory,
     scheduledSessions: data.scheduledSessions,
     lastScheduledDate: data.lastScheduledDate,
-    lastPurchaseDate: data.lastPurchaseDate,
-    hasAvailableHours: data.availableHours > 0,
+    lastPurchaseDate: revenueCatPurchaseDate?.toISOString(),
+    hasAvailableHours: availableHours > 0,
+    hasActivePurchase,
     canScheduleThisYear,
     canPurchaseThisYear,
     isLoading,
     addPurchase,
-    useHour,
     resetData,
     scheduleSession,
     refresh: loadData

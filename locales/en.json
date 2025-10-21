@@ -612,7 +612,8 @@
     "consulting": {
       "success": {
         "title": "Purchase successful!",
-        "message": "Your consulting session has been confirmed. We will contact you shortly to schedule."
+        "message": "Your consulting session has been confirmed. We will contact you shortly to schedule.",
+        "scheduleNow": "Your purchase was successful. You can now schedule your 45-minute meeting."
       },
       "error": {
         "purchase": "There was an issue with the purchase. Please try again.",

@@ -622,7 +622,8 @@
     "consulting": {
       "success": {
         "title": "¡Compra exitosa!",
-        "message": "Tu hora de asesoría ha sido confirmada. En breve nos contactaremos contigo para agendar."
+        "message": "Tu hora de asesoría ha sido confirmada. En breve nos contactaremos contigo para agendar.",
+        "scheduleNow": "Tu compra fue exitosa. Ahora puedes agendar tu reunión de 45 minutos."
       },
       "error": {
         "purchase": "Hubo un problema con la compra. Intenta nuevamente.",

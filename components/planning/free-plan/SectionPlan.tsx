@@ -27,9 +27,10 @@ interface SectionPlanProps {
   isSubscribed?: boolean;
   consultingHoursAvailable?: number;
   canScheduleThisYear?: boolean;
+  hasActivePurchase?: boolean;
 }
 
-const SectionPlan: React.FC<SectionPlanProps> = ({ onCardPress, isSubscribed, consultingHoursAvailable = 0, canScheduleThisYear = true }) => {
+const SectionPlan: React.FC<SectionPlanProps> = ({ onCardPress, isSubscribed, consultingHoursAvailable = 0, canScheduleThisYear = true, hasActivePurchase = false }) => {
   const { t } = useTranslation();
 
   const planCardsData: PlanCardData[] = [
@@ -80,13 +81,12 @@ const SectionPlan: React.FC<SectionPlanProps> = ({ onCardPress, isSubscribed, co
           };
         }
 
-        if (isConsultingCard && consultingHoursAvailable > 0) {
-          const hoursText = consultingHoursAvailable === 1
-            ? t('plans.consulting.oneHourAvailable')
-            : t('plans.consulting.hoursAvailable', { count: consultingHoursAvailable });
+        if (isConsultingCard) {
+          if (consultingHoursAvailable > 0) {
+            const hoursText = consultingHoursAvailable === 1
+              ? t('plans.consulting.oneHourAvailable')
+              : t('plans.consulting.hoursAvailable', { count: consultingHoursAvailable });
 
-          // Solo permitir agendar si no se ha agendado en el último año
-          if (canScheduleThisYear) {
             modifiedItem = {
               ...item,
               id: 'schedule_consulting',
@@ -97,7 +97,8 @@ const SectionPlan: React.FC<SectionPlanProps> = ({ onCardPress, isSubscribed, co
                 textColor: '#FFFFFF'
               }
             };
-          } else {
+          } 
+          else if (!canScheduleThisYear && hasActivePurchase) {
             modifiedItem = {
               ...item,
               buttonText: t('plans.consulting.alreadyScheduled')
@@ -105,7 +106,8 @@ const SectionPlan: React.FC<SectionPlanProps> = ({ onCardPress, isSubscribed, co
           }
         }
 
-        const isDisabled = (isSubscriptionCard && isSubscribed) || (isConsultingCard && !canScheduleThisYear && consultingHoursAvailable > 0);
+        const isDisabled = (isSubscriptionCard && isSubscribed) ||
+                          (isConsultingCard && modifiedItem.buttonText === t('plans.consulting.alreadyScheduled'));
 
         return (
           <View key={item.id} className="mb-4">

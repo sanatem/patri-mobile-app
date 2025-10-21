@@ -55,15 +55,10 @@ export function useSubscriptionStatus(): SubscriptionStatus {
 
       const customerInfo = await Purchases.getCustomerInfo();
 
-      const hasActiveEntitlements = Object.values(customerInfo.entitlements.active).length > 0;
-
       const hasPremiumEntitlement = customerInfo.entitlements.active['premium'] !== undefined;
 
-      const hasAnyPremiumAccess = hasPremiumEntitlement;
-
-
-      setIsSubscribed(hasAnyPremiumAccess || hasActiveEntitlements);
-      setIsPremium(hasAnyPremiumAccess);
+      setIsSubscribed(hasPremiumEntitlement);
+      setIsPremium(hasPremiumEntitlement);
 
     } catch (err) {
       console.error('Error checking subscription status:', err);

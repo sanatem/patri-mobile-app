@@ -1,6 +1,7 @@
 import Purchases, { PurchasesEntitlementInfos, CustomerInfo } from 'react-native-purchases';
 
 const CONSULTING_PRODUCT_ID = 'consulting_hour_120';
+const LAST_SCHEDULED_DATE_ATTRIBUTE = 'consulting_last_scheduled_date';
 
 interface PurchaseValidationResult {
   hasPurchased: boolean;
@@ -44,6 +45,52 @@ export async function validateConsultingPurchase(): Promise<PurchaseValidationRe
   }
 }
 
+export async function canPurchaseConsultingHour(): Promise<{
+  canPurchase: boolean;
+  reason?: string;
+  lastPurchaseDate?: Date;
+}> {
+  try {
+    const customerInfo: CustomerInfo = await Purchases.getCustomerInfo();
+    const nonSubscriptionTransactions = customerInfo.nonSubscriptionTransactions || [];
+
+    const consultingPurchase = nonSubscriptionTransactions.find(
+      (transaction) => transaction.productIdentifier === CONSULTING_PRODUCT_ID
+    );
+
+    if (!consultingPurchase) {
+      return {
+        canPurchase: true
+      };
+    }
+
+    const lastPurchaseDate = new Date(consultingPurchase.purchaseDate);
+    const oneYearAgo = new Date();
+    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+
+    if (lastPurchaseDate > oneYearAgo) {
+      const nextAvailableDate = new Date(lastPurchaseDate);
+      nextAvailableDate.setFullYear(nextAvailableDate.getFullYear() + 1);
+
+      return {
+        canPurchase: false,
+        reason: `Ya compraste una hora este año. Podrás comprar otra el ${nextAvailableDate.toLocaleDateString()}`,
+        lastPurchaseDate
+      };
+    }
+
+    return {
+      canPurchase: true,
+      lastPurchaseDate
+    };
+
+  } catch (error) {
+    return {
+      canPurchase: true
+    };
+  }
+}
+
 export async function canScheduleSession(lastScheduledDate?: string): Promise<{
   canSchedule: boolean;
   reason?: string;
@@ -61,20 +108,32 @@ export async function canScheduleSession(lastScheduledDate?: string): Promise<{
     };
   }
 
-  if (lastScheduledDate) {
-    const lastScheduled = new Date(lastScheduledDate);
-    const oneYearAgo = new Date();
-    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+  const lastPurchaseDate = purchaseValidation.purchaseDate!;
+  const oneYearAgo = new Date();
+  oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
 
-    if (lastScheduled > oneYearAgo) {
-      const nextAvailableDate = new Date(lastScheduled);
-      nextAvailableDate.setFullYear(nextAvailableDate.getFullYear() + 1);
+  if (lastPurchaseDate > oneYearAgo) {
+    if (lastScheduledDate) {
+      const lastScheduled = new Date(lastScheduledDate);
 
-      return {
-        canSchedule: false,
-        reason: `Ya agendaste una hora este año. Podrás agendar nuevamente el ${nextAvailableDate.toLocaleDateString()}`
-      };
+      if (lastScheduled >= lastPurchaseDate) {
+        const nextAvailableDate = new Date(lastPurchaseDate);
+        nextAvailableDate.setFullYear(nextAvailableDate.getFullYear() + 1);
+
+        return {
+          canSchedule: false,
+          reason: `Ya agendaste tu hora este año. Podrás comprar otra el ${nextAvailableDate.toLocaleDateString()}`
+        };
+      }
     }
+
+    return {
+      canSchedule: true,
+      purchaseInfo: {
+        purchaseDate: purchaseValidation.purchaseDate!,
+        transactionId: purchaseValidation.transactionId!
+      }
+    };
   }
 
   return {

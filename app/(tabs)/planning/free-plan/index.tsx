@@ -6,7 +6,7 @@ import { SectionPlan, TopTitle } from '@/components/planning/free-plan';
 import { usePaywall } from '@/hooks/common/usePaywall';
 import { useSubscriptionStatus } from '@/hooks/common/useSubscriptionStatus';
 import { useConsultingHours } from '@/hooks/consulting/useConsultingHours';
-import { canScheduleSession } from '@/services/consulting/validate-purchase';
+import { canScheduleSession, canPurchaseConsultingHour } from '@/services/consulting/validate-purchase';
 import { useTranslation } from 'react-i18next';
 import Purchases from 'react-native-purchases';
 
@@ -26,6 +26,7 @@ export default function FreePlan({ onPurchase, isSubscribed = false }: FreePlanP
     canPurchaseThisYear,
     canScheduleThisYear,
     lastPurchaseDate,
+    hasActivePurchase,
     refresh
   } = useConsultingHours();
   const { t } = useTranslation();
@@ -67,14 +68,13 @@ export default function FreePlan({ onPurchase, isSubscribed = false }: FreePlanP
 
   const handleConsultingPurchase = async () => {
     try {
-      if (!canPurchaseThisYear) {
-        const lastPurchase = new Date(lastPurchaseDate!);
-        const nextAvailableDate = new Date(lastPurchase);
-        nextAvailableDate.setFullYear(nextAvailableDate.getFullYear() + 1);
 
+      const purchaseCheck = await canPurchaseConsultingHour();
+
+      if (!purchaseCheck.canPurchase) {
         Alert.alert(
           t('planning.consulting.error.purchase'),
-          `Ya compraste una hora este año. Podrás comprar nuevamente el ${nextAvailableDate.toLocaleDateString()}`
+          purchaseCheck.reason || 'No puedes comprar otra hora en este momento'
         );
         return;
       }
@@ -104,12 +104,18 @@ export default function FreePlan({ onPurchase, isSubscribed = false }: FreePlanP
         } catch (consumeError) {
         }
 
-        await forceRefresh();
-        
+
         Alert.alert(
           t('planning.consulting.success.title'),
-          t('planning.consulting.success.message'),
-          [{ text: 'OK' }]
+          t('planning.consulting.success.scheduleNow'),
+          [
+            {
+              text: 'OK',
+              onPress: () => {
+                router.push('/planning/schedule-meeting');
+              }
+            }
+          ]
         );
       } else if (!result.cancelled) {
         Alert.alert(
@@ -190,6 +196,7 @@ export default function FreePlan({ onPurchase, isSubscribed = false }: FreePlanP
             isSubscribed={isSubscribed}
             consultingHoursAvailable={availableHours}
             canScheduleThisYear={canScheduleThisYear}
+            hasActivePurchase={hasActivePurchase}
           />
         </ScrollView>
       </Container>
