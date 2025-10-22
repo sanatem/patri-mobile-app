@@ -10,9 +10,9 @@ interface SubscriptionSectionProps {
   totalAmount: number;
   annualPayment: boolean;
   nextPaymentOn: string | null;
-  payments: Payment[];
   loading?: boolean;
   paymentsData: Payment[];
+  allPaymentsData: Payment[];
   paymentsMeta: PaymentsPaginationMeta | null;
   paymentsLoading: boolean;
   onPaymentsPageChange: (page: number) => void;
@@ -23,9 +23,9 @@ const SubscriptionSection: React.FC<SubscriptionSectionProps> = ({
   totalAmount,
   annualPayment,
   nextPaymentOn,
-  payments,
   loading = false,
   paymentsData,
+  allPaymentsData,
   paymentsMeta,
   paymentsLoading,
   onPaymentsPageChange
@@ -44,16 +44,10 @@ const SubscriptionSection: React.FC<SubscriptionSectionProps> = ({
     });
   };
 
-  const formatAmount = (amount: number) => {
-    return new Intl.NumberFormat('es-CL', {
-      style: 'currency',
-      currency: 'CLP'
-    }).format(amount);
-  };
-
   const formattedNextPaymentDate = nextPaymentOn ? formatDate(nextPaymentOn) : null;
 
-  const completedPayments = payments.filter(
+  // Calcular pagos completados del TOTAL de pagos, no solo de la página actual
+  const completedPayments = allPaymentsData.filter(
     payment => payment && (payment.state === 'approved' || payment.state === 'authorized')
   ).length;
 
@@ -61,11 +55,11 @@ const SubscriptionSection: React.FC<SubscriptionSectionProps> = ({
     <View style={{ padding: 10 }}>
       <PlanSubscriptionCard
         planName={`Plan ${planName}`}
-        totalAmount={formatAmount(totalAmount)}
+        totalAmount={totalAmount}
         annualPayment={annualPayment}
         nextPaymentDate={formattedNextPaymentDate}
         completedPayments={completedPayments}
-        totalPayments={payments.length}
+        totalPayments={paymentsMeta?.total_count || paymentsData.length}
         loading={loading}
       />
 

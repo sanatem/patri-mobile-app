@@ -79,47 +79,61 @@ export async function getSubscription(token: string): Promise<SubscriptionRespon
 
     const url = `${config.apiBaseUrl}/api/v2/subscription`;
 
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-    });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
 
-    if (!response.ok) {
-      if (response.status === 401) {
-        throw new Error('Token de autenticación inválido o expirado');
+    try {
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error('Token de autenticación inválido o expirado');
+        }
+
+        if (response.status === 404) {
+          return null;
+        }
+
+        if (response.status === 500) {
+          throw new Error('Error interno del servidor');
+        }
+
+        const errorText = await response.text();
+        throw new Error(`API Error ${response.status}: ${errorText}`);
       }
 
-      if (response.status === 404) {
-        return null;
-      }
+      const apiData: APISubscriptionResponse = await response.json();
 
-      if (response.status === 500) {
-        throw new Error('Error interno del servidor');
-      }
+      const transformedData: SubscriptionResponse = {
+        success: apiData.success,
+        data: {
+          plan_name: apiData.data.plan.name,
+          total_amount: apiData.data.subscription.total_amount,
+          annual_payment: apiData.data.subscription.annual_payment,
+          end_date: apiData.data.dates.end_date,
+          proceed_with_cancellation_on: apiData.data.dates.proceed_with_cancellation_on,
+          next_payment_on: apiData.data.dates.next_payment_on,
+          payments: apiData.data.payment ? [apiData.data.payment] : [],
+        }
+      };
 
-      const errorText = await response.text();
-      throw new Error(`API Error ${response.status}: ${errorText}`);
+      return transformedData;
+    } catch (fetchError) {
+      clearTimeout(timeoutId);
+      if (fetchError instanceof Error && fetchError.name === 'AbortError') {
+        throw new Error('La solicitud ha excedido el tiempo de espera');
+      }
+      throw fetchError;
     }
-
-    const apiData: APISubscriptionResponse = await response.json();
-
-    const transformedData: SubscriptionResponse = {
-      success: apiData.success,
-      data: {
-        plan_name: apiData.data.plan.name,
-        total_amount: apiData.data.subscription.total_amount,
-        annual_payment: apiData.data.subscription.annual_payment,
-        end_date: apiData.data.dates.end_date,
-        proceed_with_cancellation_on: apiData.data.dates.proceed_with_cancellation_on,
-        next_payment_on: apiData.data.dates.next_payment_on,
-        payments: apiData.data.payment ? [apiData.data.payment] : [],
-      }
-    };
-
-    return transformedData;
 
   } catch (error) {
     console.error('Subscription Service: Error fetching subscription data from API:', error);
@@ -159,61 +173,74 @@ export async function getSubscriptionPayments(
 
     const url = `${config.apiBaseUrl}/api/v2/subscription/payments${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
 
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-    });
+    // Timeout de 30 segundos
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
 
-    if (!response.ok) {
-      if (response.status === 401) {
-        throw new Error('Token de autenticación inválido o expirado');
-      }
-
-      if (response.status === 404) {
-        // Retornar estructura vacía en lugar de null para evitar errores
-        return {
-          success: true,
-          data: {
-            payments: [],
-            meta: {
-              current_page: 1,
-              total_pages: 1,
-              total_count: 0,
-              per_page: params?.per_page || 3,
-            }
-          }
-        };
-      }
-
-      if (response.status === 500) {
-        throw new Error('Error interno del servidor');
-      }
-
-      const errorText = await response.text();
-      throw new Error(`API Error ${response.status}: ${errorText}`);
-    }
-
-    const apiData: APIPaymentsResponse = await response.json();
-
-    return {
-      success: apiData.success,
-      data: {
-        payments: apiData.data,
-        meta: {
-          current_page: apiData.pagination.current_page,
-          total_pages: apiData.pagination.total_pages,
-          total_count: apiData.pagination.total_count,
-          per_page: apiData.pagination.per_page,
+    try {
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error('Token de autenticación inválido o expirado');
+        }
+
+        if (response.status === 404) {
+          return {
+            success: true,
+            data: {
+              payments: [],
+              meta: {
+                current_page: 1,
+                total_pages: 1,
+                total_count: 0,
+                per_page: params?.per_page || 3,
+              }
+            }
+          };
+        }
+
+        if (response.status === 500) {
+          throw new Error('Error interno del servidor');
+        }
+
+        const errorText = await response.text();
+        throw new Error(`API Error ${response.status}: ${errorText}`);
       }
-    };
+
+      const apiData: APIPaymentsResponse = await response.json();
+
+      return {
+        success: apiData.success,
+        data: {
+          payments: apiData.data,
+          meta: {
+            current_page: apiData.pagination.current_page,
+            total_pages: apiData.pagination.total_pages,
+            total_count: apiData.pagination.total_count,
+            per_page: apiData.pagination.per_page,
+          },
+        }
+      };
+    } catch (fetchError) {
+      clearTimeout(timeoutId);
+      if (fetchError instanceof Error && fetchError.name === 'AbortError') {
+        throw new Error('La solicitud ha excedido el tiempo de espera');
+      }
+      throw fetchError;
+    }
 
   } catch (error) {
     console.error('Subscription Payments Service: Error fetching payments data from API:', error);
-    // No lanzar error, retornar estructura vacía
     return {
       success: false,
       data: {

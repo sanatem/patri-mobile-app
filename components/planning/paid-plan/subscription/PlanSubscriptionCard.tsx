@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 
 interface PlanSubscriptionCardProps {
   planName: string;
-  totalAmount: string;
+  totalAmount: number;
   annualPayment: boolean;
   nextPaymentDate: string | null;
   completedPayments: number;
@@ -117,10 +117,13 @@ const PlanSubscriptionCard: React.FC<PlanSubscriptionCardProps> = ({
           </View>
           <View className="flex-row items-center">
             <Text className="text-lg font-medium" style={{ color: Colors.primary[600] }}>
-              {totalAmount}
+              {new Intl.NumberFormat('es-CL', {
+                style: 'currency',
+                currency: 'CLP'
+              }).format(totalAmount)}
             </Text>
             <Text className="text-xs font-medium ml-1.5" style={{ color: Colors.gray[500], marginTop: 2 }}>
-              {annualPayment ? '/año' : t('common.per_month')}
+              {annualPayment ? t('common.per_year') : t('common.per_month')}
             </Text>
           </View>
         </View>

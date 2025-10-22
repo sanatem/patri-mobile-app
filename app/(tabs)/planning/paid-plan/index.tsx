@@ -18,6 +18,7 @@ export default function PaidPlan() {
     loading: subscriptionLoading, 
     error: subscriptionError,
     payments,
+    allPayments,
     paymentsMeta,
     paymentsLoading,
     setPaymentsPage
@@ -59,9 +60,9 @@ export default function PaidPlan() {
             totalAmount={subscriptionData?.data?.total_amount || 0}
             annualPayment={subscriptionData?.data?.annual_payment || false}
             nextPaymentOn={subscriptionData?.data?.next_payment_on || null}
-            payments={subscriptionData?.data?.payments || []}
             loading={subscriptionLoading}
             paymentsData={payments}
+            allPaymentsData={allPayments}
             paymentsMeta={paymentsMeta}
             paymentsLoading={paymentsLoading}
             onPaymentsPageChange={setPaymentsPage}
