@@ -589,7 +589,12 @@
     "netWorthTitle": "Networth",
     "assets": "Assets",
     "liabilities": "Liabilities",
-    "comparedToLastMonth": "vs last month"
+    "comparedToLastMonth": "vs last month",
+    "chart": {
+      "noData": "No data available for the selected range.\nYour historical data will accumulate as you use the app.",
+      "buildingHistory": "We're building your history",
+      "buildingHistorySubtitle": "As you use Patrimore, you'll see here the evolution of your net worth over time."
+    }
   },
   "tabs": {
     "networth": "Networth",

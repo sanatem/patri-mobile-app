@@ -1,4 +1,4 @@
-// services/budget/get-floid-transactions.ts
+
 import config from '@/config/constants';
 
 export interface FloidTransaction {
@@ -79,8 +79,6 @@ export async function getFloidTransactions(
     const queryString = urlParams.toString();
     const url = `${config.apiBaseUrl}/api/v2/floid/${floidId}/transactions${queryString ? `?${queryString}` : ''}`;
 
-    console.log('📡 Fetching Floid transactions from:', url);
-
     const response = await fetch(url, {
       method: 'GET',
       headers: {
@@ -106,7 +104,7 @@ export async function getFloidTransactions(
     return data;
 
   } catch (error) {
-    console.error('❌ Floid Transactions Service: Error fetching transactions from API:', error);
+    console.error('Floid Transactions Service: Error fetching transactions from API:', error);
     throw error;
   }
 }
