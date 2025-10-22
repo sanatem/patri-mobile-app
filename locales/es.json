@@ -626,7 +626,7 @@
         "scheduleNow": "Tu compra fue exitosa. Ahora puedes agendar tu reunión de 45 minutos."
       },
       "error": {
-        "purchase": "Hubo un problema con la compra. Intenta nuevamente.",
+        "purchase": "No disponible",
         "unexpected": "Ocurrió un error inesperado. Intenta nuevamente."
       },
       "schedule": {

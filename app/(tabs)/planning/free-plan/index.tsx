@@ -8,7 +8,6 @@ import { useSubscriptionStatus } from '@/hooks/common/useSubscriptionStatus';
 import { useConsultingHours } from '@/hooks/consulting/useConsultingHours';
 import { canScheduleSession, canPurchaseConsultingHour } from '@/services/consulting/validate-purchase';
 import { useTranslation } from 'react-i18next';
-import Purchases from 'react-native-purchases';
 
 interface FreePlanProps {
   onPurchase?: () => void;
@@ -23,9 +22,7 @@ export default function FreePlan({ onPurchase, isSubscribed = false }: FreePlanP
     availableHours,
     addPurchase,
     lastScheduledDate,
-    canPurchaseThisYear,
     canScheduleThisYear,
-    lastPurchaseDate,
     hasActivePurchase,
     refresh
   } = useConsultingHours();
@@ -82,41 +79,12 @@ export default function FreePlan({ onPurchase, isSubscribed = false }: FreePlanP
       const result = await presentPaywallForOffering('consulting_offering');
 
       if (result.success) {
-        await addPurchase();
+        // Refrescar datos después de la compra
+        await refresh();
 
-        try {
-          const customerInfo = await Purchases.getCustomerInfo();
-          const latestTransaction = customerInfo.nonSubscriptionTransactions[0];
-
-          if (latestTransaction) {
-            // TODO: Enviar notificación al backend
-            // await fetch('https://api.patrimore.com/api/consulting-sessions', {
-            //   method: 'POST',
-            //   headers: { 'Content-Type': 'application/json' },
-            //   body: JSON.stringify({
-            //     userId: customerInfo.originalAppUserId,
-            //     productId: 'consulting_hour_120',
-            //     transactionId: latestTransaction.transactionIdentifier,
-            //     purchaseDate: latestTransaction.purchaseDate
-            //   })
-            // });
-          }
-        } catch (consumeError) {
-        }
-
-
-        Alert.alert(
-          t('planning.consulting.success.title'),
-          t('planning.consulting.success.scheduleNow'),
-          [
-            {
-              text: 'OK',
-              onPress: () => {
-                router.push('/planning/schedule-meeting');
-              }
-            }
-          ]
-        );
+        // Abrir directamente el widget de agendar
+        // El consumo se hará DESPUÉS de que el usuario agende
+        router.push('/planning/schedule-meeting');
       } else if (!result.cancelled) {
         Alert.alert(
           t('planning.error.title'),
@@ -135,18 +103,6 @@ export default function FreePlan({ onPurchase, isSubscribed = false }: FreePlanP
 
   const handleSchedulePress = async () => {
     try {
-      if (__DEV__ && availableHours > 0) {
-        if (!canScheduleThisYear) {
-          Alert.alert(
-            t('planning.consulting.schedule.error.title'),
-            t('planning.consulting.schedule.error.alreadyScheduled')
-          );
-          return;
-        }
-        router.push('/planning/schedule-meeting');
-        return;
-      }
-
       const validation = await canScheduleSession(lastScheduledDate);
 
       if (!validation.canSchedule) {
@@ -194,7 +150,6 @@ export default function FreePlan({ onPurchase, isSubscribed = false }: FreePlanP
           <SectionPlan
             onCardPress={handleCardPress}
             isSubscribed={isSubscribed}
-            consultingHoursAvailable={availableHours}
             canScheduleThisYear={canScheduleThisYear}
             hasActivePurchase={hasActivePurchase}
           />

@@ -14,7 +14,7 @@ export default function ScheduleMeeting() {
   const { user } = useAuth0();
   const router = useRouter();
   const webViewRef = useRef<WebView>(null);
-  const { scheduleSession, lastScheduledDate, availableHours, canScheduleThisYear, refresh } = useConsultingHours();
+  const { scheduleSession, lastScheduledDate, refresh } = useConsultingHours();
   const [loading, setLoading] = useState(true);
   const [canProceed, setCanProceed] = useState(false);
 
@@ -25,25 +25,6 @@ export default function ScheduleMeeting() {
   useEffect(() => {
     const validateAccess = async () => {
       try {
-        if (__DEV__ && availableHours > 0) {
-          if (!canScheduleThisYear) {
-            Alert.alert(
-              t('planning.consulting.schedule.error.title'),
-              t('planning.consulting.schedule.error.alreadyScheduled'),
-              [
-                {
-                  text: 'OK',
-                  onPress: () => router.back()
-                }
-              ]
-            );
-            setCanProceed(false);
-          } else {
-            setCanProceed(true);
-          }
-          return;
-        }
-
         const validation = await canScheduleSession(lastScheduledDate);
 
         if (!validation.canSchedule) {
@@ -77,7 +58,7 @@ export default function ScheduleMeeting() {
     };
 
     validateAccess();
-  }, [lastScheduledDate, availableHours, canScheduleThisYear]);
+  }, [lastScheduledDate]);
 
   const handleMessage = async (event: any) => {
     try {

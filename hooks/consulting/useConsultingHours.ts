@@ -44,10 +44,21 @@ export function useConsultingHours() {
       setIsLoading(true);
 
       const storedData = await AsyncStorage.getItem(CONSULTING_HOURS_KEY);
+      let localData: ConsultingHoursData = {
+        totalPurchased: 0,
+        totalUsed: 0,
+        availableHours: 0,
+        purchaseHistory: [],
+        scheduledSessions: [],
+        lastScheduledDate: undefined,
+        lastPurchaseDate: undefined
+      };
+
       if (storedData) {
-        const parsed = JSON.parse(storedData);
-        setData(parsed);
+        localData = JSON.parse(storedData);
       }
+
+      setData(localData);
 
       const purchaseValidation = await validateConsultingPurchase();
       if (purchaseValidation.hasPurchased) {
@@ -77,7 +88,6 @@ export function useConsultingHours() {
 
   const availableHours = useMemo(() => {
     if (!revenueCatPurchaseDate) {
-      console.log('[availableHours] No purchase date → 0 hours');
       return 0;
     }
 
@@ -85,25 +95,17 @@ export function useConsultingHours() {
     oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
 
     if (revenueCatPurchaseDate <= oneYearAgo) {
-      console.log('[availableHours] Purchase expired → 0 hours');
       return 0;
     }
 
     if (data.lastScheduledDate) {
       const lastScheduled = new Date(data.lastScheduledDate);
-      console.log('[availableHours] Checking scheduled:', {
-        lastScheduled: lastScheduled.toISOString(),
-        purchaseDate: revenueCatPurchaseDate.toISOString(),
-        scheduledAfterPurchase: lastScheduled >= revenueCatPurchaseDate
-      });
 
       if (lastScheduled >= revenueCatPurchaseDate) {
-        console.log('[availableHours] Already scheduled → 0 hours');
         return 0;
       }
     }
 
-    console.log('[availableHours] Has available hour → 1 hour');
     return 1;
   }, [revenueCatPurchaseDate, data.lastScheduledDate]);
 
@@ -149,7 +151,6 @@ export function useConsultingHours() {
     await loadData();
   }, [loadData]);
 
-
   const resetData = useCallback(async () => {
     const emptyData: ConsultingHoursData = {
       totalPurchased: 0,
@@ -161,7 +162,16 @@ export function useConsultingHours() {
       lastPurchaseDate: undefined
     };
     await saveData(emptyData);
-  }, [saveData]);
+
+    try {
+      await Purchases.setAttributes({
+        [LAST_SCHEDULED_DATE_ATTRIBUTE]: null
+      });
+    } catch (error) {
+    }
+
+    await loadData();
+  }, [saveData, loadData]);
 
   const scheduleSession = useCallback(async (sessionInfo: Omit<ScheduledSession, 'scheduledAt'>) => {
     if (!canScheduleThisYear) {

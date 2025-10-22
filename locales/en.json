@@ -616,7 +616,7 @@
         "scheduleNow": "Your purchase was successful. You can now schedule your 45-minute meeting."
       },
       "error": {
-        "purchase": "There was an issue with the purchase. Please try again.",
+        "purchase": "Not available",
         "unexpected": "An unexpected error occurred. Please try again."
       }
     },

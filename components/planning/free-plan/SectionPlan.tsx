@@ -25,12 +25,11 @@ interface PlanCardData {
 interface SectionPlanProps {
   onCardPress?: (card: PlanCardData) => void;
   isSubscribed?: boolean;
-  consultingHoursAvailable?: number;
   canScheduleThisYear?: boolean;
   hasActivePurchase?: boolean;
 }
 
-const SectionPlan: React.FC<SectionPlanProps> = ({ onCardPress, isSubscribed, consultingHoursAvailable = 0, canScheduleThisYear = true, hasActivePurchase = false }) => {
+const SectionPlan: React.FC<SectionPlanProps> = ({ onCardPress, isSubscribed, canScheduleThisYear = true, hasActivePurchase = false }) => {
   const { t } = useTranslation();
 
   const planCardsData: PlanCardData[] = [
@@ -82,23 +81,7 @@ const SectionPlan: React.FC<SectionPlanProps> = ({ onCardPress, isSubscribed, co
         }
 
         if (isConsultingCard) {
-          if (consultingHoursAvailable > 0) {
-            const hoursText = consultingHoursAvailable === 1
-              ? t('plans.consulting.oneHourAvailable')
-              : t('plans.consulting.hoursAvailable', { count: consultingHoursAvailable });
-
-            modifiedItem = {
-              ...item,
-              id: 'schedule_consulting',
-              buttonText: t('plans.consulting.scheduleButton'),
-              badge: {
-                text: hoursText,
-                bgColor: '#22c55e',
-                textColor: '#FFFFFF'
-              }
-            };
-          } 
-          else if (!canScheduleThisYear && hasActivePurchase) {
+          if (!canScheduleThisYear && hasActivePurchase) {
             modifiedItem = {
               ...item,
               buttonText: t('plans.consulting.alreadyScheduled')
@@ -107,7 +90,7 @@ const SectionPlan: React.FC<SectionPlanProps> = ({ onCardPress, isSubscribed, co
         }
 
         const isDisabled = (isSubscriptionCard && isSubscribed) ||
-                          (isConsultingCard && modifiedItem.buttonText === t('plans.consulting.alreadyScheduled'));
+                          (isConsultingCard && !canScheduleThisYear && hasActivePurchase);
 
         return (
           <View key={item.id} className="mb-4">
