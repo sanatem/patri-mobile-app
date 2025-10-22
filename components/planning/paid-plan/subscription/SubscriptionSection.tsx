@@ -46,10 +46,37 @@ const SubscriptionSection: React.FC<SubscriptionSectionProps> = ({
 
   const formattedNextPaymentDate = nextPaymentOn ? formatDate(nextPaymentOn) : null;
 
-  // Calcular pagos completados del TOTAL de pagos, no solo de la página actual
   const completedPayments = allPaymentsData.filter(
     payment => payment && (payment.state === 'approved' || payment.state === 'authorized')
   ).length;
+
+  const getMaxPaymentsByPlan = (plan: string, isAnnual: boolean): number => {
+    if (isAnnual) {
+      return 1;
+    }
+
+    const normalizedPlan = plan.toLowerCase().trim();
+
+    if (normalizedPlan.includes('consolidado 6m') || normalizedPlan.includes('consolidado6m')) {
+      return 6;
+    }
+    if (normalizedPlan.includes('crecimiento')) {
+      return 3;
+    }
+    if (normalizedPlan.includes('inversionista') || 
+        normalizedPlan.includes('consolidado 12m') || 
+        normalizedPlan.includes('consolidado12m')) {
+      return 12;
+    }
+
+    return paymentsMeta?.total_count || allPaymentsData.length;
+  };
+
+  const maxPayments = getMaxPaymentsByPlan(planName, annualPayment);
+  
+  const displayCompletedPayments = completedPayments > maxPayments 
+    ? completedPayments % maxPayments || maxPayments
+    : completedPayments;
 
   return (
     <View style={{ padding: 10 }}>
@@ -58,8 +85,8 @@ const SubscriptionSection: React.FC<SubscriptionSectionProps> = ({
         totalAmount={totalAmount}
         annualPayment={annualPayment}
         nextPaymentDate={formattedNextPaymentDate}
-        completedPayments={completedPayments}
-        totalPayments={paymentsMeta?.total_count || paymentsData.length}
+        completedPayments={displayCompletedPayments}
+        totalPayments={maxPayments}
         loading={loading}
       />
 
