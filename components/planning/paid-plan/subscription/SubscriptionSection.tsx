@@ -50,33 +50,46 @@ const SubscriptionSection: React.FC<SubscriptionSectionProps> = ({
     payment => payment && (payment.state === 'approved' || payment.state === 'authorized')
   ).length;
 
-  const getMaxPaymentsByPlan = (plan: string, isAnnual: boolean): number => {
-    if (isAnnual) {
-      return 1;
-    }
+    const getMaxPaymentsByPlan = (plan: string, isAnnual: boolean): number => {
+      if (isAnnual) {
+        return 1;
+      }
 
-    const normalizedPlan = plan.toLowerCase().trim();
+      const normalizedPlan = plan.toLowerCase().trim();
 
-    if (normalizedPlan.includes('consolidado 6m') || normalizedPlan.includes('consolidado6m')) {
-      return 6;
-    }
-    if (normalizedPlan.includes('crecimiento')) {
-      return 3;
-    }
-    if (normalizedPlan.includes('inversionista') || 
-        normalizedPlan.includes('consolidado 12m') || 
-        normalizedPlan.includes('consolidado12m')) {
-      return 12;
-    }
+      if (normalizedPlan.includes('consolidación extendido') ||
+          normalizedPlan.includes('consolidacion extendido')) {
+        return 12;
+      }
+      if (normalizedPlan.includes('consolidación') || normalizedPlan.includes('consolidacion')) {
+        return 6;
+      }
+      if (normalizedPlan.includes('crecimiento')) {
+        return 3;
+      }
+      if (normalizedPlan.includes('inversionista')) {
+        return 12;
+      }
+      if (normalizedPlan.includes('seguimiento inversiones') || 
+          normalizedPlan.includes('seguimiento de inversiones')) {
+        return 12;
+      }
 
-    return paymentsMeta?.total_count || allPaymentsData.length;
-  };
+      return paymentsMeta?.total_count || allPaymentsData.length;
+    };
+
+    const isRecurringPlan = (plan: string): boolean => {
+      const normalizedPlan = plan.toLowerCase().trim();
+      return normalizedPlan.includes('inversionista') || 
+             normalizedPlan.includes('consolidación extendido') ||
+             normalizedPlan.includes('consolidacion extendido');
+    };
 
   const maxPayments = getMaxPaymentsByPlan(planName, annualPayment);
   
-  const displayCompletedPayments = completedPayments > maxPayments 
+  const displayCompletedPayments = isRecurringPlan(planName) && completedPayments > maxPayments
     ? completedPayments % maxPayments || maxPayments
-    : completedPayments;
+    : Math.min(completedPayments, maxPayments);
 
   return (
     <View style={{ padding: 10 }}>
