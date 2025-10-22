@@ -13,22 +13,26 @@ import Colors from '@/constants/Colors';
 
 export default function PaidPlan() {
   const { t } = useTranslation();
-  const { subscriptionData, loading: subscriptionLoading, error: subscriptionError } = useSubscription();
+  const { 
+    subscriptionData, 
+    loading: subscriptionLoading, 
+    error: subscriptionError,
+    payments,
+    paymentsMeta,
+    paymentsLoading,
+    setPaymentsPage
+  } = useSubscription();
 
   const handleSchedulePress = () => {
-    console.log('Programar reunión');
   };
 
   const handleChatPress = () => {
-    console.log('Iniciar chat');
   };
 
   const handleCarouselCardPress = (card: any) => {
-    console.log('Plan seleccionado:', card.title, card.price);
   };
 
   const handleAIPress = (card: any) => {
-    console.log('IA solicitada para:', card.title);
   };
 
   return (
@@ -57,6 +61,10 @@ export default function PaidPlan() {
             nextPaymentOn={subscriptionData?.data?.next_payment_on || null}
             payments={subscriptionData?.data?.payments || []}
             loading={subscriptionLoading}
+            paymentsData={payments}
+            paymentsMeta={paymentsMeta}
+            paymentsLoading={paymentsLoading}
+            onPaymentsPageChange={setPaymentsPage}
           />
         )}
 

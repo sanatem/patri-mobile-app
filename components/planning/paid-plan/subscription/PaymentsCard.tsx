@@ -1,27 +1,50 @@
 import React from 'react';
 import { View, Text } from 'react-native';
-import { CheckCircle, Clock, XCircle, AlertCircle } from 'lucide-react-native';
+import { CheckCircle, Clock, XCircle } from 'lucide-react-native';
 import { Card } from '@/components/ui';
 import { SkeletonBase } from '@/components/ui/SkeletonBase';
+import { Pagination } from '@/components/ui/Pagination';
 import Colors from '@/constants/Colors';
 import { useTranslation } from 'react-i18next';
+import { Payment, PaymentsPaginationMeta } from '@/services/planning/subscription/get-subscription';
 
-type PaymentState = 'approved' | 'pending' | 'rejected' | 'authorized' | 'cancelled' | 'refunded';
-
-interface Payment {
-  amount: string;
-  date: string;
-  state: PaymentState;
-  stateLabel: string;
-}
+type PaymentState = 'approved' | 'pending' | 'rejected' | 'authorized' | 'cancelled' | 'refund';
 
 interface PaymentsCardProps {
   payments: Payment[];
-  loading?: boolean;
+  paymentsMeta: PaymentsPaginationMeta | null;
+  loading: boolean;
+  onPageChange: (page: number) => void;
 }
 
-const PaymentsCard: React.FC<PaymentsCardProps> = ({ payments, loading = false }) => {
+const PaymentsCard: React.FC<PaymentsCardProps> = ({ 
+  payments, 
+  paymentsMeta, 
+  loading, 
+  onPageChange 
+}) => {
   const { t } = useTranslation();
+
+  const formatAmount = (amount: number) => {
+    return new Intl.NumberFormat('es-CL', {
+      style: 'currency',
+      currency: 'CLP'
+    }).format(amount);
+  };
+
+  const formatPaymentDate = (dateString: string) => {
+    const [year, month, day] = dateString.split('T')[0].split('-');
+    const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    return date.toLocaleDateString('es-CL', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric'
+    });
+  };
+
+  const getPaymentStateLabel = (state: PaymentState) => {
+    return t(`planning.subscription.paymentStates.${state}`);
+  };
 
   const getStateConfig = (state: PaymentState) => {
     switch (state) {
@@ -45,7 +68,7 @@ const PaymentsCard: React.FC<PaymentsCardProps> = ({ payments, loading = false }
           badgeBgColor: Colors.gray[300],
           badgeTextColor: '#FFFFFF',
         };
-      case 'refunded':
+      case 'refund':
         return {
           icon: <CheckCircle size={16} color="#FFFFFF" />,
           badgeBgColor: Colors.warning[600],
@@ -58,6 +81,17 @@ const PaymentsCard: React.FC<PaymentsCardProps> = ({ payments, loading = false }
           badgeTextColor: '#FFFFFF',
         };
     }
+  };
+
+  const formattedPayments = (payments || []).map(payment => ({
+    amount: formatAmount(payment.amount),
+    date: formatPaymentDate(payment.created_at),
+    state: payment.state,
+    stateLabel: getPaymentStateLabel(payment.state),
+  }));
+
+  const handlePageChange = (page: number) => {
+    onPageChange(page);
   };
 
   if (loading) {
@@ -154,7 +188,7 @@ const PaymentsCard: React.FC<PaymentsCardProps> = ({ payments, loading = false }
 
         <View className="w-full mb-4" style={{ backgroundColor: Colors.gray[200], height: 0.5 }} />
 
-        {payments.length === 0 ? (
+        {formattedPayments.length === 0 ? (
           <View className="py-6">
             <Text className="text-sm text-center font-regular" style={{ color: Colors.gray[500] }}>
               {t('planning.subscription.noPayments')}
@@ -162,9 +196,9 @@ const PaymentsCard: React.FC<PaymentsCardProps> = ({ payments, loading = false }
           </View>
         ) : (
           <View>
-            {payments.map((payment, index) => {
+            {formattedPayments.map((payment, index) => {
               const config = getStateConfig(payment.state);
-              const isLast = index === payments.length - 1;
+              const isLast = index === formattedPayments.length - 1;
 
               return (
                 <View key={index}>
@@ -203,6 +237,16 @@ const PaymentsCard: React.FC<PaymentsCardProps> = ({ payments, loading = false }
           </View>
         )}
       </View>
+
+      {!loading && paymentsMeta && paymentsMeta.total_pages > 1 && (
+        <View className="mt-2">
+          <Pagination
+            currentPage={paymentsMeta.current_page}
+            totalPages={paymentsMeta.total_pages}
+            onPageChange={handlePageChange}
+          />
+        </View>
+      )}
     </Card>
   );
 };
