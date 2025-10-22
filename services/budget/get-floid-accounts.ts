@@ -55,7 +55,7 @@ export async function getFloidAccounts(token: string): Promise<FloidAccountsResp
     return data;
 
   } catch (error) {
-    console.error('❌ Floid Accounts Service: Error fetching accounts from API:', error);
+    console.error('Floid Accounts Service: Error fetching accounts from API:', error);
     throw error;
   }
 }
