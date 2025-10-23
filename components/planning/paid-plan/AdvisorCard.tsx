@@ -98,7 +98,7 @@ export default function AdvisorCard({ onSchedule, onChat }: AdvisorCardProps) {
         <View style={{ padding: 20, alignItems: 'center' }}>
           <Text style={{
             fontSize: 16,
-            color: Colors.primary[500],
+            color: Colors.primary[600],
             marginBottom: 8,
             textAlign: 'center'
           }}>
@@ -182,11 +182,11 @@ export default function AdvisorCard({ onSchedule, onChat }: AdvisorCardProps) {
         </View>
         <View className="ml-4 flex-1 justify-center">
           <View className="flex-row items-center mb-1">
-            <Text className="text-lg font-medium" style={{ color: Colors.primary[500] }}>
+            <Text className="text-lg font-medium" style={{ color: Colors.primary[600] }}>
               {advisor.advisor_name}
             </Text>
           </View>
-          <Text className="text-sm font-medium mb-0.5" style={{ color: Colors.primary[500] }}>
+          <Text className="text-sm font-medium mb-0.5" style={{ color: Colors.primary[600] }}>
             {t('advisor.certified_title')}
           </Text>
           <Text className="text-xs font-regular" style={{ color: Colors.gray[500] }}>
@@ -195,7 +195,7 @@ export default function AdvisorCard({ onSchedule, onChat }: AdvisorCardProps) {
         </View>
       </View>
       
-      <Text className="text-sm font-regular" style={{ color: Colors.gray[700] }}>
+      <Text className="text-sm font-regular" style={{ color: Colors.gray[600] }}>
         {advisor.description || t('advisor.default_description', { name: advisor.advisor_name })}
       </Text>
 

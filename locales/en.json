@@ -73,6 +73,7 @@
     "saving": "Saving...",
     "loading": "Loading...",
     "per_month": "/month",
+    "per_year": "/year",
     "already_subscribed": "Already subscribed",
     "active": "Active",
     "purchased": "Purchased",
@@ -590,7 +591,12 @@
     "netWorthTitle": "Networth",
     "assets": "Assets",
     "liabilities": "Liabilities",
-    "comparedToLastMonth": "vs last month"
+    "comparedToLastMonth": "vs last month",
+    "chart": {
+      "noData": "No data available for the selected range.\nYour historical data will accumulate as you use the app.",
+      "buildingHistory": "We're building your history",
+      "buildingHistorySubtitle": "As you use Patrimore, you'll see here the evolution of your net worth over time."
+    }
   },
   "tabs": {
     "networth": "Networth",
@@ -639,7 +645,27 @@
       "plans": "Plans"
     },
     "top_title": "Start your financial planning",
-    "top_subtitle": "Access expert tools and advice to reach your financial goals"
+    "top_subtitle": "Access expert tools and advice to reach your financial goals",
+    "subscription": {
+      "currentPlan": "Current plan",
+      "nextPayment": "Next payment:",
+      "noNextPayment": "No upcoming payment scheduled",
+      "unlimited": "Unlimited",
+      "unlimitedBenefits": "You will have the benefits of this plan indefinitely",
+      "totalAmount": "Total amount",
+      "paymentsTitle": "Payments 💵",
+      "noPayments": "No payments registered",
+      "of": "of",
+      "payments": "payments",
+      "paymentStates": {
+        "approved": "Approved",
+        "pending": "Pending",
+        "rejected": "Rejected",
+        "authorized": "Authorized",
+        "cancelled": "Cancelled",
+        "refunded": "Refunded"
+      }
+    }
   },
   "onboarding": {
     "title": "Personal Information",

@@ -15,7 +15,7 @@ export const getOnboardingStatus = async () => {
   try {
     const onboardingCompleted = await AsyncStorage.getItem('onboarding_completed');
     const hasSeenOnboarding = await AsyncStorage.getItem('has_seen_onboarding');
-    
+
     return {
       isCompleted: onboardingCompleted === 'true',
       hasSeen: hasSeenOnboarding === 'true',
@@ -49,7 +49,7 @@ export const resetOnboarding = async () => {
   } catch (error) {
     return false;
   }
-}; 
+};
 
 export interface OnboardingValidationResult {
   isComplete: boolean;
@@ -68,6 +68,15 @@ export function validateOnboardingCompleteness(userData: UserResponse | null): O
 
   const { personal_information } = userData.user;
   const missingFields: string[] = [];
+
+  // Check if personal_information exists
+  if (!personal_information) {
+    return {
+      isComplete: false,
+      missingFields: ['RUT', 'Fecha de nacimiento', 'Ingresos mensuales', 'País de residencia'],
+      hasAllRequiredData: false
+    };
+  }
 
   if (!personal_information.rut || personal_information.rut.trim() === '') {
     missingFields.push('RUT');
@@ -97,4 +106,4 @@ export function validateOnboardingCompleteness(userData: UserResponse | null): O
 export function shouldShowOnboarding(userData: UserResponse | null): boolean {
   const validation = validateOnboardingCompleteness(userData);
   return !validation.isComplete;
-} 
+}
