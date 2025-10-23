@@ -618,6 +618,20 @@
       "error": {
         "purchase": "Not available",
         "unexpected": "An unexpected error occurred. Please try again."
+      },
+      "schedule": {
+        "title": "Schedule meeting",
+        "subtitle": "Select date and time for your consultation",
+        "success": {
+          "title": "Meeting scheduled!",
+          "message": "Your consulting session has been confirmed successfully"
+        },
+        "error": {
+          "title": "Not available",
+          "unknown": "Could not verify your availability",
+          "validation": "An error occurred while validating your purchase",
+          "widget": "Could not load the scheduling system"
+        }
       }
     },
     "cardTitles": {

@@ -85,8 +85,15 @@ export async function canPurchaseConsultingHour(): Promise<{
     };
 
   } catch (error) {
+    console.error('[canPurchaseConsultingHour] Error validating purchase capability:', {
+      error,
+      errorMessage: error instanceof Error ? error.message : String(error),
+      productId: CONSULTING_PRODUCT_ID
+    });
+
     return {
-      canPurchase: true
+      canPurchase: false,
+      reason: 'No se pudo verificar tu disponibilidad de compra. Intenta nuevamente.'
     };
   }
 }

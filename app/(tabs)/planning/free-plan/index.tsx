@@ -71,7 +71,7 @@ export default function FreePlan({ onPurchase, isSubscribed = false }: FreePlanP
       if (!purchaseCheck.canPurchase) {
         Alert.alert(
           t('planning.consulting.error.purchase'),
-          purchaseCheck.reason || 'No puedes comprar otra hora en este momento'
+          purchaseCheck.reason || t('planning.consulting.error.unexpected')
         );
         return;
       }

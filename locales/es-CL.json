@@ -75,6 +75,7 @@
         "per_month": "/mes",
         "already_subscribed": "Ya suscrito",
         "active": "Activo",
+        "purchased": "Comprado",
         "from": "Desde",
         "select": "Seleccionar...",
         "search_placeholder": "Buscar...",
@@ -617,6 +618,20 @@
             "error": {
                 "purchase": "No disponible",
                 "unexpected": "Ocurrió un error inesperado. Intenta nuevamente."
+            },
+            "schedule": {
+                "title": "Agendar reunión",
+                "subtitle": "Selecciona fecha y hora para tu asesoría",
+                "success": {
+                    "title": "¡Reunión agendada!",
+                    "message": "Tu sesión de asesoría ha sido confirmada exitosamente"
+                },
+                "error": {
+                    "title": "No disponible",
+                    "unknown": "No se pudo verificar tu disponibilidad",
+                    "validation": "Ocurrió un error al validar tu compra",
+                    "widget": "No se pudo cargar el sistema de agendamiento"
+                }
             }
         },
         "cardTitles": {

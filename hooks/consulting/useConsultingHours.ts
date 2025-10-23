@@ -26,7 +26,26 @@ interface ConsultingHoursData {
   lastPurchaseDate?: string;
 }
 
-export function useConsultingHours() {
+export interface UseConsultingHoursReturn {
+  totalPurchased: number;
+  totalUsed: number;
+  availableHours: number;
+  purchaseHistory: { date: string; transactionId?: string }[];
+  scheduledSessions: ScheduledSession[];
+  lastScheduledDate: string | undefined;
+  lastPurchaseDate: string | undefined;
+  hasAvailableHours: boolean;
+  hasActivePurchase: boolean;
+  canScheduleThisYear: boolean;
+  canPurchaseThisYear: boolean;
+  isLoading: boolean;
+  addPurchase: (transactionId?: string) => Promise<void>;
+  resetData: () => Promise<void>;
+  scheduleSession: (sessionInfo: Omit<ScheduledSession, 'scheduledAt'>) => Promise<ScheduledSession>;
+  refresh: () => Promise<void>;
+}
+
+export function useConsultingHours(): UseConsultingHoursReturn {
   const [data, setData] = useState<ConsultingHoursData>({
     totalPurchased: 0,
     totalUsed: 0,
