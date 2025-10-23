@@ -85,6 +85,7 @@
     "per_year": "/año",
     "already_subscribed": "Ya suscrito",
     "active": "Activo",
+    "purchased": "Comprado",
     "from": "Desde",
     "select": "Seleccionar...",
     "search_placeholder": "Buscar...",
@@ -624,6 +625,31 @@
       "subscription": "Hubo un problema con la suscripción. Intenta nuevamente.",
       "unexpected": "Hubo un problema inesperado. Intenta nuevamente."
     },
+    "consulting": {
+      "success": {
+        "title": "¡Compra exitosa!",
+        "message": "Tu hora de asesoría ha sido confirmada. En breve nos contactaremos contigo para agendar.",
+        "scheduleNow": "Tu compra fue exitosa. Ahora puedes agendar tu reunión de 45 minutos."
+      },
+      "error": {
+        "purchase": "No disponible",
+        "unexpected": "Ocurrió un error inesperado. Intenta nuevamente."
+      },
+      "schedule": {
+        "title": "Agendar reunión",
+        "subtitle": "Selecciona fecha y hora para tu asesoría",
+        "success": {
+          "title": "¡Reunión agendada!",
+          "message": "Tu sesión de asesoría ha sido confirmada exitosamente"
+        },
+        "error": {
+          "title": "No disponible",
+          "unknown": "No se pudo verificar tu disponibilidad",
+          "validation": "Ocurrió un error al validar tu compra",
+          "widget": "No se pudo cargar el sistema de agendamiento"
+        }
+      }
+    },
     "cardTitles": {
       "premiumMobile": "Suscripción Premium",
       "plans": "Planes"
@@ -793,6 +819,18 @@
       "duration": "/mes",
       "description": "Accede a todas las funcionalidades premium y herramientas avanzadas de planificación financiera.",
       "button": "Suscribirme"
+    },
+    "consulting": {
+      "title": "Asesoría Personalizada",
+      "price": "$120.000",
+      "description": "Agenda una sesión de 45 minutos con un asesor financiero certificado para resolver tus dudas y crear tu plan personalizado.",
+      "button": "Agendar hora",
+      "payButton": "Pagar Reunión",
+      "scheduleButton": "Agendar Reunión",
+      "alreadyScheduled": "Ya agendada",
+      "scheduledThisYear": "Reunión agendada este año",
+      "oneHourAvailable": "1 reunión disponible",
+      "hoursAvailable": "{{count}} reuniones disponibles"
     },
     "general": {
       "title": "Planes",

@@ -17,6 +17,7 @@ interface HeaderProps {
   className?: string;
   titleClassName?: string;
   subtitleClassName?: string;
+  backButtonColor?: string;
 }
 
 export function Header({
@@ -29,6 +30,7 @@ export function Header({
   className,
   titleClassName,
   subtitleClassName,
+  backButtonColor,
 }: HeaderProps) {
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -46,13 +48,13 @@ export function Header({
         ]}
       >
         <View style={[headerStyles.container, headerStyles.content]}>
-          <View className="flex-row items-center">
+          <View className="flex-row items-center" style={{ minWidth: 40 }}>
             {showBackButton && (
               <TouchableOpacity
                 onPress={() => router.back()}
                 className="p-1 mr-3"
               >
-                <ChevronLeft size={24} color="white" />
+                <ChevronLeft size={24} color={backButtonColor || Colors.primary[600]} />
               </TouchableOpacity>
             )}
             {leftAction && leftAction}
@@ -76,7 +78,7 @@ export function Header({
             )}
           </View>
 
-          <View className="flex-row items-center">
+          <View className="flex-row items-center" style={{ minWidth: 40 }}>
             {rightAction && rightAction}
           </View>
         </View>

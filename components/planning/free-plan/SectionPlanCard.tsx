@@ -43,7 +43,7 @@ const SectionPlanCard: React.FC<SectionPlanCardProps> = ({
       color: Colors.primary[700]
     };
 
-    let IconComponent = null;
+    let IconComponent: React.ReactElement | null = null;
     if (iconType === 'calendar') {
       IconComponent = <Calendar {...iconProps} />;
     } else if (iconType === 'coins') {
