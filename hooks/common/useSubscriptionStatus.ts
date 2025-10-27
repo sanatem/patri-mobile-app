@@ -55,23 +55,10 @@ export function useSubscriptionStatus(): SubscriptionStatus {
 
       const customerInfo = await Purchases.getCustomerInfo();
 
-      const hasActiveEntitlements = Object.values(customerInfo.entitlements.active).length > 0;
-
       const hasPremiumEntitlement = customerInfo.entitlements.active['premium'] !== undefined;
 
-      const hasAnyPremiumAccess = hasPremiumEntitlement;
-
-      console.log('🔍 RevenueCat Debug Info:', {
-        hasActiveEntitlements,
-        hasPremiumEntitlement,
-        hasAnyPremiumAccess,
-        activeEntitlements: Object.keys(customerInfo.entitlements.active),
-        allEntitlements: Object.keys(customerInfo.entitlements.all),
-        customerInfoRaw: customerInfo
-      });
-
-      setIsSubscribed(hasAnyPremiumAccess || hasActiveEntitlements);
-      setIsPremium(hasAnyPremiumAccess);
+      setIsSubscribed(hasPremiumEntitlement);
+      setIsPremium(hasPremiumEntitlement);
 
     } catch (err) {
       console.error('Error checking subscription status:', err);
@@ -84,17 +71,15 @@ export function useSubscriptionStatus(): SubscriptionStatus {
   }, []);
 
   const refreshSubscriptionStatus = async () => {
-    console.log('🔄 Refreshing subscription status...');
+
     await checkSubscriptionStatus();
   };
 
   const forceRefresh = async () => {
-    console.log('🚀 Force refreshing subscription status...');
-    // Reset states first
     setIsSubscribed(false);
     setIsPremium(false);
     setError(null);
-    // Then check again
+
     await checkSubscriptionStatus();
   };
 
@@ -106,25 +91,29 @@ export function useSubscriptionStatus(): SubscriptionStatus {
     }
   }, [user?.backendUserId, checkSubscriptionStatus]);
 
-  // Listen for RevenueCat purchase events
   useEffect(() => {
     const purchaseListener = (customerInfo: any) => {
-      console.log('📦 RevenueCat purchase event received:', customerInfo);
-      // Force refresh when a purchase is completed
       checkSubscriptionStatus();
     };
 
-    try {
-      // Add listener
-      Purchases.addCustomerInfoUpdateListener(purchaseListener);
-      console.log('🎧 RevenueCat listener added successfully');
-    } catch (error) {
-      console.error('Error adding RevenueCat listener:', error);
-    }
+    const setupListener = async () => {
+      try {
+        const isConfigured = await Purchases.isConfigured();
+        if (!isConfigured) {
+          console.log('⚠️ RevenueCat not configured, skipping listener setup');
+          return;
+        }
+        
+        Purchases.addCustomerInfoUpdateListener(purchaseListener);
+      } catch (error) {
+        console.error('Error adding RevenueCat listener:', error);
+      }
+    };
 
-    // Note: RevenueCat listeners are automatically cleaned up when the component unmounts
+    setupListener();
+
+  
     return () => {
-      console.log('🧹 Cleaning up RevenueCat listeners');
     };
   }, [checkSubscriptionStatus]);
 

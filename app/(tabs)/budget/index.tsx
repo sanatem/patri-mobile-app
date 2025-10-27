@@ -78,12 +78,28 @@ export default function BudgetScreen() {
 
   const { accounts, loading: accountsLoading, refetch: refetchAccounts } = useFloidAccounts();
 
-  const firstAccountId = useMemo(() => {
-    if (accounts && accounts.floid_accounts.length > 0) {
-      return accounts.floid_accounts[0].id.toString();
+  const accountOptions = useMemo(() => {
+    if (!accounts || accounts.floid_accounts.length === 0) return [];
+
+    const options = [
+      { label: t('budget.all_accounts', 'Todas las cuentas'), value: 'all' },
+      ...accounts.floid_accounts.map(account => ({
+        label: `${account.bank} - ${account.account}`,
+        value: account.id.toString()
+      }))
+    ];
+
+    return options;
+  }, [accounts, t]);
+
+  const [selectedAccountId, setSelectedAccountId] = useState<string>('all');
+
+  const selectedAccountIds = useMemo(() => {
+    if (selectedAccountId === 'all') {
+      return accounts?.floid_accounts.map(acc => acc.id.toString()) || [];
     }
-    return '';
-  }, [accounts]);
+    return [selectedAccountId];
+  }, [selectedAccountId, accounts]);
 
   const getDateRangeForMonth = (monthName: string, year: number) => {
     const monthIndex = months.indexOf(monthName);
@@ -103,57 +119,57 @@ export default function BudgetScreen() {
     [selectedMonth, selectedYear, months]
   );
 
-  const { 
-    transactions: incomeTransactions, 
-    loading: incomeLoading, 
+  const {
+    transactions: incomeTransactions,
+    loading: incomeLoading,
     refetch: refetchIncome,
     loadMore: loadMoreIncome,
     hasMore: hasMoreIncome
   } = useFloidTransactions({
-    floidId: firstAccountId,
+    floidIds: selectedAccountIds,
     per_page: 10,
-    enabled: !!firstAccountId,
+    enabled: selectedAccountIds.length > 0,
     start_date: dateRange?.start_date,
     end_date: dateRange?.end_date,
     transaction_type: 'income'
   });
 
-  const { 
-    transactions: expenseTransactions, 
-    loading: expenseLoading, 
+  const {
+    transactions: expenseTransactions,
+    loading: expenseLoading,
     refetch: refetchExpenses,
     loadMore: loadMoreExpenses,
     hasMore: hasMoreExpenses
   } = useFloidTransactions({
-    floidId: firstAccountId,
+    floidIds: selectedAccountIds,
     per_page: 10,
-    enabled: !!firstAccountId,
+    enabled: selectedAccountIds.length > 0,
     start_date: dateRange?.start_date,
     end_date: dateRange?.end_date,
     transaction_type: 'outcome'
   });
 
-  const { 
-    transactions: allIncomeTransactions, 
+  const {
+    transactions: allIncomeTransactions,
     loading: allIncomeLoading,
     refetch: refetchAllIncome
   } = useFloidTransactions({
-    floidId: firstAccountId,
+    floidIds: selectedAccountIds,
     per_page: 1000,
-    enabled: !!firstAccountId,
+    enabled: selectedAccountIds.length > 0,
     start_date: dateRange?.start_date,
     end_date: dateRange?.end_date,
     transaction_type: 'income'
   });
 
-  const { 
-    transactions: allExpenseTransactions, 
+  const {
+    transactions: allExpenseTransactions,
     loading: allExpenseLoading,
     refetch: refetchAllExpenses
   } = useFloidTransactions({
-    floidId: firstAccountId,
+    floidIds: selectedAccountIds,
     per_page: 1000,
-    enabled: !!firstAccountId,
+    enabled: selectedAccountIds.length > 0,
     start_date: dateRange?.start_date,
     end_date: dateRange?.end_date,
     transaction_type: 'outcome'
@@ -338,6 +354,29 @@ export default function BudgetScreen() {
         <KeyboardAwareContainer>
          <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>   
            <Container variant="content" className="py-4">
+            <View className="mb-2">
+              {accountsLoading ? (
+                <SkeletonBase
+                  width={chartSize}
+                  height={56}
+                  x={0}
+                  y={0}
+                  rows={1}
+                  rowHeight={56}
+                  rowWidth={chartSize}
+                  borderRadius={16}
+                />
+              ) : (
+                <Select
+                  options={accountOptions.length > 0 ? accountOptions : [{ label: t('budget.no_accounts', 'No hay cuentas sincronizadas'), value: 'none' }]}
+                  value={selectedAccountId}
+                  onSelect={setSelectedAccountId}
+                  placeholder={t('budget.select_account', 'Seleccionar cuenta')}
+                  disabled={accountOptions.length === 0}
+                />
+              )}
+            </View>
+
             <View className="flex-row justify-between items-center mb-2">
               <View className="flex-1 mr-2">
                 {accountsLoading ? (

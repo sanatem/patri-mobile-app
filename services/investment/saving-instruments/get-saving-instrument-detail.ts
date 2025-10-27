@@ -35,6 +35,8 @@ export interface SavingInstrumentActable {
   mutual_fund_series_initial_quote?: number;
   investment_fund_id?: number;
   investment_fund_name?: string;
+  investment_fund_name_id?: number;
+  investment_fund_run?: string;
   investment_fund_series_id?: number;
   investment_fund_series_name?: string;
   comments?: string;

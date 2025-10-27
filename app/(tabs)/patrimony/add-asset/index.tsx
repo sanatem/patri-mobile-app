@@ -234,9 +234,9 @@ export default function AddAssetScreen() {
                 baseFormData.brokerage = actable.broker_id?.toString() || '';
               }
 
-              if (actable.mutual_fund_id || actable.investment_fund_id) {
-                const assetClass = actable.mutual_fund_asset_class || 'mutual';
-                const fundId = actable.mutual_fund_id || actable.investment_fund_id;
+              if (actable.mutual_fund_id || actable.investment_fund_id || actable.investment_fund_name_id) {
+                const assetClass = actable.mutual_fund_asset_class || (actable.investment_fund_name_id ? 'investment' : 'mutual');
+                const fundId = actable.mutual_fund_id || actable.investment_fund_id || actable.investment_fund_name_id;
                 const seriesId = actable.mutual_fund_series_id || actable.investment_fund_series_id;
 
                 if (fundId) {

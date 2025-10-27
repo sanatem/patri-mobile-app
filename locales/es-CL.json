@@ -71,10 +71,12 @@
         "backToPortfolio": "Volver al portafolio",
         "retry": "Reintentar",
         "saving": "Guardando...",
-        "loading": "Cargando...",
-        "per_month": "/mes",
-        "already_subscribed": "Ya suscrito",
+    "loading": "Cargando...",
+    "per_month": "/mes",
+    "per_year": "/año",
+    "already_subscribed": "Ya suscrito",
         "active": "Activo",
+        "purchased": "Comprado",
         "from": "Desde",
         "select": "Seleccionar...",
         "search_placeholder": "Buscar...",
@@ -87,6 +89,9 @@
         "income": "Ingresos",
         "expenses": "Gastos",
         "all_categories": "Todas",
+        "all_accounts": "Todas las cuentas",
+        "select_account": "Seleccionar cuenta",
+        "no_accounts": "No hay cuentas sincronizadas",
         "integrate_data": "Integrar datos bancarios",
         "tab_name": "Presupuesto",
         "title": "Presupuesto",
@@ -589,7 +594,12 @@
         "netWorthTitle": "Patrimonio Neto",
         "assets": "Activos",
         "liabilities": "Pasivos",
-        "comparedToLastMonth": "vs último mes"
+        "comparedToLastMonth": "vs último mes",
+        "chart": {
+            "noData": "No hay datos disponibles para el rango seleccionado.\nTus datos históricos comenzarán a acumularse a medida que uses la app.",
+            "buildingHistory": "Estamos construyendo tu historial",
+            "buildingHistorySubtitle": "A medida que uses Patrimore, verás aquí la evolución de tu patrimonio en el tiempo."
+        }
     },
     "tabs": {
         "networth": "Patrimonio",
@@ -608,12 +618,57 @@
             "subscription": "Hubo un problema con la suscripción. Intenta nuevamente.",
             "unexpected": "Hubo un problema inesperado. Intenta nuevamente."
         },
+        "consulting": {
+            "success": {
+                "title": "¡Compra exitosa!",
+                "message": "Tu hora de asesoría ha sido confirmada. En breve nos contactaremos contigo para agendar.",
+                "scheduleNow": "Tu compra fue exitosa. Ahora puedes agendar tu reunión de 45 minutos."
+            },
+            "error": {
+                "purchase": "No disponible",
+                "unexpected": "Ocurrió un error inesperado. Intenta nuevamente."
+            },
+            "schedule": {
+                "title": "Agendar reunión",
+                "subtitle": "Selecciona fecha y hora para tu asesoría",
+                "success": {
+                    "title": "¡Reunión agendada!",
+                    "message": "Tu sesión de asesoría ha sido confirmada exitosamente"
+                },
+                "error": {
+                    "title": "No disponible",
+                    "unknown": "No se pudo verificar tu disponibilidad",
+                    "validation": "Ocurrió un error al validar tu compra",
+                    "widget": "No se pudo cargar el sistema de agendamiento"
+                }
+            }
+        },
         "cardTitles": {
             "premiumMobile": "Suscripción Premium",
             "plans": "Planes"
         },
         "top_title": "Comienza tu planificación financiera",
-        "top_subtitle": "Accede a herramientas profesionales y asesoría experta para alcanzar tus metas financieras"
+        "top_subtitle": "Accede a herramientas profesionales y asesoría experta para alcanzar tus metas financieras",
+    "subscription": {
+      "currentPlan": "Plan actual",
+      "nextPayment": "Próximo cobro:",
+      "noNextPayment": "No hay próximo cobro programado",
+      "unlimited": "Ilimitado",
+      "unlimitedBenefits": "Tendrás los beneficios de este plan de forma ilimitada",
+      "totalAmount": "Monto total",
+      "paymentsTitle": "Pagos 💵",
+      "noPayments": "No hay pagos registrados",
+      "of": "de",
+      "payments": "pagos",
+      "paymentStates": {
+        "approved": "Aprobado",
+        "pending": "Pendiente",
+        "rejected": "Rechazado",
+        "authorized": "Autorizado",
+        "cancelled": "Cancelado",
+        "refunded": "Reembolsado"
+      }
+    }
     },
     "onboarding": {
         "title": "Información Personal",
@@ -757,6 +812,18 @@
             "duration": "/mes",
             "description": "Accede a todas las funcionalidades premium y herramientas avanzadas de planificación financiera.",
             "button": "Suscribirme"
+        },
+        "consulting": {
+            "title": "Asesoría Personalizada",
+            "price": "$120.000",
+            "description": "Agenda una sesión de 1 hora con un asesor financiero certificado para resolver tus dudas y crear tu plan personalizado.",
+            "button": "Agendar hora",
+            "payButton": "Pagar Reunión",
+            "scheduleButton": "Agendar Reunión",
+            "alreadyScheduled": "Ya agendada",
+            "scheduledThisYear": "Reunión agendada este año",
+            "oneHourAvailable": "1 reunión disponible",
+            "hoursAvailable": "{{count}} reuniones disponibles"
         },
         "general": {
             "title": "Planes",

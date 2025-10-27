@@ -48,7 +48,7 @@ export function useNetworthHistoric(params: GetNetworthHistoricParams = {}): Use
         setIsLoadingMore(true);
       }
       setError(null);
-      
+
       const formattedStartDate = params.start_date ? formatDateToYYYYMMDD(params.start_date) : undefined;
       const formattedEndDate = params.end_date ? formatDateToYYYYMMDD(params.end_date) : undefined;
 
@@ -63,22 +63,22 @@ export function useNetworthHistoric(params: GetNetworthHistoricParams = {}): Use
         start_date: formattedStartDate,
         end_date: formattedEndDate,
         page,
-        per_page: 50,
+        per_page: 200,
         order: 'desc' as const
       };
-      
+
       const data = await getNetworthHistoric(accessToken, formattedParams);
 
       if (data) {
         let shouldContinue = true;
-        
+
         if (append && historicData) {
           const combinedTimeline = [...historicData.historic.timeline];
           const newEntries: typeof combinedTimeline = [];
-          
+
           data.historic.timeline.forEach(newEntry => {
             const entryDate = new Date(newEntry.date);
-            
+
             if (formattedParams.start_date) {
               const startDate = new Date(formattedParams.start_date);
               if (entryDate < startDate) {
@@ -86,7 +86,7 @@ export function useNetworthHistoric(params: GetNetworthHistoricParams = {}): Use
                 return;
               }
             }
-            
+
             if (!combinedTimeline.some(existing => existing.date === newEntry.date)) {
               newEntries.push(newEntry);
             }
@@ -108,6 +108,42 @@ export function useNetworthHistoric(params: GetNetworthHistoricParams = {}): Use
           });
         } else {
           setHistoricData(data);
+
+          // Auto-fetch remaining pages after first response
+          const totalPages = data.historic.pagination?.total_pages || 1;
+          const currentPage = data.historic.pagination?.current_page || 1;
+
+          if (totalPages > currentPage) {
+            for (let nextPage = currentPage + 1; nextPage <= totalPages; nextPage++) {
+              const nextData = await getNetworthHistoric(accessToken, {
+                ...formattedParams,
+                page: nextPage
+              });
+
+              if (nextData) {
+                setHistoricData(prevData => {
+                  if (!prevData) return nextData;
+
+                  const combinedTimeline = [...prevData.historic.timeline];
+
+                  nextData.historic.timeline.forEach(newEntry => {
+                    if (!combinedTimeline.some(existing => existing.date === newEntry.date)) {
+                      combinedTimeline.push(newEntry);
+                    }
+                  });
+
+                  combinedTimeline.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+                  return {
+                    historic: {
+                      ...nextData.historic,
+                      timeline: combinedTimeline,
+                    }
+                  };
+                });
+              }
+            }
+          }
         }
 
         const hasNextPage = data.historic.pagination?.has_next_page && shouldContinue;
