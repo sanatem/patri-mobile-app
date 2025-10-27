@@ -48,7 +48,6 @@ export default function AddTransactionScreen() {
   const handleSubmit = async () => {
     setError(null);
 
-    // Validaciones
     if (!selectedAccountId) {
       setError(t('budget.select_bank_account'));
       return;
@@ -67,7 +66,6 @@ export default function AddTransactionScreen() {
     try {
       setIsLoading(true);
 
-      // Convertir fecha de DD/MM/YYYY a YYYY-MM-DD
       const dateParts = date.split('/');
       const formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
 
@@ -83,7 +81,6 @@ export default function AddTransactionScreen() {
 
       setIsSaved(true);
 
-      // Esperar un momento para mostrar el estado de guardado
       setTimeout(() => {
         router.back();
       }, 1000);
@@ -103,7 +100,6 @@ export default function AddTransactionScreen() {
     if (!selectedAccountId || !description.trim() || !amount) {
       return false;
     }
-    // Limpiar el monto para validar (remover $ y separadores)
     const cleanAmount = parseFloat(amount.replace(/[^\d]/g, ''));
     return cleanAmount > 0;
   };
