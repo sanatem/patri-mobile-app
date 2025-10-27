@@ -19,11 +19,13 @@ interface TransactionsListProps {
   hasMore?: boolean;
   loadingMore?: boolean;
   onCollapse?: () => void;
+  onItemPress?: (item: any) => void;
+  onItemDelete?: (item: any) => void;
 }
 
-export default function TransactionsList({ 
-  type, 
-  selectedMonth, 
+export default function TransactionsList({
+  type,
+  selectedMonth,
   showContainer = true,
   floidTransactions,
   searchQuery = '',
@@ -32,7 +34,9 @@ export default function TransactionsList({
   onLoadMore,
   hasMore = false,
   loadingMore = false,
-  onCollapse
+  onCollapse,
+  onItemPress,
+  onItemDelete
 }: TransactionsListProps) {
 
   const { t } = useTranslation();
@@ -66,7 +70,8 @@ export default function TransactionsList({
           badge: {
             text: new Date(transaction.date).toLocaleDateString('es-CL'),
             variant: 'neutral' as const
-          }
+          },
+          rawData: transaction
         };
       });
       
@@ -170,6 +175,8 @@ export default function TransactionsList({
       useExternalPagination={true}
       hasMore={hasMore}
       onCollapse={onCollapse}
+      onItemPress={onItemPress}
+      onItemDelete={onItemDelete}
     />
   );
 }
