@@ -708,10 +708,10 @@ export default function BudgetScreen() {
                   onTabChange={(key) => setActiveTab(key as 'income' | 'expenses')}
                 />
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingBottom: 20, paddingTop: 12, borderBottomWidth: 1, borderBottomColor: Colors.gray[200] }}>
-                  <Text className="text-sm font-medium" style={{ color: Colors.gray[700]}}>
+                  <Text className="text-lg font-medium" style={{ color: Colors.gray[700]}}>
                     {activeTab === 'income' ? t('budget.total_income') : t('budget.total_expenses')}
                   </Text>
-                  <Text className="text-sm font-medium" style={{ color: Colors.gray[700]}}>
+                  <Text className="text-lg font-medium" style={{ color: Colors.gray[700]}}>
                     {activeTab === 'income' ? '+' : '-'}${Math.round(activeTab === 'income' ? totalIncome : totalExpenses).toLocaleString('es-CL')}
                   </Text>
                 </View>
