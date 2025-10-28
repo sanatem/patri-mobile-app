@@ -12,6 +12,7 @@ interface MutualFundsFieldsProps {
   unit: string;
   name: string;
   fund: string;
+  fund_kind?: string;
   series: string;
   onInputChange: (field: string, value: string) => void;
   onSelectChange: (field: string, value: string) => void;
@@ -32,6 +33,7 @@ export default function MutualFundsFields({
   unit,
   name,
   fund,
+  fund_kind,
   series,
   onInputChange,
   onSelectChange,
@@ -218,10 +220,17 @@ export default function MutualFundsFields({
     fetchFunds();
   }, [accessToken]);
 
-  const fundOptions = funds.map(fundItem => ({
-    label: fundItem.name,
-    value: `${fundItem.kind}@${fundItem.id}`,
-  }));
+  const fundOptions = funds
+    .filter(fundItem => {
+      if (fund_kind && fund_kind !== '') {
+        return fundItem.kind === fund_kind;
+      }
+      return true;
+    })
+    .map(fundItem => ({
+      label: fundItem.name,
+      value: `${fundItem.kind}@${fundItem.id}`,
+    }));
 
   type FundKind = 'investment' | 'mutual';
 
