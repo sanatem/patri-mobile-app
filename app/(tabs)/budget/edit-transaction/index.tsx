@@ -141,12 +141,11 @@ export default function EditTransactionScreen() {
             keyboardShouldPersistTaps="handled"
           >
             <View style={{ flex: 1, paddingHorizontal: 24, paddingTop: 20 }}>
-              {/* Monto en grande centrado */}
               <View style={{ alignItems: 'center', marginBottom: 24 }}>
                 <Text
                   className="text-4xl font-semibold"
                   style={{
-                    color: transactionType === 'income' ? Colors.success[600] : Colors.error[600]
+                    color: transactionType === 'income' ? Colors.success[500] : Colors.error[500]
                   }}
                 >
                   {transactionType === 'income' ? '+' : '-'}${amount}
