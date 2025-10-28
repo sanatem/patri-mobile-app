@@ -7,6 +7,7 @@ import Colors from '@/constants/Colors';
 import { SkeletonBase } from '@/components/ui/SkeletonBase';
 import { useTranslation } from 'react-i18next';
 import { CategorizationStatus } from './CategorizationStatus';
+import { INCOME_CATEGORIES, EXPENSE_CATEGORIES } from '@/constants/BudgetCategories';
 
 interface TransactionsListProps {
   type: 'income' | 'expenses';
@@ -23,6 +24,16 @@ interface TransactionsListProps {
   onItemPress?: (item: any) => void;
   onItemDelete?: (item: any) => void;
 }
+
+// Helper function to get category emoji
+const getCategoryEmoji = (category: string | undefined, transactionType: 'income' | 'outcome') => {
+  if (!category) return '+'; // Default symbol for uncategorized transactions
+
+  const categories = transactionType === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
+  const categoryData = categories.find(cat => cat.id === category);
+
+  return categoryData?.emoji || '+';
+};
 
 export default function TransactionsList({
   type,
@@ -59,6 +70,8 @@ export default function TransactionsList({
       return filteredBySearch.map(transaction => {
         const isIncome = transaction.transaction_type === 'income';
         const categorizationStatus = transaction.categorization_status || 'uncategorized';
+        const categoryEmoji = getCategoryEmoji(transaction.category, transaction.transaction_type);
+        const isUncategorized = !transaction.category;
 
         return {
           id: transaction.id.toString(),
@@ -66,9 +79,11 @@ export default function TransactionsList({
           subtitle: `${transaction.bank} - ${transaction.account_number}`,
           value: `${isIncome ? '+' : '-'}$${Math.round(transaction.amount).toLocaleString('es-CL')}`,
           icon: {
-            backgroundColor: isIncome ? Colors.success[100] : Colors.error[100],
-            text: isIncome ? '+' : '-',
-            color: isIncome ? Colors.success[600] : Colors.error[600],
+            backgroundColor: 'white',
+            text: categoryEmoji,
+            borderColor: Colors.gray[100],
+            borderWidth: 1,
+            color: isUncategorized ? Colors.gray[100] : undefined,
           },
           badge: {
             text: new Date(transaction.date).toLocaleDateString('es-CL'),
