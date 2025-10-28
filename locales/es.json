@@ -134,7 +134,14 @@
     "delete_transaction": "¿Eliminar transacción?",
     "delete_transaction_message": "Esta acción no se puede deshacer",
     "transaction_deleted": "Transacción eliminada exitosamente",
-    "error_deleting_transaction": "Error al eliminar la transacción"
+    "error_deleting_transaction": "Error al eliminar la transacción",
+    "categorization": {
+      "uncategorized": "Sin categorizar",
+      "automatic": "Automática",
+      "manual": "Manual",
+      "categorize": "Categorizar",
+      "edit": "Editar"
+    }
   },
   "identityConfirm": {
     "title": "Confirma tus datos",

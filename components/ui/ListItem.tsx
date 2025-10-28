@@ -24,6 +24,7 @@ interface ListItem {
   customLayout?: boolean;
   subtitleLines?: string[];
   mediumSubtitleIndex?: number;
+  additionalContent?: React.ReactNode;
 }
 
 interface ListProps {
@@ -229,12 +230,22 @@ const SwipeableItem = ({
                       )}
                     </View>
                   </View>
+                  {item.additionalContent && (
+                    <View style={{ width: '100%' }}>
+                      {item.additionalContent}
+                    </View>
+                  )}
                 </View>
               ) : (
                 <View style={listItemStyles.info}>
                   <Text className="text-base font-regular" style={listItemStyles.title}>{item.title}</Text>
                   {item.subtitle && (
                     <Text className="text-sm font-regular" style={listItemStyles.subtitle}>{item.subtitle}</Text>
+                  )}
+                  {item.additionalContent && (
+                    <View style={{ width: '100%' }}>
+                      {item.additionalContent}
+                    </View>
                   )}
                 </View>
               )}

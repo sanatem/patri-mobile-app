@@ -125,7 +125,14 @@
     "delete_transaction": "Delete transaction?",
     "delete_transaction_message": "This action cannot be undone",
     "transaction_deleted": "Transaction deleted successfully",
-    "error_deleting_transaction": "Error deleting transaction"
+    "error_deleting_transaction": "Error deleting transaction",
+    "categorization": {
+      "uncategorized": "Uncategorized",
+      "automatic": "Automatic",
+      "manual": "Manual",
+      "categorize": "Categorize",
+      "edit": "Edit"
+    }
   },
   "identityConfirm": {
     "title": "Confirm your information",

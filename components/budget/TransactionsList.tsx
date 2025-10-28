@@ -6,6 +6,7 @@ import { FloidTransaction } from '@/services/budget/get-floid-transactions';
 import Colors from '@/constants/Colors';
 import { SkeletonBase } from '@/components/ui/SkeletonBase';
 import { useTranslation } from 'react-i18next';
+import { CategorizationStatus } from './CategorizationStatus';
 
 interface TransactionsListProps {
   type: 'income' | 'expenses';
@@ -57,6 +58,8 @@ export default function TransactionsList({
 
       return filteredBySearch.map(transaction => {
         const isIncome = transaction.transaction_type === 'income';
+        const categorizationStatus = transaction.categorization_status || 'uncategorized';
+
         return {
           id: transaction.id.toString(),
           title: transaction.description.charAt(0).toUpperCase() + transaction.description.slice(1).toLowerCase(),
@@ -71,6 +74,11 @@ export default function TransactionsList({
             text: new Date(transaction.date).toLocaleDateString('es-CL'),
             variant: 'neutral' as const
           },
+          additionalContent: (
+            <CategorizationStatus
+              status={categorizationStatus}
+            />
+          ),
           rawData: transaction
         };
       });

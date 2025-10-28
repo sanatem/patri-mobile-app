@@ -1,6 +1,8 @@
 
 import config from '@/config/constants';
 
+export type CategorizationStatus = 'uncategorized' | 'automatic' | 'manual';
+
 export interface FloidTransaction {
   id: number;
   transaction_id: string;
@@ -11,6 +13,8 @@ export interface FloidTransaction {
   description: string;
   bank: string;
   account_number: string;
+  categorization_status?: CategorizationStatus;
+  category?: string;
 }
 
 export interface FloidTransactionsResponse {
