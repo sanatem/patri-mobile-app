@@ -139,6 +139,10 @@
       "edit": "Edit"
     },
     "categorize_transaction": "Categorize transaction",
+    "categories_manager": "Categories",
+    "uncategorized": "Uncategorized",
+    "new_category": "New Category",
+    "new_subcategory": "New Subcategory",
     "select_category": "Select a category",
     "category": "Category",
     "no_category": "No category",

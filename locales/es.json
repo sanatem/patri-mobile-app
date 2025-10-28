@@ -147,6 +147,10 @@
       "edit": "Editar"
     },
     "categorize_transaction": "Categorizar transacción",
+    "categories_manager": "Categorías",
+    "uncategorized": "Sin Categorizar",
+    "new_category": "Nueva Categoría",
+    "new_subcategory": "Nueva Subcategoría",
     "select_category": "Selecciona una categoría",
     "category": "Categoría",
     "no_category": "Sin categoría",

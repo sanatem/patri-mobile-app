@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Animated, Dimensions, ActivityIndicator, Alert } from 'react-native';
-import { ChevronLeft, ChevronRight, Plus, RefreshCw } from 'lucide-react-native';
+import { ChevronLeft, ChevronRight, Plus, RefreshCw, Tag } from 'lucide-react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useCallback } from 'react';
 import {
@@ -343,7 +343,7 @@ export default function BudgetScreen() {
   const handleMonthSelect = (month: string) => setSelectedMonth(month);
   const handleIntegrarDatos = () => router.push('/budget/floid-screen' as any);
   const handleAddTransaction = () => router.push('/budget/add-transaction' as any);
-
+  const handleCategoriesManager = () => router.push('/(tabs)/budget/categories-manager' as any);
   const handleTransactionPress = (item: any) => {
     const transaction = item.rawData;
     router.push({
@@ -558,6 +558,30 @@ export default function BudgetScreen() {
                 onChangeText={setSearchQuery}
               />
             )}
+
+            <TouchableOpacity
+              onPress={handleCategoriesManager}
+              style={{
+                backgroundColor: 'white',
+                borderRadius: 12,
+                borderWidth: 1,
+                borderColor: Colors.gray[100],
+                padding: 16,
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                marginTop: 12,
+              }}
+              activeOpacity={0.7}
+            >
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Tag size={20} color={Colors.primary[500]} style={{ marginRight: 12 }} />
+                <Text className="text-base font-medium" style={{ color: Colors.primary[600] }}>
+                  {t('budget.categories_manager', 'Categorías')}
+                </Text>
+              </View>
+              <ChevronRight size={20} color={Colors.primary[500]} />
+            </TouchableOpacity>
           </Container>
           <Container variant="content" className="mb-4">
             {(transactionsLoading || isSyncing || showBudgetSkeletons) ? (
