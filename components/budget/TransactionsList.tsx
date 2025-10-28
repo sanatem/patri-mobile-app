@@ -1,6 +1,7 @@
-import React, { useMemo } from 'react';
-import { View, Text } from 'react-native';
+import React, { useMemo, useState, useEffect } from 'react';
+import { View, Text, Modal, TouchableOpacity, Pressable, Animated } from 'react-native';
 import { ListItem } from '@/components/ui/ListItem';
+import { Select, Button } from '@/components/ui';
 import { budgetService } from '@/services/budget/get-budget';
 import { FloidTransaction } from '@/services/budget/get-floid-transactions';
 import Colors from '@/constants/Colors';
@@ -8,6 +9,8 @@ import { SkeletonBase } from '@/components/ui/SkeletonBase';
 import { useTranslation } from 'react-i18next';
 import { CategorizationStatus } from './CategorizationStatus';
 import { INCOME_CATEGORIES, EXPENSE_CATEGORIES } from '@/constants/BudgetCategories';
+import { patchFloidTransaction } from '@/services/budget/patch-floid-transaction';
+import { useAuth } from '@/providers/AuthProvider';
 
 interface TransactionsListProps {
   type: 'income' | 'expenses';
@@ -26,12 +29,25 @@ interface TransactionsListProps {
 }
 
 // Helper function to get category emoji
-const getCategoryEmoji = (category: string | undefined, transactionType: 'income' | 'outcome') => {
+const getCategoryEmoji = (
+  category: string | undefined,
+  subcategory: string | undefined,
+  transactionType: 'income' | 'outcome'
+) => {
   if (!category) return '+'; // Default symbol for uncategorized transactions
 
   const categories = transactionType === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
   const categoryData = categories.find(cat => cat.id === category);
 
+  // If there's a subcategory, try to get its emoji
+  if (subcategory && categoryData?.subcategories) {
+    const subcategoryData = categoryData.subcategories.find(sub => sub.id === subcategory);
+    if (subcategoryData?.emoji) {
+      return subcategoryData.emoji;
+    }
+  }
+
+  // Otherwise return the category emoji
   return categoryData?.emoji || '+';
 };
 
@@ -52,6 +68,43 @@ export default function TransactionsList({
 }: TransactionsListProps) {
 
   const { t } = useTranslation();
+  const { accessToken } = useAuth();
+  const [showCategoryModal, setShowCategoryModal] = useState(false);
+  const [selectedTransaction, setSelectedTransaction] = useState<FloidTransaction | null>(null);
+  const [category, setCategory] = useState('');
+  const [subcategory, setSubcategory] = useState('');
+
+  const handleIconPress = (transaction: FloidTransaction) => {
+    setSelectedTransaction(transaction);
+    setCategory(transaction.category || '');
+    setSubcategory(transaction.subcategory || '');
+    setShowCategoryModal(true);
+  };
+
+  const handleSaveCategory = async () => {
+    if (!selectedTransaction || !accessToken) return;
+
+    try {
+      await patchFloidTransaction({
+        transactionId: selectedTransaction.transaction_id,
+        transaction: {
+          category: category || undefined,
+          subcategory: subcategory || undefined,
+        }
+      }, accessToken);
+
+      setShowCategoryModal(false);
+      // Refresh the transactions list after updating
+      // This will be handled by the parent component's refetch
+    } catch (error) {
+      console.error('Error updating transaction category:', error);
+    }
+  };
+
+  const handleCategoryChange = (value: string) => {
+    setCategory(value);
+    setSubcategory(''); // Reset subcategory when category changes
+  };
   const transactionsData = useMemo(() => {
     const hasFloidData = hasRealData && 
                         floidTransactions && 
@@ -70,7 +123,11 @@ export default function TransactionsList({
       return filteredBySearch.map(transaction => {
         const isIncome = transaction.transaction_type === 'income';
         const categorizationStatus = transaction.categorization_status || 'uncategorized';
-        const categoryEmoji = getCategoryEmoji(transaction.category, transaction.transaction_type);
+        const categoryEmoji = getCategoryEmoji(
+          transaction.category,
+          transaction.subcategory,
+          transaction.transaction_type
+        );
         const isUncategorized = !transaction.category;
 
         return {
@@ -84,6 +141,7 @@ export default function TransactionsList({
             borderColor: Colors.gray[100],
             borderWidth: 1,
             color: isUncategorized ? Colors.gray[100] : undefined,
+            onPress: () => handleIconPress(transaction),
           },
           badge: {
             text: new Date(transaction.date).toLocaleDateString('es-CL'),
@@ -188,18 +246,125 @@ export default function TransactionsList({
     );
   }
 
+  const categories = selectedTransaction
+    ? (selectedTransaction.transaction_type === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES)
+    : [];
+  const currentLang = t('common.language_code', 'es');
+
+  const categoryOptions = [
+    { label: t('budget.no_category', 'Sin categoría'), value: '' },
+    ...categories.map(cat => ({
+      label: `${cat.emoji} ${cat.name[currentLang as keyof typeof cat.name] || cat.name.es}`,
+      value: cat.id
+    }))
+  ];
+
+  const selectedCategoryData = categories.find(cat => cat.id === category);
+  const subcategoryOptions = selectedCategoryData?.subcategories
+    ? [
+        { label: t('budget.no_subcategory', 'Sin subcategoría'), value: '' },
+        ...selectedCategoryData.subcategories.map(subcat => ({
+          label: `${subcat.emoji} ${subcat.name[currentLang as keyof typeof subcat.name] || subcat.name.es}`,
+          value: subcat.id
+        }))
+      ]
+    : [];
+
   return (
-    <ListItem
-      data={transactionsData}
-      showLoadMore={hasMore}
-      onLoadMore={onLoadMore}
-      loadingMore={loadingMore}
-      showContainer={showContainer}
-      useExternalPagination={true}
-      hasMore={hasMore}
-      onCollapse={onCollapse}
-      onItemPress={onItemPress}
-      onItemDelete={onItemDelete}
-    />
+    <>
+      <ListItem
+        data={transactionsData}
+        showLoadMore={hasMore}
+        onLoadMore={onLoadMore}
+        loadingMore={loadingMore}
+        showContainer={showContainer}
+        useExternalPagination={true}
+        hasMore={hasMore}
+        onCollapse={onCollapse}
+        onItemPress={onItemPress}
+        onItemDelete={onItemDelete}
+      />
+
+      {showCategoryModal && selectedTransaction && (
+        <Modal
+          visible={showCategoryModal}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setShowCategoryModal(false)}
+        >
+          <View style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: 'rgba(0,0,0,0.5)',
+          }}>
+            <View style={{
+              backgroundColor: 'white',
+              borderRadius: 16,
+              padding: 24,
+              marginHorizontal: 20,
+              width: '90%',
+              maxWidth: 400,
+              shadowColor: '#000',
+              shadowOffset: {
+                width: 0,
+                height: 4,
+              },
+              shadowOpacity: 0.25,
+              shadowRadius: 8,
+              elevation: 8,
+            }}>
+              <View style={{ alignItems: 'center', marginBottom: 24 }}>
+                <Text className="text-md font-medium" style={{
+                  marginBottom: 16,
+                  textAlign: 'center',
+                  color: Colors.primary[700],
+                }}>
+                  {t('budget.categorize_transaction', 'Categorizar transacción')}
+                </Text>
+              </View>
+
+              <Select
+                label={t('budget.category', 'Categoría')}
+                options={categoryOptions}
+                value={category}
+                onSelect={handleCategoryChange}
+                placeholder={t('budget.no_category', 'Sin categoría')}
+              />
+
+              {category && subcategoryOptions.length > 0 && (
+                <Select
+                  label={t('budget.subcategory', 'Subcategoría')}
+                  options={subcategoryOptions}
+                  value={subcategory}
+                  onSelect={setSubcategory}
+                  placeholder={t('budget.no_subcategory', 'Sin subcategoría')}
+                />
+              )}
+
+              <View style={{ flexDirection: 'row', gap: 12, marginTop: 8 }}>
+                <View style={{ flex: 1 }}>
+                  <Button
+                    title={t('common.cancel', 'Cancelar')}
+                    variant="outline"
+                    fullWidth
+                    onPress={() => setShowCategoryModal(false)}
+                  />
+                </View>
+
+                <View style={{ flex: 1 }}>
+                  <Button
+                    title={t('common.save', 'Guardar')}
+                    variant="primary"
+                    fullWidth
+                    onPress={handleSaveCategory}
+                  />
+                </View>
+              </View>
+            </View>
+          </View>
+        </Modal>
+      )}
+    </>
   );
 }

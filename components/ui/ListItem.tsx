@@ -22,6 +22,7 @@ interface ListItem {
     color?: string;
     borderColor?: string;
     borderWidth?: number;
+    onPress?: () => void;
   };
   onPress?: () => void;
   customLayout?: boolean;
@@ -183,23 +184,47 @@ const SwipeableItem = ({
               activeOpacity={item.onPress || onPress ? 0.85 : 1}
             >
               {item.icon && (
-                <View style={[
-                  listItemStyles.icon,
-                  item.icon.backgroundColor ? { backgroundColor: item.icon.backgroundColor } : {},
-                  item.icon.borderColor ? { borderColor: item.icon.borderColor } : {},
-                  item.icon.borderWidth ? { borderWidth: item.icon.borderWidth } : {}
-                ]}>
-                  {item.icon.component ? (
-                    item.icon.component
-                  ) : (
-                    <Text className="text-base font-medium" style={[
-                      listItemStyles.iconText,
-                      item.icon.color ? { color: item.icon.color } : {}
-                    ]}>
-                      {item.icon.text || item.title.charAt(0)}
-                    </Text>
-                  )}
-                </View>
+                item.icon.onPress ? (
+                  <TouchableOpacity
+                    style={[
+                      listItemStyles.icon,
+                      item.icon.backgroundColor ? { backgroundColor: item.icon.backgroundColor } : {},
+                      item.icon.borderColor ? { borderColor: item.icon.borderColor } : {},
+                      item.icon.borderWidth ? { borderWidth: item.icon.borderWidth } : {}
+                    ]}
+                    onPress={item.icon.onPress}
+                    activeOpacity={0.7}
+                  >
+                    {item.icon.component ? (
+                      item.icon.component
+                    ) : (
+                      <Text className="text-base font-medium" style={[
+                        listItemStyles.iconText,
+                        item.icon.color ? { color: item.icon.color } : {}
+                      ]}>
+                        {item.icon.text || item.title.charAt(0)}
+                      </Text>
+                    )}
+                  </TouchableOpacity>
+                ) : (
+                  <View style={[
+                    listItemStyles.icon,
+                    item.icon.backgroundColor ? { backgroundColor: item.icon.backgroundColor } : {},
+                    item.icon.borderColor ? { borderColor: item.icon.borderColor } : {},
+                    item.icon.borderWidth ? { borderWidth: item.icon.borderWidth } : {}
+                  ]}>
+                    {item.icon.component ? (
+                      item.icon.component
+                    ) : (
+                      <Text className="text-base font-medium" style={[
+                        listItemStyles.iconText,
+                        item.icon.color ? { color: item.icon.color } : {}
+                      ]}>
+                        {item.icon.text || item.title.charAt(0)}
+                      </Text>
+                    )}
+                  </View>
+                )
               )}
 
               {item.customLayout ? (

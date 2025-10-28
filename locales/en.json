@@ -138,6 +138,7 @@
       "categorize": "Categorize",
       "edit": "Edit"
     },
+    "categorize_transaction": "Categorize transaction",
     "select_category": "Select a category",
     "category": "Category",
     "no_category": "No category",

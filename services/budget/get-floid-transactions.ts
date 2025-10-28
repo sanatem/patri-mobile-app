@@ -15,6 +15,7 @@ export interface FloidTransaction {
   account_number: string;
   categorization_status?: CategorizationStatus;
   category?: string;
+  subcategory?: string;
 }
 
 export interface FloidTransactionsResponse {
