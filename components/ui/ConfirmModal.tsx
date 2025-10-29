@@ -13,6 +13,8 @@ interface ConfirmModalProps {
   isDeleting?: boolean;
   confirmButtonText?: string;
   cancelButtonText?: string;
+  confirmDisabled?: boolean;
+  children?: React.ReactNode;
 }
 
 export function ConfirmModal({
@@ -24,7 +26,9 @@ export function ConfirmModal({
   message,
   isDeleting = false,
   confirmButtonText = "Eliminar",
-  cancelButtonText = "Cancelar"
+  cancelButtonText = "Cancelar",
+  confirmDisabled = false,
+  children
 }: ConfirmModalProps) {
   const defaultMessage = itemName
     ? `¿Estás seguro de que deseas eliminar "${itemName}"? Esta acción no se puede deshacer.`
@@ -67,13 +71,16 @@ export function ConfirmModal({
             }}>
               {title}
             </Text>
-            <Text className="text-sm font-regular" style={{
-              lineHeight: 22,
-              color: Colors.primary[500],
-              textAlign: 'center',
-            }}>
-              {message || defaultMessage}
-            </Text>
+            {message && (
+              <Text className="text-sm font-regular" style={{
+                lineHeight: 22,
+                color: Colors.primary[500],
+                textAlign: 'center',
+              }}>
+                {message || defaultMessage}
+              </Text>
+            )}
+            {children}
           </View>
 
           <View style={{ flexDirection: 'row', gap: 12 }}>
@@ -93,7 +100,7 @@ export function ConfirmModal({
                 variant="primary"
                 fullWidth
                 onPress={onConfirm}
-                disabled={isDeleting}
+                disabled={isDeleting || confirmDisabled}
               />
             </View>
           </View>

@@ -25,6 +25,8 @@ export { default as FormLayout } from './FormLayout';
 export { default as InfoTooltip } from './InfoTooltip';
 export { Textarea } from './Textarea';
 export { default as RadioButton } from './RadioButton';
+export { default as Checkbox } from './Checkbox';
+export { CheckboxItem } from './CheckboxItem';
 export { SyncModal } from './SyncModal';
 export { ConfirmModal } from './ConfirmModal';
 export { Pagination } from './Pagination';
