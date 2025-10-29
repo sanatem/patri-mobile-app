@@ -7,7 +7,7 @@ import { FloidTransaction } from '@/services/budget/get-floid-transactions';
 import Colors from '@/constants/Colors';
 import { SkeletonBase } from '@/components/ui/SkeletonBase';
 import { useTranslation } from 'react-i18next';
-import { CategorizationStatus } from './CategorizationStatus';
+import { CategorizationStatus } from '../CategorizationStatus';
 import { INCOME_CATEGORIES, EXPENSE_CATEGORIES } from '@/constants/BudgetCategories';
 import { patchFloidTransaction } from '@/services/budget/patch-floid-transaction';
 import { useAuth } from '@/providers/AuthProvider';

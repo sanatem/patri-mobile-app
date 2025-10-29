@@ -25,7 +25,7 @@ export default function AddTransactionScreen() {
     const day = today.getDate().toString().padStart(2, '0');
     const month = (today.getMonth() + 1).toString().padStart(2, '0');
     const year = today.getFullYear();
-    return `${day}/${month}/${year}`; // formato DD/MM/YYYY
+    return `${day}/${month}/${year}`;
   });
   const [isLoading, setIsLoading] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
@@ -153,13 +153,11 @@ export default function AddTransactionScreen() {
           label={t('budget.transaction_amount')}
           value={amount}
           onChangeText={(text) => {
-            // Remover todo excepto números
             const numbers = text.replace(/[^\d]/g, '');
             if (numbers === '') {
               setAmount('');
               return;
             }
-            // Formatear con separador de miles y símbolo de peso
             const formatted = `$${parseInt(numbers).toLocaleString('es-CL')}`;
             setAmount(formatted);
           }}
