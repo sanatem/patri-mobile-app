@@ -559,29 +559,43 @@ export default function BudgetScreen() {
               />
             )}
 
-            <TouchableOpacity
-              onPress={handleCategoriesManager}
-              style={{
-                backgroundColor: 'white',
-                borderRadius: 12,
-                borderWidth: 1,
-                borderColor: Colors.gray[100],
-                padding: 16,
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                marginTop: 12,
-              }}
-              activeOpacity={0.7}
-            >
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Tag size={20} color={Colors.primary[500]} style={{ marginRight: 12 }} />
-                <Text className="text-base font-medium" style={{ color: Colors.primary[600] }}>
-                  {t('budget.categories_manager', 'Categorías')}
-                </Text>
-              </View>
-              <ChevronRight size={20} color={Colors.primary[500]} />
-            </TouchableOpacity>
+            {(transactionsLoading || isSyncing || showBudgetSkeletons) ? (
+              <SkeletonBase
+                width={380}
+                height={56}
+                x={0}
+                y={0}
+                rows={1}
+                rowHeight={56}
+                rowWidth={380}
+                borderRadius={12}
+                style={{ marginTop: 12 }}
+              />
+            ) : (
+              <TouchableOpacity
+                onPress={handleCategoriesManager}
+                style={{
+                  backgroundColor: 'white',
+                  borderRadius: 12,
+                  borderWidth: 1,
+                  borderColor: Colors.gray[100],
+                  padding: 16,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  marginTop: 12,
+                }}
+                activeOpacity={0.7}
+              >
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <Tag size={20} color={Colors.primary[500]} style={{ marginRight: 12 }} />
+                  <Text className="text-base font-medium" style={{ color: Colors.primary[600] }}>
+                    {t('budget.categories_manager', 'Categorías')}
+                  </Text>
+                </View>
+                <ChevronRight size={20} color={Colors.primary[500]} />
+              </TouchableOpacity>
+            )}
           </Container>
           <Container variant="content" className="mb-4">
             {(transactionsLoading || isSyncing || showBudgetSkeletons) ? (
