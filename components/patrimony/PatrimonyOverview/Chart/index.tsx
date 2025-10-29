@@ -1,5 +1,5 @@
 import React from 'react';
-import AreaChart from './AreaChart';
+import AreaChart from '@/components/patrimony/PatrimonyOverview/Chart/AreaChart';
 import { TimeRangeSelector } from './TimeRangeSelector';
 import { RangeSize } from '@/store/chartRangeStore';
 import { Animated } from 'react-native';
