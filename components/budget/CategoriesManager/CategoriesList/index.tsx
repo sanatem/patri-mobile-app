@@ -1,0 +1,94 @@
+import React from 'react';
+import { Animated } from 'react-native';
+import { FloidTransaction } from '@/services/budget/get-floid-transactions';
+import { CategoryItem } from './CategoryItem';
+
+interface CategoriesListProps {
+  categorizedData: Array<{
+    id: string;
+    name: { es: string; en: string; pt: string };
+    emoji: string;
+    subcategories?: Array<{
+      id: string;
+      name: { es: string; en: string; pt: string };
+      emoji: string;
+      transactions: FloidTransaction[];
+      total: number;
+    }>;
+    uncategorizedTransactions: FloidTransaction[];
+    total: number;
+    transactionCount: number;
+  }>;
+  currentLang: string;
+  selectionMode: boolean;
+  selectedCategories: Set<string>;
+  selectedSubcategories: Set<string>;
+  selectedTransactions: Set<number>;
+  expandedCategories: Set<string>;
+  expandedSubcategories: Set<string>;
+  selectionAnimations: Map<string, Animated.Value>;
+  transactionAnimations: Map<number, Animated.Value>;
+  transactionType: 'income' | 'outcome';
+  onCategoryPress: (categoryId: string) => void;
+  onCategoryLongPress: (categoryId: string) => void;
+  onSubcategoryPress: (subcategoryId: string) => void;
+  onSubcategoryLongPress: (subcategoryId: string) => void;
+  onTransactionPress: (transactionId: number) => void;
+  getRotateStyle: (id: string, isCategory: boolean) => any;
+}
+
+export function CategoriesList({
+  categorizedData,
+  currentLang,
+  selectionMode,
+  selectedCategories,
+  selectedSubcategories,
+  selectedTransactions,
+  expandedCategories,
+  expandedSubcategories,
+  selectionAnimations,
+  transactionAnimations,
+  transactionType,
+  onCategoryPress,
+  onCategoryLongPress,
+  onSubcategoryPress,
+  onSubcategoryLongPress,
+  onTransactionPress,
+  getRotateStyle,
+}: CategoriesListProps) {
+  return (
+    <>
+      {categorizedData.map((category) => {
+        const isCategorySelected = selectedCategories.has(category.id);
+        const categoryAnimation = selectionAnimations.get(category.id) || new Animated.Value(0);
+        const isExpanded = expandedCategories.has(category.id);
+        const categoryRotateStyle = getRotateStyle(category.id, true);
+
+        return (
+          <CategoryItem
+            key={category.id}
+            category={category}
+            currentLang={currentLang}
+            selectionMode={selectionMode}
+            isCategorySelected={isCategorySelected}
+            isExpanded={isExpanded}
+            categoryAnimation={categoryAnimation}
+            categoryRotateStyle={categoryRotateStyle}
+            expandedSubcategories={expandedSubcategories}
+            selectedSubcategories={selectedSubcategories}
+            selectedTransactions={selectedTransactions}
+            selectionAnimations={selectionAnimations}
+            transactionAnimations={transactionAnimations}
+            transactionType={transactionType}
+            onCategoryPress={onCategoryPress}
+            onCategoryLongPress={onCategoryLongPress}
+            onSubcategoryPress={onSubcategoryPress}
+            onSubcategoryLongPress={onSubcategoryLongPress}
+            onTransactionPress={onTransactionPress}
+            getRotateStyle={getRotateStyle}
+          />
+        );
+      })}
+    </>
+  );
+}
