@@ -48,31 +48,31 @@ export const INCOME_CATEGORIES = [
     emoji: "📈",
     subcategories: [
       {
-        id: "sales",
+        id: "freelance_income",
         name: {
-          en: "Sales",
-          es: "Ventas",
-          "es-CL": "Ventas"
-        },
-        emoji: "💵"
-      },
-      {
-        id: "freelance",
-        name: {
-          en: "Freelance",
-          es: "Freelance",
-          "es-CL": "Freelance"
+          en: "Freelance Income",
+          es: "Ingresos Freelance",
+          "es-CL": "Ingresos Freelance"
         },
         emoji: "🖥️"
       },
       {
-        id: "services",
+        id: "business_income",
         name: {
-          en: "Services",
-          es: "Servicios",
-          "es-CL": "Servicios"
+          en: "Business Income",
+          es: "Negocios Propios",
+          "es-CL": "Negocios Propios"
         },
-        emoji: "🛠️"
+        emoji: "💼"
+      },
+      {
+        id: "consulting_income",
+        name: {
+          en: "Consulting Income",
+          es: "Ingresos por Consultoría",
+          "es-CL": "Ingresos por Consultoría"
+        },
+        emoji: "📋"
       }
     ]
   },
@@ -115,78 +115,78 @@ export const INCOME_CATEGORIES = [
     ]
   },
   {
-    id: "rentals_real_estate",
+    id: "rental_real_estate",
     name: {
-      en: "Rentals & Real Estate",
-      es: "Alquileres e Inmuebles",
+      en: "Rental & Real Estate",
+      es: "Arriendos e Inmuebles",
       "es-CL": "Arriendos e Inmuebles"
     },
     emoji: "🏘️",
     subcategories: [
       {
-        id: "property_rentals",
+        id: "property_rental",
         name: {
-          en: "Property Rentals",
-          es: "Arriendo de Propiedades",
-          "es-CL": "Arriendo de Propiedades"
+          en: "Property Rental",
+          es: "Arriendo de Propiedad",
+          "es-CL": "Arriendo de Propiedad"
         },
         emoji: "🏠"
       },
       {
-        id: "airbnb",
+        id: "parking_rental",
         name: {
-          en: "Airbnb",
-          es: "Airbnb",
-          "es-CL": "Airbnb"
+          en: "Parking Rental",
+          es: "Arriendo de Estacionamiento",
+          "es-CL": "Arriendo de Estacionamiento"
         },
-        emoji: "🛏️"
+        emoji: "🅿️"
       },
       {
         id: "other_real_estate_income",
         name: {
           en: "Other Real Estate Income",
-          es: "Otros ingresos inmobiliarios",
-          "es-CL": "Otros ingresos inmobiliarios"
+          es: "Otros Ingresos Inmobiliarios",
+          "es-CL": "Otros Ingresos Inmobiliarios"
         },
         emoji: "🗝️"
       }
     ]
   },
   {
-    id: "refunds_reimbursements",
+    id: "refunds_returns",
     name: {
-      en: "Refunds & Reimbursements",
+      en: "Refunds & Returns",
       es: "Reembolsos y Devoluciones",
       "es-CL": "Reembolsos y Devoluciones"
     },
     emoji: "♻️",
     subcategories: [
       {
-        id: "bank_refunds",
-        name: {
-          en: "Bank Refunds",
-          es: "Reembolsos Bancarios",
-          "es-CL": "Reembolsos Bancarios"
-        },
-        emoji: "🏦"
-      },
-      {
         id: "tax_refunds",
         name: {
           en: "Tax Refunds",
-          es: "Devolución de Impuestos",
-          "es-CL": "Devolución de Impuestos"
+          es: "Reembolsos de Impuestos",
+          "es-CL": "Reembolsos de Impuestos"
         },
         emoji: "🧾"
       },
       {
-        id: "other_refunds",
+        id: "purchase_returns",
         name: {
-          en: "Other Refunds",
-          es: "Otros Reembolsos",
-          "es-CL": "Otros Reembolsos"
+          en: "Purchase Returns",
+          es: "Devoluciones de Compras",
+          "es-CL": "Devoluciones de Compras"
         },
         emoji: "🔄"
+      },
+      {
+        id: "insurance_refunds",
+        name: {
+          en: "Insurance Refunds",
+          es: "Reembolsos de Seguros",
+          "es-CL": "Reembolsos de Seguros"
+        },
+        emoji: "🏦"
       }
     ]
   },
@@ -203,8 +203,8 @@ export const INCOME_CATEGORIES = [
         id: "cash_gifts",
         name: {
           en: "Cash Gifts",
-          es: "Regalos en Dinero",
-          "es-CL": "Regalos en Dinero"
+          es: "Regalos en Efectivo",
+          "es-CL": "Regalos en Efectivo"
         },
         emoji: "💸"
       },
@@ -238,31 +238,31 @@ export const INCOME_CATEGORIES = [
     emoji: "📦",
     subcategories: [
       {
-        id: "lottery_prizes",
+        id: "prizes_lottery",
         name: {
-          en: "Lotteries / Prizes",
-          es: "Loterías / Premios",
-          "es-CL": "Loterías / Premios"
+          en: "Prizes / Lottery",
+          es: "Premios / Loterías",
+          "es-CL": "Premios / Loterías"
         },
         emoji: "🎲"
       },
       {
-        id: "asset_sales",
+        id: "subsidies_benefits",
         name: {
-          en: "Asset Sales",
-          es: "Venta de Activos",
-          "es-CL": "Venta de Activos"
+          en: "Subsidies / Benefits",
+          es: "Subsidios / Ayudas",
+          "es-CL": "Subsidios / Ayudas"
         },
-        emoji: "💎"
+        emoji: "🤝"
       },
       {
-        id: "miscellaneous_income",
+        id: "alimony_received",
         name: {
-          en: "Miscellaneous Income",
-          es: "Otros Ingresos",
-          "es-CL": "Otros Ingresos"
+          en: "Alimony Received",
+          es: "Pensión Alimenticia Recibida",
+          "es-CL": "Pensión Alimenticia Recibida"
         },
-        emoji: "🔖"
+        emoji: "💼"
       }
     ]
   }
@@ -322,18 +322,9 @@ export const EXPENSE_CATEGORIES = [
         name: {
           en: "Electricity",
           es: "Electricidad",
-          "es-CL": "Luz"
+          "es-CL": "Electricidad"
         },
         emoji: "⚡"
-      },
-      {
-        id: "gas",
-        name: {
-          en: "Gas",
-          es: "Gas",
-          "es-CL": "Gas"
-        },
-        emoji: "🔥"
       },
       {
         id: "water",
@@ -345,6 +336,15 @@ export const EXPENSE_CATEGORIES = [
         emoji: "💧"
       },
       {
+        id: "gas",
+        name: {
+          en: "Gas",
+          es: "Gas",
+          "es-CL": "Gas"
+        },
+        emoji: "🔥"
+      },
+      {
         id: "internet",
         name: {
           en: "Internet",
@@ -354,31 +354,31 @@ export const EXPENSE_CATEGORIES = [
         emoji: "🌐"
       },
       {
-        id: "cable_tv",
+        id: "mobile_phone",
         name: {
-          en: "Cable TV",
-          es: "Televisión por Cable",
-          "es-CL": "Cable"
-        },
-        emoji: "📺"
-      },
-      {
-        id: "phone",
-        name: {
-          en: "Phone",
-          es: "Teléfono",
-          "es-CL": "Celular / Teléfono"
+          en: "Mobile Phone",
+          es: "Telefonía Móvil",
+          "es-CL": "Telefonía Móvil"
         },
         emoji: "📱"
       },
       {
-        id: "garbage",
+        id: "cable_tv_streaming_tv",
         name: {
-          en: "Garbage",
-          es: "Basura",
-          "es-CL": "Aseo"
+          en: "Cable TV / Streaming TV",
+          es: "Televisión Cable / Streaming TV",
+          "es-CL": "Televisión Cable / Streaming TV"
         },
-        emoji: "🗑️"
+        emoji: "📺"
+      },
+      {
+        id: "building_maintenance",
+        name: {
+          en: "Building Maintenance",
+          es: "Administración (gastos comunes)",
+          "es-CL": "Administración (gastos comunes)"
+        },
+        emoji: "🏢"
       }
     ]
   },
@@ -401,22 +401,13 @@ export const EXPENSE_CATEGORIES = [
         emoji: "🛒"
       },
       {
-        id: "restaurants_bars",
+        id: "restaurants",
         name: {
-          en: "Restaurants & Bars",
-          es: "Restaurantes y Bares",
-          "es-CL": "Restaurantes y Bares"
+          en: "Restaurants",
+          es: "Restaurantes",
+          "es-CL": "Restaurantes"
         },
-        emoji: "🍷"
-      },
-      {
-        id: "coffee_shops",
-        name: {
-          en: "Coffee Shops",
-          es: "Cafeterías",
-          "es-CL": "Cafeterías"
-        },
-        emoji: "☕"
+        emoji: "🍽️"
       },
       {
         id: "fast_food",
@@ -428,55 +419,327 @@ export const EXPENSE_CATEGORIES = [
         emoji: "🍔"
       },
       {
-        id: "takeout_delivery",
+        id: "coffee_shops",
         name: {
-          en: "Takeout & Delivery",
-          es: "Comida para llevar / Delivery",
-          "es-CL": "Delivery"
+          en: "Coffee Shops",
+          es: "Cafeterías",
+          "es-CL": "Cafeterías"
         },
-        emoji: "📦"
+        emoji: "☕"
+      },
+      {
+        id: "food_delivery",
+        name: {
+          en: "Food Delivery",
+          es: "Entrega a Domicilio",
+          "es-CL": "Entrega a Domicilio"
+        },
+        emoji: "🚚"
       }
     ]
   },
   {
-    id: "auto_transport",
+    id: "transportation",
     name: {
-      en: "Auto & Transport",
+      en: "Transportation",
       es: "Transporte",
       "es-CL": "Transporte"
     },
     emoji: "🚗",
-    subcategories: []
+    subcategories: [
+      {
+        id: "fuel_gas",
+        name: {
+          en: "Fuel / Gas",
+          es: "Combustible / Bencina",
+          "es-CL": "Combustible / Bencina"
+        },
+        emoji: "⛽"
+      },
+      {
+        id: "public_transportation",
+        name: {
+          en: "Public Transportation",
+          es: "Transporte Público",
+          "es-CL": "Transporte Público"
+        },
+        emoji: "🚌"
+      },
+      {
+        id: "taxi_uber_didi",
+        name: {
+          en: "Taxi / Uber / DiDi",
+          es: "Taxis / Uber / DiDi",
+          "es-CL": "Taxis / Uber / DiDi"
+        },
+        emoji: "🚕"
+      },
+      {
+        id: "parking",
+        name: {
+          en: "Parking",
+          es: "Estacionamiento",
+          "es-CL": "Estacionamiento"
+        },
+        emoji: "🅿️"
+      },
+      {
+        id: "tolls",
+        name: {
+          en: "Tolls",
+          es: "Peajes",
+          "es-CL": "Peajes"
+        },
+        emoji: "🛣️"
+      },
+      {
+        id: "vehicle_maintenance",
+        name: {
+          en: "Vehicle Maintenance",
+          es: "Mantención de Vehículo",
+          "es-CL": "Mantención de Vehículo"
+        },
+        emoji: "🔧"
+      },
+      {
+        id: "vehicle_insurance",
+        name: {
+          en: "Vehicle Insurance",
+          es: "Seguro de Vehículo",
+          "es-CL": "Seguro de Vehículo"
+        },
+        emoji: "🛡️"
+      },
+      {
+        id: "car_loan",
+        name: {
+          en: "Car Loan",
+          es: "Crédito Automotriz",
+          "es-CL": "Crédito Automotriz"
+        },
+        emoji: "💳"
+      },
+      {
+        id: "highway_tag",
+        name: {
+          en: "Highway Tag",
+          es: "TAG",
+          "es-CL": "TAG"
+        },
+        emoji: "🏷️"
+      }
+    ]
   },
   {
-    id: "healthcare",
+    id: "travel_lifestyle",
     name: {
-      en: "Healthcare",
-      es: "Salud",
-      "es-CL": "Salud"
+      en: "Travel & Lifestyle",
+      es: "Viajes y Estilo de Vida",
+      "es-CL": "Viajes y Estilo de Vida"
     },
-    emoji: "🏥",
-    subcategories: []
+    emoji: "✈️",
+    subcategories: [
+      {
+        id: "flights",
+        name: {
+          en: "Flights",
+          es: "Vuelos",
+          "es-CL": "Vuelos"
+        },
+        emoji: "🛫"
+      },
+      {
+        id: "hotels_accommodation",
+        name: {
+          en: "Hotels / Accommodation",
+          es: "Hoteles / Alojamiento",
+          "es-CL": "Hoteles / Alojamiento"
+        },
+        emoji: "🏨"
+      },
+      {
+        id: "vacations",
+        name: {
+          en: "Vacations",
+          es: "Vacaciones",
+          "es-CL": "Vacaciones"
+        },
+        emoji: "🏖️"
+      },
+      {
+        id: "entertainment",
+        name: {
+          en: "Entertainment",
+          es: "Entretenimiento",
+          "es-CL": "Entretenimiento"
+        },
+        emoji: "🎭"
+      },
+      {
+        id: "sports",
+        name: {
+          en: "Sports",
+          es: "Deportes",
+          "es-CL": "Deportes"
+        },
+        emoji: "⚽"
+      },
+      {
+        id: "hobbies",
+        name: {
+          en: "Hobbies",
+          es: "Hobbies",
+          "es-CL": "Hobbies"
+        },
+        emoji: "🎨"
+      }
+    ]
   },
   {
-    id: "personal_care",
+    id: "subscriptions_streaming",
     name: {
-      en: "Personal Care",
-      es: "Cuidado Personal",
-      "es-CL": "Cuidado Personal"
+      en: "Subscriptions & Streaming",
+      es: "Suscripciones y Streaming",
+      "es-CL": "Suscripciones y Streaming"
     },
-    emoji: "💄",
-    subcategories: []
-  },
-  {
-    id: "entertainment",
-    name: {
-      en: "Entertainment",
-      es: "Entretenimiento",
-      "es-CL": "Entretenimiento"
-    },
-    emoji: "🎭",
-    subcategories: []
+    emoji: "📱",
+    subcategories: [
+      {
+        id: "netflix",
+        name: {
+          en: "Netflix",
+          es: "Netflix",
+          "es-CL": "Netflix"
+        },
+        emoji: "🎬"
+      },
+      {
+        id: "spotify",
+        name: {
+          en: "Spotify",
+          es: "Spotify",
+          "es-CL": "Spotify"
+        },
+        emoji: "🎵"
+      },
+      {
+        id: "amazon_prime",
+        name: {
+          en: "Amazon Prime",
+          es: "Amazon Prime",
+          "es-CL": "Amazon Prime"
+        },
+        emoji: "📦"
+      },
+      {
+        id: "disney_plus",
+        name: {
+          en: "Disney+",
+          es: "Disney+",
+          "es-CL": "Disney+"
+        },
+        emoji: "🏰"
+      },
+      {
+        id: "hbo_max",
+        name: {
+          en: "HBO Max",
+          es: "HBO Max",
+          "es-CL": "HBO Max"
+        },
+        emoji: "🎭"
+      },
+      {
+        id: "apple_music",
+        name: {
+          en: "Apple Music",
+          es: "Apple Music",
+          "es-CL": "Apple Music"
+        },
+        emoji: "🎧"
+      },
+      {
+        id: "youtube_premium",
+        name: {
+          en: "YouTube Premium",
+          es: "YouTube Premium",
+          "es-CL": "YouTube Premium"
+        },
+        emoji: "📹"
+      },
+      {
+        id: "gym",
+        name: {
+          en: "Gym",
+          es: "Gimnasio",
+          "es-CL": "Gimnasio"
+        },
+        emoji: "💪"
+      },
+      {
+        id: "clubs_memberships",
+        name: {
+          en: "Clubs / Memberships",
+          es: "Clubes / Membresías",
+          "es-CL": "Clubes / Membresías"
+        },
+        emoji: "🎟️"
+      },
+      {
+        id: "software_apps",
+        name: {
+          en: "Software / Apps",
+          es: "Software / Apps",
+          "es-CL": "Software / Apps"
+        },
+        emoji: "💻"
+      },
+      {
+        id: "magazines_newspapers",
+        name: {
+          en: "Magazines / Newspapers",
+          es: "Revistas / Periódicos",
+          "es-CL": "Revistas / Periódicos"
+        },
+        emoji: "📰"
+      },
+      {
+        id: "cloud_storage",
+        name: {
+          en: "Cloud Storage",
+          es: "Almacenamiento en la Nube",
+          "es-CL": "Almacenamiento en la Nube"
+        },
+        emoji: "☁️"
+      },
+      {
+        id: "books_audiobooks",
+        name: {
+          en: "Books / Audiobooks",
+          es: "Libros / Audiolibros",
+          "es-CL": "Libros / Audiolibros"
+        },
+        emoji: "📚"
+      },
+      {
+        id: "online_education",
+        name: {
+          en: "Online Education",
+          es: "Educación en Línea",
+          "es-CL": "Educación en Línea"
+        },
+        emoji: "🎓"
+      },
+      {
+        id: "other_streaming_services",
+        name: {
+          en: "Other Streaming Services",
+          es: "Otros Servicios de Streaming",
+          "es-CL": "Otros Servicios de Streaming"
+        },
+        emoji: "📡"
+      }
+    ]
   },
   {
     id: "shopping",
@@ -486,7 +749,181 @@ export const EXPENSE_CATEGORIES = [
       "es-CL": "Compras"
     },
     emoji: "🛍️",
-    subcategories: []
+    subcategories: [
+      {
+        id: "clothing",
+        name: {
+          en: "Clothing",
+          es: "Ropa",
+          "es-CL": "Ropa"
+        },
+        emoji: "👕"
+      },
+      {
+        id: "shoes",
+        name: {
+          en: "Shoes",
+          es: "Calzado",
+          "es-CL": "Calzado"
+        },
+        emoji: "👟"
+      },
+      {
+        id: "electronics",
+        name: {
+          en: "Electronics",
+          es: "Electrónica",
+          "es-CL": "Electrónica"
+        },
+        emoji: "📱"
+      },
+      {
+        id: "furniture",
+        name: {
+          en: "Furniture",
+          es: "Muebles",
+          "es-CL": "Muebles"
+        },
+        emoji: "🛋️"
+      },
+      {
+        id: "home_decor",
+        name: {
+          en: "Home Decor",
+          es: "Decoración para el Hogar",
+          "es-CL": "Decoración para el Hogar"
+        },
+        emoji: "🖼️"
+      },
+      {
+        id: "books",
+        name: {
+          en: "Books",
+          es: "Libros",
+          "es-CL": "Libros"
+        },
+        emoji: "📖"
+      },
+      {
+        id: "toys",
+        name: {
+          en: "Toys",
+          es: "Juguetes",
+          "es-CL": "Juguetes"
+        },
+        emoji: "🧸"
+      },
+      {
+        id: "gifts",
+        name: {
+          en: "Gifts",
+          es: "Regalos",
+          "es-CL": "Regalos"
+        },
+        emoji: "🎁"
+      },
+      {
+        id: "personal_care",
+        name: {
+          en: "Personal Care",
+          es: "Cuidado Personal",
+          "es-CL": "Cuidado Personal"
+        },
+        emoji: "💄"
+      },
+      {
+        id: "pets",
+        name: {
+          en: "Pets",
+          es: "Mascotas",
+          "es-CL": "Mascotas"
+        },
+        emoji: "🐾"
+      },
+      {
+        id: "other",
+        name: {
+          en: "Other",
+          es: "Otros",
+          "es-CL": "Otros"
+        },
+        emoji: "🛒"
+      }
+    ]
+  },
+  {
+    id: "health_wellness",
+    name: {
+      en: "Health & Wellness",
+      es: "Salud y Bienestar",
+      "es-CL": "Salud y Bienestar"
+    },
+    emoji: "🏥",
+    subcategories: [
+      {
+        id: "health_insurance",
+        name: {
+          en: "Health Insurance",
+          es: "Seguro de Salud",
+          "es-CL": "Seguro de Salud"
+        },
+        emoji: "🛡️"
+      },
+      {
+        id: "medications",
+        name: {
+          en: "Medications",
+          es: "Medicamentos",
+          "es-CL": "Medicamentos"
+        },
+        emoji: "💊"
+      },
+      {
+        id: "medical_consultations",
+        name: {
+          en: "Medical Consultations",
+          es: "Consultas Médicas",
+          "es-CL": "Consultas Médicas"
+        },
+        emoji: "👨‍⚕️"
+      },
+      {
+        id: "dentist",
+        name: {
+          en: "Dentist",
+          es: "Dentista",
+          "es-CL": "Dentista"
+        },
+        emoji: "🦷"
+      },
+      {
+        id: "therapy_psychology",
+        name: {
+          en: "Therapy / Psychology",
+          es: "Terapia / Psicología",
+          "es-CL": "Terapia / Psicología"
+        },
+        emoji: "🧠"
+      },
+      {
+        id: "optical",
+        name: {
+          en: "Optical",
+          es: "Óptica",
+          "es-CL": "Óptica"
+        },
+        emoji: "👓"
+      },
+      {
+        id: "vitamins_supplements",
+        name: {
+          en: "Vitamins / Supplements",
+          es: "Vitaminas / Suplementos",
+          "es-CL": "Vitaminas / Suplementos"
+        },
+        emoji: "💊"
+      }
+    ]
   },
   {
     id: "education",
@@ -496,7 +933,44 @@ export const EXPENSE_CATEGORIES = [
       "es-CL": "Educación"
     },
     emoji: "📚",
-    subcategories: []
+    subcategories: [
+      {
+        id: "tuition_enrollment",
+        name: {
+          en: "Tuition / Enrollment",
+          es: "Colegiatura / Matrícula",
+          "es-CL": "Colegiatura / Matrícula"
+        },
+        emoji: "🎓"
+      },
+      {
+        id: "books_materials",
+        name: {
+          en: "Books / Materials",
+          es: "Libros / Materiales",
+          "es-CL": "Libros / Materiales"
+        },
+        emoji: "📖"
+      },
+      {
+        id: "courses_workshops",
+        name: {
+          en: "Courses / Workshops",
+          es: "Cursos / Talleres",
+          "es-CL": "Cursos / Talleres"
+        },
+        emoji: "👨‍🏫"
+      },
+      {
+        id: "school_uniforms",
+        name: {
+          en: "School Uniforms",
+          es: "Uniformes Escolares",
+          "es-CL": "Uniformes Escolares"
+        },
+        emoji: "🎽"
+      }
+    ]
   },
   {
     id: "insurance",
@@ -506,7 +980,91 @@ export const EXPENSE_CATEGORIES = [
       "es-CL": "Seguros"
     },
     emoji: "🛡️",
-    subcategories: []
+    subcategories: [
+      {
+        id: "life_insurance",
+        name: {
+          en: "Life Insurance",
+          es: "Seguro de Vida",
+          "es-CL": "Seguro de Vida"
+        },
+        emoji: "💼"
+      },
+      {
+        id: "home_insurance",
+        name: {
+          en: "Home Insurance",
+          es: "Seguro del Hogar",
+          "es-CL": "Seguro del Hogar"
+        },
+        emoji: "🏠"
+      },
+      {
+        id: "other_insurance",
+        name: {
+          en: "Other Insurance",
+          es: "Otros Seguros",
+          "es-CL": "Otros Seguros"
+        },
+        emoji: "📋"
+      }
+    ]
+  },
+  {
+    id: "financial",
+    name: {
+      en: "Financial",
+      es: "Finanzas",
+      "es-CL": "Finanzas"
+    },
+    emoji: "💰",
+    subcategories: [
+      {
+        id: "credit_cards",
+        name: {
+          en: "Credit Cards",
+          es: "Tarjetas de Crédito",
+          "es-CL": "Tarjetas de Crédito"
+        },
+        emoji: "💳"
+      },
+      {
+        id: "consumer_loans",
+        name: {
+          en: "Consumer Loans",
+          es: "Crédito de Consumo",
+          "es-CL": "Crédito de Consumo"
+        },
+        emoji: "🏦"
+      },
+      {
+        id: "investments",
+        name: {
+          en: "Investments",
+          es: "Inversiones",
+          "es-CL": "Inversiones"
+        },
+        emoji: "📈"
+      },
+      {
+        id: "savings",
+        name: {
+          en: "Savings",
+          es: "Ahorros",
+          "es-CL": "Ahorros"
+        },
+        emoji: "🏦"
+      },
+      {
+        id: "bank_fees",
+        name: {
+          en: "Bank Fees",
+          es: "Comisiones Bancarias",
+          "es-CL": "Comisiones Bancarias"
+        },
+        emoji: "💵"
+      }
+    ]
   },
   {
     id: "taxes",
@@ -516,67 +1074,158 @@ export const EXPENSE_CATEGORIES = [
       "es-CL": "Impuestos"
     },
     emoji: "📄",
-    subcategories: []
+    subcategories: [
+      {
+        id: "income_tax",
+        name: {
+          en: "Income Tax",
+          es: "Impuesto a la Renta",
+          "es-CL": "Impuesto a la Renta"
+        },
+        emoji: "💰"
+      },
+      {
+        id: "property_tax",
+        name: {
+          en: "Property Tax",
+          es: "Contribuciones",
+          "es-CL": "Contribuciones"
+        },
+        emoji: "🏠"
+      },
+      {
+        id: "vat",
+        name: {
+          en: "VAT",
+          es: "IVA",
+          "es-CL": "IVA"
+        },
+        emoji: "🧾"
+      },
+      {
+        id: "other_taxes",
+        name: {
+          en: "Other Taxes",
+          es: "Otros Impuestos",
+          "es-CL": "Otros Impuestos"
+        },
+        emoji: "📋"
+      }
+    ]
   },
   {
-    id: "savings_investments",
+    id: "childcare",
     name: {
-      en: "Savings & Investments",
-      es: "Ahorros e Inversiones",
-      "es-CL": "Ahorros e Inversiones"
+      en: "Childcare",
+      es: "Cuidado de Niños",
+      "es-CL": "Cuidado de Niños"
     },
-    emoji: "💰",
-    subcategories: []
+    emoji: "👶",
+    subcategories: [
+      {
+        id: "daycare_nursery",
+        name: {
+          en: "Daycare / Nursery",
+          es: "Jardín Infantil / Sala Cuna",
+          "es-CL": "Jardín Infantil / Sala Cuna"
+        },
+        emoji: "🏫"
+      },
+      {
+        id: "babysitter",
+        name: {
+          en: "Babysitter",
+          es: "Niñera",
+          "es-CL": "Niñera"
+        },
+        emoji: "👩‍🍼"
+      },
+      {
+        id: "diapers_baby_items",
+        name: {
+          en: "Diapers / Baby Items",
+          es: "Pañales / Artículos de Bebé",
+          "es-CL": "Pañales / Artículos de Bebé"
+        },
+        emoji: "🍼"
+      }
+    ]
   },
   {
-    id: "debt_payments",
+    id: "family_dependents",
     name: {
-      en: "Debt Payments",
-      es: "Pagos de Deudas",
-      "es-CL": "Pagos de Deudas"
+      en: "Family & Dependents",
+      es: "Familia y Dependientes",
+      "es-CL": "Familia y Dependientes"
     },
-    emoji: "💳",
-    subcategories: []
+    emoji: "👨‍👩‍👧‍👦",
+    subcategories: [
+      {
+        id: "child_support",
+        name: {
+          en: "Child Support",
+          es: "Manutención",
+          "es-CL": "Manutención"
+        },
+        emoji: "👶"
+      },
+      {
+        id: "alimony",
+        name: {
+          en: "Alimony",
+          es: "Pensión Alimenticia",
+          "es-CL": "Pensión Alimenticia"
+        },
+        emoji: "💰"
+      },
+      {
+        id: "elderly_care",
+        name: {
+          en: "Elderly Care",
+          es: "Cuidado de Adultos Mayores",
+          "es-CL": "Cuidado de Adultos Mayores"
+        },
+        emoji: "👴"
+      }
+    ]
   },
   {
-    id: "gifts_donations",
+    id: "donations",
     name: {
-      en: "Gifts & Donations",
-      es: "Regalos y Donaciones",
-      "es-CL": "Regalos y Donaciones"
+      en: "Donations",
+      es: "Donaciones",
+      "es-CL": "Donaciones"
     },
-    emoji: "🎁",
-    subcategories: []
-  },
-  {
-    id: "travel",
-    name: {
-      en: "Travel",
-      es: "Viajes",
-      "es-CL": "Viajes"
-    },
-    emoji: "✈️",
-    subcategories: []
-  },
-  {
-    id: "pets",
-    name: {
-      en: "Pets",
-      es: "Mascotas",
-      "es-CL": "Mascotas"
-    },
-    emoji: "🐾",
-    subcategories: []
-  },
-  {
-    id: "subscriptions",
-    name: {
-      en: "Subscriptions",
-      es: "Suscripciones",
-      "es-CL": "Suscripciones"
-    },
-    emoji: "📱",
-    subcategories: []
+    emoji: "🤲",
+    subcategories: [
+      {
+        id: "charity",
+        name: {
+          en: "Charity",
+          es: "Caridad",
+          "es-CL": "Caridad"
+        },
+        emoji: "❤️"
+      },
+      {
+        id: "foundations",
+        name: {
+          en: "Foundations",
+          es: "Fundaciones",
+          "es-CL": "Fundaciones"
+        },
+        emoji: "🏛️"
+      },
+      {
+        id: "church",
+        name: {
+          en: "Church",
+          es: "Iglesia",
+          "es-CL": "Iglesia"
+        },
+        emoji: "⛪"
+      }
+    ]
   },
   {
     id: "other_expenses",
@@ -586,6 +1235,34 @@ export const EXPENSE_CATEGORIES = [
       "es-CL": "Otros Gastos"
     },
     emoji: "📦",
-    subcategories: []
+    subcategories: [
+      {
+        id: "fines",
+        name: {
+          en: "Fines",
+          es: "Multas",
+          "es-CL": "Multas"
+        },
+        emoji: "⚠️"
+      },
+      {
+        id: "legal_expenses",
+        name: {
+          en: "Legal Expenses",
+          es: "Gastos Legales",
+          "es-CL": "Gastos Legales"
+        },
+        emoji: "⚖️"
+      },
+      {
+        id: "miscellaneous",
+        name: {
+          en: "Miscellaneous",
+          es: "Varios",
+          "es-CL": "Varios"
+        },
+        emoji: "📋"
+      }
+    ]
   }
 ] as const;

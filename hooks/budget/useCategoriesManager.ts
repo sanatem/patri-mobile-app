@@ -1,9 +1,13 @@
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { Animated, LayoutAnimation, Platform, UIManager } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { INCOME_CATEGORIES, EXPENSE_CATEGORIES } from '@/constants/BudgetCategories';
 import { useFloidTransactions } from '@/hooks/budget/useFloidTransactions';
 import { useFloidAccounts } from '@/hooks/budget/useFloidAccounts';
+import { useAuth } from '@/providers/AuthProvider';
+import { getExpenseCategories } from '@/services/budget/categories-manager/get-expense-categories';
+import { getIncomeCategories } from '@/services/budget/categories-manager/get-income-categories';
+import type { TransactionCategory } from '@/services/budget/categories-manager/get-expense-categories';
 
 // Habilitar LayoutAnimation en Android
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -12,11 +16,17 @@ if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental
 
 export function useCategoriesManager() {
   const { t } = useTranslation();
+  const { accessToken } = useAuth();
   const [activeTab, setActiveTab] = useState<'income' | 'expenses'>('income');
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
   const [expandedSubcategories, setExpandedSubcategories] = useState<Set<string>>(new Set());
   const categoryRotations = useRef<Map<string, Animated.Value>>(new Map()).current;
   const subcategoryRotations = useRef<Map<string, Animated.Value>>(new Map()).current;
+
+  // Estados para categorías del API
+  const [apiIncomeCategories, setApiIncomeCategories] = useState<TransactionCategory[]>([]);
+  const [apiExpenseCategories, setApiExpenseCategories] = useState<TransactionCategory[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(false);
 
   // Estados para modo de selección múltiple de categorías/subcategorías
   const [selectionMode, setSelectionMode] = useState(false);
@@ -67,13 +77,124 @@ export function useCategoriesManager() {
     transaction_type: 'outcome'
   });
 
-  const loading = incomeLoading || expenseLoading;
+  const loading = incomeLoading || expenseLoading || categoriesLoading;
+
+  // Cargar categorías del API
+  useEffect(() => {
+    const fetchCategories = async () => {
+      if (!accessToken) return;
+
+      try {
+        setCategoriesLoading(true);
+
+        // Cargar categorías de ingresos y gastos en paralelo
+        const [incomeResponse, expenseResponse] = await Promise.all([
+          getIncomeCategories({ per_page: 100 }, accessToken),
+          getExpenseCategories({ per_page: 100 }, accessToken)
+        ]);
+
+        if (incomeResponse?.success && incomeResponse.data) {
+          setApiIncomeCategories(incomeResponse.data);
+        }
+
+        if (expenseResponse?.success && expenseResponse.data) {
+          setApiExpenseCategories(expenseResponse.data);
+        }
+
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      } finally {
+        setCategoriesLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, [accessToken]);
 
   // Obtener las transacciones según el tab activo
   const allTransactionsData = activeTab === 'income' ? incomeTransactionsData : expenseTransactionsData;
   const allTransactions = allTransactionsData?.transactions || [];
 
-  const categories = activeTab === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
+  // Helper: Obtener emoji basado en el nombre de la categoría
+  const getEmojiForCategory = (name: string, isIncome: boolean): string => {
+    const staticCategories = isIncome ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
+
+    // Buscar coincidencia por nombre (case-insensitive)
+    const normalizedName = name.toLowerCase().trim();
+
+    const found = staticCategories.find(cat => {
+      const catNameEs = cat.name.es.toLowerCase();
+      const catNameEsCl = cat.name['es-CL'].toLowerCase();
+      const catNameEn = cat.name.en.toLowerCase();
+
+      return catNameEs === normalizedName ||
+             catNameEsCl === normalizedName ||
+             catNameEn === normalizedName ||
+             catNameEs.includes(normalizedName) ||
+             normalizedName.includes(catNameEs);
+    });
+
+    // Si encontramos coincidencia en categorías, retornar su emoji
+    if (found) return found.emoji;
+
+    // Buscar en subcategorías
+    for (const cat of staticCategories) {
+      if (cat.subcategories) {
+        const subFound = cat.subcategories.find(sub => {
+          const subNameEs = sub.name.es.toLowerCase();
+          const subNameEsCl = sub.name['es-CL'].toLowerCase();
+          const subNameEn = sub.name.en.toLowerCase();
+
+          return subNameEs === normalizedName ||
+                 subNameEsCl === normalizedName ||
+                 subNameEn === normalizedName ||
+                 subNameEs.includes(normalizedName) ||
+                 normalizedName.includes(subNameEs);
+        });
+
+        if (subFound) return subFound.emoji;
+      }
+    }
+
+    // Emoji por defecto si no se encuentra coincidencia
+    return isIncome ? '💰' : '💸';
+  };
+
+  // Transformar categorías del API al formato esperado por el componente
+  const categories = useMemo(() => {
+    const apiCategories = activeTab === 'income' ? apiIncomeCategories : apiExpenseCategories;
+    const isIncome = activeTab === 'income';
+
+    // Si hay categorías del API, transformarlas
+    if (apiCategories.length > 0) {
+      // Las categorías padre son las que tienen parent_id === null
+      // Sus subcategorías vienen en el campo "children"
+      return apiCategories.map(category => {
+        return {
+          id: category.id.toString(),
+          name: {
+            en: category.name,
+            es: category.translated_name,
+            'es-CL': category.translated_name
+          },
+          emoji: getEmojiForCategory(category.translated_name, isIncome),
+          subcategories: category.children.map(subcat => ({
+            id: subcat.id.toString(),
+            name: {
+              en: subcat.name,
+              es: subcat.translated_name,
+              'es-CL': subcat.translated_name
+            },
+            emoji: getEmojiForCategory(subcat.translated_name, isIncome)
+          }))
+        };
+      });
+    }
+
+    // Fallback a categorías estáticas si no hay datos del API
+    return activeTab === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
+  }, [activeTab, apiIncomeCategories, apiExpenseCategories]);
+
   const currentLang = t('common.language_code', 'es');
 
   // Función auxiliar para obtener o crear rotación
@@ -592,6 +713,11 @@ export function useCategoriesManager() {
     selectionAnimations,
     transactionAnimations,
     loading,
+    categoriesLoading,
+
+    // API Data
+    apiIncomeCategories,
+    apiExpenseCategories,
 
     // Computed values
     groupedData,
