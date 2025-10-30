@@ -205,13 +205,17 @@ export default function EditTransactionScreen() {
         date: formattedDate,
       };
 
-      // Enviar subcategoría si existe, sino enviar categoría padre
+      // Enviar subcategoría si existe, sino enviar categoría padre, o null si no hay selección
       if (selectedSubcategoryId) {
         transactionData.transaction_category_id = parseInt(selectedSubcategoryId);
         transactionData.auto_category = false; // Siempre manual cuando se edita
       } else if (selectedParentCategoryId) {
         transactionData.transaction_category_id = parseInt(selectedParentCategoryId);
         transactionData.auto_category = false; // Siempre manual cuando se edita
+      } else {
+        // Si no hay categoría seleccionada, enviar null para descategorizar
+        transactionData.transaction_category_id = null;
+        transactionData.auto_category = false;
       }
 
       await patchFloidTransaction({

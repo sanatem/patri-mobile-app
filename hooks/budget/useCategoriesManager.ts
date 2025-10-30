@@ -227,17 +227,17 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
 
   // Agrupar transacciones por categoría y subcategoría
   const groupedData = useMemo(() => {
-    const uncategorized = allTransactions.filter(t => !t.category || t.category === '' || t.category === null);
+    const uncategorized = allTransactions.filter(t => !t.category || !t.category.id);
 
     const categorized = categories.map(category => {
-      const categoryTransactions = allTransactions.filter(t => t.category === category.id);
+      const categoryTransactions = allTransactions.filter(t => t.category?.id === category.id);
 
       const subcategoriesData = category.subcategories?.map(subcat => {
-        const subcatTransactions = categoryTransactions.filter(t => t.subcategory === subcat.id);
+        const subcatTransactions = categoryTransactions.filter(t => t.category?.id === subcat.id);
         return {
           ...subcat,
           transactions: subcatTransactions,
-          total: subcatTransactions.reduce((sum, t) => sum + t.amount, 0)
+          total: subcatTransactions.reduce((sum, t) => sum + parseFloat(t.amount.toString()), 0)
         };
       }) || [];
 
@@ -247,7 +247,7 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
         ...category,
         subcategories: subcategoriesData,
         uncategorizedTransactions: uncategorizedInCategory,
-        total: categoryTransactions.reduce((sum, t) => sum + t.amount, 0),
+        total: categoryTransactions.reduce((sum, t) => sum + parseFloat(t.amount.toString()), 0),
         transactionCount: categoryTransactions.length
       };
     });

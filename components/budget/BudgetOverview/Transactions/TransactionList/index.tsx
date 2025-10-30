@@ -11,6 +11,9 @@ import { CategorizationStatus } from '../CategorizationStatus';
 import { INCOME_CATEGORIES, EXPENSE_CATEGORIES } from '@/constants/BudgetCategories';
 import { patchFloidTransaction } from '@/services/budget/patch-floid-transaction';
 import { useAuth } from '@/providers/AuthProvider';
+import { getExpenseCategories } from '@/services/budget/categories-manager/get-expense-categories';
+import { getIncomeCategories } from '@/services/budget/categories-manager/get-income-categories';
+import type { TransactionCategory } from '@/services/budget/categories-manager/get-expense-categories';
 
 interface TransactionsListProps {
   type: 'income' | 'expenses';
@@ -30,25 +33,16 @@ interface TransactionsListProps {
 
 // Helper function to get category emoji
 const getCategoryEmoji = (
-  category: string | undefined,
-  subcategory: string | undefined,
-  transactionType: 'income' | 'outcome'
+  transaction: FloidTransaction
 ) => {
-  if (!category) return '+'; // Default symbol for uncategorized transactions
-
-  const categories = transactionType === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
-  const categoryData = categories.find(cat => cat.id === category);
-
-  // If there's a subcategory, try to get its emoji
-  if (subcategory && categoryData?.subcategories) {
-    const subcategoryData = categoryData.subcategories.find(sub => sub.id === subcategory);
-    if (subcategoryData?.emoji) {
-      return subcategoryData.emoji;
-    }
+  // Si no tiene categoría, mostrar símbolo por defecto
+  if (!transaction.category || !transaction.category.id) {
+    return '+';
   }
 
-  // Otherwise return the category emoji
-  return categoryData?.emoji || '+';
+  // Por ahora retornar un emoji genérico, las categorías del API tienen emojis
+  // pero necesitaríamos cargarlas para mostrarlas aquí
+  return transaction.category.kind === 'income' ? '💰' : '💳';
 };
 
 export default function TransactionsList({
@@ -71,39 +65,122 @@ export default function TransactionsList({
   const { accessToken } = useAuth();
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState<FloidTransaction | null>(null);
-  const [category, setCategory] = useState('');
-  const [subcategory, setSubcategory] = useState('');
+  const [selectedParentCategoryId, setSelectedParentCategoryId] = useState('');
+  const [selectedSubcategoryId, setSelectedSubcategoryId] = useState('');
+  const [apiCategories, setApiCategories] = useState<TransactionCategory[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Cargar categorías del API
+  useEffect(() => {
+    const fetchCategories = async () => {
+      if (!accessToken || !selectedTransaction) return;
+
+      try {
+        setCategoriesLoading(true);
+        const response = selectedTransaction.transaction_type === 'income'
+          ? await getIncomeCategories({ per_page: 100 }, accessToken)
+          : await getExpenseCategories({ per_page: 100 }, accessToken);
+
+        if (response?.success && response.data) {
+          setApiCategories(response.data);
+        }
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      } finally {
+        setCategoriesLoading(false);
+      }
+    };
+
+    if (showCategoryModal && selectedTransaction) {
+      fetchCategories();
+    }
+  }, [accessToken, selectedTransaction, showCategoryModal]);
 
   const handleIconPress = (transaction: FloidTransaction) => {
     setSelectedTransaction(transaction);
-    setCategory(transaction.category || '');
-    setSubcategory(transaction.subcategory || '');
+
+    // Prellenar la categoría actual si existe
+    if (transaction.category?.id) {
+      setSelectedParentCategoryId(transaction.category.id.toString());
+      setSelectedSubcategoryId('');
+    } else {
+      setSelectedParentCategoryId('');
+      setSelectedSubcategoryId('');
+    }
+
     setShowCategoryModal(true);
   };
+
+  // Cuando se cargan las categorías, verificar si la categoría actual es una subcategoría
+  useEffect(() => {
+    if (!selectedTransaction?.category?.id || apiCategories.length === 0) return;
+
+    const categoryId = selectedTransaction.category.id.toString();
+
+    // Verificar si es una categoría padre
+    const parentCategory = apiCategories.find(cat => cat.id.toString() === categoryId);
+    if (parentCategory) {
+      setSelectedParentCategoryId(categoryId);
+      setSelectedSubcategoryId('');
+    } else {
+      // Buscar si es una subcategoría
+      for (const cat of apiCategories) {
+        const subcategory = cat.children.find(sub => sub.id.toString() === categoryId);
+        if (subcategory) {
+          setSelectedParentCategoryId(cat.id.toString());
+          setSelectedSubcategoryId(categoryId);
+          break;
+        }
+      }
+    }
+  }, [apiCategories, selectedTransaction]);
 
   const handleSaveCategory = async () => {
     if (!selectedTransaction || !accessToken) return;
 
     try {
+      setIsSaving(true);
+
+      const transactionData: any = {};
+
+      // Enviar subcategoría si existe, sino enviar categoría padre, o null si no hay selección
+      if (selectedSubcategoryId) {
+        transactionData.transaction_category_id = parseInt(selectedSubcategoryId);
+        transactionData.auto_category = false;
+      } else if (selectedParentCategoryId) {
+        transactionData.transaction_category_id = parseInt(selectedParentCategoryId);
+        transactionData.auto_category = false;
+      } else {
+        // Si no hay categoría seleccionada, enviar null para descategorizar
+        transactionData.transaction_category_id = null;
+        transactionData.auto_category = false;
+      }
+
       await patchFloidTransaction({
-        transactionId: selectedTransaction.transaction_id,
-        transaction: {
-          category: category || undefined,
-          subcategory: subcategory || undefined,
-        }
+        transactionId: selectedTransaction.id.toString(),
+        transaction: transactionData
       }, accessToken);
 
       setShowCategoryModal(false);
       // Refresh the transactions list after updating
-      // This will be handled by the parent component's refetch
+      if (onCollapse) {
+        onCollapse(); // This triggers a refetch in the parent component
+      }
     } catch (error) {
       console.error('Error updating transaction category:', error);
+    } finally {
+      setIsSaving(false);
     }
   };
 
   const handleCategoryChange = (value: string) => {
-    setCategory(value);
-    setSubcategory(''); // Reset subcategory when category changes
+    setSelectedParentCategoryId(value);
+    setSelectedSubcategoryId(''); // Reset subcategory when category changes
+  };
+
+  const handleSubcategoryChange = (value: string) => {
+    setSelectedSubcategoryId(value);
   };
   const transactionsData = useMemo(() => {
     const hasFloidData = hasRealData && 
@@ -122,18 +199,15 @@ export default function TransactionsList({
 
       return filteredBySearch.map(transaction => {
         const isIncome = transaction.transaction_type === 'income';
-        const categoryEmoji = getCategoryEmoji(
-          transaction.category,
-          transaction.subcategory,
-          transaction.transaction_type
-        );
-        const isUncategorized = !transaction.category;
+        const categoryEmoji = getCategoryEmoji(transaction);
+        const isUncategorized = !transaction.category || !transaction.category.id;
+        const amount = typeof transaction.amount === 'string' ? parseFloat(transaction.amount) : transaction.amount;
 
         return {
           id: transaction.id.toString(),
           title: transaction.description.charAt(0).toUpperCase() + transaction.description.slice(1).toLowerCase(),
           subtitle: `${transaction.bank} - ${transaction.account_number}`,
-          value: `${isIncome ? '+' : '-'}$${Math.round(transaction.amount).toLocaleString('es-CL')}`,
+          value: `${isIncome ? '+' : '-'}$${Math.round(amount).toLocaleString('es-CL')}`,
           icon: {
             backgroundColor: 'white',
             text: categoryEmoji,
@@ -246,29 +320,38 @@ export default function TransactionsList({
     );
   }
 
-  const categories = selectedTransaction
-    ? (selectedTransaction.transaction_type === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES)
-    : [];
-  const currentLang = t('common.language_code', 'es');
+  // Opciones de categorías del API
+  const categoryOptions = useMemo(() => {
+    if (apiCategories.length === 0) return [];
 
-  const categoryOptions = [
-    { label: t('budget.no_category', 'Sin categoría'), value: '' },
-    ...categories.map(cat => ({
-      label: `${cat.emoji} ${cat.name[currentLang as keyof typeof cat.name] || cat.name.es}`,
-      value: cat.id
-    }))
-  ];
-
-  const selectedCategoryData = categories.find(cat => cat.id === category);
-  const subcategoryOptions = selectedCategoryData?.subcategories
-    ? [
-        { label: t('budget.no_subcategory', 'Sin subcategoría'), value: '' },
-        ...selectedCategoryData.subcategories.map(subcat => ({
-          label: `${subcat.emoji} ${subcat.name[currentLang as keyof typeof subcat.name] || subcat.name.es}`,
-          value: subcat.id
+    return [
+      { label: t('budget.no_category', 'Sin categoría'), value: '' },
+      ...apiCategories
+        .filter(category => category && category.id !== undefined && category.id !== null)
+        .map(category => ({
+          label: category.translated_name || '',
+          value: category.id.toString()
         }))
-      ]
-    : [];
+    ];
+  }, [apiCategories, t]);
+
+  // Opciones de subcategorías basadas en la categoría seleccionada
+  const subcategoryOptions = useMemo(() => {
+    if (!selectedParentCategoryId || apiCategories.length === 0) return [];
+
+    const selectedCategory = apiCategories.find(cat => cat && cat.id && cat.id.toString() === selectedParentCategoryId);
+    if (!selectedCategory || !selectedCategory.children || selectedCategory.children.length === 0) return [];
+
+    return [
+      { label: t('budget.no_subcategory', 'Sin subcategoría'), value: '' },
+      ...selectedCategory.children
+        .filter(subcat => subcat && subcat.id !== undefined && subcat.id !== null)
+        .map(subcat => ({
+          label: subcat.translated_name || '',
+          value: subcat.id.toString()
+        }))
+    ];
+  }, [selectedParentCategoryId, apiCategories, t]);
 
   return (
     <>
@@ -324,22 +407,32 @@ export default function TransactionsList({
                 </Text>
               </View>
 
-              <Select
-                label={t('budget.category', 'Categoría')}
-                options={categoryOptions}
-                value={category}
-                onSelect={handleCategoryChange}
-                placeholder={t('budget.no_category', 'Sin categoría')}
-              />
+              {categoriesLoading ? (
+                <View style={{ padding: 20, alignItems: 'center' }}>
+                  <Text style={{ color: Colors.gray[500] }}>
+                    {t('common.loading', 'Cargando...')}
+                  </Text>
+                </View>
+              ) : (
+                <>
+                  <Select
+                    label={t('budget.category', 'Categoría')}
+                    options={categoryOptions}
+                    value={selectedParentCategoryId}
+                    onSelect={handleCategoryChange}
+                    placeholder={t('budget.no_category', 'Sin categoría')}
+                  />
 
-              {category && subcategoryOptions.length > 0 && (
-                <Select
-                  label={t('budget.subcategory', 'Subcategoría')}
-                  options={subcategoryOptions}
-                  value={subcategory}
-                  onSelect={setSubcategory}
-                  placeholder={t('budget.no_subcategory', 'Sin subcategoría')}
-                />
+                  {selectedParentCategoryId && subcategoryOptions.length > 0 && (
+                    <Select
+                      label={t('budget.subcategory', 'Subcategoría')}
+                      options={subcategoryOptions}
+                      value={selectedSubcategoryId}
+                      onSelect={handleSubcategoryChange}
+                      placeholder={t('budget.no_subcategory', 'Sin subcategoría')}
+                    />
+                  )}
+                </>
               )}
 
               <View style={{ flexDirection: 'row', gap: 12, marginTop: 8 }}>
@@ -349,15 +442,18 @@ export default function TransactionsList({
                     variant="outline"
                     fullWidth
                     onPress={() => setShowCategoryModal(false)}
+                    disabled={isSaving}
                   />
                 </View>
 
                 <View style={{ flex: 1 }}>
                   <Button
-                    title={t('common.save', 'Guardar')}
+                    title={isSaving ? t('common.saving', 'Guardando...') : t('common.save', 'Guardar')}
                     variant="primary"
                     fullWidth
                     onPress={handleSaveCategory}
+                    disabled={categoriesLoading || isSaving}
+                    loading={isSaving}
                   />
                 </View>
               </View>
