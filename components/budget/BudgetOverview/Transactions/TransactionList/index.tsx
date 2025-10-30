@@ -31,17 +31,14 @@ interface TransactionsListProps {
   onItemDelete?: (item: any) => void;
 }
 
-// Helper function to get category emoji
-const getCategoryEmoji = (
-  transaction: FloidTransaction
-) => {
-  // Si no tiene categoría, mostrar símbolo por defecto
+// Helper function to get category icon
+const getCategoryIcon = (transaction: FloidTransaction) => {
+  // Si no tiene categoría, mostrar + para indicar que se puede agregar
   if (!transaction.category || !transaction.category.id) {
     return '+';
   }
 
-  // Por ahora retornar un emoji genérico, las categorías del API tienen emojis
-  // pero necesitaríamos cargarlas para mostrarlas aquí
+  // Si tiene categoría, mostrar emoji
   return transaction.category.kind === 'income' ? '💰' : '💳';
 };
 
@@ -100,7 +97,6 @@ export default function TransactionsList({
   const handleIconPress = (transaction: FloidTransaction) => {
     setSelectedTransaction(transaction);
 
-    // Prellenar la categoría actual si existe
     if (transaction.category?.id) {
       setSelectedParentCategoryId(transaction.category.id.toString());
       setSelectedSubcategoryId('');
@@ -112,19 +108,16 @@ export default function TransactionsList({
     setShowCategoryModal(true);
   };
 
-  // Cuando se cargan las categorías, verificar si la categoría actual es una subcategoría
   useEffect(() => {
     if (!selectedTransaction?.category?.id || apiCategories.length === 0) return;
 
     const categoryId = selectedTransaction.category.id.toString();
 
-    // Verificar si es una categoría padre
     const parentCategory = apiCategories.find(cat => cat.id.toString() === categoryId);
     if (parentCategory) {
       setSelectedParentCategoryId(categoryId);
       setSelectedSubcategoryId('');
     } else {
-      // Buscar si es una subcategoría
       for (const cat of apiCategories) {
         const subcategory = cat.children.find(sub => sub.id.toString() === categoryId);
         if (subcategory) {
@@ -144,7 +137,6 @@ export default function TransactionsList({
 
       const transactionData: any = {};
 
-      // Enviar subcategoría si existe, sino enviar categoría padre, o null si no hay selección
       if (selectedSubcategoryId) {
         transactionData.transaction_category_id = parseInt(selectedSubcategoryId);
         transactionData.auto_category = false;
@@ -152,7 +144,6 @@ export default function TransactionsList({
         transactionData.transaction_category_id = parseInt(selectedParentCategoryId);
         transactionData.auto_category = false;
       } else {
-        // Si no hay categoría seleccionada, enviar null para descategorizar
         transactionData.transaction_category_id = null;
         transactionData.auto_category = false;
       }
@@ -163,9 +154,8 @@ export default function TransactionsList({
       }, accessToken);
 
       setShowCategoryModal(false);
-      // Refresh the transactions list after updating
       if (onCollapse) {
-        onCollapse(); // This triggers a refetch in the parent component
+        onCollapse();
       }
     } catch (error) {
       console.error('Error updating transaction category:', error);
@@ -176,7 +166,7 @@ export default function TransactionsList({
 
   const handleCategoryChange = (value: string) => {
     setSelectedParentCategoryId(value);
-    setSelectedSubcategoryId(''); // Reset subcategory when category changes
+    setSelectedSubcategoryId('');
   };
 
   const handleSubcategoryChange = (value: string) => {
@@ -199,9 +189,9 @@ export default function TransactionsList({
 
       return filteredBySearch.map(transaction => {
         const isIncome = transaction.transaction_type === 'income';
-        const categoryEmoji = getCategoryEmoji(transaction);
         const isUncategorized = !transaction.category || !transaction.category.id;
         const amount = typeof transaction.amount === 'string' ? parseFloat(transaction.amount) : transaction.amount;
+        const categoryIcon = getCategoryIcon(transaction);
 
         return {
           id: transaction.id.toString(),
@@ -210,7 +200,7 @@ export default function TransactionsList({
           value: `${isIncome ? '+' : '-'}$${Math.round(amount).toLocaleString('es-CL')}`,
           icon: {
             backgroundColor: 'white',
-            text: categoryEmoji,
+            text: categoryIcon,
             borderColor: Colors.gray[100],
             borderWidth: 1,
             color: isUncategorized ? Colors.gray[100] : undefined,
@@ -320,7 +310,6 @@ export default function TransactionsList({
     );
   }
 
-  // Opciones de categorías del API
   const categoryOptions = useMemo(() => {
     if (apiCategories.length === 0) return [];
 
@@ -335,7 +324,6 @@ export default function TransactionsList({
     ];
   }, [apiCategories, t]);
 
-  // Opciones de subcategorías basadas en la categoría seleccionada
   const subcategoryOptions = useMemo(() => {
     if (!selectedParentCategoryId || apiCategories.length === 0) return [];
 
