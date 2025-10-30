@@ -13,6 +13,7 @@ interface MoveTransactionsModalProps {
   selectedDestinationSubcategory: string | null;
   onCategoryChange: (categoryId: string) => void;
   onSubcategoryChange: (subcategoryId: string) => void;
+  loading?: boolean;
   t: (key: string, fallback: string) => string;
 }
 
@@ -27,6 +28,7 @@ export function MoveTransactionsModal({
   selectedDestinationSubcategory,
   onCategoryChange,
   onSubcategoryChange,
+  loading = false,
   t,
 }: MoveTransactionsModalProps) {
   return (
@@ -35,9 +37,9 @@ export function MoveTransactionsModal({
       title={`Mover ${selectedTransactionsCount} transacción${selectedTransactionsCount > 1 ? 'es' : ''}`}
       onConfirm={onConfirm}
       onClose={onClose}
-      confirmButtonText="Mover"
+      confirmButtonText={loading ? "Categorizando..." : "Mover"}
       cancelButtonText="Cancelar"
-      confirmDisabled={!selectedDestinationCategory}
+      confirmDisabled={!selectedDestinationCategory || loading}
     >
       <View style={{ marginTop: 8 }}>
         <Select

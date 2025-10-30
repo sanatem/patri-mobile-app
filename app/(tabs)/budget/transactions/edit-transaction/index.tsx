@@ -1,12 +1,15 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { View, Text, ScrollView, ActivityIndicator } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Container, Header, Input, Select, Button, KeyboardAwareContainer } from '@/components/ui';
 import CalendarSelect from '@/components/ui/CalendarSelect';
 import { patchFloidTransaction } from '@/services/budget/patch-floid-transaction';
+import { getFloidTransaction, type FloidTransaction } from '@/services/budget/get-floid-transactions';
 import { useAuth } from '@/providers/AuthProvider';
-import { INCOME_CATEGORIES, EXPENSE_CATEGORIES } from '@/constants/BudgetCategories';
+import { getExpenseCategories } from '@/services/budget/categories-manager/get-expense-categories';
+import { getIncomeCategories } from '@/services/budget/categories-manager/get-income-categories';
+import type { TransactionCategory } from '@/services/budget/categories-manager/get-expense-categories';
 import Colors from '@/constants/Colors';
 
 export default function EditTransactionScreen() {
@@ -16,73 +19,177 @@ export default function EditTransactionScreen() {
   const params = useLocalSearchParams();
 
   const transactionId = params.id as string;
-  const initialDescription = params.description as string;
-  const initialAmount = params.amount as string;
-  const initialDate = params.date as string;
-  const initialBank = params.bank as string;
-  const initialAccountNumber = params.accountNumber as string;
-  const transactionType = params.transactionType as 'income' | 'outcome';
 
-  const [description, setDescription] = useState(initialDescription || '');
-  const [category, setCategory] = useState('');
-  const [subcategory, setSubcategory] = useState('');
-  const [date, setDate] = useState(() => {
-    if (!initialDate) return '';
-    const dateStr = initialDate.split('T')[0];
-    const parts = dateStr.split('-');
-    return `${parts[2]}/${parts[1]}/${parts[0]}`;
-  });
+  // Estados para la transacción
+  const [transaction, setTransaction] = useState<FloidTransaction | null>(null);
+  const [transactionLoading, setTransactionLoading] = useState(true);
+
+  // Estados del formulario
+  const [description, setDescription] = useState('');
+  const [selectedParentCategoryId, setSelectedParentCategoryId] = useState<string>('');
+  const [selectedSubcategoryId, setSelectedSubcategoryId] = useState<string>('');
+  const [date, setDate] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const amount = useMemo(() => {
-    if (!initialAmount) return '';
-    const numAmount = parseFloat(initialAmount);
-    return Math.round(numAmount).toLocaleString('es-CL');
-  }, [initialAmount]);
+  // Estados para categorías del API
+  const [apiCategories, setApiCategories] = useState<TransactionCategory[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
 
+  // Cargar transacción desde la API
+  useEffect(() => {
+    const fetchTransaction = async () => {
+      console.log('[EditTransaction] useEffect triggered', { accessToken: !!accessToken, transactionId });
+
+      if (!accessToken || !transactionId) {
+        console.log('[EditTransaction] Missing accessToken or transactionId');
+        return;
+      }
+
+      try {
+        setTransactionLoading(true);
+        console.log('[EditTransaction] Fetching transaction with id:', transactionId);
+
+        const data = await getFloidTransaction(
+          { id: transactionId },
+          accessToken
+        );
+
+        console.log('[EditTransaction] Transaction data received:', data);
+
+        if (data) {
+          console.log('[EditTransaction] Setting transaction data:', {
+            description: data.description,
+            date: data.date,
+            amount: data.amount,
+            category: data.category
+          });
+
+          setTransaction(data);
+          setDescription(data.description || '');
+
+          // Formatear fecha
+          if (data.date) {
+            const dateStr = data.date.split('T')[0];
+            const parts = dateStr.split('-');
+            setDate(`${parts[2]}/${parts[1]}/${parts[0]}`);
+          }
+
+          console.log('[EditTransaction] State updated successfully');
+        } else {
+          console.log('[EditTransaction] No data received');
+        }
+      } catch (error) {
+        console.error('[EditTransaction] Error fetching transaction:', error);
+        setError('Error al cargar la transacción');
+      } finally {
+        setTransactionLoading(false);
+      }
+    };
+
+    fetchTransaction();
+  }, [accessToken, transactionId]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      if (!accessToken) return;
+
+      if (!transaction) return;
+
+      try {
+        setCategoriesLoading(true);
+
+        const response = transaction.transaction_type === 'income'
+          ? await getIncomeCategories({ per_page: 100 }, accessToken)
+          : await getExpenseCategories({ per_page: 100 }, accessToken);
+
+        if (response?.success && response.data) {
+          setApiCategories(response.data);
+
+          // Pre-seleccionar categoría y subcategoría si existe
+          if (transaction.category?.id) {
+            const categoryIdStr = transaction.category.id.toString();
+
+            // Buscar si es una categoría padre
+            const parentCategory = response.data.find(cat => cat.id.toString() === categoryIdStr);
+            if (parentCategory) {
+              setSelectedParentCategoryId(categoryIdStr);
+            } else {
+              // Buscar si es una subcategoría
+              for (const cat of response.data) {
+                const subcategory = cat.children.find(sub => sub.id.toString() === categoryIdStr);
+                if (subcategory) {
+                  setSelectedParentCategoryId(cat.id.toString());
+                  setSelectedSubcategoryId(categoryIdStr);
+                  break;
+                }
+              }
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      } finally {
+        setCategoriesLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, [accessToken, transaction]);
+
+  const amount = useMemo(() => {
+    if (!transaction || !transaction.amount) return '';
+    const numAmount = parseFloat(transaction.amount.toString());
+    return Math.round(numAmount).toLocaleString('es-CL');
+  }, [transaction]);
+
+  // Opciones de categorías padre
   const categoryOptions = useMemo(() => {
-    const categories = transactionType === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
-    const currentLang = t('common.language_code', 'es');
+    if (apiCategories.length === 0) return [];
 
     return [
       { label: t('budget.no_category', 'Sin categoría'), value: '' },
-      ...categories.map(cat => ({
-        label: `${cat.emoji} ${cat.name[currentLang as keyof typeof cat.name] || cat.name.es}`,
-        value: cat.id
-      }))
+      ...apiCategories
+        .filter(category => category && category.id !== undefined && category.id !== null)
+        .map(category => ({
+          label: category.translated_name || '',
+          value: category.id.toString()
+        }))
     ];
-  }, [t, transactionType]);
+  }, [apiCategories, t]);
 
+  // Opciones de subcategorías basadas en la categoría seleccionada
   const subcategoryOptions = useMemo(() => {
-    if (!category) return [];
+    if (!selectedParentCategoryId || apiCategories.length === 0) return [];
 
-    const categories = transactionType === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
-    const selectedCategory = categories.find(cat => cat.id === category);
-
-    if (!selectedCategory || !selectedCategory.subcategories) return [];
-
-    const currentLang = t('common.language_code', 'es');
+    const selectedCategory = apiCategories.find(cat => cat && cat.id && cat.id.toString() === selectedParentCategoryId);
+    if (!selectedCategory || !selectedCategory.children || selectedCategory.children.length === 0) return [];
 
     return [
       { label: t('budget.no_subcategory', 'Sin subcategoría'), value: '' },
-      ...selectedCategory.subcategories.map(subcat => ({
-        label: `${subcat.emoji} ${subcat.name[currentLang as keyof typeof subcat.name] || subcat.name.es}`,
-        value: subcat.id
-      }))
+      ...selectedCategory.children
+        .filter(subcat => subcat && subcat.id !== undefined && subcat.id !== null)
+        .map(subcat => ({
+          label: subcat.translated_name || '',
+          value: subcat.id.toString()
+        }))
     ];
-  }, [category, t, transactionType]);
+  }, [selectedParentCategoryId, apiCategories, t]);
 
   const handleCategoryChange = (value: string) => {
-    setCategory(value);
-    setSubcategory(''); // Resetear subcategoría al cambiar categoría
+    setSelectedParentCategoryId(value);
+    setSelectedSubcategoryId(''); // Resetear subcategoría al cambiar categoría
+  };
+
+  const handleSubcategoryChange = (value: string) => {
+    setSelectedSubcategoryId(value);
   };
 
   const handleSubmit = async () => {
     setError(null);
 
-    if (!description.trim()) {
+    if (!description || !description.trim()) {
       setError(t('budget.transaction_description') + ' es requerida');
       return;
     }
@@ -93,12 +200,19 @@ export default function EditTransactionScreen() {
       const dateParts = date.split('/');
       const formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
 
-      const transactionData = {
+      const transactionData: any = {
         description: description.trim(),
         date: formattedDate,
-        category: category || undefined,
-        subcategory: subcategory || undefined
       };
+
+      // Enviar subcategoría si existe, sino enviar categoría padre
+      if (selectedSubcategoryId) {
+        transactionData.transaction_category_id = parseInt(selectedSubcategoryId);
+        transactionData.auto_category = false; // Siempre manual cuando se edita
+      } else if (selectedParentCategoryId) {
+        transactionData.transaction_category_id = parseInt(selectedParentCategoryId);
+        transactionData.auto_category = false; // Siempre manual cuando se edita
+      }
 
       await patchFloidTransaction({
         transactionId,
@@ -123,13 +237,29 @@ export default function EditTransactionScreen() {
   };
 
   const isFormValid = () => {
-    return description.trim().length > 0;
+    return description && description.trim().length > 0;
   };
+
+  // Mostrar loading mientras carga la transacción
+  console.log('[EditTransaction] Render - transactionLoading:', transactionLoading, 'transaction:', !!transaction);
+
+  if (transactionLoading || !transaction) {
+    return (
+      <Container variant="secondaryPage">
+        <Header title={t('budget.transaction_edit', 'Editar transacción')} showBackButton />
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+          <ActivityIndicator size="large" color={Colors.primary[500]} />
+        </View>
+      </Container>
+    );
+  }
+
+  console.log('[EditTransaction] Rendering form with description:', description);
 
   return (
     <Container variant="secondaryPage">
       <Header
-        title={transactionType === 'income' ? t('budget.income_singular') : t('budget.expense_singular')}
+        title={transaction.transaction_type === 'income' ? t('budget.income_singular') : t('budget.expense_singular')}
         showBackButton
       />
       <KeyboardAwareContainer style={{ flex: 1 }}>
@@ -145,75 +275,80 @@ export default function EditTransactionScreen() {
                 <Text
                   className="text-4xl font-semibold"
                   style={{
-                    color: transactionType === 'income' ? Colors.success[500] : Colors.error[500]
+                    color: transaction.transaction_type === 'income' ? Colors.success[500] : Colors.error[500]
                   }}
                 >
-                  {transactionType === 'income' ? '+' : '-'}${amount}
+                  {transaction.transaction_type === 'income' ? '+' : '-'}${amount}
                 </Text>
               </View>
 
-              <View style={{ gap: 20 }}>
-                <Input
-                  label={t('budget.transaction_bank')}
-                  value={`${initialBank} - ${initialAccountNumber}`}
-                  onChangeText={() => {}}
-                  disabled={true}
-                />
-
-                <Input
-                  label={t('budget.transaction_description')}
-                  value={description}
-                  onChangeText={setDescription}
-                  placeholder={t('budget.transaction_name')}
-                />
-
-                <Select
-                  label={t('budget.category', 'Categoría')}
-                  options={categoryOptions}
-                  value={category}
-                  onSelect={handleCategoryChange}
-                  placeholder={t('budget.no_category', 'Sin categoría')}
-                />
-
-                {category && subcategoryOptions.length > 0 && (
-                  <Select
-                    label={t('budget.subcategory', 'Subcategoría')}
-                    options={subcategoryOptions}
-                    value={subcategory}
-                    onSelect={setSubcategory}
-                    placeholder={t('budget.no_subcategory', 'Sin subcategoría')}
+              {categoriesLoading ? (
+                <View style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: 40 }}>
+                  <ActivityIndicator size="large" color={Colors.primary[500]} />
+                </View>
+              ) : (
+                <View style={{ gap: 20 }}>
+                  <Input
+                    label={t('budget.transaction_bank')}
+                    value={`${transaction.bank} - ${transaction.account_number}`}
+                    onChangeText={() => {}}
+                    disabled={true}
                   />
-                )}
 
-                <CalendarSelect
-                  label={t('budget.transaction_date')}
-                  value={date}
-                  onSelect={setDate}
-                  placeholder="DD/MM/YYYY"
-                />
+                  <Input
+                    label={t('budget.transaction_description')}
+                    value={description}
+                    onChangeText={setDescription}
+                    placeholder={t('budget.transaction_name')}
+                  />
 
-                {error && (
-                  <View style={{
-                    backgroundColor: Colors.error[50],
-                    borderWidth: 1,
-                    borderColor: Colors.error[200],
-                    borderRadius: 8,
-                    padding: 12,
-                    marginTop: 8
-                  }}>
-                    <Text className="text-sm font-medium" style={{ color: Colors.error[700] }}>
-                      Error
-                    </Text>
-                    <Text className="text-sm font-regular" style={{ color: Colors.error[600], marginTop: 4 }}>
-                      {error}
-                    </Text>
-                  </View>
-                )}
-              </View>
+                  <Select
+                    label={t('budget.category', 'Categoría')}
+                    options={categoryOptions}
+                    value={selectedParentCategoryId}
+                    onSelect={handleCategoryChange}
+                    placeholder={t('budget.no_category', 'Sin categoría')}
+                  />
+
+                  {selectedParentCategoryId && subcategoryOptions.length > 0 && (
+                    <Select
+                      label={t('budget.subcategory', 'Subcategoría')}
+                      options={subcategoryOptions}
+                      value={selectedSubcategoryId}
+                      onSelect={handleSubcategoryChange}
+                      placeholder={t('budget.no_subcategory', 'Sin subcategoría')}
+                    />
+                  )}
+
+                  <CalendarSelect
+                    label={t('budget.transaction_date')}
+                    value={date}
+                    onSelect={setDate}
+                    placeholder="DD/MM/YYYY"
+                  />
+
+                  {error && (
+                    <View style={{
+                      backgroundColor: Colors.error[50],
+                      borderWidth: 1,
+                      borderColor: Colors.error[200],
+                      borderRadius: 8,
+                      padding: 12,
+                      marginTop: 8
+                    }}>
+                      <Text className="text-sm font-medium" style={{ color: Colors.error[700] }}>
+                        Error
+                      </Text>
+                      <Text className="text-sm font-regular" style={{ color: Colors.error[600], marginTop: 4 }}>
+                        {error}
+                      </Text>
+                    </View>
+                  )}
+                </View>
+              )}
             </View>
           </ScrollView>
 
-          {/* Footer con botones fijos */}
           <View style={{
             backgroundColor: '#fff',
             paddingHorizontal: 24,

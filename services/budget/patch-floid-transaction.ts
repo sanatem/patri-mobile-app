@@ -8,8 +8,8 @@ export interface PatchFloidTransactionData {
   amount_out?: number;
   balance?: number;
   date?: string;
-  category?: string;
-  subcategory?: string;
+  transaction_category_id?: number;
+  auto_category?: boolean;
 }
 
 export interface PatchFloidTransactionParams {

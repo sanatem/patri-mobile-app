@@ -8,6 +8,7 @@ import CalendarSelect from '@/components/ui/CalendarSelect';
 import { useFloidAccounts } from '@/hooks/budget/useFloidAccounts';
 import { createFloidTransaction } from '@/services/budget/create-floid-transaction';
 import { useAuth } from '@/providers/AuthProvider';
+import { INCOME_CATEGORIES, EXPENSE_CATEGORIES } from '@/constants/BudgetCategories';
 import Colors from '@/constants/Colors';
 
 export default function AddTransactionScreen() {
@@ -20,6 +21,8 @@ export default function AddTransactionScreen() {
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
   const [selectedAccountId, setSelectedAccountId] = useState<string>('');
+  const [category, setCategory] = useState('');
+  const [subcategory, setSubcategory] = useState('');
   const [date, setDate] = useState(() => {
     const today = new Date();
     const day = today.getDate().toString().padStart(2, '0');
@@ -44,6 +47,49 @@ export default function AddTransactionScreen() {
     { label: t('budget.income'), value: 'income' },
     { label: t('budget.expenses'), value: 'expense' }
   ];
+
+  const categoryOptions = useMemo(() => {
+    const categories = transactionType === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
+    const currentLang = t('common.language_code', 'es');
+
+    return [
+      { label: t('budget.no_category', 'Sin categoría'), value: '' },
+      ...categories.map(cat => ({
+        label: `${cat.emoji} ${cat.name[currentLang as keyof typeof cat.name] || cat.name.es}`,
+        value: cat.id
+      }))
+    ];
+  }, [t, transactionType]);
+
+  const subcategoryOptions = useMemo(() => {
+    if (!category) return [];
+
+    const categories = transactionType === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
+    const selectedCategory = categories.find(cat => cat.id === category);
+
+    if (!selectedCategory || !selectedCategory.subcategories) return [];
+
+    const currentLang = t('common.language_code', 'es');
+
+    return [
+      { label: t('budget.no_subcategory', 'Sin subcategoría'), value: '' },
+      ...selectedCategory.subcategories.map(subcat => ({
+        label: `${subcat.emoji} ${subcat.name[currentLang as keyof typeof subcat.name] || subcat.name.es}`,
+        value: subcat.id
+      }))
+    ];
+  }, [category, t, transactionType]);
+
+  const handleCategoryChange = (value: string) => {
+    setCategory(value);
+    setSubcategory(''); // Resetear subcategoría al cambiar categoría
+  };
+
+  const handleTransactionTypeChange = (value: string) => {
+    setTransactionType(value as 'income' | 'expense');
+    setCategory(''); // Resetear categoría al cambiar tipo de transacción
+    setSubcategory(''); // Resetear subcategoría al cambiar tipo de transacción
+  };
 
   const handleSubmit = async () => {
     setError(null);
@@ -74,7 +120,9 @@ export default function AddTransactionScreen() {
         amount_in: transactionType === 'income' ? parseFloat(amount.replace(/\./g, '').replace(',', '.')) : 0,
         amount_out: transactionType === 'expense' ? parseFloat(amount.replace(/\./g, '').replace(',', '.')) : 0,
         description: description.trim(),
-        date: formattedDate
+        date: formattedDate,
+        category: category || undefined,
+        subcategory: subcategory || undefined
       };
 
       await createFloidTransaction(transactionData, accessToken!);
@@ -130,7 +178,7 @@ export default function AddTransactionScreen() {
           label={t('budget.transaction_type')}
           options={transactionTypeOptions}
           selectedValue={transactionType}
-          onSelect={(value) => setTransactionType(value as 'income' | 'expense')}
+          onSelect={handleTransactionTypeChange}
         />
 
         <Select
@@ -164,6 +212,24 @@ export default function AddTransactionScreen() {
           placeholder="$0"
           keyboardType="numeric"
         />
+
+        <Select
+          label={t('budget.category', 'Categoría')}
+          options={categoryOptions}
+          value={category}
+          onSelect={handleCategoryChange}
+          placeholder={t('budget.no_category', 'Sin categoría')}
+        />
+
+        {category && subcategoryOptions.length > 0 && (
+          <Select
+            label={t('budget.subcategory', 'Subcategoría')}
+            options={subcategoryOptions}
+            value={subcategory}
+            onSelect={setSubcategory}
+            placeholder={t('budget.no_subcategory', 'Sin subcategoría')}
+          />
+        )}
 
         <CalendarSelect
           label={t('budget.transaction_date')}

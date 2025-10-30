@@ -224,24 +224,19 @@ export function useBudgetOverview() {
 
   const handleMonthSelect = (month: string) => setSelectedMonth(month);
 
-  const handleIntegrarDatos = () => router.push('/budget/floid-screen' as any);
+  const handleIntegrarDatos = () => router.push('/(tabs)/budget/floid-screen' as any);
 
-  const handleAddTransaction = () => router.push('/budget/add-transaction' as any);
+  const handleAddTransaction = () => router.push('/(tabs)/budget/transactions/add-transaction' as any);
 
   const handleCategoriesManager = () => router.push('/(tabs)/budget/categories-manager' as any);
 
   const handleTransactionPress = (item: any) => {
     const transaction = item.rawData;
+    console.log('[useBudgetOverview] Transaction pressed:', transaction.id);
     router.push({
-      pathname: '/budget/edit-transaction' as any,
+      pathname: '/(tabs)/budget/transactions/edit-transaction' as any,
       params: {
-        id: transaction.id,
-        description: transaction.description,
-        amount: transaction.amount,
-        date: transaction.date,
-        bank: transaction.bank,
-        accountNumber: transaction.account_number,
-        transactionType: transaction.transaction_type
+        id: transaction.id.toString()
       }
     });
   };

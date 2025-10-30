@@ -8,13 +8,19 @@ import { useAuth } from '@/providers/AuthProvider';
 import { getExpenseCategories } from '@/services/budget/categories-manager/get-expense-categories';
 import { getIncomeCategories } from '@/services/budget/categories-manager/get-income-categories';
 import type { TransactionCategory } from '@/services/budget/categories-manager/get-expense-categories';
+import { UserCategoriesState } from './useUserCategories';
+import { assignTransactionCategory } from '@/services/budget/categories-manager/assign-transaction-category';
 
 // Habilitar LayoutAnimation en Android
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
-export function useCategoriesManager() {
+interface UseCategoriesManagerProps {
+  userCategories: UserCategoriesState;
+}
+
+export function useCategoriesManager({ userCategories }: UseCategoriesManagerProps) {
   const { t } = useTranslation();
   const { accessToken } = useAuth();
   const [activeTab, setActiveTab] = useState<'income' | 'expenses'>('income');
@@ -43,6 +49,7 @@ export function useCategoriesManager() {
   const [selectedDestinationCategory, setSelectedDestinationCategory] = useState<string | null>(null);
   const [selectedDestinationSubcategory, setSelectedDestinationSubcategory] = useState<string | null>(null);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [assigningCategories, setAssigningCategories] = useState(false);
 
   // Animaciones para selección de categorías/subcategorías
   const selectionAnimations = useRef<Map<string, Animated.Value>>(new Map()).current;
@@ -59,6 +66,7 @@ export function useCategoriesManager() {
   const {
     transactions: incomeTransactionsData,
     loading: incomeLoading,
+    refetch: refetchIncomeTransactions,
   } = useFloidTransactions({
     floidIds: selectedAccountIds,
     per_page: 1000,
@@ -70,6 +78,7 @@ export function useCategoriesManager() {
   const {
     transactions: expenseTransactionsData,
     loading: expenseLoading,
+    refetch: refetchExpenseTransactions,
   } = useFloidTransactions({
     floidIds: selectedAccountIds,
     per_page: 1000,
@@ -164,12 +173,14 @@ export function useCategoriesManager() {
   const categories = useMemo(() => {
     const apiCategories = activeTab === 'income' ? apiIncomeCategories : apiExpenseCategories;
     const isIncome = activeTab === 'income';
+    const selectedCategoryIds = activeTab === 'income' ? userCategories.income : userCategories.expenses;
 
-    // Si hay categorías del API, transformarlas
+    // Obtener categorías base (del API o estáticas)
+    let baseCategories;
     if (apiCategories.length > 0) {
       // Las categorías padre son las que tienen parent_id === null
       // Sus subcategorías vienen en el campo "children"
-      return apiCategories.map(category => {
+      baseCategories = apiCategories.map(category => {
         return {
           id: category.id.toString(),
           name: {
@@ -189,11 +200,19 @@ export function useCategoriesManager() {
           }))
         };
       });
+    } else {
+      // Fallback a categorías estáticas si no hay datos del API
+      baseCategories = activeTab === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
     }
 
-    // Fallback a categorías estáticas si no hay datos del API
-    return activeTab === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
-  }, [activeTab, apiIncomeCategories, apiExpenseCategories]);
+    // Filtrar solo las categorías seleccionadas por el usuario
+    if (selectedCategoryIds.length > 0) {
+      return baseCategories.filter(cat => selectedCategoryIds.includes(cat.id));
+    }
+
+    // Si no hay selección, mostrar todas (fallback)
+    return baseCategories;
+  }, [activeTab, apiIncomeCategories, apiExpenseCategories, userCategories]);
 
   const currentLang = t('common.language_code', 'es');
 
@@ -652,34 +671,81 @@ export function useCategoriesManager() {
     setSelectedDestinationSubcategory(subcategoryId);
   };
 
-  const confirmMoveTransactions = () => {
-    // TODO: Implementar movimiento de transacciones a la categoría seleccionada
-    console.log('Moviendo transacciones:', Array.from(selectedTransactions));
-    console.log('A categoría:', selectedDestinationCategory);
-    console.log('A subcategoría:', selectedDestinationSubcategory);
+  const confirmMoveTransactions = async () => {
+    if (!accessToken) {
+      console.error('No access token available');
+      return;
+    }
 
-    // Desanimar todos los checkboxes
-    selectedTransactions.forEach(id => {
-      const animation = getTransactionAnimation(id);
-      Animated.spring(animation, {
-        toValue: 0,
-        useNativeDriver: false,
-        friction: 8,
-        tension: 40
-      }).start();
-    });
+    if (!selectedDestinationCategory) {
+      console.error('No destination category selected');
+      return;
+    }
 
-    // Mostrar mensaje de éxito
-    setShowMoveModal(false);
-    setShowSuccessMessage(true);
-    setTimeout(() => setShowSuccessMessage(false), 3000);
+    try {
+      setAssigningCategories(true);
 
-    // Reset
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setTransactionSelectionMode(false);
-    setSelectedTransactions(new Set());
-    setSelectedDestinationCategory(null);
-    setSelectedDestinationSubcategory(null);
+      // Determinar el category_id a usar (subcategoría si existe, sino categoría)
+      const categoryId = selectedDestinationSubcategory
+        ? parseInt(selectedDestinationSubcategory)
+        : parseInt(selectedDestinationCategory);
+
+      // Obtener los IDs de las transacciones seleccionadas
+      const transactionIds = Array.from(selectedTransactions);
+
+      console.log('Asignando categorías a transacciones:', {
+        count: transactionIds.length,
+        categoryId,
+        transactionIds
+      });
+
+      // Asignar categorías a todas las transacciones en una sola llamada
+      const response = await assignTransactionCategory(
+        {
+          transaction_ids: transactionIds,
+          transaction_category_id: categoryId,
+          auto_category: false // Siempre manual cuando se categoriza desde la UI
+        },
+        accessToken
+      );
+
+      console.log('Categorías asignadas exitosamente:', response);
+
+      // Refrescar transacciones después de la asignación
+      await Promise.all([
+        refetchIncomeTransactions(),
+        refetchExpenseTransactions()
+      ]);
+
+      // Desanimar todos los checkboxes
+      selectedTransactions.forEach(id => {
+        const animation = getTransactionAnimation(id);
+        Animated.spring(animation, {
+          toValue: 0,
+          useNativeDriver: false,
+          friction: 8,
+          tension: 40
+        }).start();
+      });
+
+      // Mostrar mensaje de éxito
+      setShowMoveModal(false);
+      setShowSuccessMessage(true);
+      setTimeout(() => setShowSuccessMessage(false), 3000);
+
+      // Reset
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+      setTransactionSelectionMode(false);
+      setSelectedTransactions(new Set());
+      setSelectedDestinationCategory(null);
+      setSelectedDestinationSubcategory(null);
+
+    } catch (error) {
+      console.error('Error assigning categories to transactions:', error);
+      // TODO: Mostrar mensaje de error al usuario
+    } finally {
+      setAssigningCategories(false);
+    }
   };
 
   const handleCloseMoveModal = () => {
@@ -714,6 +780,7 @@ export function useCategoriesManager() {
     transactionAnimations,
     loading,
     categoriesLoading,
+    assigningCategories,
 
     // API Data
     apiIncomeCategories,

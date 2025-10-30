@@ -122,7 +122,6 @@ export default function TransactionsList({
 
       return filteredBySearch.map(transaction => {
         const isIncome = transaction.transaction_type === 'income';
-        const categorizationStatus = transaction.categorization_status || 'uncategorized';
         const categoryEmoji = getCategoryEmoji(
           transaction.category,
           transaction.subcategory,
@@ -149,7 +148,8 @@ export default function TransactionsList({
           },
           additionalContent: (
             <CategorizationStatus
-              status={categorizationStatus}
+              categorized={transaction.categorized}
+              autoCategory={transaction.auto_category}
             />
           ),
           rawData: transaction

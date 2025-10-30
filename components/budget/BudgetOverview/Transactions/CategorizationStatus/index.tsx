@@ -2,52 +2,44 @@ import React from 'react';
 import { View, Text } from 'react-native';
 import { AlertTriangle, Bot, CheckCircle } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
-import { CategorizationStatus as StatusType } from '@/services/budget/get-floid-transactions';
 import { useTranslation } from 'react-i18next';
 
 interface CategorizationStatusProps {
-  status: StatusType;
+  categorized?: boolean;
+  autoCategory?: boolean;
 }
 
-export function CategorizationStatus({ status }: CategorizationStatusProps) {
+export function CategorizationStatus({ categorized = false, autoCategory = false }: CategorizationStatusProps) {
   const { t } = useTranslation();
 
   const getStatusConfig = () => {
-    switch (status) {
-      case 'uncategorized':
-        return {
-          IconComponent: AlertTriangle,
-          label: t('budget.categorization.uncategorized', 'Sin categorizar'),
-          color: Colors.warning[500],
-          backgroundColor: 'white',
-          borderColor: Colors.warning[500],
-        };
-      case 'automatic':
-        return {
-          IconComponent: Bot,
-          label: t('budget.categorization.automatic', 'Automática'),
-          color: Colors.navy[500],
-          backgroundColor: 'white',
-          borderColor: Colors.navy[500],
-        };
-
-      case 'manual':
-        return {
-          IconComponent: CheckCircle,
-          label: t('budget.categorization.manual', 'Manual'),
-          color: Colors.success[500],
-          backgroundColor: 'white',
-          borderColor: Colors.success[500],
-        };
-      default:
-        return {
-          IconComponent: AlertTriangle,
-          label: t('budget.categorization.uncategorized', 'Sin categorizar'),
-          color: Colors.warning[500],
-          backgroundColor: 'white',
-          borderColor: Colors.warning[500],
-        };
+    if (!categorized) {
+      return {
+        IconComponent: AlertTriangle,
+        label: t('budget.categorization.uncategorized', 'Sin categorizar'),
+        color: Colors.warning[500],
+        backgroundColor: 'white',
+        borderColor: Colors.warning[500],
+      };
     }
+
+    if (autoCategory) {
+      return {
+        IconComponent: Bot,
+        label: t('budget.categorization.automatic', 'Automática'),
+        color: Colors.navy[500],
+        backgroundColor: 'white',
+        borderColor: Colors.navy[500],
+      };
+    }
+
+    return {
+      IconComponent: CheckCircle,
+      label: t('budget.categorization.manual', 'Manual'),
+      color: Colors.success[500],
+      backgroundColor: 'white',
+      borderColor: Colors.success[500],
+    };
   };
 
   const config = getStatusConfig();

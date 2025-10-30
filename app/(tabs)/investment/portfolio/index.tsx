@@ -29,7 +29,7 @@ import { useFormatValue } from '@/hooks/common/useFormatValue';
 import { useTotalWalletValue } from '@/hooks/investment/useTotalWalletValue';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/providers/AuthProvider';
-import { getCash } from '@/services/cash/get-cash';
+import { getCash } from '@/services/investment/cash/get-cash';
 import type { Goal } from '@/types/api';
 
 export default function InvestmentPortfolioScreen() {

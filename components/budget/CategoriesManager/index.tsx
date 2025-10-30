@@ -8,8 +8,13 @@ import { MoveTransactionsModal } from './Modals/MoveTransactionsModal';
 import { SuccessMessage } from './SuccessMessage';
 import { FloatingActionButton } from './FloatingActionButton';
 import { useCategoriesManager } from '../../../hooks/budget/useCategoriesManager';
+import { UserCategoriesState } from '@/hooks/budget/useUserCategories';
 
-export function CategoriesManager() {
+interface CategoriesManagerProps {
+  userCategories: UserCategoriesState;
+}
+
+export function CategoriesManager({ userCategories }: CategoriesManagerProps) {
   const {
     // State
     activeTab,
@@ -29,6 +34,7 @@ export function CategoriesManager() {
     showSuccessMessage,
     selectionAnimations,
     transactionAnimations,
+    assigningCategories,
 
     // Computed values
     groupedData,
@@ -62,7 +68,7 @@ export function CategoriesManager() {
 
     // Translation
     t,
-  } = useCategoriesManager();
+  } = useCategoriesManager({ userCategories });
 
   const tabs = [
     { key: 'income', label: t('budget.income', 'Ingresos') },
@@ -151,6 +157,7 @@ export function CategoriesManager() {
         selectedDestinationSubcategory={selectedDestinationSubcategory}
         onCategoryChange={handleCategoryChange}
         onSubcategoryChange={handleSubcategoryChange}
+        loading={assigningCategories}
         t={t}
       />
 
