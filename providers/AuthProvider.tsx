@@ -10,6 +10,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Purchases from 'react-native-purchases';
 import { SecureStorageService } from '@/services/auth/secure-storage.service';
 import { BiometricAuthService } from '@/services/auth/biometric-auth.service';
+import { getDeviceInfo, requestPushPermissions, setOneSignalExternalUserId } from '@/utils/device-info';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -29,8 +30,8 @@ const initializeRevenueCat = async (backendUserId: number, email?: string) => {
     const apiKey = Platform.OS === 'android'
       ? process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_KEY
       : Platform.OS === 'ios'
-      ? process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY
-      : null;
+        ? process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY
+        : null;
 
     if (!apiKey) {
       console.warn(`RevenueCat API key not found for platform: ${Platform.OS}`);
@@ -118,13 +119,39 @@ const discovery = {
 const validateWithBackend = async (token: string): Promise<BackendUserResponse> => {
   try {
     const baseUrl = config.apiBaseUrl;
-    const response = await fetch(`${baseUrl}/api/v2/auth/validate`, {
+
+    // Try to get device info but don't let it break auth
+    let deviceInfo: Awaited<ReturnType<typeof getDeviceInfo>> | null = null;
+    try {
+      await requestPushPermissions();
+      deviceInfo = await getDeviceInfo();
+    } catch (error) {
+      console.warn('Failed to get device info:', error);
+    }
+
+    // Build request options
+    const requestOptions: RequestInit = {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
       }
-    });
+    };
+
+    // Only add body if we have device info
+    if (deviceInfo) {
+      requestOptions.body = JSON.stringify({
+        device: {
+          platform: deviceInfo.platform,
+          device_model: deviceInfo.device_model,
+          os_version: deviceInfo.os_version,
+          app_version: deviceInfo.app_version,
+          ...(deviceInfo.push_token && { push_token: deviceInfo.push_token })
+        }
+      });
+    }
+
+    const response = await fetch(`${baseUrl}/api/v2/auth/validate`, requestOptions);
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -265,11 +292,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(completeUser);
         await AsyncStorage.setItem('backend_user_data', JSON.stringify(backendUser));
 
+        // Set OneSignal external user ID
+        if (backendUser.user_id) {
+          await setOneSignalExternalUserId(backendUser.user_id.toString());
+        }
+
         await initializeRevenueCat(backendUser.user_id, userInfo.email);
 
         try {
           await AsyncStorage.setItem('splash_seen', 'true');
-        } catch {}
+        } catch { }
         return true;
       } catch (error) {
         await AsyncStorage.removeItem('auth_token');
