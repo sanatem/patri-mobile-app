@@ -30,6 +30,7 @@ import { useAuth } from '@/providers/AuthProvider';
 import { deleteUserAccount } from '@/services/user/delete-user';
 import Constants from 'expo-constants';
 import { useTranslation } from 'react-i18next';
+import { BiometricSetup } from '@/components/auth/BiometricSetup';
 
 export default function MoreScreen() {
   const router = useRouter();
@@ -133,6 +134,12 @@ export default function MoreScreen() {
       onPress: () => router.push('/settings/preferences'),
     },
     {
+      id: '0.5',
+      title: 'Autenticación biométrica',
+      subtitle: 'Acceso rápido con Face ID o huella digital',
+      customRender: () => <BiometricSetup />,
+    },
+    {
       id: '1',
       title: t('settings.menu.bankAccounts'),
       subtitle: t('settings.menu.bankAccountsSubtitle'),
@@ -170,28 +177,34 @@ export default function MoreScreen() {
     },
   ];
 
-  const renderMenuItem = (item: any) => (
-    <TouchableOpacity key={item.id} style={styles.menuItem} onPress={item.onPress}>
-      <View style={styles.menuItemLeft}>
-        <View style={[
-          styles.iconContainer,
-          item.isDestructive && styles.destructiveIconContainer
-        ]}>
-          <item.icon size={22} color={item.isDestructive ? Colors.secondary[500] : Colors.primary[500]} />
-        </View>
-        <View style={styles.textContainer}>
-          <Text style={[
-            styles.menuTitle,
-            item.isDestructive && styles.destructiveTitle
+  const renderMenuItem = (item: any) => {
+    if (item.customRender) {
+      return <View key={item.id}>{item.customRender()}</View>;
+    }
+
+    return (
+      <TouchableOpacity key={item.id} style={styles.menuItem} onPress={item.onPress}>
+        <View style={styles.menuItemLeft}>
+          <View style={[
+            styles.iconContainer,
+            item.isDestructive && styles.destructiveIconContainer
           ]}>
-            {item.title}
-          </Text>
-          <Text style={styles.menuSubtitle}>{item.subtitle}</Text>
+            <item.icon size={22} color={item.isDestructive ? Colors.secondary[500] : Colors.primary[500]} />
+          </View>
+          <View style={styles.textContainer}>
+            <Text style={[
+              styles.menuTitle,
+              item.isDestructive && styles.destructiveTitle
+            ]}>
+              {item.title}
+            </Text>
+            <Text style={styles.menuSubtitle}>{item.subtitle}</Text>
+          </View>
         </View>
-      </View>
-      <ChevronRight size={20} color={Colors.gray[400]} />
-    </TouchableOpacity>
-  );
+        <ChevronRight size={20} color={Colors.gray[400]} />
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <ScrollView style={styles.container}>
@@ -245,15 +258,15 @@ export default function MoreScreen() {
       <Modal visible={showConfirmationModal} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.confirmationModalContainer}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.closeButton}
               onPress={handleCloseConfirmationModal}
             >
               <X size={24} color={Colors.gray[500]} />
             </TouchableOpacity>
-            
+
             <View style={styles.confirmationContent}>
-              <View style={[styles.modalIconContainer, { backgroundColor: Colors.success[100] }]}> 
+              <View style={[styles.modalIconContainer, { backgroundColor: Colors.success[100] }]}>
                 <Text style={[styles.checkmarkIcon, { color: Colors.success[500] }]}>✓</Text>
               </View>
               <Text style={styles.confirmationTitle}>{t('settings.confirmation.title')}</Text>

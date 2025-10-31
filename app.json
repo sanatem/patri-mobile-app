@@ -17,7 +17,9 @@
         ],
         "ITSAppUsesNonExemptEncryption": false,
         "NSCameraUsageDescription": "Esta app necesita acceso a la cámara para que los usuarios puedan escanear documentos o tomar fotografías.",
-        "NSUserTrackingUsageDescription": "Usamos esta información para ofrecerte anuncios personalizados y mejorar tu experiencia en la app."
+        "NSUserTrackingUsageDescription": "Usamos esta información para ofrecerte anuncios personalizados y mejorar tu experiencia en la app.",
+        "NSLocationWhenInUseUsageDescription": "Esta app necesita acceso a tu ubicación para mostrarte información financiera relevante a tu zona y mejorar tu experiencia.",
+        "NSFaceIDUsageDescription": "Patrimore utiliza Face ID para permitirte acceder de forma rápida y segura a tu información financiera."
       },
       "entitlements": {
         "aps-environment": "production",
@@ -32,7 +34,11 @@
         "backgroundColor": "#ff6501"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.patrimore.patrimore"
+      "package": "com.patrimore.patrimore",
+      "permissions": [
+        "USE_BIOMETRIC",
+        "USE_FINGERPRINT"
+      ]
     },
     "assetBundlePatterns": [
       "**/*"
@@ -43,6 +49,21 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
+      [
+        "onesignal-expo-plugin",
+        {
+          "mode": "production",
+          "devTeam": "JJ55Y59DRG",
+          "iPhoneDeploymentTarget": "12.0"
+        }
+      ],
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Patrimore utiliza Face ID para permitirte acceder de forma rápida y segura a tu información financiera."
+        }
+      ],
+      "expo-secure-store",
       "expo-router",
       [
         "expo-splash-screen",
@@ -67,7 +88,8 @@
         {
           "domain": "auth.patrimore.com"
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true

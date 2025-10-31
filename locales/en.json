@@ -58,6 +58,34 @@
       }
     }
   },
+  "biometric": {
+    "title": "Biometric Authentication",
+    "subtitle": "Quick and secure access",
+    "enable": "Enable {{type}}",
+    "disable": "Disable {{type}}",
+    "faceId": "Face ID",
+    "touchId": "Touch ID",
+    "fingerprint": "Fingerprint",
+    "prompt": {
+      "title": "Welcome back",
+      "subtitle": "Use {{type}} to access quickly",
+      "authenticate": "Authenticate to continue",
+      "enable": "Confirm your identity to enable biometric access"
+    },
+    "errors": {
+      "notSupported": "Your device doesn't support biometric authentication",
+      "notEnrolled": "You don't have biometrics configured on your device",
+      "failed": "Authentication failed. Please try again.",
+      "canceled": "Authentication canceled",
+      "lockout": "Too many failed attempts. Try again in {{seconds}} seconds.",
+      "sessionExpired": "Session expired. Please log in again."
+    },
+    "setup": {
+      "title": "Quick access with {{type}}",
+      "description": "Log in quickly using your {{type}} instead of your password",
+      "confirm": "Are you sure you want to disable {{type}}?"
+    }
+  },
   "common": {
     "cancel": "Cancel",
     "error": "Error",
