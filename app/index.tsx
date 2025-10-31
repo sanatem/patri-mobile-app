@@ -11,8 +11,8 @@ import { SecureStorageService } from '@/services/auth/secure-storage.service';
 import { BiometricPrompt } from '@/components/auth/BiometricPrompt';
 
 export default function Index() {
-  const { user, loading, isAuthenticated, accessToken } = useAuth();
-  const { biometricState, authenticateWithBiometric } = useBiometricAuth();
+  const { user, loading, isAuthenticated, accessToken, loginWithBiometric } = useAuth();
+  const { biometricState } = useBiometricAuth();
   const { hasSeenOnboarding, isLoading: onboardingLoading } = useOnboarding();
   const { shouldShowOnboarding, userDataLoading, userData } = useOnboardingValidation();
   const [isReady, setIsReady] = useState(false);
@@ -53,9 +53,9 @@ export default function Index() {
   const handleBiometricLogin = async () => {
     setBiometricLoading(true);
     try {
-      const success = await authenticateWithBiometric();
+      const success = await loginWithBiometric();
       if (success) {
-        setShowBiometricPrompt(false);
+        router.replace('/(tabs)/patrimony');
       } else {
         setShowBiometricPrompt(false);
       }

@@ -8,6 +8,8 @@ import { auth0Config } from '@/config/auth0.config';
 import config from '@/config/constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Purchases from 'react-native-purchases';
+import { SecureStorageService } from '@/services/auth/secure-storage.service';
+import { BiometricAuthService } from '@/services/auth/biometric-auth.service';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -73,6 +75,7 @@ interface AuthContextType {
   forceLogout: () => Promise<void>;
   loginWithGoogle: () => Promise<boolean>;
   loginWithApple: () => Promise<boolean>;
+  loginWithBiometric: () => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -172,12 +175,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const checkSession = async () => {
       try {
         const token = await AsyncStorage.getItem('auth_token');
-        
+
         if (token) {
           setAccessToken(token);
-          
+
           const userInfo = await fetchUserInfo(token);
-          
+
           try {
             const backendUser = await validateWithBackend(token);
 
@@ -227,9 +230,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const handleAuthResponse = async (access_token: string): Promise<boolean> => {
     setError(null);
     try {
-      
+
       const jwtParts = access_token.split('.');
-      
+
       if (jwtParts.length === 3) {
         try {
           const header = JSON.parse(atob(jwtParts[0]));
@@ -238,10 +241,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       } else {
       }
-      
+
       await AsyncStorage.setItem('auth_token', access_token);
+
+      // Also save to SecureStore if biometric is enabled
+      const isBiometricEnabled = await SecureStorageService.isBiometricEnabled();
+      if (isBiometricEnabled) {
+        await SecureStorageService.setAuthToken(access_token);
+      }
+
       setAccessToken(access_token);
-      
+
       const userInfo = await fetchUserInfo(access_token);
 
       try {
@@ -312,14 +322,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsAuthenticating(true);
     setLoading(true);
     setError(null);
-    
+
     try {
       const authPromise = new Promise<boolean>((resolve) => {
         setAuthPromiseResolve(() => resolve);
       });
-      
+
       const result = await promptAsync();
-      
+
       if (result.type === 'success') {
         return await authPromise;
       } else if (result.type === 'cancel') {
@@ -346,7 +356,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await AsyncStorage.removeItem('auth_token');
       await AsyncStorage.removeItem('backend_user_data');
-      
+      await SecureStorageService.clearAll(); // Clear biometric tokens
+
       setUser(null);
       setAccessToken(null);
       setError(null);
@@ -375,12 +386,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const loginWithGoogle = async (): Promise<boolean> => {
     setLoading(true);
     setError(null);
-    
+
     const authTimeout = setTimeout(() => {
       setLoading(false);
       setError('Timeout: La autenticación tardó demasiado. Por favor, intenta de nuevo.');
     }, 120000);
-    
+
     try {
       const authUrl = new URL(`${auth0Domain}/authorize`);
       const params: Record<string, string | undefined> = {
@@ -427,14 +438,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           if (!url.hash || url.hash.length < 2) {
             throw new Error('URL de respuesta inválida');
           }
-          
+
           const params = new URLSearchParams(url.hash.substring(1));
           const access_token = params.get('access_token');
-          
+
           if (!access_token || access_token.trim() === '') {
             throw new Error('Token de acceso no encontrado en la respuesta');
           }
-          
+
           clearTimeout(authTimeout);
           return await handleAuthResponse(access_token);
         } catch (error) {
@@ -465,12 +476,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const loginWithApple = async (): Promise<boolean> => {
     setLoading(true);
     setError(null);
-    
+
     const authTimeout = setTimeout(() => {
       setLoading(false);
       setError('Timeout: La autenticación tardó demasiado. Por favor, intenta de nuevo.');
     }, 120000);
-    
+
     try {
       const authUrl = new URL(`${auth0Domain}/authorize`);
       const params: Record<string, string | undefined> = {
@@ -519,14 +530,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           if (!url.hash || url.hash.length < 2) {
             throw new Error('URL de respuesta inválida');
           }
-          
+
           const params = new URLSearchParams(url.hash.substring(1));
           const access_token = params.get('access_token');
-          
+
           if (!access_token || access_token.trim() === '') {
             throw new Error('Token de acceso no encontrado en la respuesta');
           }
-          
+
           clearTimeout(authTimeout);
           return await handleAuthResponse(access_token);
         } catch (error) {
@@ -554,32 +565,89 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const loginWithBiometric = async (): Promise<boolean> => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      // 1. Verificar que biometría esté habilitada
+      const isBiometricEnabled = await SecureStorageService.isBiometricEnabled();
+      if (!isBiometricEnabled) {
+        throw new Error('Biometría no habilitada');
+      }
+
+      // 2. Autenticar con biometría
+      const authResult = await BiometricAuthService.authenticate(
+        'Autentícate para acceder a Patrimore'
+      );
+
+      if (!authResult.success) {
+        throw new Error(authResult.error || 'Autenticación biométrica fallida');
+      }
+
+      // 3. Recuperar token seguro
+      const token = await SecureStorageService.getAuthToken();
+      if (!token) {
+        throw new Error('No se encontró token almacenado');
+      }
+
+      // 4. Validar token con backend
+      setAccessToken(token);
+      const userInfo = await fetchUserInfo(token);
+
+      try {
+        const backendUser = await validateWithBackend(token);
+        const completeUser: User = {
+          ...userInfo,
+          backendUserId: backendUser.user_id,
+        };
+        setUser(completeUser);
+
+        // Initialize RevenueCat with user data
+        await initializeRevenueCat(backendUser.user_id, userInfo.email);
+
+        return true;
+      } catch (error) {
+        // Token expirado o inválido
+        await SecureStorageService.clearAll();
+        throw new Error('Sesión expirada. Por favor, inicia sesión nuevamente.');
+      }
+    } catch (error) {
+      console.error('Biometric login error:', error);
+      setError(error instanceof Error ? error.message : 'Error de autenticación biométrica');
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const forceLogout = async () => {
     setLoading(true);
-    
+
     try {
       setUser(null);
       setAccessToken(null);
       setError(null);
       setAuthPromiseResolve(null);
-      
+
       await AsyncStorage.removeItem('auth_token');
       await AsyncStorage.removeItem('backend_user_data');
-      
+      await SecureStorageService.clearAll(); // Clear biometric tokens
+
       const tokenCheck = await AsyncStorage.getItem('auth_token');
       const userDataCheck = await AsyncStorage.getItem('backend_user_data');
-      
+
       if (tokenCheck || userDataCheck) {
         const allKeys = await AsyncStorage.getAllKeys();
-        const authKeys = allKeys.filter(key => 
-          key.includes('auth') || 
-          key.includes('token') || 
+        const authKeys = allKeys.filter(key =>
+          key.includes('auth') ||
+          key.includes('token') ||
           key.includes('user') ||
           key.includes('backend')
         );
         await AsyncStorage.multiRemove(authKeys);
       }
-      
+
       try {
         await Purchases.logOut();
       } catch (error) {
@@ -613,6 +681,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         forceLogout,
         loginWithGoogle,
         loginWithApple,
+        loginWithBiometric,
       }}
     >
       {children}
