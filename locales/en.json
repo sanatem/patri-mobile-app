@@ -73,8 +73,10 @@
     "saving": "Saving...",
     "loading": "Loading...",
     "per_month": "/month",
+    "per_year": "/year",
     "already_subscribed": "Already subscribed",
     "active": "Active",
+    "purchased": "Purchased",
     "from": "From",
     "select": "Select...",
     "search_placeholder": "Search...",
@@ -87,13 +89,43 @@
     "income": "Incomes",
     "expenses": "Expenses",
     "all_categories": "All categories",
+    "all_accounts": "All accounts",
+    "select_account": "Select account",
+    "no_accounts": "No synced accounts",
     "integrate_data": "Sync bank data",
     "tab_name": "Budget",
     "title": "Budget",
     "search_income_placeholder": "Search incomes...",
     "search_expenses_placeholder": "Search expenses...",
     "total_income": "Total incomes",
-    "total_expenses": "Total expenses"
+    "total_expenses": "Total expenses",
+    "add_transaction": "Add income/expense",
+    "add_transaction_income": "Add new transaction 💰",
+    "add_transaction_expense": "Add new transaction 💸",
+    "edit_transaction_income": "Edit income 💰",
+    "edit_transaction_expense": "Edit expense 💸",
+    "transaction_type": "Transaction type",
+    "transaction_name": "Transaction name",
+    "transaction_amount": "Amount",
+    "transaction_date": "Transaction date",
+    "transaction_bank": "Bank",
+    "transaction_description": "Description",
+    "select_bank_account": "Select a bank account",
+    "create_transaction": "Create transaction",
+    "update_transaction": "Edit transaction",
+    "save_transaction": "Save transaction",
+    "cancel": "Cancel",
+    "creating_transaction": "Creating transaction...",
+    "transaction_created": "Transaction created",
+    "updating_transaction": "Updating transaction...",
+    "transaction_updated": "Transaction updated",
+    "transaction_saved": "Transaction saved successfully",
+    "error_saving_transaction": "Error saving transaction",
+    "edit_transaction": "Edit transaction",
+    "delete_transaction": "Delete transaction?",
+    "delete_transaction_message": "This action cannot be undone",
+    "transaction_deleted": "Transaction deleted successfully",
+    "error_deleting_transaction": "Error deleting transaction"
   },
   "identityConfirm": {
     "title": "Confirm your information",
@@ -613,12 +645,57 @@
       "subscription": "There was an issue with the subscription. Please try again.",
       "unexpected": "An unexpected error occurred. Please try again."
     },
+    "consulting": {
+      "success": {
+        "title": "Purchase successful!",
+        "message": "Your consulting session has been confirmed. We will contact you shortly to schedule.",
+        "scheduleNow": "Your purchase was successful. You can now schedule your 45-minute meeting."
+      },
+      "error": {
+        "purchase": "Not available",
+        "unexpected": "An unexpected error occurred. Please try again."
+      },
+      "schedule": {
+        "title": "Schedule meeting",
+        "subtitle": "Select date and time for your consultation",
+        "success": {
+          "title": "Meeting scheduled!",
+          "message": "Your consulting session has been confirmed successfully"
+        },
+        "error": {
+          "title": "Not available",
+          "unknown": "Could not verify your availability",
+          "validation": "An error occurred while validating your purchase",
+          "widget": "Could not load the scheduling system"
+        }
+      }
+    },
     "cardTitles": {
       "premiumMobile": "Premium Subscription",
       "plans": "Plans"
     },
     "top_title": "Start your financial planning",
-    "top_subtitle": "Access expert tools and advice to reach your financial goals"
+    "top_subtitle": "Access expert tools and advice to reach your financial goals",
+    "subscription": {
+      "currentPlan": "Current plan",
+      "nextPayment": "Next payment:",
+      "noNextPayment": "No upcoming payment scheduled",
+      "unlimited": "Unlimited",
+      "unlimitedBenefits": "You will have the benefits of this plan indefinitely",
+      "totalAmount": "Total amount",
+      "paymentsTitle": "Payments 💵",
+      "noPayments": "No payments registered",
+      "of": "of",
+      "payments": "payments",
+      "paymentStates": {
+        "approved": "Approved",
+        "pending": "Pending",
+        "rejected": "Rejected",
+        "authorized": "Authorized",
+        "cancelled": "Cancelled",
+        "refunded": "Refunded"
+      }
+    }
   },
   "onboarding": {
     "title": "Personal Information",
@@ -761,6 +838,18 @@
       "duration": "/month",
       "description": "Access all premium features and advanced financial planning tools.",
       "button": "Subscribe"
+    },
+    "consulting": {
+      "title": "Personalized Consulting",
+      "price": "$120.000",
+      "description": "Schedule a 1-hour session with a certified financial advisor to solve your doubts and create your personalized plan.",
+      "button": "Schedule session",
+      "payButton": "Pay for Meeting",
+      "scheduleButton": "Schedule Meeting",
+      "alreadyScheduled": "Already scheduled",
+      "scheduledThisYear": "Meeting scheduled this year",
+      "oneHourAvailable": "1 meeting available",
+      "hoursAvailable": "{{count}} meetings available"
     },
     "general": {
       "title": "Plans",

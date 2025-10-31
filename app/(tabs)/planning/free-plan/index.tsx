@@ -1,10 +1,12 @@
 import React from 'react';
 import { View, ScrollView, Linking, Alert } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { Header, Container } from '@/components/ui';
 import { SectionPlan, TopTitle } from '@/components/planning/free-plan';
 import { usePaywall } from '@/hooks/common/usePaywall';
 import { useSubscriptionStatus } from '@/hooks/common/useSubscriptionStatus';
+import { useConsultingHours } from '@/hooks/consulting/useConsultingHours';
+import { canScheduleSession, canPurchaseConsultingHour } from '@/services/consulting/validate-purchase';
 import { useTranslation } from 'react-i18next';
 
 interface FreePlanProps {
@@ -14,13 +16,27 @@ interface FreePlanProps {
 
 export default function FreePlan({ onPurchase, isSubscribed = false }: FreePlanProps) {
   const router = useRouter();
-  const { presentPaywall } = usePaywall();
+  const { presentPaywall, presentPaywallForOffering } = usePaywall();
   const { forceRefresh } = useSubscriptionStatus();
+  const {
+    availableHours,
+    addPurchase,
+    lastScheduledDate,
+    canScheduleThisYear,
+    hasActivePurchase,
+    refresh
+  } = useConsultingHours();
   const { t } = useTranslation();
+
+  useFocusEffect(
+    React.useCallback(() => {
+      refresh();
+    }, [refresh])
+  );
+
 
   const handlePurchase = async () => {
     try {
-      console.log('Presenting paywall...');
       const result = await presentPaywall();
 
       if (result.success) {
@@ -31,9 +47,7 @@ export default function FreePlan({ onPurchase, isSubscribed = false }: FreePlanP
           [{ text: 'OK' }]
         );
         onPurchase?.();
-      } else if (result.cancelled) {
-        console.log('Purchase cancelled by user');
-      } else {
+      } else if (!result.cancelled) {
         Alert.alert(
           t('planning.error.title'),
           result.error || t('planning.error.subscription'),
@@ -41,7 +55,6 @@ export default function FreePlan({ onPurchase, isSubscribed = false }: FreePlanP
         );
       }
     } catch (error) {
-      console.error('Error in handlePurchase:', error);
       Alert.alert(
         t('planning.error.title'),
         t('planning.error.unexpected'),
@@ -50,15 +63,75 @@ export default function FreePlan({ onPurchase, isSubscribed = false }: FreePlanP
     }
   };
 
+  const handleConsultingPurchase = async () => {
+    try {
+
+      const purchaseCheck = await canPurchaseConsultingHour();
+
+      if (!purchaseCheck.canPurchase) {
+        Alert.alert(
+          t('planning.consulting.error.purchase'),
+          purchaseCheck.reason || t('planning.consulting.error.unexpected')
+        );
+        return;
+      }
+
+      const result = await presentPaywallForOffering('consulting_offering');
+
+      if (result.success) {
+        // Refrescar datos después de la compra
+        await refresh();
+
+        // Abrir directamente el widget de agendar
+        // El consumo se hará DESPUÉS de que el usuario agende
+        router.push('/planning/schedule-meeting');
+      } else if (!result.cancelled) {
+        Alert.alert(
+          t('planning.error.title'),
+          result.error || t('planning.consulting.error.purchase'),
+          [{ text: 'OK' }]
+        );
+      }
+    } catch (error) {
+      Alert.alert(
+        t('planning.error.title'),
+        t('planning.consulting.error.unexpected'),
+        [{ text: 'OK' }]
+      );
+    }
+  };
+
+  const handleSchedulePress = async () => {
+    try {
+      const validation = await canScheduleSession(lastScheduledDate);
+
+      if (!validation.canSchedule) {
+        Alert.alert(
+          t('planning.consulting.schedule.error.title'),
+          validation.reason || t('planning.consulting.schedule.error.unknown')
+        );
+        return;
+      }
+
+      router.push('/planning/schedule-meeting');
+    } catch (error) {
+      Alert.alert(
+        t('common.error'),
+        t('planning.consulting.schedule.error.validation')
+      );
+    }
+  };
+
+
   const handleCardPress = async (card: any) => {
-    console.log('Card pressed:', card.title);
-    
     if (card.title === t('planning.cardTitles.premiumMobile')) {
       await handlePurchase();
+    } else if (card.id === 'consulting') {
+      await handleConsultingPurchase();
+    } else if (card.id === 'schedule_consulting') {
+      await handleSchedulePress();
     } else if (card.title === t('planning.cardTitles.plans')) {
-      Linking.openURL('https://patrimore.com/planes').catch(err =>
-        console.error('Error al abrir la URL:', err)
-      );
+      Linking.openURL('https://patrimore.com/planes');
     }
   };
   return (
@@ -68,13 +141,18 @@ export default function FreePlan({ onPurchase, isSubscribed = false }: FreePlanP
       />
 
       <Container variant="secondaryPage">
-        <ScrollView 
-          className="flex-1 mt-5" 
+        <ScrollView
+          className="flex-1 mt-5"
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 20 }}
         >
           <TopTitle onPurchase={handlePurchase} />
-          <SectionPlan onCardPress={handleCardPress} isSubscribed={isSubscribed} />
+          <SectionPlan
+            onCardPress={handleCardPress}
+            isSubscribed={isSubscribed}
+            canScheduleThisYear={canScheduleThisYear}
+            hasActivePurchase={hasActivePurchase}
+          />
         </ScrollView>
       </Container>
     </View>

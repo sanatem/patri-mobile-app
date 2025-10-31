@@ -234,19 +234,28 @@ export default function AddAssetScreen() {
                 baseFormData.brokerage = actable.broker_id?.toString() || '';
               }
 
-              if (actable.mutual_fund_id || actable.investment_fund_id) {
-                const assetClass = actable.mutual_fund_asset_class || 'mutual';
-                const fundId = actable.mutual_fund_id || actable.investment_fund_id;
-                const seriesId = actable.mutual_fund_series_id || actable.investment_fund_series_id;
+              if (actable.mutual_fund_id || actable.investment_fund_id || actable.investment_fund_name_id) {
+                let fundType: 'mutual' | 'investment';
+                let fundId: number | undefined;
+                let seriesId: number | undefined;
+
+                if (actable.mutual_fund_id) {
+                  fundType = 'mutual';
+                  fundId = actable.mutual_fund_id;
+                  seriesId = actable.mutual_fund_series_id;
+                } else {
+                  fundType = 'investment';
+                  fundId = actable.investment_fund_id || actable.investment_fund_name_id;
+                  seriesId = actable.investment_fund_series_id;
+                }
 
                 if (fundId) {
-                  baseFormData.fund_id = `${assetClass}@${fundId}`;
-                  baseFormData.fund = `${assetClass}@${fundId}`;
-                  baseFormData.fund_kind = assetClass;
+                  baseFormData.fund_id = `${fundType}@${fundId}`;
+                  baseFormData.fund = `${fundType}@${fundId}`;
+                  baseFormData.fund_kind = fundType;
                   baseFormData.fund_series_id = seriesId?.toString() || '';
                   baseFormData.series = seriesId?.toString() || '';
                   baseFormData.mutual_fund_manager_id = actable.mutual_fund_manager_id?.toString() || '';
-
                 }
               }
 

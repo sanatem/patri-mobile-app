@@ -41,22 +41,15 @@ export const listItemStyles = StyleSheet.create({
   },
   iconText: {
     color: '#fff',
-    fontFamily: 'Poppins-regular',
-    fontSize: 18,
   },
   info: {
     flex: 1,
-    fontFamily: 'Poppins-regular',
   },
   title: {
-    fontSize: 16,
-    fontFamily: 'Poppins-medium',
     color: Colors.primary[500],
   },
   subtitle: {
-    fontSize: 13,
     color: Colors.gray[400],
-    fontFamily: 'Poppins-regular',
     marginTop: 2,
   },
   valueContainer: {
@@ -64,8 +57,6 @@ export const listItemStyles = StyleSheet.create({
     minWidth: 90,
   },
   value: {
-    fontSize: 16,
-    fontFamily: 'Poppins-medium',
     color: Colors.primary[500],
   },
   badge: {

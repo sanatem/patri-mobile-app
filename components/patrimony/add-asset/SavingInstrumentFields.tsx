@@ -242,6 +242,7 @@ export default function SavingInstrumentFields({
             unit={unit}
             name={name}
             fund={fund}
+            fund_kind={fund_kind}
             series={series || ''}
             onInputChange={onInputChange}
             onSelectChange={onSelectChange}

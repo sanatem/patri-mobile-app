@@ -8,7 +8,8 @@ import {
 import { useAuth } from '@/providers/AuthProvider';
 
 interface UseFloidTransactionsProps {
-  floidId: string;
+  floidId?: string;
+  floidIds?: string[];
   page?: number;
   per_page?: number;
   date?: string;
@@ -42,34 +43,90 @@ export function useFloidTransactions(props: UseFloidTransactionsProps): UseFloid
       return;
     }
 
-    try {
-      if (!append) {
-        setLoading(true);
+    const { floidIds, ...restParams } = params;
+    if (floidIds && floidIds.length > 0) {
+      try {
+        if (!append) {
+          setLoading(true);
+        }
+        setError(null);
+
+        const requests = floidIds.map(id =>
+          getFloidTransactions({
+            ...restParams,
+            floidId: id,
+            page
+          }, accessToken)
+        );
+
+        const results = await Promise.all(requests);
+
+        const allTransactions = results.flatMap(result => result?.transactions || []);
+
+        const combinedData: FloidTransactionsResponse = {
+          transactions: allTransactions,
+          pagination: results[0]?.pagination || {
+            current_page: page,
+            total_count: allTransactions.length,
+            total_pages: 1,
+            has_next_page: false,
+            has_previous_page: page > 1
+          }
+        };
+
+        if (append && transactions) {
+          setTransactions({
+            ...combinedData,
+            transactions: [...transactions.transactions, ...combinedData.transactions]
+          });
+        } else {
+          setTransactions(combinedData);
+        }
+
+        setCurrentPage(page);
+      } catch (err) {
+        console.error('Error loading Floid transactions:', err);
+        setError(err instanceof Error ? err.message : 'Error desconocido');
+      } finally {
+        setLoading(false);
       }
-      setError(null);
-      
-      const requestParams: GetFloidTransactionsParams = {
-        ...params,
-        page
-      };
-      
-      const data = await getFloidTransactions(requestParams, accessToken);
-      
-      if (append && transactions) {
-        setTransactions({
-          ...data!,
-          transactions: [...transactions.transactions, ...data!.transactions]
-        });
-      } else {
-        setTransactions(data);
+    } else if (params.floidId) {
+      // Comportamiento original para un solo ID
+      try {
+        if (!append) {
+          setLoading(true);
+        }
+        setError(null);
+
+        const requestParams: GetFloidTransactionsParams = {
+          floidId: params.floidId,
+          page,
+          per_page: params.per_page,
+          date: params.date,
+          start_date: params.start_date,
+          end_date: params.end_date,
+          transaction_type: params.transaction_type,
+          processed: params.processed
+        };
+
+        const data = await getFloidTransactions(requestParams, accessToken);
+
+        if (append && transactions) {
+          setTransactions({
+            ...data!,
+            transactions: [...transactions.transactions, ...data!.transactions]
+          });
+        } else {
+          setTransactions(data);
+        }
+
+        setCurrentPage(page);
+      } catch (err) {
+        console.error('Error loading Floid transactions:', err);
+        setError(err instanceof Error ? err.message : 'Error desconocido');
+      } finally {
+        setLoading(false);
       }
-      
-      setCurrentPage(page);
-    } catch (err) {
-      console.error('Error loading Floid transactions:', err);
-      setError(err instanceof Error ? err.message : 'Error desconocido');
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -85,14 +142,15 @@ export function useFloidTransactions(props: UseFloidTransactionsProps): UseFloid
   };
 
   useEffect(() => {
-    if (params.floidId && enabled) {
+    if ((params.floidId || (params.floidIds && params.floidIds.length > 0)) && enabled) {
       fetchTransactions(1, false);
     }
   }, [
-    params.floidId, 
-    params.start_date, 
-    params.end_date, 
-    params.transaction_type, 
+    params.floidId,
+    params.floidIds,
+    params.start_date,
+    params.end_date,
+    params.transaction_type,
     params.processed,
     accessToken,
     enabled

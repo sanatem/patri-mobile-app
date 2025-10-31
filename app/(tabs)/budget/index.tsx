@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Animated, Dimensions, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Animated, Dimensions, ActivityIndicator, Alert } from 'react-native';
 import { ChevronLeft, ChevronRight, Plus, RefreshCw } from 'lucide-react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
+import { useCallback } from 'react';
 import {
   BUDGET_CATEGORY_KEYS,
 } from '@/constants/AppConstants';
@@ -14,6 +15,7 @@ import {
   KeyboardAwareContainer,
   LockedTabOverlay,
   SyncModal,
+  ConfirmModal,
 } from '@/components/ui';
 import { SkeletonBase } from '@/components/ui/SkeletonBase';
 
@@ -21,6 +23,8 @@ import { BudgetChart, TransactionsList } from '@/components/budget';
 import ForYouCarousel from '@/components/common/ForYouCarousel';
 import { useFloidAccounts } from '@/hooks/budget/useFloidAccounts';
 import { useFloidTransactions } from '@/hooks/budget/useFloidTransactions';
+import { deleteFloidTransaction } from '@/services/budget/delete-floid-transaction';
+import { useAuth } from '@/providers/AuthProvider';
 import Colors from '@/constants/Colors';
 import { listItemStyles } from '@/styles/ui/ListItem.styles';
 import { useSubscriptionStatus } from '@/hooks/common/useSubscriptionStatus';
@@ -32,6 +36,7 @@ const SCREEN_HEIGHT = Dimensions.get('window').height;
 export default function BudgetScreen() {
   const { shouldBlockTab, loading: subscriptionLoading } = useSubscriptionStatus();
   const { isSyncing, stopSync } = useFloidSync();
+  const { accessToken } = useAuth();
   const router = useRouter();
   const { t } = useTranslation();
 
@@ -73,17 +78,36 @@ export default function BudgetScreen() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [showBudgetSkeletons, setShowBudgetSkeletons] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [transactionToDelete, setTransactionToDelete] = useState<any>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const overlayAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(0)).current;
 
   const { accounts, loading: accountsLoading, refetch: refetchAccounts } = useFloidAccounts();
 
-  const firstAccountId = useMemo(() => {
-    if (accounts && accounts.floid_accounts.length > 0) {
-      return accounts.floid_accounts[0].id.toString();
+  const accountOptions = useMemo(() => {
+    if (!accounts || accounts.floid_accounts.length === 0) return [];
+
+    const options = [
+      { label: t('budget.all_accounts', 'Todas las cuentas'), value: 'all' },
+      ...accounts.floid_accounts.map(account => ({
+        label: `${account.bank} - ${account.account}`,
+        value: account.id.toString()
+      }))
+    ];
+
+    return options;
+  }, [accounts, t]);
+
+  const [selectedAccountId, setSelectedAccountId] = useState<string>('all');
+
+  const selectedAccountIds = useMemo(() => {
+    if (selectedAccountId === 'all') {
+      return accounts?.floid_accounts.map(acc => acc.id.toString()) || [];
     }
-    return '';
-  }, [accounts]);
+    return [selectedAccountId];
+  }, [selectedAccountId, accounts]);
 
   const getDateRangeForMonth = (monthName: string, year: number) => {
     const monthIndex = months.indexOf(monthName);
@@ -103,57 +127,57 @@ export default function BudgetScreen() {
     [selectedMonth, selectedYear, months]
   );
 
-  const { 
-    transactions: incomeTransactions, 
-    loading: incomeLoading, 
+  const {
+    transactions: incomeTransactions,
+    loading: incomeLoading,
     refetch: refetchIncome,
     loadMore: loadMoreIncome,
     hasMore: hasMoreIncome
   } = useFloidTransactions({
-    floidId: firstAccountId,
+    floidIds: selectedAccountIds,
     per_page: 10,
-    enabled: !!firstAccountId,
+    enabled: selectedAccountIds.length > 0,
     start_date: dateRange?.start_date,
     end_date: dateRange?.end_date,
     transaction_type: 'income'
   });
 
-  const { 
-    transactions: expenseTransactions, 
-    loading: expenseLoading, 
+  const {
+    transactions: expenseTransactions,
+    loading: expenseLoading,
     refetch: refetchExpenses,
     loadMore: loadMoreExpenses,
     hasMore: hasMoreExpenses
   } = useFloidTransactions({
-    floidId: firstAccountId,
+    floidIds: selectedAccountIds,
     per_page: 10,
-    enabled: !!firstAccountId,
+    enabled: selectedAccountIds.length > 0,
     start_date: dateRange?.start_date,
     end_date: dateRange?.end_date,
     transaction_type: 'outcome'
   });
 
-  const { 
-    transactions: allIncomeTransactions, 
+  const {
+    transactions: allIncomeTransactions,
     loading: allIncomeLoading,
     refetch: refetchAllIncome
   } = useFloidTransactions({
-    floidId: firstAccountId,
+    floidIds: selectedAccountIds,
     per_page: 1000,
-    enabled: !!firstAccountId,
+    enabled: selectedAccountIds.length > 0,
     start_date: dateRange?.start_date,
     end_date: dateRange?.end_date,
     transaction_type: 'income'
   });
 
-  const { 
-    transactions: allExpenseTransactions, 
+  const {
+    transactions: allExpenseTransactions,
     loading: allExpenseLoading,
     refetch: refetchAllExpenses
   } = useFloidTransactions({
-    floidId: firstAccountId,
+    floidIds: selectedAccountIds,
     per_page: 1000,
-    enabled: !!firstAccountId,
+    enabled: selectedAccountIds.length > 0,
     start_date: dateRange?.start_date,
     end_date: dateRange?.end_date,
     transaction_type: 'outcome'
@@ -249,6 +273,27 @@ export default function BudgetScreen() {
     hasRealData
   } = totalsData;
 
+  // Recargar datos cuando la pantalla vuelve a estar en foco (después de crear/editar)
+  useFocusEffect(
+    useCallback(() => {
+      const refreshData = async () => {
+        try {
+          await Promise.all([
+            refetchAccounts(),
+            refetchIncome(),
+            refetchExpenses(),
+            refetchAllIncome(),
+            refetchAllExpenses()
+          ]);
+        } catch (error) {
+          console.error('Error refreshing budget data:', error);
+        }
+      };
+
+      refreshData();
+    }, [])
+  );
+
   useEffect(() => {
     if (showAddModal) {
       setModalVisible(true);
@@ -297,6 +342,66 @@ export default function BudgetScreen() {
   const closeModal = () => setShowAddModal(false);
   const handleMonthSelect = (month: string) => setSelectedMonth(month);
   const handleIntegrarDatos = () => router.push('/budget/floid-screen' as any);
+  const handleAddTransaction = () => router.push('/budget/add-transaction' as any);
+
+  const handleTransactionPress = (item: any) => {
+    const transaction = item.rawData;
+    router.push({
+      pathname: '/budget/edit-transaction' as any,
+      params: {
+        id: transaction.id,
+        description: transaction.description,
+        amount: transaction.amount,
+        date: transaction.date,
+        bank: transaction.bank,
+        accountNumber: transaction.account_number,
+        transactionType: transaction.transaction_type
+      }
+    });
+  };
+
+  const handleTransactionDelete = (item: any) => {
+    setTransactionToDelete(item);
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!transactionToDelete) return;
+    if (!accessToken) {
+      Alert.alert('Error', 'Sesión no disponible. Intenta nuevamente.');
+      return;
+    }
+
+    setIsDeleting(true);
+
+    try {
+      await deleteFloidTransaction(
+        { transactionId: transactionToDelete.rawData.id.toString() },
+        accessToken
+      );
+
+      // Refrescar las transacciones
+      await Promise.all([
+        refetchIncome(),
+        refetchExpenses(),
+        refetchAllIncome(),
+        refetchAllExpenses()
+      ]);
+
+      setShowDeleteModal(false);
+      setTransactionToDelete(null);
+    } catch (error) {
+      console.error('Error deleting transaction:', error);
+      Alert.alert('Error', t('budget.error_deleting_transaction'));
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setShowDeleteModal(false);
+    setTransactionToDelete(null);
+  };
 
   const tabs = [
     { key: 'income', label: t('budget.income'), badge: incomeCount.toString() },
@@ -338,6 +443,29 @@ export default function BudgetScreen() {
         <KeyboardAwareContainer>
          <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>   
            <Container variant="content" className="py-4">
+            <View className="mb-2">
+              {accountsLoading ? (
+                <SkeletonBase
+                  width={chartSize}
+                  height={56}
+                  x={0}
+                  y={0}
+                  rows={1}
+                  rowHeight={56}
+                  rowWidth={chartSize}
+                  borderRadius={16}
+                />
+              ) : (
+                <Select
+                  options={accountOptions.length > 0 ? accountOptions : [{ label: t('budget.no_accounts', 'No hay cuentas sincronizadas'), value: 'none' }]}
+                  value={selectedAccountId}
+                  onSelect={setSelectedAccountId}
+                  placeholder={t('budget.select_account', 'Seleccionar cuenta')}
+                  disabled={accountOptions.length === 0}
+                />
+              )}
+            </View>
+
             <View className="flex-row justify-between items-center mb-2">
               <View className="flex-1 mr-2">
                 {accountsLoading ? (
@@ -580,20 +708,20 @@ export default function BudgetScreen() {
                   onTabChange={(key) => setActiveTab(key as 'income' | 'expenses')}
                 />
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingBottom: 20, paddingTop: 12, borderBottomWidth: 1, borderBottomColor: Colors.gray[200] }}>
-                  <Text style={{ color: Colors.gray[700], fontSize: 18, fontFamily: 'Poppins-medium' }}>
+                  <Text className="text-lg font-medium" style={{ color: Colors.gray[700]}}>
                     {activeTab === 'income' ? t('budget.total_income') : t('budget.total_expenses')}
                   </Text>
-                  <Text style={{ color: Colors.gray[700], fontSize: 18, fontFamily: 'Poppins-medium' }}>
+                  <Text className="text-lg font-medium" style={{ color: Colors.gray[700]}}>
                     {activeTab === 'income' ? '+' : '-'}${Math.round(activeTab === 'income' ? totalIncome : totalExpenses).toLocaleString('es-CL')}
                   </Text>
                 </View>
                 
-                <TransactionsList 
-                  type={activeTab} 
-                  selectedMonth={selectedMonth} 
+                <TransactionsList
+                  type={activeTab}
+                  selectedMonth={selectedMonth}
                   showContainer={false}
-                  floidTransactions={activeTab === 'income' 
-                    ? incomeTransactions?.transactions 
+                  floidTransactions={activeTab === 'income'
+                    ? incomeTransactions?.transactions
                     : expenseTransactions?.transactions
                   }
                   searchQuery={searchQuery}
@@ -603,6 +731,8 @@ export default function BudgetScreen() {
                   hasMore={activeTab === 'income' ? hasMoreIncome : hasMoreExpenses}
                   loadingMore={activeTab === 'income' ? incomeLoading : expenseLoading}
                   onCollapse={activeTab === 'income' ? handleCollapseIncome : handleCollapseExpenses}
+                  onItemPress={handleTransactionPress}
+                  onItemDelete={handleTransactionDelete}
                 />
               </View>
             )}
@@ -666,6 +796,7 @@ export default function BudgetScreen() {
               <View style={{ width: 40, height: 4, backgroundColor: '#D1D5DB', borderRadius: 2 }} />
             </View>
             {[
+              { label: t('budget.add_transaction'), value: 'add', icon: <Plus size={20} color={Colors.gray[700]} /> },
               { label: t('budget.integrate_data'), value: 'integrar', icon: <RefreshCw size={20} color={Colors.gray[700]} /> },
             ].map((option, index) => (
               <TouchableOpacity
@@ -674,12 +805,13 @@ export default function BudgetScreen() {
                   paddingVertical: 16,
                   flexDirection: 'row',
                   alignItems: 'center',
-                  borderBottomWidth: index !== 2 ? 1 : 0,
+                  borderBottomWidth: index !== 1 ? 1 : 0,
                   borderColor: '#F3F4F6',
                 }}
                 onPress={() => {
                   closeModal();
                   switch(option.value) {
+                    case 'add': handleAddTransaction(); break;
                     case 'integrar': handleIntegrarDatos(); break;
                   }
                 }}
@@ -724,6 +856,17 @@ export default function BudgetScreen() {
             return () => clearTimeout(skeletonTimer);
           }}
         />
+
+      <ConfirmModal
+        visible={showDeleteModal}
+        title={t('budget.delete_transaction')}
+        message={t('budget.delete_transaction_message')}
+        onConfirm={handleConfirmDelete}
+        onClose={handleCancelDelete}
+        confirmButtonText={t('common.delete', 'Eliminar')}
+        cancelButtonText={t('common.cancel')}
+        isDeleting={isDeleting}
+      />
     </Container>
   );
 }

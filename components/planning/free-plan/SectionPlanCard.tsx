@@ -43,7 +43,7 @@ const SectionPlanCard: React.FC<SectionPlanCardProps> = ({
       color: Colors.primary[700]
     };
 
-    let IconComponent = null;
+    let IconComponent: React.ReactElement | null = null;
     if (iconType === 'calendar') {
       IconComponent = <Calendar {...iconProps} />;
     } else if (iconType === 'coins') {
@@ -73,7 +73,7 @@ const SectionPlanCard: React.FC<SectionPlanCardProps> = ({
       <View className="flex-row justify-between items-start mb-4">
         <View className="flex-row items-center flex-1">
           {renderIcon()}
-          <Text className="text-lg font-medium" style={{ color: Colors.primary[700] }}>
+          <Text className="text-lg font-medium" style={{ color: Colors.primary[600] }}>
             {title}
           </Text>
         </View>
@@ -93,10 +93,10 @@ const SectionPlanCard: React.FC<SectionPlanCardProps> = ({
           </View>
         )}
       </View>
-      <View className="w-full mb-4" style={{ backgroundColor: Colors.gray[100], height: 0.5 }} />
+      <View className="w-full mb-4" style={{ backgroundColor: Colors.gray[200], height: 0.5 }} />
       {price && (
         <View className="flex-row items-center justify-between mb-4">
-          <Text className="text-lg font-medium" style={{ color: Colors.primary[700] }}>
+          <Text className="text-lg font-medium" style={{ color: Colors.primary[600] }}>
             {price}
           </Text>
           {duration && (
@@ -115,7 +115,7 @@ const SectionPlanCard: React.FC<SectionPlanCardProps> = ({
         <View className="flex-row items-start justify-between mb-4">
           {minPrice && (
             <View className="flex-1">
-              <Text className="text-lg font-medium" style={{ color: Colors.primary[700] }}>
+              <Text className="text-lg font-medium" style={{ color: Colors.primary[600] }}>
                 {minPrice}
               </Text>
               <Text className="text-xs" style={{ color: Colors.gray[500] }}>

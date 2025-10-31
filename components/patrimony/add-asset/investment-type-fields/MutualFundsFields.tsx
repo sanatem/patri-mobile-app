@@ -12,6 +12,7 @@ interface MutualFundsFieldsProps {
   unit: string;
   name: string;
   fund: string;
+  fund_kind?: string;
   series: string;
   onInputChange: (field: string, value: string) => void;
   onSelectChange: (field: string, value: string) => void;
@@ -32,6 +33,7 @@ export default function MutualFundsFields({
   unit,
   name,
   fund,
+  fund_kind,
   series,
   onInputChange,
   onSelectChange,
@@ -113,37 +115,92 @@ export default function MutualFundsFields({
       setFundsError(null);
 
       try {
-        console.log('🔍 Fetching funds with token:', accessToken ? 'Token available' : 'No token');
-        console.log('🔍 Token length:', accessToken?.length);
-        
-        const response = await getSavingInstrumentsFunds(accessToken, {
+        const perPage = 200;
+
+        const firstResponse = await getSavingInstrumentsFunds(accessToken, {
           page: 1,
-          per_page: 100
+          per_page: perPage
         });
 
-        console.log('📊 Funds response:', response);
-
-        if (!response) {
-          console.log('❌ No response received');
+        if (!firstResponse) {
           setFundsError('No se recibió respuesta del servidor');
           return;
         }
 
-        if (!response.success) {
-          console.log('❌ Response not successful:', response);
+        if (!firstResponse.success) {
           setFundsError('La respuesta del servidor no fue exitosa');
           return;
         }
 
-        if (!response.data) {
-          console.log('❌ No data property in response:', response);
+        if (!firstResponse.data) {
           setFundsError('Estructura de respuesta inválida');
           return;
         }
 
+        let allMutualFunds = firstResponse.data.mutual_funds || [];
+        let allInvestmentFunds = firstResponse.data.investment_funds || [];
+
+        const pagination = firstResponse.data.pagination;
+
+        if (pagination) {
+          const mutualPagesToFetch: number[] = [];
+          if (pagination.next_mutual_page) {
+            for (let page = pagination.next_mutual_page; page <= pagination.total_mutual_pages; page++) {
+              mutualPagesToFetch.push(page);
+            }
+          }
+
+          const investmentPagesToFetch: number[] = [];
+          if (pagination.next_investment_page) {
+            for (let page = pagination.next_investment_page; page <= pagination.total_investment_pages; page++) {
+              investmentPagesToFetch.push(page);
+            }
+          }
+
+          const BATCH_SIZE = 100;
+
+          for (let i = 0; i < mutualPagesToFetch.length; i += BATCH_SIZE) {
+            const batch = mutualPagesToFetch.slice(i, i + BATCH_SIZE);
+            const batchRequests = batch.map(page =>
+              getSavingInstrumentsFunds(accessToken, {
+                page,
+                per_page: perPage,
+                kind: 'mutual'
+              })
+            );
+
+            const batchResponses = await Promise.all(batchRequests);
+
+            batchResponses.forEach(response => {
+              if (response?.success && response?.data?.mutual_funds) {
+                allMutualFunds = [...allMutualFunds, ...response.data.mutual_funds];
+              }
+            });
+          }
+
+          for (let i = 0; i < investmentPagesToFetch.length; i += BATCH_SIZE) {
+            const batch = investmentPagesToFetch.slice(i, i + BATCH_SIZE);
+            const batchRequests = batch.map(page =>
+              getSavingInstrumentsFunds(accessToken, {
+                page,
+                per_page: perPage,
+                kind: 'investment'
+              })
+            );
+
+            const batchResponses = await Promise.all(batchRequests);
+
+            batchResponses.forEach(response => {
+              if (response?.success && response?.data?.investment_funds) {
+                allInvestmentFunds = [...allInvestmentFunds, ...response.data.investment_funds];
+              }
+            });
+          }
+        }
+
         const allFunds = [
-          ...(response.data.investment_funds || []).map(f => ({ ...f, kind: 'investment' as const })),
-          ...(response.data.mutual_funds || []).map(f => ({ ...f, kind: 'mutual' as const }))
+          ...allInvestmentFunds.map(f => ({ ...f, kind: 'investment' as const })),
+          ...allMutualFunds.map(f => ({ ...f, kind: 'mutual' as const }))
         ];
 
         if (allFunds.length === 0) {
@@ -154,7 +211,6 @@ export default function MutualFundsFields({
         setFunds(allFunds);
 
       } catch (error) {
-        console.error('❌ Error fetching funds:', error);
         setFundsError(`Error al cargar los fondos: ${error instanceof Error ? error.message : 'Error desconocido'}`);
       } finally {
         setLoadingFunds(false);
@@ -164,17 +220,23 @@ export default function MutualFundsFields({
     fetchFunds();
   }, [accessToken]);
 
-  const fundOptions = funds.map(fundItem => ({
-    label: fundItem.name,
-    value: `${fundItem.kind}@${fundItem.id}`,
-  }));
+  const fundOptions = funds
+    .filter(fundItem => {
+      if (fund_kind && fund_kind !== '') {
+        return fundItem.kind === fund_kind;
+      }
+      return true;
+    })
+    .map(fundItem => ({
+      label: fundItem.name,
+      value: `${fundItem.kind}@${fundItem.id}`,
+    }));
 
   type FundKind = 'investment' | 'mutual';
 
   const selectedFund = useMemo(() => {
     if (!fund) return undefined;
     if (!fund.includes('@')) {
-      console.warn('Invalid fund format, expected "kind@id":', fund);
       return undefined;
     }
     const [kind, id] = fund.split('@') as [FundKind, string];

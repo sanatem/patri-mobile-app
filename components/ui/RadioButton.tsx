@@ -78,11 +78,8 @@ export default function RadioButton({
             </View>
             
             <Text
-              style={{
-                fontSize: 16,
-                color: Colors.gray[700],
-                flex: 1,
-              }}
+              className='text-base font-regular'
+              style={{ color: Colors.gray[700] }}
             >
               {option.label}
             </Text>

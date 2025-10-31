@@ -273,9 +273,23 @@ export interface ApiSavingInstrumentFund {
   updated_at: string;
 }
 
+export interface ApiSavingInstrumentsFundsPagination {
+  current_page: number;
+  per_page: number;
+  total_mutual_pages: number;
+  total_mutual_count: number;
+  next_mutual_page: number | null;
+  prev_mutual_page: number | null;
+  total_investment_pages: number;
+  total_investment_count: number;
+  next_investment_page: number | null;
+  prev_investment_page: number | null;
+}
+
 export interface ApiSavingInstrumentsFundsData {
   investment_funds: ApiSavingInstrumentFund[];
   mutual_funds: ApiSavingInstrumentFund[];
+  pagination?: ApiSavingInstrumentsFundsPagination;
 }
 
 export interface ApiSavingInstrumentsFundsResponse {
