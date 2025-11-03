@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, Animated } from 'react-native';
 import { CheckboxItem } from '@/components/ui';
 import Colors from '@/constants/Colors';
-import { FloidTransaction } from '@/services/budget/get-floid-transactions';
+import { FloidTransaction } from '@/services/budget/transactions/get-floid-transactions';
 
 interface TransactionItemProps {
   transaction: FloidTransaction;

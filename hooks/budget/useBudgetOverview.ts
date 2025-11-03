@@ -3,7 +3,7 @@ import { Animated, Dimensions, Alert } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useFloidAccounts } from './useFloidAccounts';
 import { useFloidTransactions } from './useFloidTransactions';
-import { deleteFloidTransaction } from '@/services/budget/delete-floid-transaction';
+import { deleteFloidTransaction } from '@/services/budget/transactions/delete-floid-transaction';
 import { useAuth } from '@/providers/AuthProvider';
 import { useSubscriptionStatus } from '@/hooks/common/useSubscriptionStatus';
 import { useFloidSync } from '@/providers/FloidSyncProvider';

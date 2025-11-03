@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, Animated } from 'react-native';
 import { CheckboxItem } from '@/components/ui';
 import Colors from '@/constants/Colors';
 import { ChevronDown } from 'lucide-react-native';
-import { FloidTransaction } from '@/services/budget/get-floid-transactions';
+import { FloidTransaction } from '@/services/budget/transactions/get-floid-transactions';
 import { TransactionItem } from '../../UncategorizedList/TransactionItem';
 
 interface SubCategoryItemProps {
@@ -43,7 +43,7 @@ export function SubCategoryItem({
   onLongPress,
   onTransactionPress,
 }: SubCategoryItemProps) {
-  // Interpolaciones de animación
+  // Interpolaciones de animaciï¿½n
   const checkboxOpacity = animation.interpolate({
     inputRange: [0, 1],
     outputRange: [0.6, 1]

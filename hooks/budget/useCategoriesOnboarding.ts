@@ -2,9 +2,9 @@ import { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/providers/AuthProvider';
 import { INCOME_CATEGORIES, EXPENSE_CATEGORIES } from '@/constants/BudgetCategories';
-import { getExpenseCategories } from '@/services/budget/categories-manager/get-expense-categories';
-import { getIncomeCategories } from '@/services/budget/categories-manager/get-income-categories';
-import type { TransactionCategory } from '@/services/budget/categories-manager/get-expense-categories';
+import { getExpenseCategories } from '@/services/budget/categories-manager/system-categories/get-expense-categories';
+import { getIncomeCategories } from '@/services/budget/categories-manager/system-categories/get-income-categories';
+import type { TransactionCategory } from '@/services/budget/categories-manager/system-categories/get-expense-categories';
 
 export function useCategoriesOnboarding() {
   const { t } = useTranslation();

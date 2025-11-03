@@ -1,6 +1,6 @@
 import React from 'react';
 import { Animated } from 'react-native';
-import { FloidTransaction } from '@/services/budget/get-floid-transactions';
+import { FloidTransaction } from '@/services/budget/transactions/get-floid-transactions';
 import { CategoryItem } from './CategoryItem';
 
 interface CategoriesListProps {

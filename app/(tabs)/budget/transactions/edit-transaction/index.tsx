@@ -4,12 +4,12 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Container, Header, Input, Select, Button, KeyboardAwareContainer } from '@/components/ui';
 import CalendarSelect from '@/components/ui/CalendarSelect';
-import { patchFloidTransaction } from '@/services/budget/patch-floid-transaction';
-import { getFloidTransaction, type FloidTransaction } from '@/services/budget/get-floid-transactions';
+import { patchFloidTransaction } from '@/services/budget/transactions/patch-floid-transaction';
+import { getFloidTransaction, type FloidTransaction } from '@/services/budget/transactions/get-floid-transactions';
 import { useAuth } from '@/providers/AuthProvider';
-import { getExpenseCategories } from '@/services/budget/categories-manager/get-expense-categories';
-import { getIncomeCategories } from '@/services/budget/categories-manager/get-income-categories';
-import type { TransactionCategory } from '@/services/budget/categories-manager/get-expense-categories';
+import { getExpenseCategories } from '@/services/budget/categories-manager/system-categories/get-expense-categories';
+import { getIncomeCategories } from '@/services/budget/categories-manager/system-categories/get-income-categories';
+import type { TransactionCategory } from '@/services/budget/categories-manager/system-categories/get-expense-categories';
 import Colors from '@/constants/Colors';
 
 export default function EditTransactionScreen() {

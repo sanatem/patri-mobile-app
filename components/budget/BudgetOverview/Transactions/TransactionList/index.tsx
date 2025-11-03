@@ -2,18 +2,18 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { View, Text, Modal, TouchableOpacity, Pressable, Animated } from 'react-native';
 import { ListItem } from '@/components/ui/ListItem';
 import { Select, Button } from '@/components/ui';
-import { budgetService } from '@/services/budget/get-budget';
-import { FloidTransaction } from '@/services/budget/get-floid-transactions';
+import { budgetService } from '@/services/budget/transactions/get-budget';
+import { FloidTransaction } from '@/services/budget/transactions/get-floid-transactions';
 import Colors from '@/constants/Colors';
 import { SkeletonBase } from '@/components/ui/SkeletonBase';
 import { useTranslation } from 'react-i18next';
 import { CategorizationStatus } from '../CategorizationStatus';
 import { INCOME_CATEGORIES, EXPENSE_CATEGORIES } from '@/constants/BudgetCategories';
-import { patchFloidTransaction } from '@/services/budget/patch-floid-transaction';
+import { patchFloidTransaction } from '@/services/budget/transactions/patch-floid-transaction';
 import { useAuth } from '@/providers/AuthProvider';
-import { getExpenseCategories } from '@/services/budget/categories-manager/get-expense-categories';
-import { getIncomeCategories } from '@/services/budget/categories-manager/get-income-categories';
-import type { TransactionCategory } from '@/services/budget/categories-manager/get-expense-categories';
+import { getExpenseCategories } from '@/services/budget/categories-manager/system-categories/get-expense-categories';
+import { getIncomeCategories } from '@/services/budget/categories-manager/system-categories/get-income-categories';
+import type { TransactionCategory } from '@/services/budget/categories-manager/system-categories/get-expense-categories';
 
 interface TransactionsListProps {
   type: 'income' | 'expenses';

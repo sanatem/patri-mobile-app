@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, Animated } from 'react-native';
 import { CheckboxItem } from '@/components/ui';
 import Colors from '@/constants/Colors';
 import { ChevronDown, Edit2, Plus } from 'lucide-react-native';
-import { FloidTransaction } from '@/services/budget/get-floid-transactions';
+import { FloidTransaction } from '@/services/budget/transactions/get-floid-transactions';
 import { SubCategoryItem } from '../SubCategoryItem';
 import { TransactionItem } from '../../UncategorizedList/TransactionItem';
 
@@ -126,7 +126,7 @@ export function CategoryItem({
               style={{ padding: 4, marginRight: 8 }}
               onPress={(e) => {
                 e.stopPropagation();
-                // TODO: Implementar creación de subcategoría
+                // TODO: Implementar creaciï¿½n de subcategorï¿½a
               }}
             >
               <Plus size={16} color={Colors.primary[500]} />
@@ -135,7 +135,7 @@ export function CategoryItem({
               style={{ padding: 4, marginRight: 8 }}
               onPress={(e) => {
                 e.stopPropagation();
-                // TODO: Implementar edición
+                // TODO: Implementar ediciï¿½n
               }}
             >
               <Edit2 size={16} color={Colors.primary[500]} />

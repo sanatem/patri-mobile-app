@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, Animated } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import Colors from '@/constants/Colors';
 import { ChevronDown, AlertTriangle } from 'lucide-react-native';
-import { FloidTransaction } from '@/services/budget/get-floid-transactions';
+import { FloidTransaction } from '@/services/budget/transactions/get-floid-transactions';
 import { TransactionItem } from './TransactionItem';
 
 interface UncategorizedListProps {

@@ -6,11 +6,11 @@ import FormLayout from '@/components/ui/FormLayout';
 import { Input, Select, RadioButton } from '@/components/ui';
 import CalendarSelect from '@/components/ui/CalendarSelect';
 import { useFloidAccounts } from '@/hooks/budget/useFloidAccounts';
-import { createFloidTransaction } from '@/services/budget/create-floid-transaction';
+import { createFloidTransaction } from '@/services/budget/transactions/create-floid-transaction';
 import { useAuth } from '@/providers/AuthProvider';
-import { getExpenseCategories } from '@/services/budget/categories-manager/get-expense-categories';
-import { getIncomeCategories } from '@/services/budget/categories-manager/get-income-categories';
-import type { TransactionCategory } from '@/services/budget/categories-manager/get-expense-categories';
+import { getExpenseCategories } from '@/services/budget/categories-manager/system-categories/get-expense-categories';
+import { getIncomeCategories } from '@/services/budget/categories-manager/system-categories/get-income-categories';
+import type { TransactionCategory } from '@/services/budget/categories-manager/system-categories/get-expense-categories';
 
 export default function AddTransactionScreen() {
   const router = useRouter();
