@@ -1,15 +1,27 @@
-import { View, ScrollView } from 'react-native';
+import { View, ScrollView, ActivityIndicator } from 'react-native';
+import { useRouter } from 'expo-router';
 import FormLayout from '@/components/ui/FormLayout';
 import { useCategoriesOnboarding } from '@/hooks/budget/useCategoriesOnboarding';
 import { CategoryCard } from './CategoryCard';
 import { ErrorMessage } from './ErrorMessage';
-import { LoadingState } from './LoadingState';
+import Colors from '@/constants/Colors';
+
+interface SelectedCategory {
+  id: string;
+  emoji: string;
+  name: {
+    en: string;
+    es: string;
+    'es-CL': string;
+  };
+}
 
 interface CategoriesOnboardingProps {
-  onComplete: (selectedCategories: { income: string[]; expenses: string[] }) => void;
+  onComplete: (selectedCategories: { income: SelectedCategory[]; expenses: SelectedCategory[] }) => void;
 }
 
 export function CategoriesOnboarding({ onComplete }: CategoriesOnboardingProps) {
+  const router = useRouter();
   const {
     // State
     currentStep,
@@ -39,14 +51,31 @@ export function CategoriesOnboarding({ onComplete }: CategoriesOnboardingProps) 
     if (!isExpenseValid) {
       return;
     }
+
+    // Map selected IDs to full category objects with emoji data
+    const selectedIncomeObjects = incomeCategories.filter(cat =>
+      selectedIncome.includes(cat.id)
+    );
+    const selectedExpenseObjects = expenseCategories.filter(cat =>
+      selectedExpenses.includes(cat.id)
+    );
+
     onComplete({
-      income: selectedIncome,
-      expenses: selectedExpenses
+      income: selectedIncomeObjects,
+      expenses: selectedExpenseObjects
     });
   };
 
+  const handleCancel = () => {
+    router.back();
+  };
+
   if (loading) {
-    return <LoadingState loadingText={t('budget.loading_categories', 'Cargando categorías...')} />;
+    return (
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#fff' }}>
+        <ActivityIndicator size="large" color={Colors.secondary[500]} />
+      </View>
+    );
   }
 
   return (
@@ -58,19 +87,21 @@ export function CategoriesOnboarding({ onComplete }: CategoriesOnboardingProps) 
       }
       subtitle={
         currentStep === 1
-          ? t('budget.onboarding_income_subtitle', 'Selecciona de 1 a 4 categorías principales para organizar tus ingresos')
-          : t('budget.onboarding_expenses_subtitle', 'Selecciona de 1 a 4 categorías principales para organizar tus gastos')
+          ? t('budget.onboarding_income_subtitle', 'Selecciona de 1 a 3 categorías principales para organizar tus ingresos')
+          : t('budget.onboarding_expenses_subtitle', 'Selecciona de 1 a 3 categorías principales para organizar tus gastos')
       }
       currentStep={currentStep}
       totalSteps={2}
       onNext={currentStep === 1 ? handleNext : handleComplete}
       onPrevious={currentStep === 2 ? handleBack : undefined}
+      onCancel={currentStep === 1 ? handleCancel : undefined}
       nextButtonTitle={
         currentStep === 1
           ? t('common.continue', 'Continuar')
           : t('common.finish', 'Finalizar')
       }
       previousButtonTitle={t('common.back', 'Volver')}
+      cancelButtonTitle={t('common.cancel', 'Cancelar')}
       isNextDisabled={currentStep === 1 ? !isIncomeValid : !isExpenseValid}
       showLogo={false}
     >

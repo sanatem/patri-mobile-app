@@ -8,6 +8,7 @@ interface DeleteCategoriesModalProps {
   selectedCategories: Set<string>;
   selectedSubcategories: Set<string>;
   totalTransactionsToUncategorize: number;
+  loading?: boolean;
   t: (key: string, fallback: string) => string;
 }
 
@@ -18,6 +19,7 @@ export function DeleteCategoriesModal({
   selectedCategories,
   selectedSubcategories,
   totalTransactionsToUncategorize,
+  loading = false,
   t,
 }: DeleteCategoriesModalProps) {
   const getMessage = () => {
@@ -47,6 +49,7 @@ export function DeleteCategoriesModal({
       onClose={onClose}
       confirmButtonText={t('common.delete', 'Eliminar')}
       cancelButtonText={t('common.cancel', 'Cancelar')}
+      isDeleting={loading}
     />
   );
 }

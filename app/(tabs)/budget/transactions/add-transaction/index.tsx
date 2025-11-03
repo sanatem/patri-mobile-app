@@ -10,6 +10,7 @@ import { createFloidTransaction } from '@/services/budget/transactions/create-fl
 import { useAuth } from '@/providers/AuthProvider';
 import { getUserCategories } from '@/services/budget/categories-manager';
 import type { UserCategory } from '@/services/budget/categories-manager';
+import { getTranslatedNames } from '@/utils/categoryTranslations';
 
 export default function AddTransactionScreen() {
   const router = useRouter();
@@ -86,15 +87,20 @@ export default function AddTransactionScreen() {
   const categoryOptions = useMemo(() => {
     const apiCategories = transactionType === 'income' ? apiIncomeCategories : apiExpenseCategories;
     if (apiCategories.length === 0) return [];
+    const isIncome = transactionType === 'income';
+    const currentLang = t('common.language_code', 'es');
 
     return [
       { label: t('budget.no_category', 'Sin categoría'), value: '' },
       ...apiCategories
         .filter(category => category && category.id !== undefined && category.id !== null)
-        .map(category => ({
-          label: category.translated_name || '',
-          value: category.id.toString()
-        }))
+        .map(category => {
+          const translatedNames = getTranslatedNames(category.display_name, isIncome);
+          return {
+            label: translatedNames[currentLang as 'en' | 'es' | 'es-CL'] || category.display_name || '',
+            value: category.id.toString()
+          };
+        })
     ];
   }, [t, transactionType, apiIncomeCategories, apiExpenseCategories]);
 
@@ -105,15 +111,20 @@ export default function AddTransactionScreen() {
     const selectedCategory = apiCategories.find(cat => cat && cat.id && cat.id.toString() === selectedParentCategoryId);
 
     if (!selectedCategory || !selectedCategory.children || selectedCategory.children.length === 0) return [];
+    const isIncome = transactionType === 'income';
+    const currentLang = t('common.language_code', 'es');
 
     return [
       { label: t('budget.no_subcategory', 'Sin subcategoría'), value: '' },
       ...selectedCategory.children
         .filter(subcat => subcat && subcat.id !== undefined && subcat.id !== null)
-        .map(subcat => ({
-          label: subcat.translated_name || '',
-          value: subcat.id.toString()
-        }))
+        .map(subcat => {
+          const translatedNames = getTranslatedNames(subcat.display_name, isIncome);
+          return {
+            label: translatedNames[currentLang as 'en' | 'es' | 'es-CL'] || subcat.display_name || '',
+            value: subcat.id.toString()
+          };
+        })
     ];
   }, [selectedParentCategoryId, t, transactionType, apiIncomeCategories, apiExpenseCategories]);
 
@@ -156,10 +167,14 @@ export default function AddTransactionScreen() {
       const dateParts = date.split('/');
       const formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
 
+      // Limpiar el amount: remover $, puntos de miles y convertir coma a punto decimal
+      const cleanAmount = amount.replace(/[$\s]/g, '').replace(/\./g, '').replace(',', '.');
+      const parsedAmount = parseFloat(cleanAmount);
+
       const transactionData: any = {
         floid_account_id: parseInt(selectedAccountId),
-        amount_in: transactionType === 'income' ? parseFloat(amount.replace(/\./g, '').replace(',', '.')) : 0,
-        amount_out: transactionType === 'expense' ? parseFloat(amount.replace(/\./g, '').replace(',', '.')) : 0,
+        amount_in: transactionType === 'income' ? parsedAmount : 0,
+        amount_out: transactionType === 'expense' ? parsedAmount : 0,
         description: description.trim(),
         date: formattedDate,
       };

@@ -12,9 +12,10 @@ import { UserCategoriesState } from '@/hooks/budget/useUserCategories';
 
 interface CategoriesManagerProps {
   userCategories: UserCategoriesState;
+  onResetOnboarding?: () => void;
 }
 
-export function CategoriesManager({ userCategories }: CategoriesManagerProps) {
+export function CategoriesManager({ userCategories, onResetOnboarding }: CategoriesManagerProps) {
   const {
     // State
     activeTab,
@@ -35,6 +36,7 @@ export function CategoriesManager({ userCategories }: CategoriesManagerProps) {
     selectionAnimations,
     transactionAnimations,
     assigningCategories,
+    deletingCategories,
 
     // Computed values
     groupedData,
@@ -135,6 +137,7 @@ export function CategoriesManager({ userCategories }: CategoriesManagerProps) {
         selectedCategories={selectedCategories}
         selectedSubcategories={selectedSubcategories}
         totalTransactionsToUncategorize={totalTransactionsToUncategorize}
+        loading={deletingCategories}
         t={t}
       />
 

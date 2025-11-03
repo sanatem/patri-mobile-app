@@ -13,6 +13,7 @@ import { patchFloidTransaction } from '@/services/budget/transactions/patch-floi
 import { useAuth } from '@/providers/AuthProvider';
 import { getUserCategories } from '@/services/budget/categories-manager';
 import type { UserCategory } from '@/services/budget/categories-manager';
+import { getTranslatedNames } from '@/utils/categoryTranslations';
 
 interface TransactionsListProps {
   type: 'income' | 'expenses';
@@ -37,7 +38,12 @@ const getCategoryIcon = (transaction: FloidTransaction) => {
     return '+';
   }
 
-  // Si tiene categoría, mostrar emoji
+  // Si tiene emoji_code personalizado, usarlo
+  if (transaction.category.emoji_code) {
+    return transaction.category.emoji_code;
+  }
+
+  // Fallback: emoji genérico según el tipo
   return transaction.category.kind === 'income' ? '💰' : '💳';
 };
 
@@ -228,34 +234,44 @@ export default function TransactionsList({
 
   const categoryOptions = useMemo(() => {
     if (apiCategories.length === 0) return [];
+    const isIncome = type === 'income';
+    const currentLang = t('common.language_code', 'es');
 
     return [
       { label: t('budget.no_category', 'Sin categoría'), value: '' },
       ...apiCategories
         .filter(category => category && category.id !== undefined && category.id !== null)
-        .map(category => ({
-          label: category.translated_name || '',
-          value: category.id.toString()
-        }))
+        .map(category => {
+          const translatedNames = getTranslatedNames(category.display_name, isIncome);
+          return {
+            label: translatedNames[currentLang as 'en' | 'es' | 'es-CL'] || category.display_name || '',
+            value: category.id.toString()
+          };
+        })
     ];
-  }, [apiCategories, t]);
+  }, [apiCategories, t, type]);
 
   const subcategoryOptions = useMemo(() => {
     if (!selectedParentCategoryId || apiCategories.length === 0) return [];
 
     const selectedCategory = apiCategories.find(cat => cat && cat.id && cat.id.toString() === selectedParentCategoryId);
     if (!selectedCategory || !selectedCategory.children || selectedCategory.children.length === 0) return [];
+    const isIncome = type === 'income';
+    const currentLang = t('common.language_code', 'es');
 
     return [
       { label: t('budget.no_subcategory', 'Sin subcategoría'), value: '' },
       ...selectedCategory.children
         .filter(subcat => subcat && subcat.id !== undefined && subcat.id !== null)
-        .map(subcat => ({
-          label: subcat.translated_name || '',
-          value: subcat.id.toString()
-        }))
+        .map(subcat => {
+          const translatedNames = getTranslatedNames(subcat.display_name, isIncome);
+          return {
+            label: translatedNames[currentLang as 'en' | 'es' | 'es-CL'] || subcat.display_name || '',
+            value: subcat.id.toString()
+          };
+        })
     ];
-  }, [selectedParentCategoryId, apiCategories, t]);
+  }, [selectedParentCategoryId, apiCategories, t, type]);
 
   if (loading) {
     return (

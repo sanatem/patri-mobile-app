@@ -8,6 +8,7 @@ export interface TransactionCategoryInfo {
   name: string;
   translated_name: string;
   kind: 'income' | 'expense';
+  emoji_code?: string;
 }
 
 export interface FloidTransaction {
@@ -24,6 +25,7 @@ export interface FloidTransaction {
   categorized?: boolean;
   auto_category?: boolean;
   category?: TransactionCategoryInfo | null;
+  user_category_id?: number | null;
   categorization_status?: CategorizationStatus;
   subcategory?: string | null;
   processed?: boolean;

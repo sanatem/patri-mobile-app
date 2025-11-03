@@ -5,15 +5,24 @@ import { CategoriesOnboarding } from '@/components/budget/CategoriesManager/Cate
 import { useUserCategories } from '@/hooks/budget/useUserCategories';
 import { useAuth } from '@/providers/AuthProvider';
 import { createUserCategory } from '@/services/budget/categories-manager';
-import { INCOME_CATEGORIES, EXPENSE_CATEGORIES } from '@/constants/BudgetCategories';
 import Colors from '@/constants/Colors';
+
+interface SelectedCategory {
+  id: string;
+  emoji: string;
+  name: {
+    en: string;
+    es: string;
+    'es-CL': string;
+  };
+}
 
 export default function CategoriesManagerScreen() {
   const { accessToken } = useAuth();
-  const { onboardingCompleted, loading, completeOnboarding, userCategories, refetch } = useUserCategories();
+  const { onboardingCompleted, loading, completeOnboarding, userCategories, refetch, resetOnboarding } = useUserCategories();
   const [creatingCategories, setCreatingCategories] = useState(false);
 
-  const handleOnboardingComplete = async (selectedCategories: { income: string[]; expenses: string[] }) => {
+  const handleOnboardingComplete = async (selectedCategories: { income: SelectedCategory[]; expenses: SelectedCategory[] }) => {
     if (!accessToken) {
       Alert.alert('Error', 'No hay token de autenticación disponible');
       return;
@@ -23,28 +32,26 @@ export default function CategoriesManagerScreen() {
       setCreatingCategories(true);
 
       // Crear todas las categorías de ingresos seleccionadas en el backend
-      const incomePromises = selectedCategories.income.map(categoryId => {
-        const category = INCOME_CATEGORIES.find(cat => cat.id === categoryId);
+      const incomePromises = selectedCategories.income.map(category => {
         return createUserCategory(
           {
-            name: category?.name.en || 'Income',
+            name: category.name.en,
             kind: 'income',
-            emoji_code: category?.emoji || '💰',
-            transaction_category_id: parseInt(categoryId)
+            emoji_code: category.emoji,
+            transaction_category_id: parseInt(category.id)
           },
           accessToken
         );
       });
 
       // Crear todas las categorías de gastos seleccionadas en el backend
-      const expensePromises = selectedCategories.expenses.map(categoryId => {
-        const category = EXPENSE_CATEGORIES.find(cat => cat.id === categoryId);
+      const expensePromises = selectedCategories.expenses.map(category => {
         return createUserCategory(
           {
-            name: category?.name.en || 'Expense',
+            name: category.name.en,
             kind: 'expense',
-            emoji_code: category?.emoji || '💸',
-            transaction_category_id: parseInt(categoryId)
+            emoji_code: category.emoji,
+            transaction_category_id: parseInt(category.id)
           },
           accessToken
         );
@@ -52,8 +59,11 @@ export default function CategoriesManagerScreen() {
 
       await Promise.all([...incomePromises, ...expensePromises]);
 
-      // Marcar onboarding como completado en AsyncStorage
-      await completeOnboarding(selectedCategories);
+      // Marcar onboarding como completado en AsyncStorage (solo IDs)
+      await completeOnboarding({
+        income: selectedCategories.income.map(cat => cat.id),
+        expenses: selectedCategories.expenses.map(cat => cat.id)
+      });
 
       // Refrescar las categorías del backend
       await refetch();
@@ -74,9 +84,38 @@ export default function CategoriesManagerScreen() {
     );
   }
 
+  const handleResetOnboarding = async () => {
+    Alert.alert(
+      'Reiniciar Categorías',
+      '¿Estás seguro que deseas reiniciar tus categorías? Esto eliminará todas tus categorías personalizadas y podrás seleccionar nuevamente.',
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel'
+        },
+        {
+          text: 'Reiniciar',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              setCreatingCategories(true);
+              await resetOnboarding();
+              Alert.alert('Éxito', 'Categorías reiniciadas correctamente');
+            } catch (error) {
+              console.error('Error resetting onboarding:', error);
+              Alert.alert('Error', 'Hubo un problema al reiniciar las categorías');
+            } finally {
+              setCreatingCategories(false);
+            }
+          }
+        }
+      ]
+    );
+  };
+
   if (!onboardingCompleted) {
     return <CategoriesOnboarding onComplete={handleOnboardingComplete} />;
   }
 
-  return <CategoriesManager userCategories={userCategories} />;
+  return <CategoriesManager userCategories={userCategories} onResetOnboarding={handleResetOnboarding} />;
 }

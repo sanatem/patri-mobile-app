@@ -15,12 +15,12 @@ export interface TransactionCategory {
 export interface UserCategory {
   id: number;
   name: string;
-  translated_name: string;
+  display_name: string; // Nombre a mostrar en la UI
   kind: 'expense' | 'income';
   parent_id: number | null;
   emoji_code?: string;
-  system_based: boolean; // Heredadas o copiadas de las categorías del sistema
-  custom: boolean; // Creadas por el usuario
+  is_system_category: boolean; // Heredadas o copiadas de las categorías del sistema
+  is_custom_category: boolean; // Creadas por el usuario
   transaction_category_id?: number; // ID de la categoría del sistema (si es basada en sistema)
   children?: UserCategory[];
   created_at: string;

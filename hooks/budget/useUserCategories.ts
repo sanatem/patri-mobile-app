@@ -129,9 +129,19 @@ export function useUserCategories(
 
   const resetOnboarding = async () => {
     try {
+      // Eliminar todas las categorías del usuario del backend
+      if (accessToken && categories.length > 0) {
+        const deletePromises = categories.map(cat => deleteUserCategory(cat.id, accessToken));
+        await Promise.all(deletePromises);
+      }
+
+      // Limpiar AsyncStorage
       await AsyncStorage.multiRemove([USER_CATEGORIES_KEY, ONBOARDING_COMPLETED_KEY]);
+
+      // Resetear estados
       setUserCategories({ income: [], expenses: [] });
       setOnboardingCompleted(false);
+      setCategories([]);
     } catch (error) {
       console.error('Error resetting onboarding:', error);
       throw error;
@@ -200,14 +210,14 @@ export function useUserCategories(
    * Obtiene solo las categorías personalizadas (custom)
    */
   const getCustomCategories = () => {
-    return categories.filter(cat => cat.custom === true);
+    return categories.filter(cat => cat.is_custom_category === true);
   };
 
   /**
    * Obtiene solo las categorías basadas en el sistema
    */
   const getSystemBasedCategories = () => {
-    return categories.filter(cat => cat.system_based === true);
+    return categories.filter(cat => cat.is_system_category === true);
   };
 
   /**

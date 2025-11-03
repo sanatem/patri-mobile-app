@@ -10,6 +10,7 @@ import { useAuth } from '@/providers/AuthProvider';
 import { getUserCategories } from '@/services/budget/categories-manager';
 import type { UserCategory } from '@/services/budget/categories-manager';
 import Colors from '@/constants/Colors';
+import { getTranslatedNames } from '@/utils/categoryTranslations';
 
 export default function EditTransactionScreen() {
   const router = useRouter();
@@ -147,17 +148,22 @@ export default function EditTransactionScreen() {
   // Opciones de categorías padre
   const categoryOptions = useMemo(() => {
     if (apiCategories.length === 0) return [];
+    const isIncome = transaction?.transaction_type === 'income';
+    const currentLang = t('common.language_code', 'es');
 
     return [
       { label: t('budget.no_category', 'Sin categoría'), value: '' },
       ...apiCategories
         .filter(category => category && category.id !== undefined && category.id !== null)
-        .map(category => ({
-          label: category.translated_name || '',
-          value: category.id.toString()
-        }))
+        .map(category => {
+          const translatedNames = getTranslatedNames(category.display_name, isIncome);
+          return {
+            label: translatedNames[currentLang as 'en' | 'es' | 'es-CL'] || category.display_name || '',
+            value: category.id.toString()
+          };
+        })
     ];
-  }, [apiCategories, t]);
+  }, [apiCategories, t, transaction?.transaction_type]);
 
   // Opciones de subcategorías basadas en la categoría seleccionada
   const subcategoryOptions = useMemo(() => {
@@ -165,17 +171,22 @@ export default function EditTransactionScreen() {
 
     const selectedCategory = apiCategories.find(cat => cat && cat.id && cat.id.toString() === selectedParentCategoryId);
     if (!selectedCategory || !selectedCategory.children || selectedCategory.children.length === 0) return [];
+    const isIncome = transaction?.transaction_type === 'income';
+    const currentLang = t('common.language_code', 'es');
 
     return [
       { label: t('budget.no_subcategory', 'Sin subcategoría'), value: '' },
       ...selectedCategory.children
         .filter(subcat => subcat && subcat.id !== undefined && subcat.id !== null)
-        .map(subcat => ({
-          label: subcat.translated_name || '',
-          value: subcat.id.toString()
-        }))
+        .map(subcat => {
+          const translatedNames = getTranslatedNames(subcat.display_name, isIncome);
+          return {
+            label: translatedNames[currentLang as 'en' | 'es' | 'es-CL'] || subcat.display_name || '',
+            value: subcat.id.toString()
+          };
+        })
     ];
-  }, [selectedParentCategoryId, apiCategories, t]);
+  }, [selectedParentCategoryId, apiCategories, t, transaction?.transaction_type]);
 
   const handleCategoryChange = (value: string) => {
     setSelectedParentCategoryId(value);

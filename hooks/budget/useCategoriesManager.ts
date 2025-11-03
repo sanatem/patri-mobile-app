@@ -1,11 +1,11 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
-import { Animated, LayoutAnimation, Platform, UIManager } from 'react-native';
+import { Animated, LayoutAnimation, Platform, UIManager, Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { INCOME_CATEGORIES, EXPENSE_CATEGORIES } from '@/constants/BudgetCategories';
 import { useFloidTransactions } from '@/hooks/budget/useFloidTransactions';
 import { useFloidAccounts } from '@/hooks/budget/useFloidAccounts';
 import { useAuth } from '@/providers/AuthProvider';
-import { getUserCategories } from '@/services/budget/categories-manager';
+import { getUserCategories, deleteUserCategory } from '@/services/budget/categories-manager';
 import type { UserCategory } from '@/services/budget/categories-manager';
 import { UserCategoriesState } from './useUserCategories';
 import { assignTransactionCategory } from '@/services/budget/transactions/assign-transaction-category';
@@ -38,6 +38,7 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
   const [selectedCategories, setSelectedCategories] = useState<Set<string>>(new Set());
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [totalTransactionsToUncategorize, setTotalTransactionsToUncategorize] = useState(0);
+  const [deletingCategories, setDeletingCategories] = useState(false);
 
   // Estados para modo de selección de transacciones
   const [transactionSelectionMode, setTransactionSelectionMode] = useState(false);
@@ -126,49 +127,57 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
   const allTransactionsData = activeTab === 'income' ? incomeTransactionsData : expenseTransactionsData;
   const allTransactions = allTransactionsData?.transactions || [];
 
-  // Helper: Obtener emoji basado en el nombre de la categoría
-  const getEmojiForCategory = (name: string, isIncome: boolean): string => {
+  // Helper: Encontrar categoría estática por nombre
+  const findStaticCategory = (name: string, isIncome: boolean) => {
     const staticCategories = isIncome ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
-
-    // Buscar coincidencia por nombre (case-insensitive)
     const normalizedName = name.toLowerCase().trim();
 
+    // Buscar en categorías principales
     const found = staticCategories.find(cat => {
-      const catNameEs = cat.name.es.toLowerCase();
-      const catNameEsCl = cat.name['es-CL'].toLowerCase();
       const catNameEn = cat.name.en.toLowerCase();
-
-      return catNameEs === normalizedName ||
-             catNameEsCl === normalizedName ||
-             catNameEn === normalizedName ||
-             catNameEs.includes(normalizedName) ||
-             normalizedName.includes(catNameEs);
+      return catNameEn === normalizedName;
     });
 
-    // Si encontramos coincidencia en categorías, retornar su emoji
-    if (found) return found.emoji;
+    if (found) return found;
 
     // Buscar en subcategorías
     for (const cat of staticCategories) {
       if (cat.subcategories) {
         const subFound = cat.subcategories.find(sub => {
-          const subNameEs = sub.name.es.toLowerCase();
-          const subNameEsCl = sub.name['es-CL'].toLowerCase();
           const subNameEn = sub.name.en.toLowerCase();
-
-          return subNameEs === normalizedName ||
-                 subNameEsCl === normalizedName ||
-                 subNameEn === normalizedName ||
-                 subNameEs.includes(normalizedName) ||
-                 normalizedName.includes(subNameEs);
+          return subNameEn === normalizedName;
         });
-
-        if (subFound) return subFound.emoji;
+        if (subFound) return subFound;
       }
     }
 
-    // Emoji por defecto si no se encuentra coincidencia
-    return isIncome ? '💰' : '💸';
+    return null;
+  };
+
+  // Helper: Obtener emoji basado en el nombre de la categoría
+  const getEmojiForCategory = (name: string, isIncome: boolean): string => {
+    const found = findStaticCategory(name, isIncome);
+    return found?.emoji || (isIncome ? '💰' : '💸');
+  };
+
+  // Helper: Obtener nombres traducidos basado en el display_name (en inglés)
+  const getTranslatedNames = (displayName: string, isIncome: boolean) => {
+    const found = findStaticCategory(displayName, isIncome);
+
+    if (found) {
+      return {
+        en: found.name.en,
+        es: found.name.es,
+        'es-CL': found.name['es-CL']
+      };
+    }
+
+    // Si no encontramos traducción, usar el display_name para todos los idiomas
+    return {
+      en: displayName,
+      es: displayName,
+      'es-CL': displayName
+    };
   };
 
   // Transformar categorías del API al formato esperado por el componente
@@ -181,23 +190,19 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
     if (apiCategories.length > 0) {
       // Transformar user categories al formato del componente
       baseCategories = apiCategories.map(category => {
+        const translatedNames = getTranslatedNames(category.display_name, isIncome);
         return {
           id: category.id.toString(),
-          name: {
-            en: category.name,
-            es: category.translated_name,
-            'es-CL': category.translated_name
-          },
-          emoji: category.emoji_code || getEmojiForCategory(category.translated_name, isIncome),
-          subcategories: (category.children || []).map(subcat => ({
-            id: subcat.id.toString(),
-            name: {
-              en: subcat.name,
-              es: subcat.translated_name,
-              'es-CL': subcat.translated_name
-            },
-            emoji: subcat.emoji_code || getEmojiForCategory(subcat.translated_name, isIncome)
-          }))
+          name: translatedNames,
+          emoji: category.emoji_code || getEmojiForCategory(category.display_name, isIncome),
+          subcategories: (category.children || []).map(subcat => {
+            const subTranslatedNames = getTranslatedNames(subcat.display_name, isIncome);
+            return {
+              id: subcat.id.toString(),
+              name: subTranslatedNames,
+              emoji: subcat.emoji_code || getEmojiForCategory(subcat.display_name, isIncome)
+            };
+          })
         };
       });
     } else {
@@ -219,15 +224,23 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
     return rotations.get(id)!;
   };
 
-  // Agrupar transacciones por categoría y subcategoría
+  // Agrupar transacciones por categoría y subcategoría usando category.id
   const groupedData = useMemo(() => {
+    // Transacciones sin categoría (category es null o no tiene id)
     const uncategorized = allTransactions.filter(t => !t.category || !t.category.id);
 
     const categorized = categories.map(category => {
-      const categoryTransactions = allTransactions.filter(t => t.category?.id === category.id);
+      const categoryId = parseInt(category.id);
 
+      // Filtrar transacciones que tengan este category.id (categoría padre o subcategoría)
+      const categoryTransactions = allTransactions.filter(t => t.category?.id === categoryId);
+
+      // Procesar subcategorías
       const subcategoriesData = category.subcategories?.map(subcat => {
-        const subcatTransactions = categoryTransactions.filter(t => t.category?.id === subcat.id);
+        const subcatId = parseInt(subcat.id);
+        // Filtrar transacciones que tengan este category.id (subcategoría)
+        const subcatTransactions = allTransactions.filter(t => t.category?.id === subcatId);
+
         return {
           ...subcat,
           transactions: subcatTransactions,
@@ -235,14 +248,24 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
         };
       }) || [];
 
-      const uncategorizedInCategory = categoryTransactions.filter(t => !t.subcategory);
+      // Transacciones que pertenecen a la categoría padre pero no a ninguna subcategoría
+      const subcategoryIds = category.subcategories?.map(s => parseInt(s.id)) || [];
+      const uncategorizedInCategory = categoryTransactions.filter(t => {
+        const tCategoryId = t.category?.id;
+        return tCategoryId === categoryId && !subcategoryIds.includes(tCategoryId);
+      });
+
+      // Calcular total incluyendo subcategorías
+      const subcategoriesTotal = subcategoriesData.reduce((sum, sub) => sum + sub.total, 0);
+      const categoryTotal = categoryTransactions.reduce((sum, t) => sum + parseFloat(t.amount.toString()), 0);
+      const total = categoryTotal + subcategoriesTotal;
 
       return {
         ...category,
         subcategories: subcategoriesData,
         uncategorizedTransactions: uncategorizedInCategory,
-        total: categoryTransactions.reduce((sum, t) => sum + parseFloat(t.amount.toString()), 0),
-        transactionCount: categoryTransactions.length
+        total,
+        transactionCount: categoryTransactions.length + subcategoriesData.reduce((sum, sub) => sum + sub.transactions.length, 0)
       };
     });
 
@@ -253,14 +276,18 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
   const categoryOptions = useMemo(() => {
     const apiCategories = activeTab === 'income' ? apiIncomeCategories : apiExpenseCategories;
     if (apiCategories.length === 0) return [];
+    const isIncome = activeTab === 'income';
 
     return apiCategories
       .filter(category => category && category.id !== undefined && category.id !== null)
-      .map(category => ({
-        label: category.translated_name || '',
-        value: category.id.toString()
-      }));
-  }, [activeTab, apiIncomeCategories, apiExpenseCategories]);
+      .map(category => {
+        const translatedNames = getTranslatedNames(category.display_name, isIncome);
+        return {
+          label: translatedNames[currentLang as 'en' | 'es' | 'es-CL'] || category.display_name || '',
+          value: category.id.toString()
+        };
+      });
+  }, [activeTab, apiIncomeCategories, apiExpenseCategories, currentLang]);
 
   const subcategoryOptions = useMemo(() => {
     if (!selectedDestinationCategory) return [];
@@ -269,14 +296,18 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
     const category = apiCategories.find(cat => cat && cat.id && cat.id.toString() === selectedDestinationCategory);
 
     if (!category || !category.children || category.children.length === 0) return [];
+    const isIncome = activeTab === 'income';
 
     return category.children
       .filter(subcat => subcat && subcat.id !== undefined && subcat.id !== null)
-      .map(subcat => ({
-        label: subcat.translated_name || '',
-        value: subcat.id.toString()
-      }));
-  }, [selectedDestinationCategory, activeTab, apiIncomeCategories, apiExpenseCategories]);
+      .map(subcat => {
+        const translatedNames = getTranslatedNames(subcat.display_name, isIncome);
+        return {
+          label: translatedNames[currentLang as 'en' | 'es' | 'es-CL'] || subcat.display_name || '',
+          value: subcat.id.toString()
+        };
+      });
+  }, [selectedDestinationCategory, activeTab, apiIncomeCategories, apiExpenseCategories, currentLang]);
 
   const toggleCategory = (categoryId: string) => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -520,33 +551,89 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
     setShowDeleteModal(true);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
+    if (!accessToken) {
+      Alert.alert('Error', 'No hay token de autenticación disponible');
+      return;
+    }
 
-    selectedSubcategories.forEach(id => {
-      const animation = getSelectionAnimation(id);
-      Animated.spring(animation, {
-        toValue: 0,
-        useNativeDriver: false,
-        friction: 8,
-        tension: 40
-      }).start();
-    });
+    try {
+      setDeletingCategories(true);
 
-    selectedCategories.forEach(id => {
-      const animation = getSelectionAnimation(id);
-      Animated.spring(animation, {
-        toValue: 0,
-        useNativeDriver: false,
-        friction: 8,
-        tension: 40
-      }).start();
-    });
+      // Recolectar todos los IDs a eliminar (categorías y subcategorías)
+      const idsToDelete: number[] = [];
 
-    setShowDeleteModal(false);
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setSelectionMode(false);
-    setSelectedSubcategories(new Set());
-    setSelectedCategories(new Set());
+      // Agregar categorías seleccionadas
+      selectedCategories.forEach(id => {
+        idsToDelete.push(parseInt(id));
+      });
+
+      // Agregar subcategorías seleccionadas
+      selectedSubcategories.forEach(id => {
+        idsToDelete.push(parseInt(id));
+      });
+
+      // Eliminar todas las categorías/subcategorías en paralelo
+      const deletePromises = idsToDelete.map(id => deleteUserCategory(id, accessToken));
+      await Promise.all(deletePromises);
+
+      // Recargar las categorías desde el API
+      const [incomeResponse, expenseResponse] = await Promise.all([
+        getUserCategories({ kind: 'income', per_page: 100 }, accessToken),
+        getUserCategories({ kind: 'expense', per_page: 100 }, accessToken)
+      ]);
+
+      if (incomeResponse?.success && incomeResponse.data) {
+        const parentCategories = incomeResponse.data.filter(cat => cat.parent_id === null);
+        setApiIncomeCategories(parentCategories);
+      }
+
+      if (expenseResponse?.success && expenseResponse.data) {
+        const parentCategories = expenseResponse.data.filter(cat => cat.parent_id === null);
+        setApiExpenseCategories(parentCategories);
+      }
+
+      // Refrescar transacciones para actualizar contadores
+      await Promise.all([
+        refetchIncomeTransactions(),
+        refetchExpenseTransactions()
+      ]);
+
+      // Resetear animaciones
+      selectedSubcategories.forEach(id => {
+        const animation = getSelectionAnimation(id);
+        Animated.spring(animation, {
+          toValue: 0,
+          useNativeDriver: false,
+          friction: 8,
+          tension: 40
+        }).start();
+      });
+
+      selectedCategories.forEach(id => {
+        const animation = getSelectionAnimation(id);
+        Animated.spring(animation, {
+          toValue: 0,
+          useNativeDriver: false,
+          friction: 8,
+          tension: 40
+        }).start();
+      });
+
+      setShowDeleteModal(false);
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+      setSelectionMode(false);
+      setSelectedSubcategories(new Set());
+      setSelectedCategories(new Set());
+
+      Alert.alert('Éxito', 'Categorías eliminadas correctamente');
+
+    } catch (error) {
+      console.error('Error deleting categories:', error);
+      Alert.alert('Error', 'Hubo un problema al eliminar las categorías. Por favor intenta nuevamente.');
+    } finally {
+      setDeletingCategories(false);
+    }
   };
 
   const getTransactionAnimation = (id: number) => {
@@ -726,6 +813,7 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
     loading,
     categoriesLoading,
     assigningCategories,
+    deletingCategories,
 
     apiIncomeCategories,
     apiExpenseCategories,
