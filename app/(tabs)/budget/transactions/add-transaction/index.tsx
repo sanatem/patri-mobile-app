@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { View, Text, AppState } from 'react-native';
+import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import FormLayout from '@/components/ui/FormLayout';
@@ -8,8 +8,9 @@ import CalendarSelect from '@/components/ui/CalendarSelect';
 import { useFloidAccounts } from '@/hooks/budget/useFloidAccounts';
 import { createFloidTransaction } from '@/services/budget/create-floid-transaction';
 import { useAuth } from '@/providers/AuthProvider';
-import { INCOME_CATEGORIES, EXPENSE_CATEGORIES } from '@/constants/BudgetCategories';
-import Colors from '@/constants/Colors';
+import { getExpenseCategories } from '@/services/budget/categories-manager/get-expense-categories';
+import { getIncomeCategories } from '@/services/budget/categories-manager/get-income-categories';
+import type { TransactionCategory } from '@/services/budget/categories-manager/get-expense-categories';
 
 export default function AddTransactionScreen() {
   const router = useRouter();
@@ -21,8 +22,8 @@ export default function AddTransactionScreen() {
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
   const [selectedAccountId, setSelectedAccountId] = useState<string>('');
-  const [category, setCategory] = useState('');
-  const [subcategory, setSubcategory] = useState('');
+  const [selectedParentCategoryId, setSelectedParentCategoryId] = useState('');
+  const [selectedSubcategoryId, setSelectedSubcategoryId] = useState('');
   const [date, setDate] = useState(() => {
     const today = new Date();
     const day = today.getDate().toString().padStart(2, '0');
@@ -33,6 +34,37 @@ export default function AddTransactionScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const [apiIncomeCategories, setApiIncomeCategories] = useState<TransactionCategory[]>([]);
+  const [apiExpenseCategories, setApiExpenseCategories] = useState<TransactionCategory[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      if (!accessToken) return;
+
+      try {
+        setCategoriesLoading(true);
+        const [incomeResponse, expenseResponse] = await Promise.all([
+          getIncomeCategories({ per_page: 100 }, accessToken),
+          getExpenseCategories({ per_page: 100 }, accessToken)
+        ]);
+
+        if (incomeResponse?.success && incomeResponse.data) {
+          setApiIncomeCategories(incomeResponse.data);
+        }
+        if (expenseResponse?.success && expenseResponse.data) {
+          setApiExpenseCategories(expenseResponse.data);
+        }
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      } finally {
+        setCategoriesLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, [accessToken]);
 
   const accountOptions = useMemo(() => {
     if (!accounts || accounts.floid_accounts.length === 0) return [];
@@ -49,46 +81,52 @@ export default function AddTransactionScreen() {
   ];
 
   const categoryOptions = useMemo(() => {
-    const categories = transactionType === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
-    const currentLang = t('common.language_code', 'es');
+    const apiCategories = transactionType === 'income' ? apiIncomeCategories : apiExpenseCategories;
+    if (apiCategories.length === 0) return [];
 
     return [
       { label: t('budget.no_category', 'Sin categoría'), value: '' },
-      ...categories.map(cat => ({
-        label: `${cat.emoji} ${cat.name[currentLang as keyof typeof cat.name] || cat.name.es}`,
-        value: cat.id
-      }))
+      ...apiCategories
+        .filter(category => category && category.id !== undefined && category.id !== null)
+        .map(category => ({
+          label: category.translated_name || '',
+          value: category.id.toString()
+        }))
     ];
-  }, [t, transactionType]);
+  }, [t, transactionType, apiIncomeCategories, apiExpenseCategories]);
 
   const subcategoryOptions = useMemo(() => {
-    if (!category) return [];
+    if (!selectedParentCategoryId) return [];
 
-    const categories = transactionType === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
-    const selectedCategory = categories.find(cat => cat.id === category);
+    const apiCategories = transactionType === 'income' ? apiIncomeCategories : apiExpenseCategories;
+    const selectedCategory = apiCategories.find(cat => cat && cat.id && cat.id.toString() === selectedParentCategoryId);
 
-    if (!selectedCategory || !selectedCategory.subcategories) return [];
-
-    const currentLang = t('common.language_code', 'es');
+    if (!selectedCategory || !selectedCategory.children || selectedCategory.children.length === 0) return [];
 
     return [
       { label: t('budget.no_subcategory', 'Sin subcategoría'), value: '' },
-      ...selectedCategory.subcategories.map(subcat => ({
-        label: `${subcat.emoji} ${subcat.name[currentLang as keyof typeof subcat.name] || subcat.name.es}`,
-        value: subcat.id
-      }))
+      ...selectedCategory.children
+        .filter(subcat => subcat && subcat.id !== undefined && subcat.id !== null)
+        .map(subcat => ({
+          label: subcat.translated_name || '',
+          value: subcat.id.toString()
+        }))
     ];
-  }, [category, t, transactionType]);
+  }, [selectedParentCategoryId, t, transactionType, apiIncomeCategories, apiExpenseCategories]);
 
   const handleCategoryChange = (value: string) => {
-    setCategory(value);
-    setSubcategory(''); // Resetear subcategoría al cambiar categoría
+    setSelectedParentCategoryId(value);
+    setSelectedSubcategoryId('');
+  };
+
+  const handleSubcategoryChange = (value: string) => {
+    setSelectedSubcategoryId(value);
   };
 
   const handleTransactionTypeChange = (value: string) => {
     setTransactionType(value as 'income' | 'expense');
-    setCategory(''); // Resetear categoría al cambiar tipo de transacción
-    setSubcategory(''); // Resetear subcategoría al cambiar tipo de transacción
+    setSelectedParentCategoryId('');
+    setSelectedSubcategoryId('');
   };
 
   const handleSubmit = async () => {
@@ -115,15 +153,24 @@ export default function AddTransactionScreen() {
       const dateParts = date.split('/');
       const formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
 
-      const transactionData = {
+      const transactionData: any = {
         floid_account_id: parseInt(selectedAccountId),
         amount_in: transactionType === 'income' ? parseFloat(amount.replace(/\./g, '').replace(',', '.')) : 0,
         amount_out: transactionType === 'expense' ? parseFloat(amount.replace(/\./g, '').replace(',', '.')) : 0,
         description: description.trim(),
         date: formattedDate,
-        category: category || undefined,
-        subcategory: subcategory || undefined
       };
+
+      if (selectedSubcategoryId) {
+        transactionData.transaction_category_id = parseInt(selectedSubcategoryId);
+        transactionData.auto_category = false;
+      } else if (selectedParentCategoryId) {
+        transactionData.transaction_category_id = parseInt(selectedParentCategoryId);
+        transactionData.auto_category = false;
+      } else {
+        transactionData.transaction_category_id = null;
+        transactionData.auto_category = false;
+      }
 
       await createFloidTransaction(transactionData, accessToken!);
 
@@ -216,17 +263,17 @@ export default function AddTransactionScreen() {
         <Select
           label={t('budget.category', 'Categoría')}
           options={categoryOptions}
-          value={category}
+          value={selectedParentCategoryId}
           onSelect={handleCategoryChange}
           placeholder={t('budget.no_category', 'Sin categoría')}
         />
 
-        {category && subcategoryOptions.length > 0 && (
+        {selectedParentCategoryId && subcategoryOptions.length > 0 && (
           <Select
             label={t('budget.subcategory', 'Subcategoría')}
             options={subcategoryOptions}
-            value={subcategory}
-            onSelect={setSubcategory}
+            value={selectedSubcategoryId}
+            onSelect={handleSubcategoryChange}
             placeholder={t('budget.no_subcategory', 'Sin subcategoría')}
           />
         )}

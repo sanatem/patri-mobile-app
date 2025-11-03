@@ -11,7 +11,6 @@ import type { TransactionCategory } from '@/services/budget/categories-manager/g
 import { UserCategoriesState } from './useUserCategories';
 import { assignTransactionCategory } from '@/services/budget/categories-manager/assign-transaction-category';
 
-// Habilitar LayoutAnimation en Android
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
@@ -255,35 +254,42 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
     return { categorized, uncategorized };
   }, [allTransactions, activeTab, categories]);
 
-  // Opciones para los selects del modal de mover transacciones
+  // Opciones para los selects del modal de mover transacciones (desde API)
   const categoryOptions = useMemo(() => {
-    return categories.map(cat => ({
-      label: `${cat.emoji} ${cat.name[currentLang as keyof typeof cat.name] || cat.name.es}`,
-      value: cat.id
-    }));
-  }, [categories, currentLang]);
+    const apiCategories = activeTab === 'income' ? apiIncomeCategories : apiExpenseCategories;
+    if (apiCategories.length === 0) return [];
+
+    return apiCategories
+      .filter(category => category && category.id !== undefined && category.id !== null)
+      .map(category => ({
+        label: category.translated_name || '',
+        value: category.id.toString()
+      }));
+  }, [activeTab, apiIncomeCategories, apiExpenseCategories]);
 
   const subcategoryOptions = useMemo(() => {
     if (!selectedDestinationCategory) return [];
 
-    const category = categories.find(cat => cat.id === selectedDestinationCategory);
-    if (!category?.subcategories) return [];
+    const apiCategories = activeTab === 'income' ? apiIncomeCategories : apiExpenseCategories;
+    const category = apiCategories.find(cat => cat && cat.id && cat.id.toString() === selectedDestinationCategory);
 
-    return category.subcategories.map(subcat => ({
-      label: `${subcat.emoji} ${subcat.name[currentLang as keyof typeof subcat.name] || subcat.name.es}`,
-      value: subcat.id
-    }));
-  }, [selectedDestinationCategory, categories, currentLang]);
+    if (!category || !category.children || category.children.length === 0) return [];
+
+    return category.children
+      .filter(subcat => subcat && subcat.id !== undefined && subcat.id !== null)
+      .map(subcat => ({
+        label: subcat.translated_name || '',
+        value: subcat.id.toString()
+      }));
+  }, [selectedDestinationCategory, activeTab, apiIncomeCategories, apiExpenseCategories]);
 
   const toggleCategory = (categoryId: string) => {
-    // Configurar animación de layout
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
 
     const newExpanded = new Set(expandedCategories);
     const isExpanding = !newExpanded.has(categoryId);
     const rotation = getOrCreateRotation(categoryId, true);
 
-    // Animar rotación del chevron
     Animated.timing(rotation, {
       toValue: isExpanding ? 1 : 0,
       duration: 200,
@@ -299,14 +305,12 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
   };
 
   const toggleSubcategory = (subcategoryId: string) => {
-    // Configurar animación de layout
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
 
     const newExpanded = new Set(expandedSubcategories);
     const isExpanding = !newExpanded.has(subcategoryId);
     const rotation = getOrCreateRotation(subcategoryId, false);
 
-    // Animar rotación del chevron
     Animated.timing(rotation, {
       toValue: isExpanding ? 1 : 0,
       duration: 200,
@@ -335,7 +339,6 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
     };
   };
 
-  // Función para obtener o crear animación de selección
   const getSelectionAnimation = (id: string) => {
     if (!selectionAnimations.has(id)) {
       selectionAnimations.set(id, new Animated.Value(0));
@@ -343,7 +346,6 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
     return selectionAnimations.get(id)!;
   };
 
-  // Funciones para manejo de selección múltiple de subcategorías
   const handleLongPress = (subcategoryId: string) => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setSelectionMode(true);
@@ -351,7 +353,6 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
     newSelected.add(subcategoryId);
     setSelectedSubcategories(newSelected);
 
-    // Animar selección
     const animation = getSelectionAnimation(subcategoryId);
     Animated.spring(animation, {
       toValue: 1,
@@ -361,7 +362,6 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
     }).start();
   };
 
-  // Funciones para manejo de selección múltiple de categorías
   const handleCategoryLongPress = (categoryId: string) => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setSelectionMode(true);
@@ -369,13 +369,11 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
     newSelected.add(categoryId);
     setSelectedCategories(newSelected);
 
-    // Seleccionar también todas las subcategorías de esta categoría
     const category = categories.find(cat => cat.id === categoryId);
     if (category?.subcategories) {
       const newSelectedSubs = new Set(selectedSubcategories);
       category.subcategories.forEach(subcat => {
         newSelectedSubs.add(subcat.id);
-        // Animar subcategoría
         const subAnimation = getSelectionAnimation(subcat.id);
         Animated.spring(subAnimation, {
           toValue: 1,
@@ -387,7 +385,6 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
       setSelectedSubcategories(newSelectedSubs);
     }
 
-    // Animar selección de categoría
     const animation = getSelectionAnimation(categoryId);
     Animated.spring(animation, {
       toValue: 1,
@@ -409,19 +406,15 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
       }
       setSelectedCategories(newSelected);
 
-      // Seleccionar/Deseleccionar también todas las subcategorías de esta categoría
       const category = categories.find(cat => cat.id === categoryId);
       if (category?.subcategories) {
         const newSelectedSubs = new Set(selectedSubcategories);
         category.subcategories.forEach(subcat => {
           if (isCurrentlySelected) {
-            // Deseleccionar subcategoría
             newSelectedSubs.delete(subcat.id);
           } else {
-            // Seleccionar subcategoría
             newSelectedSubs.add(subcat.id);
           }
-          // Animar subcategoría
           const subAnimation = getSelectionAnimation(subcat.id);
           Animated.spring(subAnimation, {
             toValue: isCurrentlySelected ? 0 : 1,
@@ -433,7 +426,6 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
         setSelectedSubcategories(newSelectedSubs);
       }
 
-      // Animar selección/deselección de categoría
       const animation = getSelectionAnimation(categoryId);
       Animated.spring(animation, {
         toValue: isCurrentlySelected ? 0 : 1,
@@ -442,8 +434,6 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
         tension: 40
       }).start();
 
-      // Si no hay selecciones, salir del modo selección
-      // Necesitamos calcular el nuevo tamaño después de actualizar subcategorías
       const newSubsSize = category?.subcategories
         ? (isCurrentlySelected
             ? selectedSubcategories.size - category.subcategories.length
@@ -471,7 +461,6 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
       }
       setSelectedSubcategories(newSelected);
 
-      // Animar selección/deselección
       const animation = getSelectionAnimation(subcategoryId);
       Animated.spring(animation, {
         toValue: isCurrentlySelected ? 0 : 1,
@@ -480,7 +469,6 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
         tension: 40
       }).start();
 
-      // Si no hay selecciones, salir del modo selección
       if (newSelected.size === 0 && selectedCategories.size === 0) {
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
         setSelectionMode(false);
@@ -493,7 +481,6 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
   const handleCancelSelection = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
 
-    // Animar deselección de todos los items (subcategorías y categorías)
     selectedSubcategories.forEach(id => {
       const animation = getSelectionAnimation(id);
       Animated.spring(animation, {
@@ -520,16 +507,13 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
   };
 
   const handleDeleteSelected = () => {
-    // Calcular total de transacciones que se descategorizarán
     let totalTransactions = 0;
 
-    // Contar transacciones de categorías completas seleccionadas
     groupedData.categorized.forEach(category => {
       if (selectedCategories.has(category.id)) {
         totalTransactions += category.transactionCount;
       }
 
-      // Contar transacciones de subcategorías seleccionadas
       category.subcategories?.forEach(subcat => {
         if (selectedSubcategories.has(subcat.id)) {
           totalTransactions += subcat.transactions.length;
@@ -542,12 +526,7 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
   };
 
   const confirmDelete = () => {
-    // TODO: Implementar la lógica de eliminación real
-    console.log('Eliminando categorías:', Array.from(selectedCategories));
-    console.log('Eliminando subcategorías:', Array.from(selectedSubcategories));
-    console.log('Total de transacciones a descategorizar:', totalTransactionsToUncategorize);
 
-    // Animar deselección de todos los items antes de eliminar
     selectedSubcategories.forEach(id => {
       const animation = getSelectionAnimation(id);
       Animated.spring(animation, {
@@ -568,7 +547,6 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
       }).start();
     });
 
-    // Cerrar modal y resetear selección
     setShowDeleteModal(false);
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setSelectionMode(false);
@@ -576,7 +554,6 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
     setSelectedCategories(new Set());
   };
 
-  // Funciones para obtener animación de transacción
   const getTransactionAnimation = (id: number) => {
     if (!transactionAnimations.has(id)) {
       transactionAnimations.set(id, new Animated.Value(0));
@@ -584,7 +561,6 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
     return transactionAnimations.get(id)!;
   };
 
-  // Funciones para manejo de selección de transacciones
   const handleTransactionPress = (transactionId: number) => {
     const newSelected = new Set(selectedTransactions);
     const isCurrentlySelected = newSelected.has(transactionId);
@@ -596,7 +572,6 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
     }
     setSelectedTransactions(newSelected);
 
-    // Animar checkbox
     const animation = getTransactionAnimation(transactionId);
     Animated.spring(animation, {
       toValue: isCurrentlySelected ? 0 : 1,
@@ -605,7 +580,6 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
       tension: 40
     }).start();
 
-    // Activar modo selección si hay al menos 1 item seleccionado
     if (newSelected.size > 0 && !transactionSelectionMode) {
       LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       setTransactionSelectionMode(true);
@@ -616,7 +590,6 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
   };
 
   const handleCancelTransactionSelection = () => {
-    // Desanimar todos los checkboxes seleccionados
     selectedTransactions.forEach(id => {
       const animation = getTransactionAnimation(id);
       Animated.spring(animation, {
@@ -637,10 +610,6 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
   };
 
   const confirmDeleteTransactions = () => {
-    // TODO: Implementar eliminación de transacciones
-    console.log('Eliminando transacciones:', Array.from(selectedTransactions));
-
-    // Desanimar todos los checkboxes
     selectedTransactions.forEach(id => {
       const animation = getTransactionAnimation(id);
       Animated.spring(animation, {
@@ -663,7 +632,6 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
 
   const handleCategoryChange = (categoryId: string) => {
     setSelectedDestinationCategory(categoryId);
-    // Reset subcategory when category changes
     setSelectedDestinationSubcategory(null);
   };
 
@@ -685,39 +653,26 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
     try {
       setAssigningCategories(true);
 
-      // Determinar el category_id a usar (subcategoría si existe, sino categoría)
       const categoryId = selectedDestinationSubcategory
         ? parseInt(selectedDestinationSubcategory)
         : parseInt(selectedDestinationCategory);
 
-      // Obtener los IDs de las transacciones seleccionadas
       const transactionIds = Array.from(selectedTransactions);
 
-      console.log('Asignando categorías a transacciones:', {
-        count: transactionIds.length,
-        categoryId,
-        transactionIds
-      });
-
-      // Asignar categorías a todas las transacciones en una sola llamada
       const response = await assignTransactionCategory(
         {
           transaction_ids: transactionIds,
           transaction_category_id: categoryId,
-          auto_category: false // Siempre manual cuando se categoriza desde la UI
+          auto_category: false
         },
         accessToken
       );
 
-      console.log('Categorías asignadas exitosamente:', response);
-
-      // Refrescar transacciones después de la asignación
       await Promise.all([
         refetchIncomeTransactions(),
         refetchExpenseTransactions()
       ]);
 
-      // Desanimar todos los checkboxes
       selectedTransactions.forEach(id => {
         const animation = getTransactionAnimation(id);
         Animated.spring(animation, {
@@ -728,12 +683,10 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
         }).start();
       });
 
-      // Mostrar mensaje de éxito
       setShowMoveModal(false);
       setShowSuccessMessage(true);
       setTimeout(() => setShowSuccessMessage(false), 3000);
 
-      // Reset
       LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       setTransactionSelectionMode(false);
       setSelectedTransactions(new Set());
@@ -742,7 +695,6 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
 
     } catch (error) {
       console.error('Error assigning categories to transactions:', error);
-      // TODO: Mostrar mensaje de error al usuario
     } finally {
       setAssigningCategories(false);
     }
@@ -755,12 +707,10 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
   };
 
   const handleNewCategory = () => {
-    // TODO: Implementar creación de categoría
     console.log('Crear nueva categoría');
   };
 
   return {
-    // State
     activeTab,
     expandedCategories,
     expandedSubcategories,
@@ -782,18 +732,15 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
     categoriesLoading,
     assigningCategories,
 
-    // API Data
     apiIncomeCategories,
     apiExpenseCategories,
 
-    // Computed values
     groupedData,
     categoryOptions,
     subcategoryOptions,
     categories,
     currentLang,
 
-    // Handlers
     setActiveTab,
     toggleCategory,
     toggleSubcategory,
@@ -818,7 +765,6 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
     setShowDeleteTransactionsModal,
     handleNewCategory,
 
-    // Translation
     t,
   };
 }
