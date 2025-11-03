@@ -157,8 +157,8 @@ export function useCategoriesOnboarding() {
       if (prev.includes(categoryId)) {
         return prev.filter(id => id !== categoryId);
       } else {
-        if (prev.length >= 6) {
-          setError(t('budget.max_expense_categories', 'Puedes seleccionar hasta 6 categorías de gastos'));
+        if (prev.length >= 4) {
+          setError(t('budget.max_expense_categories', 'Puedes seleccionar hasta 4 categorías de gastos'));
           return prev;
         }
         return [...prev, categoryId];
@@ -171,7 +171,7 @@ export function useCategoriesOnboarding() {
   }, [selectedIncome]);
 
   const isExpenseValid = useMemo(() => {
-    return selectedExpenses.length >= 1 && selectedExpenses.length <= 6;
+    return selectedExpenses.length >= 1 && selectedExpenses.length <= 4;
   }, [selectedExpenses]);
 
   const handleNext = () => {

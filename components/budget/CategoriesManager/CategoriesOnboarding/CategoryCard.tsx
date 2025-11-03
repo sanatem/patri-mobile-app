@@ -1,5 +1,6 @@
-import { View, Text, TouchableOpacity } from 'react-native';
-import { Check } from 'lucide-react-native';
+import { useEffect, useRef } from 'react';
+import { View, Text, TouchableOpacity, Animated } from 'react-native';
+import { CheckboxItem } from '@/components/ui';
 import Colors from '@/constants/Colors';
 
 interface CategoryCardProps {
@@ -10,6 +11,27 @@ interface CategoryCardProps {
 }
 
 export function CategoryCard({ category, isSelected, onToggle, currentLang }: CategoryCardProps) {
+  const animationValue = useRef(new Animated.Value(isSelected ? 1 : 0)).current;
+
+  useEffect(() => {
+    Animated.spring(animationValue, {
+      toValue: isSelected ? 1 : 0,
+      useNativeDriver: true,
+      friction: 8,
+      tension: 100,
+    }).start();
+  }, [isSelected, animationValue]);
+
+  const checkboxOpacity = animationValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.6, 1]
+  });
+
+  const checkboxScale = animationValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.8, 1]
+  });
+
   return (
     <TouchableOpacity
       onPress={onToggle}
@@ -20,7 +42,7 @@ export function CategoryCard({ category, isSelected, onToggle, currentLang }: Ca
         backgroundColor: 'white',
         borderRadius: 12,
         borderWidth: 1.5,
-        borderColor: Colors.gray[100],
+        borderColor: isSelected ? Colors.primary[200] : Colors.gray[100],
         marginBottom: 12,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 1 },
@@ -30,17 +52,7 @@ export function CategoryCard({ category, isSelected, onToggle, currentLang }: Ca
       }}
       activeOpacity={0.7}
     >
-      <View
-        style={{
-          width: 48,
-          height: 48,
-          alignItems: 'center',
-          justifyContent: 'center',
-          marginRight: 12,
-        }}
-      >
-        <Text style={{ fontSize: 32 }}>{category.emoji}</Text>
-      </View>
+      <Text style={{ fontSize: 32, marginRight: 12 }}>{category.emoji}</Text>
 
       <View style={{ flex: 1 }}>
         <Text
@@ -54,22 +66,13 @@ export function CategoryCard({ category, isSelected, onToggle, currentLang }: Ca
         </Text>
       </View>
 
-      <View
-        style={{
-          width: 24,
-          height: 24,
-          borderRadius: 12,
-          borderWidth: 2,
-          borderColor: isSelected ? Colors.primary[500] : Colors.gray[100],
-          backgroundColor: isSelected ? Colors.primary[500] : 'transparent',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        {isSelected && (
-          <Check size={14} color="white" strokeWidth={3} />
-        )}
-      </View>
+      <Animated.View style={{
+        marginLeft: 12,
+        opacity: checkboxOpacity,
+        transform: [{ scale: checkboxScale }]
+      }}>
+        <CheckboxItem selected={isSelected} size={24} />
+      </Animated.View>
     </TouchableOpacity>
   );
 }

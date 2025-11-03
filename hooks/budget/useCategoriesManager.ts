@@ -5,9 +5,8 @@ import { INCOME_CATEGORIES, EXPENSE_CATEGORIES } from '@/constants/BudgetCategor
 import { useFloidTransactions } from '@/hooks/budget/useFloidTransactions';
 import { useFloidAccounts } from '@/hooks/budget/useFloidAccounts';
 import { useAuth } from '@/providers/AuthProvider';
-import { getExpenseCategories } from '@/services/budget/categories-manager/system-categories/get-expense-categories';
-import { getIncomeCategories } from '@/services/budget/categories-manager/system-categories/get-income-categories';
-import type { TransactionCategory } from '@/services/budget/categories-manager/system-categories/get-expense-categories';
+import { getUserCategories } from '@/services/budget/categories-manager';
+import type { UserCategory } from '@/services/budget/categories-manager';
 import { UserCategoriesState } from './useUserCategories';
 import { assignTransactionCategory } from '@/services/budget/transactions/assign-transaction-category';
 
@@ -29,8 +28,8 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
   const subcategoryRotations = useRef<Map<string, Animated.Value>>(new Map()).current;
 
   // Estados para categorías del API
-  const [apiIncomeCategories, setApiIncomeCategories] = useState<TransactionCategory[]>([]);
-  const [apiExpenseCategories, setApiExpenseCategories] = useState<TransactionCategory[]>([]);
+  const [apiIncomeCategories, setApiIncomeCategories] = useState<UserCategory[]>([]);
+  const [apiExpenseCategories, setApiExpenseCategories] = useState<UserCategory[]>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(false);
 
   // Estados para modo de selección múltiple de categorías/subcategorías
@@ -87,7 +86,7 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
 
   const loading = incomeLoading || expenseLoading || categoriesLoading;
 
-  // Cargar categorías del API
+  // Cargar categorías del API (user categories)
   useEffect(() => {
     const fetchCategories = async () => {
       if (!accessToken) return;
@@ -95,22 +94,26 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
       try {
         setCategoriesLoading(true);
 
-        // Cargar categorías de ingresos y gastos en paralelo
+        // Cargar categorías de usuario de ingresos y gastos en paralelo
         const [incomeResponse, expenseResponse] = await Promise.all([
-          getIncomeCategories({ per_page: 100 }, accessToken),
-          getExpenseCategories({ per_page: 100 }, accessToken)
+          getUserCategories({ kind: 'income', per_page: 100 }, accessToken),
+          getUserCategories({ kind: 'expense', per_page: 100 }, accessToken)
         ]);
 
         if (incomeResponse?.success && incomeResponse.data) {
-          setApiIncomeCategories(incomeResponse.data);
+          // Filtrar solo las categorías padre (parent_id === null)
+          const parentCategories = incomeResponse.data.filter(cat => cat.parent_id === null);
+          setApiIncomeCategories(parentCategories);
         }
 
         if (expenseResponse?.success && expenseResponse.data) {
-          setApiExpenseCategories(expenseResponse.data);
+          // Filtrar solo las categorías padre (parent_id === null)
+          const parentCategories = expenseResponse.data.filter(cat => cat.parent_id === null);
+          setApiExpenseCategories(parentCategories);
         }
 
       } catch (error) {
-        console.error('Error fetching categories:', error);
+        console.error('Error fetching user categories:', error);
       } finally {
         setCategoriesLoading(false);
       }
@@ -172,13 +175,11 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
   const categories = useMemo(() => {
     const apiCategories = activeTab === 'income' ? apiIncomeCategories : apiExpenseCategories;
     const isIncome = activeTab === 'income';
-    const selectedCategoryIds = activeTab === 'income' ? userCategories.income : userCategories.expenses;
 
     // Obtener categorías base (del API o estáticas)
     let baseCategories;
     if (apiCategories.length > 0) {
-      // Las categorías padre son las que tienen parent_id === null
-      // Sus subcategorías vienen en el campo "children"
+      // Transformar user categories al formato del componente
       baseCategories = apiCategories.map(category => {
         return {
           id: category.id.toString(),
@@ -187,15 +188,15 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
             es: category.translated_name,
             'es-CL': category.translated_name
           },
-          emoji: getEmojiForCategory(category.translated_name, isIncome),
-          subcategories: category.children.map(subcat => ({
+          emoji: category.emoji_code || getEmojiForCategory(category.translated_name, isIncome),
+          subcategories: (category.children || []).map(subcat => ({
             id: subcat.id.toString(),
             name: {
               en: subcat.name,
               es: subcat.translated_name,
               'es-CL': subcat.translated_name
             },
-            emoji: getEmojiForCategory(subcat.translated_name, isIncome)
+            emoji: subcat.emoji_code || getEmojiForCategory(subcat.translated_name, isIncome)
           }))
         };
       });
@@ -204,14 +205,8 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
       baseCategories = activeTab === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
     }
 
-    // Filtrar solo las categorías seleccionadas por el usuario
-    if (selectedCategoryIds.length > 0) {
-      return baseCategories.filter(cat => selectedCategoryIds.includes(cat.id));
-    }
-
-    // Si no hay selección, mostrar todas (fallback)
     return baseCategories;
-  }, [activeTab, apiIncomeCategories, apiExpenseCategories, userCategories]);
+  }, [activeTab, apiIncomeCategories, apiExpenseCategories]);
 
   const currentLang = t('common.language_code', 'es');
 
@@ -662,7 +657,7 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
       const response = await assignTransactionCategory(
         {
           transaction_ids: transactionIds,
-          transaction_category_id: categoryId,
+          user_category_id: categoryId,
           auto_category: false
         },
         accessToken

@@ -8,7 +8,7 @@ export interface CreateFloidTransactionParams {
   description?: string;
   doc_number?: string;
   date?: string;
-  transaction_category_id?: number | null;
+  user_category_id?: number | null;
   auto_category?: boolean;
 }
 

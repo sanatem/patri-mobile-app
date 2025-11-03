@@ -8,9 +8,8 @@ import CalendarSelect from '@/components/ui/CalendarSelect';
 import { useFloidAccounts } from '@/hooks/budget/useFloidAccounts';
 import { createFloidTransaction } from '@/services/budget/transactions/create-floid-transaction';
 import { useAuth } from '@/providers/AuthProvider';
-import { getExpenseCategories } from '@/services/budget/categories-manager/system-categories/get-expense-categories';
-import { getIncomeCategories } from '@/services/budget/categories-manager/system-categories/get-income-categories';
-import type { TransactionCategory } from '@/services/budget/categories-manager/system-categories/get-expense-categories';
+import { getUserCategories } from '@/services/budget/categories-manager';
+import type { UserCategory } from '@/services/budget/categories-manager';
 
 export default function AddTransactionScreen() {
   const router = useRouter();
@@ -35,8 +34,8 @@ export default function AddTransactionScreen() {
   const [isSaved, setIsSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [apiIncomeCategories, setApiIncomeCategories] = useState<TransactionCategory[]>([]);
-  const [apiExpenseCategories, setApiExpenseCategories] = useState<TransactionCategory[]>([]);
+  const [apiIncomeCategories, setApiIncomeCategories] = useState<UserCategory[]>([]);
+  const [apiExpenseCategories, setApiExpenseCategories] = useState<UserCategory[]>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(false);
 
   useEffect(() => {
@@ -46,18 +45,22 @@ export default function AddTransactionScreen() {
       try {
         setCategoriesLoading(true);
         const [incomeResponse, expenseResponse] = await Promise.all([
-          getIncomeCategories({ per_page: 100 }, accessToken),
-          getExpenseCategories({ per_page: 100 }, accessToken)
+          getUserCategories({ kind: 'income', per_page: 100 }, accessToken),
+          getUserCategories({ kind: 'expense', per_page: 100 }, accessToken)
         ]);
 
         if (incomeResponse?.success && incomeResponse.data) {
-          setApiIncomeCategories(incomeResponse.data);
+          // Filtrar solo categorías padre
+          const parentCategories = incomeResponse.data.filter(cat => cat.parent_id === null);
+          setApiIncomeCategories(parentCategories);
         }
         if (expenseResponse?.success && expenseResponse.data) {
-          setApiExpenseCategories(expenseResponse.data);
+          // Filtrar solo categorías padre
+          const parentCategories = expenseResponse.data.filter(cat => cat.parent_id === null);
+          setApiExpenseCategories(parentCategories);
         }
       } catch (error) {
-        console.error('Error fetching categories:', error);
+        console.error('Error fetching user categories:', error);
       } finally {
         setCategoriesLoading(false);
       }
@@ -162,13 +165,13 @@ export default function AddTransactionScreen() {
       };
 
       if (selectedSubcategoryId) {
-        transactionData.transaction_category_id = parseInt(selectedSubcategoryId);
+        transactionData.user_category_id = parseInt(selectedSubcategoryId);
         transactionData.auto_category = false;
       } else if (selectedParentCategoryId) {
-        transactionData.transaction_category_id = parseInt(selectedParentCategoryId);
+        transactionData.user_category_id = parseInt(selectedParentCategoryId);
         transactionData.auto_category = false;
       } else {
-        transactionData.transaction_category_id = null;
+        transactionData.user_category_id = null;
         transactionData.auto_category = false;
       }
 

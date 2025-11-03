@@ -59,7 +59,7 @@ export function CategoriesOnboarding({ onComplete }: CategoriesOnboardingProps) 
       subtitle={
         currentStep === 1
           ? t('budget.onboarding_income_subtitle', 'Selecciona de 1 a 4 categorías principales para organizar tus ingresos')
-          : t('budget.onboarding_expenses_subtitle', 'Selecciona de 1 a 6 categorías principales para organizar tus gastos')
+          : t('budget.onboarding_expenses_subtitle', 'Selecciona de 1 a 4 categorías principales para organizar tus gastos')
       }
       currentStep={currentStep}
       totalSteps={2}

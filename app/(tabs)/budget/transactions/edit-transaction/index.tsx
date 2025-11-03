@@ -7,9 +7,8 @@ import CalendarSelect from '@/components/ui/CalendarSelect';
 import { patchFloidTransaction } from '@/services/budget/transactions/patch-floid-transaction';
 import { getFloidTransaction, type FloidTransaction } from '@/services/budget/transactions/get-floid-transactions';
 import { useAuth } from '@/providers/AuthProvider';
-import { getExpenseCategories } from '@/services/budget/categories-manager/system-categories/get-expense-categories';
-import { getIncomeCategories } from '@/services/budget/categories-manager/system-categories/get-income-categories';
-import type { TransactionCategory } from '@/services/budget/categories-manager/system-categories/get-expense-categories';
+import { getUserCategories } from '@/services/budget/categories-manager';
+import type { UserCategory } from '@/services/budget/categories-manager';
 import Colors from '@/constants/Colors';
 
 export default function EditTransactionScreen() {
@@ -34,7 +33,7 @@ export default function EditTransactionScreen() {
   const [error, setError] = useState<string | null>(null);
 
   // Estados para categorías del API
-  const [apiCategories, setApiCategories] = useState<TransactionCategory[]>([]);
+  const [apiCategories, setApiCategories] = useState<UserCategory[]>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
 
   // Cargar transacción desde la API
@@ -100,25 +99,26 @@ export default function EditTransactionScreen() {
       try {
         setCategoriesLoading(true);
 
-        const response = transaction.transaction_type === 'income'
-          ? await getIncomeCategories({ per_page: 100 }, accessToken)
-          : await getExpenseCategories({ per_page: 100 }, accessToken);
+        const kind = transaction.transaction_type === 'income' ? 'income' : 'expense';
+        const response = await getUserCategories({ kind, per_page: 100 }, accessToken);
 
         if (response?.success && response.data) {
-          setApiCategories(response.data);
+          // Filtrar solo categorías padre
+          const parentCategories = response.data.filter(cat => cat.parent_id === null);
+          setApiCategories(parentCategories);
 
           // Pre-seleccionar categoría y subcategoría si existe
           if (transaction.category?.id) {
             const categoryIdStr = transaction.category.id.toString();
 
             // Buscar si es una categoría padre
-            const parentCategory = response.data.find(cat => cat.id.toString() === categoryIdStr);
+            const parentCategory = parentCategories.find(cat => cat.id.toString() === categoryIdStr);
             if (parentCategory) {
               setSelectedParentCategoryId(categoryIdStr);
             } else {
               // Buscar si es una subcategoría
-              for (const cat of response.data) {
-                const subcategory = cat.children.find(sub => sub.id.toString() === categoryIdStr);
+              for (const cat of parentCategories) {
+                const subcategory = cat.children?.find(sub => sub.id.toString() === categoryIdStr);
                 if (subcategory) {
                   setSelectedParentCategoryId(cat.id.toString());
                   setSelectedSubcategoryId(categoryIdStr);
@@ -129,7 +129,7 @@ export default function EditTransactionScreen() {
           }
         }
       } catch (error) {
-        console.error('Error fetching categories:', error);
+        console.error('Error fetching user categories:', error);
       } finally {
         setCategoriesLoading(false);
       }
@@ -207,14 +207,14 @@ export default function EditTransactionScreen() {
 
       // Enviar subcategoría si existe, sino enviar categoría padre, o null si no hay selección
       if (selectedSubcategoryId) {
-        transactionData.transaction_category_id = parseInt(selectedSubcategoryId);
+        transactionData.user_category_id = parseInt(selectedSubcategoryId);
         transactionData.auto_category = false; // Siempre manual cuando se edita
       } else if (selectedParentCategoryId) {
-        transactionData.transaction_category_id = parseInt(selectedParentCategoryId);
+        transactionData.user_category_id = parseInt(selectedParentCategoryId);
         transactionData.auto_category = false; // Siempre manual cuando se edita
       } else {
         // Si no hay categoría seleccionada, enviar null para descategorizar
-        transactionData.transaction_category_id = null;
+        transactionData.user_category_id = null;
         transactionData.auto_category = false;
       }
 

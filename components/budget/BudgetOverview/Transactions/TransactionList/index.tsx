@@ -11,9 +11,8 @@ import { CategorizationStatus } from '../CategorizationStatus';
 import { INCOME_CATEGORIES, EXPENSE_CATEGORIES } from '@/constants/BudgetCategories';
 import { patchFloidTransaction } from '@/services/budget/transactions/patch-floid-transaction';
 import { useAuth } from '@/providers/AuthProvider';
-import { getExpenseCategories } from '@/services/budget/categories-manager/system-categories/get-expense-categories';
-import { getIncomeCategories } from '@/services/budget/categories-manager/system-categories/get-income-categories';
-import type { TransactionCategory } from '@/services/budget/categories-manager/system-categories/get-expense-categories';
+import { getUserCategories } from '@/services/budget/categories-manager';
+import type { UserCategory } from '@/services/budget/categories-manager';
 
 interface TransactionsListProps {
   type: 'income' | 'expenses';
@@ -64,26 +63,27 @@ export default function TransactionsList({
   const [selectedTransaction, setSelectedTransaction] = useState<FloidTransaction | null>(null);
   const [selectedParentCategoryId, setSelectedParentCategoryId] = useState('');
   const [selectedSubcategoryId, setSelectedSubcategoryId] = useState('');
-  const [apiCategories, setApiCategories] = useState<TransactionCategory[]>([]);
+  const [apiCategories, setApiCategories] = useState<UserCategory[]>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
-  // Cargar categorías del API
+  // Cargar categorías del API (user categories)
   useEffect(() => {
     const fetchCategories = async () => {
       if (!accessToken || !selectedTransaction) return;
 
       try {
         setCategoriesLoading(true);
-        const response = selectedTransaction.transaction_type === 'income'
-          ? await getIncomeCategories({ per_page: 100 }, accessToken)
-          : await getExpenseCategories({ per_page: 100 }, accessToken);
+        const kind = selectedTransaction.transaction_type === 'income' ? 'income' : 'expense';
+        const response = await getUserCategories({ kind, per_page: 100 }, accessToken);
 
         if (response?.success && response.data) {
-          setApiCategories(response.data);
+          // Filtrar solo categorías padre (parent_id === null)
+          const parentCategories = response.data.filter(cat => cat.parent_id === null);
+          setApiCategories(parentCategories);
         }
       } catch (error) {
-        console.error('Error fetching categories:', error);
+        console.error('Error fetching user categories:', error);
       } finally {
         setCategoriesLoading(false);
       }
@@ -138,13 +138,13 @@ export default function TransactionsList({
       const transactionData: any = {};
 
       if (selectedSubcategoryId) {
-        transactionData.transaction_category_id = parseInt(selectedSubcategoryId);
+        transactionData.user_category_id = parseInt(selectedSubcategoryId);
         transactionData.auto_category = false;
       } else if (selectedParentCategoryId) {
-        transactionData.transaction_category_id = parseInt(selectedParentCategoryId);
+        transactionData.user_category_id = parseInt(selectedParentCategoryId);
         transactionData.auto_category = false;
       } else {
-        transactionData.transaction_category_id = null;
+        transactionData.user_category_id = null;
         transactionData.auto_category = false;
       }
 
@@ -172,14 +172,15 @@ export default function TransactionsList({
   const handleSubcategoryChange = (value: string) => {
     setSelectedSubcategoryId(value);
   };
+
   const transactionsData = useMemo(() => {
-    const hasFloidData = hasRealData && 
-                        floidTransactions && 
-                        Array.isArray(floidTransactions) && 
+    const hasFloidData = hasRealData &&
+                        floidTransactions &&
+                        Array.isArray(floidTransactions) &&
                         floidTransactions.length > 0;
-    
+
     if (hasFloidData) {
-      const filteredBySearch = searchQuery 
+      const filteredBySearch = searchQuery
         ? floidTransactions!.filter(transaction =>
             transaction.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
             transaction.bank.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -219,11 +220,42 @@ export default function TransactionsList({
           rawData: transaction
         };
       });
-      
+
     } else {
       return [];
     }
   }, [floidTransactions, type, searchQuery, hasRealData]);
+
+  const categoryOptions = useMemo(() => {
+    if (apiCategories.length === 0) return [];
+
+    return [
+      { label: t('budget.no_category', 'Sin categoría'), value: '' },
+      ...apiCategories
+        .filter(category => category && category.id !== undefined && category.id !== null)
+        .map(category => ({
+          label: category.translated_name || '',
+          value: category.id.toString()
+        }))
+    ];
+  }, [apiCategories, t]);
+
+  const subcategoryOptions = useMemo(() => {
+    if (!selectedParentCategoryId || apiCategories.length === 0) return [];
+
+    const selectedCategory = apiCategories.find(cat => cat && cat.id && cat.id.toString() === selectedParentCategoryId);
+    if (!selectedCategory || !selectedCategory.children || selectedCategory.children.length === 0) return [];
+
+    return [
+      { label: t('budget.no_subcategory', 'Sin subcategoría'), value: '' },
+      ...selectedCategory.children
+        .filter(subcat => subcat && subcat.id !== undefined && subcat.id !== null)
+        .map(subcat => ({
+          label: subcat.translated_name || '',
+          value: subcat.id.toString()
+        }))
+    ];
+  }, [selectedParentCategoryId, apiCategories, t]);
 
   if (loading) {
     return (
@@ -309,37 +341,6 @@ export default function TransactionsList({
       </View>
     );
   }
-
-  const categoryOptions = useMemo(() => {
-    if (apiCategories.length === 0) return [];
-
-    return [
-      { label: t('budget.no_category', 'Sin categoría'), value: '' },
-      ...apiCategories
-        .filter(category => category && category.id !== undefined && category.id !== null)
-        .map(category => ({
-          label: category.translated_name || '',
-          value: category.id.toString()
-        }))
-    ];
-  }, [apiCategories, t]);
-
-  const subcategoryOptions = useMemo(() => {
-    if (!selectedParentCategoryId || apiCategories.length === 0) return [];
-
-    const selectedCategory = apiCategories.find(cat => cat && cat.id && cat.id.toString() === selectedParentCategoryId);
-    if (!selectedCategory || !selectedCategory.children || selectedCategory.children.length === 0) return [];
-
-    return [
-      { label: t('budget.no_subcategory', 'Sin subcategoría'), value: '' },
-      ...selectedCategory.children
-        .filter(subcat => subcat && subcat.id !== undefined && subcat.id !== null)
-        .map(subcat => ({
-          label: subcat.translated_name || '',
-          value: subcat.id.toString()
-        }))
-    ];
-  }, [selectedParentCategoryId, apiCategories, t]);
 
   return (
     <>

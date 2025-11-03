@@ -3,13 +3,13 @@ import config from '@/config/constants';
 
 export interface AssignTransactionCategoryData {
   transaction_ids: number[];
-  transaction_category_id: number;
+  user_category_id: number;
   auto_category?: boolean;
 }
 
 export interface AssignTransactionCategoryParams {
   transaction_ids: number[];
-  transaction_category_id: number;
+  user_category_id: number;
   auto_category?: boolean;
 }
 
@@ -44,7 +44,7 @@ export async function assignTransactionCategory(
       throw new Error('No hay token de autenticación disponible');
     }
 
-    const { transaction_ids, transaction_category_id, auto_category = false } = params;
+    const { transaction_ids, user_category_id, auto_category = false } = params;
     const url = `${config.apiBaseUrl}/api/v2/floid/transactions/assign_category`;
 
     const response = await fetch(url, {
@@ -55,7 +55,7 @@ export async function assignTransactionCategory(
       },
       body: JSON.stringify({
         transaction_ids,
-        transaction_category_id,
+        user_category_id,
         auto_category
       }),
     });
