@@ -30,3 +30,5 @@ export { CheckboxItem } from './CheckboxItem';
 export { SyncModal } from './SyncModal';
 export { ConfirmModal } from './ConfirmModal';
 export { Pagination } from './Pagination';
+export { FloatingActionButton } from './FloatingActionButton';
+export type { FloatingAction } from './FloatingActionButton';

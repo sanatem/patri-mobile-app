@@ -5,8 +5,8 @@ import { INCOME_CATEGORIES, EXPENSE_CATEGORIES } from '@/constants/BudgetCategor
 import { useFloidTransactions } from '@/hooks/budget/useFloidTransactions';
 import { useFloidAccounts } from '@/hooks/budget/useFloidAccounts';
 import { useAuth } from '@/providers/AuthProvider';
-import { getUserCategories, deleteUserCategory } from '@/services/budget/categories-manager';
-import type { UserCategory } from '@/services/budget/categories-manager';
+import { getUserCategories, deleteUserCategory, updateUserCategory, createUserCategory, getIncomeCategories, getExpenseCategories } from '@/services/budget/categories-manager';
+import type { UserCategory, TransactionCategory } from '@/services/budget/categories-manager';
 import { UserCategoriesState } from './useUserCategories';
 import { assignTransactionCategory } from '@/services/budget/transactions/assign-transaction-category';
 
@@ -32,6 +32,10 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
   const [apiExpenseCategories, setApiExpenseCategories] = useState<UserCategory[]>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(false);
 
+  // Estados para categorías del sistema (transaction_categories)
+  const [systemIncomeCategories, setSystemIncomeCategories] = useState<TransactionCategory[]>([]);
+  const [systemExpenseCategories, setSystemExpenseCategories] = useState<TransactionCategory[]>([]);
+
   // Estados para modo de selección múltiple de categorías/subcategorías
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedSubcategories, setSelectedSubcategories] = useState<Set<string>>(new Set());
@@ -49,6 +53,26 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
   const [selectedDestinationSubcategory, setSelectedDestinationSubcategory] = useState<string | null>(null);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [assigningCategories, setAssigningCategories] = useState(false);
+
+  // Estados para modo de edición
+  const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
+  const [updatingCategory, setUpdatingCategory] = useState(false);
+  const [editingParentCategoryId, setEditingParentCategoryId] = useState<string | null>(null);
+
+  // Mapa de cambios pendientes: { categoryId: { name: string, emoji: string } }
+  const [pendingEdits, setPendingEdits] = useState<Map<string, { name: string; emoji: string }>>(new Map());
+
+  // Estados para crear nueva categoría
+  const [creatingNewCategory, setCreatingNewCategory] = useState(false);
+  const [creatingCustomCategory, setCreatingCustomCategory] = useState(false);
+  const [selectedSystemCategoryId, setSelectedSystemCategoryId] = useState<string | null>(null);
+  const [customCategoryName, setCustomCategoryName] = useState('');
+  const [customCategoryEmoji, setCustomCategoryEmoji] = useState('');
+  const [creatingCategory, setCreatingCategory] = useState(false);
+
+  // Estados para múltiples categorías simultáneas
+  const [multipleNewCategories, setMultipleNewCategories] = useState<Array<{ id: string; systemCategoryId: string | null }>>([]);
+  const [multipleCustomCategories, setMultipleCustomCategories] = useState<Array<{ id: string; name: string; emoji: string }>>([]);
 
   // Animaciones para selección de categorías/subcategorías
   const selectionAnimations = useRef<Map<string, Animated.Value>>(new Map()).current;
@@ -87,7 +111,7 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
 
   const loading = incomeLoading || expenseLoading || categoriesLoading;
 
-  // Cargar categorías del API (user categories)
+  // Cargar categorías del API (user categories y system categories)
   useEffect(() => {
     const fetchCategories = async () => {
       if (!accessToken) return;
@@ -95,10 +119,12 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
       try {
         setCategoriesLoading(true);
 
-        // Cargar categorías de usuario de ingresos y gastos en paralelo
-        const [incomeResponse, expenseResponse] = await Promise.all([
+        // Cargar categorías de usuario y del sistema en paralelo
+        const [incomeResponse, expenseResponse, systemIncomeResponse, systemExpenseResponse] = await Promise.all([
           getUserCategories({ kind: 'income', per_page: 100 }, accessToken),
-          getUserCategories({ kind: 'expense', per_page: 100 }, accessToken)
+          getUserCategories({ kind: 'expense', per_page: 100 }, accessToken),
+          getIncomeCategories({ per_page: 100 }, accessToken),
+          getExpenseCategories({ per_page: 100 }, accessToken)
         ]);
 
         if (incomeResponse?.success && incomeResponse.data) {
@@ -111,6 +137,17 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
           // Filtrar solo las categorías padre (parent_id === null)
           const parentCategories = expenseResponse.data.filter(cat => cat.parent_id === null);
           setApiExpenseCategories(parentCategories);
+        }
+
+        // Guardar categorías del sistema
+        if (systemIncomeResponse?.success && systemIncomeResponse.data) {
+          const parentCategories = systemIncomeResponse.data.filter(cat => cat.parent_id === null);
+          setSystemIncomeCategories(parentCategories);
+        }
+
+        if (systemExpenseResponse?.success && systemExpenseResponse.data) {
+          const parentCategories = systemExpenseResponse.data.filter(cat => cat.parent_id === null);
+          setSystemExpenseCategories(parentCategories);
         }
 
       } catch (error) {
@@ -185,32 +222,35 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
     const apiCategories = activeTab === 'income' ? apiIncomeCategories : apiExpenseCategories;
     const isIncome = activeTab === 'income';
 
-    // Obtener categorías base (del API o estáticas)
-    let baseCategories;
+    // Solo mostrar categorías si hay user categories del API
+    // NO mostrar categorías estáticas como fallback
     if (apiCategories.length > 0) {
       // Transformar user categories al formato del componente
-      baseCategories = apiCategories.map(category => {
+      return apiCategories.map(category => {
         const translatedNames = getTranslatedNames(category.display_name, isIncome);
         return {
           id: category.id.toString(),
           name: translatedNames,
           emoji: category.emoji_code || getEmojiForCategory(category.display_name, isIncome),
+          originalName: category.display_name, // Guardar nombre original del API
+          originalEmoji: category.emoji_code || '', // Guardar emoji original del API
           subcategories: (category.children || []).map(subcat => {
             const subTranslatedNames = getTranslatedNames(subcat.display_name, isIncome);
             return {
               id: subcat.id.toString(),
               name: subTranslatedNames,
-              emoji: subcat.emoji_code || getEmojiForCategory(subcat.display_name, isIncome)
+              emoji: subcat.emoji_code || getEmojiForCategory(subcat.display_name, isIncome),
+              originalName: subcat.display_name, // Guardar nombre original del API
+              originalEmoji: subcat.emoji_code || '' // Guardar emoji original del API
             };
           })
         };
       });
-    } else {
-      // Fallback a categorías estáticas si no hay datos del API
-      baseCategories = activeTab === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
     }
 
-    return baseCategories;
+    // Si no hay user categories, retornar array vacío
+    // Esto hará que se muestre el EmptyCategoriesState
+    return [];
   }, [activeTab, apiIncomeCategories, apiExpenseCategories]);
 
   const currentLang = t('common.language_code', 'es');
@@ -554,6 +594,7 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
   const confirmDelete = async () => {
     if (!accessToken) {
       Alert.alert('Error', 'No hay token de autenticación disponible');
+      setShowDeleteModal(false);
       return;
     }
 
@@ -620,19 +661,23 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
         }).start();
       });
 
-      setShowDeleteModal(false);
+      // Resetear selecciones
       LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       setSelectionMode(false);
       setSelectedSubcategories(new Set());
       setSelectedCategories(new Set());
 
+      // Mostrar mensaje de éxito después de que todo esté actualizado
       Alert.alert('Éxito', 'Categorías eliminadas correctamente');
 
     } catch (error) {
       console.error('Error deleting categories:', error);
       Alert.alert('Error', 'Hubo un problema al eliminar las categorías. Por favor intenta nuevamente.');
     } finally {
+      // IMPORTANTE: Cerrar el modal y resetear el estado de loading en el finally
+      // para asegurar que siempre se ejecute, sin importar si hubo éxito o error
       setDeletingCategories(false);
+      setShowDeleteModal(false);
     }
   };
 
@@ -789,7 +834,530 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
   };
 
   const handleNewCategory = () => {
-    console.log('Crear nueva categoría');
+    // Verificar límite máximo de 4 categorías
+    const currentCategories = activeTab === 'income' ? apiIncomeCategories : apiExpenseCategories;
+
+    if (currentCategories.length >= 4) {
+      Alert.alert(
+        'Límite alcanzado',
+        'Has alcanzado el límite máximo de 4 categorías. Elimina alguna categoría existente para poder agregar una nueva.'
+      );
+      return;
+    }
+
+    // Activar modo de creación de nueva categoría del sistema
+    setCreatingNewCategory(true);
+    setCreatingCustomCategory(false);
+    // Inicializar con una tarjeta vacía
+    setMultipleNewCategories([{ id: Date.now().toString(), systemCategoryId: null }]);
+  };
+
+  const handleNewCustomCategory = () => {
+    // Verificar límite máximo de 4 categorías
+    const currentCategories = activeTab === 'income' ? apiIncomeCategories : apiExpenseCategories;
+
+    if (currentCategories.length >= 4) {
+      Alert.alert(
+        'Límite alcanzado',
+        'Has alcanzado el límite máximo de 4 categorías. Elimina alguna categoría existente para poder agregar una nueva.'
+      );
+      return;
+    }
+
+    // Activar modo de creación de categoría personalizada
+    setCreatingCustomCategory(true);
+    setCreatingNewCategory(false);
+    // Inicializar con una tarjeta vacía
+    setMultipleCustomCategories([{ id: Date.now().toString(), name: '', emoji: '' }]);
+  };
+
+  const handleCancelNewCategory = () => {
+    setCreatingNewCategory(false);
+    setCreatingCustomCategory(false);
+    setMultipleNewCategories([]);
+    setMultipleCustomCategories([]);
+  };
+
+  const handleSelectSystemCategory = (cardId: string, categoryId: string) => {
+    setMultipleNewCategories(prev =>
+      prev.map(card => card.id === cardId ? { ...card, systemCategoryId: categoryId } : card)
+    );
+  };
+
+  const handleCustomCategoryNameChange = (cardId: string, text: string) => {
+    // Filtrar emojis del nombre
+    const emojiRegex = /[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu;
+    const filteredText = text.replace(emojiRegex, '');
+    setMultipleCustomCategories(prev =>
+      prev.map(card => card.id === cardId ? { ...card, name: filteredText } : card)
+    );
+  };
+
+  const handleCustomCategoryEmojiChange = (cardId: string, text: string) => {
+    // Solo permitir emojis
+    const emojiRegex = /[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu;
+    const emojis = text.match(emojiRegex);
+    const filteredEmoji = emojis ? emojis[0] : '';
+    setMultipleCustomCategories(prev =>
+      prev.map(card => card.id === cardId ? { ...card, emoji: filteredEmoji } : card)
+    );
+  };
+
+  const handleAddNewCategoryCard = () => {
+    const currentCategories = activeTab === 'income' ? apiIncomeCategories : apiExpenseCategories;
+    const currentCards = creatingNewCategory ? multipleNewCategories.length : multipleCustomCategories.length;
+    const totalCategories = currentCategories.length + currentCards;
+
+    if (totalCategories >= 4) {
+      Alert.alert(
+        'Límite alcanzado',
+        'Has alcanzado el límite máximo de 4 categorías.'
+      );
+      return;
+    }
+
+    if (creatingNewCategory) {
+      setMultipleNewCategories(prev => [...prev, { id: Date.now().toString(), systemCategoryId: null }]);
+    } else if (creatingCustomCategory) {
+      setMultipleCustomCategories(prev => [...prev, { id: Date.now().toString(), name: '', emoji: '' }]);
+    }
+  };
+
+  const handleRemoveNewCategoryCard = (cardId: string) => {
+    if (creatingNewCategory) {
+      setMultipleNewCategories(prev => {
+        const newList = prev.filter(card => card.id !== cardId);
+        if (newList.length === 0) {
+          setCreatingNewCategory(false);
+        }
+        return newList;
+      });
+    } else if (creatingCustomCategory) {
+      setMultipleCustomCategories(prev => {
+        const newList = prev.filter(card => card.id !== cardId);
+        if (newList.length === 0) {
+          setCreatingCustomCategory(false);
+        }
+        return newList;
+      });
+    }
+  };
+
+  const getMaxCategoriesAllowed = () => {
+    const currentCategories = activeTab === 'income' ? apiIncomeCategories : apiExpenseCategories;
+    return 4 - currentCategories.length;
+  };
+
+  const handleConfirmNewCategory = async () => {
+    if (!accessToken) {
+      Alert.alert('Error', 'No hay token de autenticación disponible');
+      return;
+    }
+
+    // Validar que todas las categorías tengan una selección
+    const invalidCards = multipleNewCategories.filter(card => !card.systemCategoryId);
+    if (invalidCards.length > 0) {
+      Alert.alert('Error', 'Por favor selecciona una categoría en todas las tarjetas');
+      return;
+    }
+
+    try {
+      setCreatingCategory(true);
+
+      const systemCategories = activeTab === 'income' ? systemIncomeCategories : systemExpenseCategories;
+
+      // Crear todas las categorías en paralelo
+      const createPromises = multipleNewCategories.map(card => {
+        // Buscar la categoría del sistema usando el ID que guardamos
+        const selectedCategory = systemCategories.find(cat => cat.id.toString() === card.systemCategoryId);
+        if (!selectedCategory) return Promise.reject(new Error('Categoría no encontrada'));
+
+        // Obtener el emoji desde BudgetCategories
+        const emoji = getEmojiFromBudgetCategories(selectedCategory.name, activeTab === 'income');
+
+        return createUserCategory(
+          {
+            name: selectedCategory.name,
+            kind: activeTab === 'income' ? 'income' : 'expense',
+            emoji_code: emoji,
+            transaction_category_id: selectedCategory.id // ¡Esto es clave para que se creen las subcategorías!
+          },
+          accessToken
+        );
+      });
+
+      await Promise.all(createPromises);
+
+      // Recargar las categorías
+      const [incomeResponse, expenseResponse] = await Promise.all([
+        getUserCategories({ kind: 'income', per_page: 100 }, accessToken),
+        getUserCategories({ kind: 'expense', per_page: 100 }, accessToken)
+      ]);
+
+      if (incomeResponse?.success && incomeResponse.data) {
+        const parentCategories = incomeResponse.data.filter(cat => cat.parent_id === null);
+        setApiIncomeCategories(parentCategories);
+      }
+
+      if (expenseResponse?.success && expenseResponse.data) {
+        const parentCategories = expenseResponse.data.filter(cat => cat.parent_id === null);
+        setApiExpenseCategories(parentCategories);
+      }
+
+      // Refrescar transacciones
+      await Promise.all([
+        refetchIncomeTransactions(),
+        refetchExpenseTransactions()
+      ]);
+
+      // Resetear estado de creación
+      setCreatingNewCategory(false);
+      setMultipleNewCategories([]);
+
+      const count = createPromises.length;
+      Alert.alert('Éxito', `${count} ${count === 1 ? 'categoría creada' : 'categorías creadas'} correctamente`);
+
+    } catch (error) {
+      console.error('Error creating categories:', error);
+      Alert.alert('Error', 'Hubo un problema al crear las categorías');
+    } finally {
+      setCreatingCategory(false);
+    }
+  };
+
+  const handleConfirmCustomCategory = async () => {
+    if (!accessToken) {
+      Alert.alert('Error', 'No hay token de autenticación disponible');
+      return;
+    }
+
+    // Validar que todas las categorías tengan nombre y emoji
+    const invalidCards = multipleCustomCategories.filter(card => !card.name.trim() || !card.emoji.trim());
+    if (invalidCards.length > 0) {
+      Alert.alert('Error', 'Por favor completa el nombre y emoji en todas las tarjetas');
+      return;
+    }
+
+    try {
+      setCreatingCategory(true);
+
+      // Crear todas las categorías personalizadas en paralelo
+      const createPromises = multipleCustomCategories.map(card =>
+        createUserCategory(
+          {
+            name: card.name.trim(),
+            kind: activeTab === 'income' ? 'income' : 'expense',
+            emoji_code: card.emoji,
+          },
+          accessToken
+        )
+      );
+
+      await Promise.all(createPromises);
+
+      // Recargar las categorías
+      const [incomeResponse, expenseResponse] = await Promise.all([
+        getUserCategories({ kind: 'income', per_page: 100 }, accessToken),
+        getUserCategories({ kind: 'expense', per_page: 100 }, accessToken)
+      ]);
+
+      if (incomeResponse?.success && incomeResponse.data) {
+        const parentCategories = incomeResponse.data.filter(cat => cat.parent_id === null);
+        setApiIncomeCategories(parentCategories);
+      }
+
+      if (expenseResponse?.success && expenseResponse.data) {
+        const parentCategories = expenseResponse.data.filter(cat => cat.parent_id === null);
+        setApiExpenseCategories(parentCategories);
+      }
+
+      // Refrescar transacciones
+      await Promise.all([
+        refetchIncomeTransactions(),
+        refetchExpenseTransactions()
+      ]);
+
+      // Resetear estado de creación
+      setCreatingCustomCategory(false);
+      setMultipleCustomCategories([]);
+
+      const count = createPromises.length;
+      Alert.alert('Éxito', `${count} ${count === 1 ? 'categoría personalizada creada' : 'categorías personalizadas creadas'} correctamente`);
+
+    } catch (error) {
+      console.error('Error creating custom categories:', error);
+      Alert.alert('Error', 'Hubo un problema al crear las categorías personalizadas');
+    } finally {
+      setCreatingCategory(false);
+    }
+  };
+
+  const handleSelectAllTransactions = () => {
+    const allTransactionIds = new Set<number>(groupedData.uncategorized.map(t => t.id));
+
+    allTransactionIds.forEach(id => {
+      const animation = getTransactionAnimation(id);
+      Animated.spring(animation, {
+        toValue: 1,
+        useNativeDriver: false,
+        friction: 8,
+        tension: 40
+      }).start();
+    });
+
+    setSelectedTransactions(allTransactionIds);
+
+    if (!transactionSelectionMode && allTransactionIds.size > 0) {
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+      setTransactionSelectionMode(true);
+    }
+  };
+
+  const handleDeselectAllTransactions = () => {
+    selectedTransactions.forEach(id => {
+      const animation = getTransactionAnimation(id);
+      Animated.spring(animation, {
+        toValue: 0,
+        useNativeDriver: false,
+        friction: 8,
+        tension: 40
+      }).start();
+    });
+
+    setSelectedTransactions(new Set());
+  };
+
+  const totalVisibleTransactions = groupedData.uncategorized.length;
+
+  // Helper para obtener el emoji desde BudgetCategories basándose en el nombre
+  const getEmojiFromBudgetCategories = (categoryName: string, isIncome: boolean): string => {
+    const staticCategories = isIncome ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
+    const normalizedName = categoryName.toLowerCase().trim();
+
+    // Buscar en categorías principales
+    const found = staticCategories.find(cat => {
+      const catNameEn = cat.name.en.toLowerCase();
+      const catNameEs = cat.name.es.toLowerCase();
+      return catNameEn === normalizedName || catNameEs === normalizedName;
+    });
+
+    return found?.emoji || '📁'; // Emoji por defecto si no se encuentra
+  };
+
+  // Categorías del sistema disponibles (que no han sido seleccionadas)
+  const availableSystemCategories = useMemo(() => {
+    const systemCategories = activeTab === 'income' ? systemIncomeCategories : systemExpenseCategories;
+    const userCategories = activeTab === 'income' ? apiIncomeCategories : apiExpenseCategories;
+    const isIncome = activeTab === 'income';
+
+    // Obtener los transaction_category_id de las categorías ya creadas por el usuario
+    const userCategoryIds = new Set(
+      userCategories
+        .filter(cat => cat.transaction_category_id !== undefined && cat.transaction_category_id !== null)
+        .map(cat => cat.transaction_category_id)
+    );
+
+    // Filtrar las categorías del sistema que NO están en user categories
+    // y transformar al formato esperado por el componente
+    return systemCategories
+      .filter(cat => !userCategoryIds.has(cat.id))
+      .map(cat => ({
+        id: cat.id.toString(),
+        name: {
+          es: cat.translated_name || cat.name,
+          en: cat.name,
+          pt: cat.translated_name || cat.name,
+          'es-CL': cat.translated_name || cat.name
+        },
+        emoji: getEmojiFromBudgetCategories(cat.name, isIncome),
+        transactionCategoryId: cat.id // Guardamos el ID real para usarlo al crear
+      }));
+  }, [activeTab, apiIncomeCategories, apiExpenseCategories, systemIncomeCategories, systemExpenseCategories]);
+
+  const handleStartEdit = (categoryId: string) => {
+    // Encontrar la categoría
+    const apiCategories = activeTab === 'income' ? apiIncomeCategories : apiExpenseCategories;
+    const category = apiCategories.find(cat => cat.id.toString() === categoryId);
+
+    if (!category) return;
+
+    // Inicializar el mapa de ediciones pendientes con los valores actuales
+    const newPendingEdits = new Map<string, { name: string; emoji: string }>();
+
+    // Agregar categoría padre
+    newPendingEdits.set(categoryId, {
+      name: category.display_name,
+      emoji: category.emoji_code || ''
+    });
+
+    // Agregar todas las subcategorías
+    if (category.children) {
+      category.children.forEach(subcat => {
+        newPendingEdits.set(subcat.id.toString(), {
+          name: subcat.display_name,
+          emoji: subcat.emoji_code || ''
+        });
+      });
+    }
+
+    setPendingEdits(newPendingEdits);
+    setEditingParentCategoryId(categoryId);
+
+    // Expandir la categoría si no está expandida
+    if (!expandedCategories.has(categoryId)) {
+      toggleCategory(categoryId);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setPendingEdits(new Map());
+    setEditingParentCategoryId(null);
+  };
+
+  // Función para validar y filtrar entrada de nombre (sin emojis)
+  const handleEditNameChange = (categoryId: string, text: string) => {
+    // Regex para detectar emojis
+    const emojiRegex = /[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu;
+    // Filtrar emojis del texto
+    const filteredText = text.replace(emojiRegex, '');
+
+    // Actualizar el mapa de ediciones pendientes
+    setPendingEdits(prev => {
+      const newMap = new Map(prev);
+      const current = newMap.get(categoryId);
+      if (current) {
+        newMap.set(categoryId, { ...current, name: filteredText });
+      }
+      return newMap;
+    });
+  };
+
+  // Función para validar y filtrar entrada de emoji (solo emojis)
+  const handleEditEmojiChange = (categoryId: string, text: string) => {
+    // Regex para detectar solo emojis y caracteres relacionados (ZWJ, variation selectors)
+    const onlyEmojiRegex = /[\p{Emoji_Presentation}\p{Extended_Pictographic}\u200d\ufe0f]/gu;
+    // Extraer solo los emojis del texto
+    const emojis = text.match(onlyEmojiRegex);
+    const filteredText = emojis ? emojis.join('') : '';
+
+    // Actualizar el mapa de ediciones pendientes
+    setPendingEdits(prev => {
+      const newMap = new Map(prev);
+      const current = newMap.get(categoryId);
+      if (current) {
+        newMap.set(categoryId, { ...current, emoji: filteredText });
+      }
+      return newMap;
+    });
+  };
+
+  const handleSaveEdit = async () => {
+    if (!accessToken || !editingParentCategoryId || pendingEdits.size === 0) return;
+
+    // Encontrar la categoría original
+    const apiCategories = activeTab === 'income' ? apiIncomeCategories : apiExpenseCategories;
+    const findCategoryById = (id: string): UserCategory | undefined => {
+      for (const cat of apiCategories) {
+        if (cat.id.toString() === id) return cat;
+        if (cat.children) {
+          const found = cat.children.find(sub => sub.id.toString() === id);
+          if (found) return found;
+        }
+      }
+      return undefined;
+    };
+
+    // Validar todos los cambios pendientes
+    const emojiRegex = /[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu;
+    const onlyEmojiRegex = /^[\p{Emoji_Presentation}\p{Extended_Pictographic}\u200d\ufe0f]+$/gu;
+
+    for (const [categoryId, edits] of pendingEdits.entries()) {
+      // Validar nombre: no debe contener emojis
+      if (emojiRegex.test(edits.name)) {
+        Alert.alert('Error', 'Los nombres no pueden contener emojis. Solo letras, números y símbolos.');
+        return;
+      }
+
+      // Validar nombre: no debe estar vacío
+      if (edits.name.trim().length === 0) {
+        Alert.alert('Error', 'Los nombres no pueden estar vacíos.');
+        return;
+      }
+
+      // Validar emoji: debe contener al menos un emoji y no otros caracteres
+      if (!onlyEmojiRegex.test(edits.emoji)) {
+        Alert.alert('Error', 'Los emojis solo pueden contener emojis válidos. No se permiten letras, números o símbolos.');
+        return;
+      }
+
+      // Validar emoji: no debe estar vacío
+      if (edits.emoji.trim().length === 0) {
+        Alert.alert('Error', 'Los emojis no pueden estar vacíos.');
+        return;
+      }
+    }
+
+    // Recopilar los cambios que realmente son diferentes
+    const updates: Array<{ id: number; params: { name?: string; emoji_code?: string } }> = [];
+
+    for (const [categoryId, edits] of pendingEdits.entries()) {
+      const originalCategory = findCategoryById(categoryId);
+      if (!originalCategory) continue;
+
+      const hasNameChanged = edits.name !== originalCategory.display_name;
+      const hasEmojiChanged = edits.emoji !== originalCategory.emoji_code;
+
+      if (hasNameChanged || hasEmojiChanged) {
+        const updateParams: { name?: string; emoji_code?: string } = {};
+        if (hasNameChanged) updateParams.name = edits.name;
+        if (hasEmojiChanged) updateParams.emoji_code = edits.emoji;
+
+        updates.push({
+          id: parseInt(categoryId),
+          params: updateParams
+        });
+      }
+    }
+
+    // Si no hay cambios reales, solo cancelar
+    if (updates.length === 0) {
+      handleCancelEdit();
+      return;
+    }
+
+    try {
+      setUpdatingCategory(true);
+
+      // Actualizar todas las categorías/subcategorías en paralelo
+      await Promise.all(
+        updates.map(update => updateUserCategory(update.id, update.params, accessToken))
+      );
+
+      // Recargar categorías
+      const [incomeResponse, expenseResponse] = await Promise.all([
+        getUserCategories({ kind: 'income', per_page: 100 }, accessToken),
+        getUserCategories({ kind: 'expense', per_page: 100 }, accessToken)
+      ]);
+
+      if (incomeResponse?.success && incomeResponse.data) {
+        const parentCategories = incomeResponse.data.filter(cat => cat.parent_id === null);
+        setApiIncomeCategories(parentCategories);
+      }
+
+      if (expenseResponse?.success && expenseResponse.data) {
+        const parentCategories = expenseResponse.data.filter(cat => cat.parent_id === null);
+        setApiExpenseCategories(parentCategories);
+      }
+
+      handleCancelEdit();
+      Alert.alert('Éxito', `${updates.length} ${updates.length === 1 ? 'categoría actualizada' : 'categorías actualizadas'} correctamente`);
+
+    } catch (error) {
+      console.error('Error updating categories:', error);
+      Alert.alert('Error', 'Hubo un problema al actualizar las categorías');
+    } finally {
+      setUpdatingCategory(false);
+    }
   };
 
   return {
@@ -814,6 +1382,14 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
     categoriesLoading,
     assigningCategories,
     deletingCategories,
+    updatingCategory,
+    editingParentCategoryId,
+    pendingEdits,
+    creatingNewCategory,
+    creatingCustomCategory,
+    creatingCategory,
+    multipleNewCategories,
+    multipleCustomCategories,
 
     apiIncomeCategories,
     apiExpenseCategories,
@@ -823,6 +1399,8 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
     subcategoryOptions,
     categories,
     currentLang,
+    totalVisibleTransactions,
+    availableSystemCategories,
 
     setActiveTab,
     toggleCategory,
@@ -847,6 +1425,23 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
     setShowDeleteModal,
     setShowDeleteTransactionsModal,
     handleNewCategory,
+    handleNewCustomCategory,
+    handleSelectAllTransactions,
+    handleDeselectAllTransactions,
+    handleStartEdit,
+    handleCancelEdit,
+    handleSaveEdit,
+    handleEditNameChange,
+    handleEditEmojiChange,
+    handleCancelNewCategory,
+    handleSelectSystemCategory,
+    handleConfirmNewCategory,
+    handleConfirmCustomCategory,
+    handleCustomCategoryNameChange,
+    handleCustomCategoryEmojiChange,
+    handleAddNewCategoryCard,
+    handleRemoveNewCategoryCard,
+    getMaxCategoriesAllowed,
 
     t,
   };

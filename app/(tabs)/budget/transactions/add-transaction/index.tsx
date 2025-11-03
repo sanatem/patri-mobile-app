@@ -223,7 +223,7 @@ export default function AddTransactionScreen() {
         ? t('budget.add_transaction_income')
         : t('budget.add_transaction_expense')
       }
-      subtitle=""
+      subtitle="Esta transacción se registra solo en la app para tu control personal. No se realizarán movimientos reales en tu cuenta bancaria."
       currentStep={1}
       totalSteps={1}
       onNext={handleSubmit}
@@ -244,6 +244,7 @@ export default function AddTransactionScreen() {
           options={transactionTypeOptions}
           selectedValue={transactionType}
           onSelect={handleTransactionTypeChange}
+          horizontal={true}
         />
 
         <Select

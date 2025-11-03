@@ -29,11 +29,19 @@ interface CategoriesListProps {
   selectionAnimations: Map<string, Animated.Value>;
   transactionAnimations: Map<number, Animated.Value>;
   transactionType: 'income' | 'outcome';
+  updatingCategory: boolean;
+  editingParentCategoryId: string | null;
+  pendingEdits: Map<string, { name: string; emoji: string }>;
   onCategoryPress: (categoryId: string) => void;
   onCategoryLongPress: (categoryId: string) => void;
   onSubcategoryPress: (subcategoryId: string) => void;
   onSubcategoryLongPress: (subcategoryId: string) => void;
   onTransactionPress: (transactionId: number) => void;
+  onStartEdit: (categoryId: string) => void;
+  onCancelEdit: () => void;
+  onSaveEdit: () => void;
+  onEditNameChange: (categoryId: string, name: string) => void;
+  onEditEmojiChange: (categoryId: string, emoji: string) => void;
   getRotateStyle: (id: string, isCategory: boolean) => any;
 }
 
@@ -49,11 +57,19 @@ export function CategoriesList({
   selectionAnimations,
   transactionAnimations,
   transactionType,
+  updatingCategory,
+  editingParentCategoryId,
+  pendingEdits,
   onCategoryPress,
   onCategoryLongPress,
   onSubcategoryPress,
   onSubcategoryLongPress,
   onTransactionPress,
+  onStartEdit,
+  onCancelEdit,
+  onSaveEdit,
+  onEditNameChange,
+  onEditEmojiChange,
   getRotateStyle,
 }: CategoriesListProps) {
   return (
@@ -80,11 +96,19 @@ export function CategoriesList({
             selectionAnimations={selectionAnimations}
             transactionAnimations={transactionAnimations}
             transactionType={transactionType}
+            updatingCategory={updatingCategory}
+            editingParentCategoryId={editingParentCategoryId}
+            pendingEdits={pendingEdits}
             onCategoryPress={onCategoryPress}
             onCategoryLongPress={onCategoryLongPress}
             onSubcategoryPress={onSubcategoryPress}
             onSubcategoryLongPress={onSubcategoryLongPress}
             onTransactionPress={onTransactionPress}
+            onStartEdit={onStartEdit}
+            onCancelEdit={onCancelEdit}
+            onSaveEdit={onSaveEdit}
+            onEditNameChange={onEditNameChange}
+            onEditEmojiChange={onEditEmojiChange}
             getRotateStyle={getRotateStyle}
           />
         );

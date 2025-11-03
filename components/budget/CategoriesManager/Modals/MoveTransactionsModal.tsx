@@ -34,10 +34,10 @@ export function MoveTransactionsModal({
   return (
     <ConfirmModal
       visible={visible}
-      title={`Mover ${selectedTransactionsCount} transacción${selectedTransactionsCount > 1 ? 'es' : ''}`}
+      title={`Categorizar ${selectedTransactionsCount} transacción${selectedTransactionsCount > 1 ? 'es' : ''}`}
       onConfirm={onConfirm}
       onClose={onClose}
-      confirmButtonText={loading ? "Categorizando..." : "Mover"}
+      confirmButtonText={loading ? "Categorizando..." : "Categorizar"}
       cancelButtonText="Cancelar"
       confirmDisabled={!selectedDestinationCategory || loading}
     >
@@ -47,6 +47,7 @@ export function MoveTransactionsModal({
           value={selectedDestinationCategory || ''}
           onSelect={onCategoryChange}
           placeholder="Selecciona una categoría"
+          label={t('budget.category', 'Categoría')}
         />
 
         {selectedDestinationCategory && subcategoryOptions.length > 0 && (
@@ -55,6 +56,7 @@ export function MoveTransactionsModal({
             value={selectedDestinationSubcategory || ''}
             onSelect={onSubcategoryChange}
             placeholder="Selecciona una subcategoría (opcional)"
+            label={t('budget.subcategory', 'Subcategoría')}
           />
         )}
       </View>

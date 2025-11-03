@@ -6,6 +6,7 @@ import { inputStyles } from '@/styles/ui/Input.styles';
 import { selectStyles, SCREEN_HEIGHT } from '@/styles/ui/Select.styles';
 import Colors from '@/constants/Colors';
 import { useTranslation } from 'react-i18next';
+import { SearchBar } from './SearchBar';
 
 interface SelectOption {
   label: string;
@@ -37,11 +38,17 @@ export function Select({
   const placeholderText = placeholder ?? t('common.select_option')
   const [isOpen, setIsOpen] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const borderAnim = useRef(new Animated.Value(0)).current;
   const overlayAnim = useRef(new Animated.Value(0)).current;
   const sheetAnim = useRef(new Animated.Value(0)).current;
 
   const selectedOption = options.find(option => String(option.value) === String(value ?? ''));
+
+  // Filtrar opciones basado en la búsqueda
+  const filteredOptions = options.filter(option =>
+    option.label.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   useEffect(() => {
     Animated.timing(borderAnim, {
@@ -54,6 +61,7 @@ export function Select({
   useEffect(() => {
     if (isOpen) {
       setModalVisible(true);
+      setSearchQuery(''); // Limpiar búsqueda al abrir
       Animated.parallel([
         Animated.timing(overlayAnim, {
           toValue: 1,
@@ -80,6 +88,7 @@ export function Select({
         }),
       ]).start(() => {
         setModalVisible(false);
+        setSearchQuery(''); // Limpiar búsqueda al cerrar
       });
     }
   }, [isOpen]);
@@ -193,38 +202,57 @@ export function Select({
             {label && (
               <Text className="text-base font-medium mb-4" style={{ color: Colors.primary[500] }}>{label}</Text>
             )}
-            <ScrollView 
+
+            {/* Campo de búsqueda */}
+            <View style={{ marginBottom: 12 }}>
+              <SearchBar
+                placeholder={t('common.search', 'Buscar...')}
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                autoFocus={false}
+              />
+            </View>
+
+            <ScrollView
               style={{ maxHeight: 180 }}
               showsVerticalScrollIndicator={true}
               nestedScrollEnabled={true}
             >
-              {options.map((option, index) => (
-                <TouchableOpacity
-                  key={option.value}
-                  style={{
-                    paddingVertical: 12,
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    borderBottomWidth: index !== options.length - 1 ? 1 : 0,
-                    borderColor: Colors.primary[100],
-                  }}
-                  onPress={() => handleSelect(option.value)}
-                  activeOpacity={0.7}
-                >
-                  {option.icon && <View style={{ marginRight: 12 }}>{option.icon}</View>}
-                  <Text
-                    className={cn(
-                      'text-base',
-                      String(option.value) === String(value ?? '') ? 'font-medium' : 'font-regular'
-                    )}
+              {filteredOptions.length > 0 ? (
+                filteredOptions.map((option, index) => (
+                  <TouchableOpacity
+                    key={option.value}
                     style={{
-                      color: String(option.value) === String(value ?? '') ? Colors.primary[500] : Colors.primary[700]
+                      paddingVertical: 12,
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      borderBottomWidth: index !== filteredOptions.length - 1 ? 1 : 0,
+                      borderColor: Colors.primary[100],
                     }}
+                    onPress={() => handleSelect(option.value)}
+                    activeOpacity={0.7}
                   >
-                    {option.label}
+                    {option.icon && <View style={{ marginRight: 12 }}>{option.icon}</View>}
+                    <Text
+                      className={cn(
+                        'text-base',
+                        String(option.value) === String(value ?? '') ? 'font-medium' : 'font-regular'
+                      )}
+                      style={{
+                        color: String(option.value) === String(value ?? '') ? Colors.primary[500] : Colors.primary[700]
+                      }}
+                    >
+                      {option.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))
+              ) : (
+                <View style={{ paddingVertical: 20, alignItems: 'center' }}>
+                  <Text style={{ color: Colors.gray[500], fontSize: 14 }}>
+                    {t('common.no_results', 'No se encontraron resultados')}
                   </Text>
-                </TouchableOpacity>
-              ))}
+                </View>
+              )}
             </ScrollView>
           </Animated.View>
         </View>
