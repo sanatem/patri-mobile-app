@@ -1,6 +1,6 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { View, TouchableOpacity, Animated, Modal, Pressable, Text } from 'react-native';
-import { Plus, X } from 'lucide-react-native';
+import { Plus } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 
 export interface FloatingAction {
@@ -19,25 +19,39 @@ export function FloatingActionButton({ actions }: FloatingActionButtonProps) {
   const rotateAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0)).current;
 
+  // Asegurar que el estado inicial sea correcto
+  useEffect(() => {
+    // Forzar valores iniciales explícitamente después del montaje
+    requestAnimationFrame(() => {
+      rotateAnim.setValue(0);
+      scaleAnim.setValue(0);
+    });
+  }, []);
+
   const toggleMenu = () => {
-    const toValue = isOpen ? 0 : 1;
+    const newIsOpen = !isOpen;
+    const toValue = newIsOpen ? 1 : 0;
 
-    Animated.parallel([
-      Animated.spring(rotateAnim, {
-        toValue,
-        useNativeDriver: true,
-        friction: 8,
-        tension: 40,
-      }),
-      Animated.spring(scaleAnim, {
-        toValue,
-        useNativeDriver: true,
-        friction: 8,
-        tension: 40,
-      }),
-    ]).start();
+    // Actualizar el estado primero
+    setIsOpen(newIsOpen);
 
-    setIsOpen(!isOpen);
+    // Ejecutar animación después de actualizar el estado
+    requestAnimationFrame(() => {
+      Animated.parallel([
+        Animated.spring(rotateAnim, {
+          toValue,
+          useNativeDriver: true,
+          friction: 8,
+          tension: 40,
+        }),
+        Animated.spring(scaleAnim, {
+          toValue,
+          useNativeDriver: true,
+          friction: 8,
+          tension: 40,
+        }),
+      ]).start();
+    });
   };
 
   const handleActionPress = (action: FloatingAction) => {
@@ -159,13 +173,15 @@ export function FloatingActionButton({ actions }: FloatingActionButtonProps) {
           <Animated.View
             style={{
               transform: [{ rotate: rotation }],
+              width: 24,
+              height: 24,
+              justifyContent: 'center',
+              alignItems: 'center',
             }}
+            key="fab-icon"
+            collapsable={false}
           >
-            {isOpen ? (
-              <X size={24} color="white" />
-            ) : (
-              <Plus size={24} color="white" />
-            )}
+            <Plus size={24} color="white" />
           </Animated.View>
         </TouchableOpacity>
       </View>

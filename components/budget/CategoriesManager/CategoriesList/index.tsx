@@ -37,6 +37,7 @@ interface CategoriesListProps {
   multipleCustomSubcategories: Array<{ id: string; name: string; emoji: string }>;
   creatingCategory: boolean;
   subcategoryCardRefs: Map<string, any>;
+  isPremium: boolean;
   onCategoryPress: (categoryId: string) => void;
   onCategoryLongPress: (categoryId: string) => void;
   onSubcategoryPress: (subcategoryId: string) => void;
@@ -57,6 +58,7 @@ interface CategoriesListProps {
   onAddNewCustomSubcategoryCard: () => void;
   onRemoveCustomSubcategoryCard: (cardId: string) => void;
   onConfirmNewSubcategories: () => void;
+  onPremiumFeaturePress: (featureName: string) => void;
   getAvailableSubcategoriesForCategory: (categoryId: string, currentCardId?: string) => Array<{
     id: string;
     name: { es: string; en: string; pt: string; 'es-CL': string };
@@ -87,6 +89,7 @@ export function CategoriesList({
   multipleCustomSubcategories,
   creatingCategory,
   subcategoryCardRefs,
+  isPremium,
   onCategoryPress,
   onCategoryLongPress,
   onSubcategoryPress,
@@ -107,6 +110,7 @@ export function CategoriesList({
   onAddNewCustomSubcategoryCard,
   onRemoveCustomSubcategoryCard,
   onConfirmNewSubcategories,
+  onPremiumFeaturePress,
   getAvailableSubcategoriesForCategory,
   canAddMoreSubcategories,
   getMaxSubcategoriesAllowed,
@@ -144,6 +148,7 @@ export function CategoriesList({
             multipleCustomSubcategories={multipleCustomSubcategories}
             creatingCategory={creatingCategory}
             subcategoryCardRefs={subcategoryCardRefs}
+            isPremium={isPremium}
             onCategoryPress={onCategoryPress}
             onCategoryLongPress={onCategoryLongPress}
             onSubcategoryPress={onSubcategoryPress}
@@ -164,6 +169,7 @@ export function CategoriesList({
             onAddNewCustomSubcategoryCard={onAddNewCustomSubcategoryCard}
             onRemoveCustomSubcategoryCard={onRemoveCustomSubcategoryCard}
             onConfirmNewSubcategories={onConfirmNewSubcategories}
+            onPremiumFeaturePress={onPremiumFeaturePress}
             getAvailableSubcategoriesForCategory={getAvailableSubcategoriesForCategory}
             canAddMoreSubcategories={canAddMoreSubcategories}
             getMaxSubcategoriesAllowed={getMaxSubcategoriesAllowed}

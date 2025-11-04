@@ -63,7 +63,7 @@ export function ConfirmModal({
           shadowRadius: 8,
           elevation: 8,
         }}>
-          <View style={{ alignItems: 'center', marginBottom: 24 }}>
+          <View style={{ alignItems: 'center', marginBottom: 24, width: '100%' }}>
             <Text className="text-md font-medium" style={{
               marginBottom: 8,
               textAlign: 'center',
@@ -80,7 +80,9 @@ export function ConfirmModal({
                 {message || defaultMessage}
               </Text>
             )}
-            {children}
+            <View style={{ width: '100%' }}>
+              {children}
+            </View>
           </View>
 
           <View style={{ flexDirection: 'row', gap: 12 }}>

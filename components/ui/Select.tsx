@@ -176,6 +176,8 @@ export function Select({
               flex: 1,
               color: selectedOption ? textColor : placeholderColor,
             }}
+            numberOfLines={1}
+            ellipsizeMode="tail"
           >
             {selectedOption ? selectedOption.label : placeholderText}
           </Text>

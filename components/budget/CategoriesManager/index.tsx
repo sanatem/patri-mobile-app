@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import { Container, Tabs, FloatingActionButton, Button, type FloatingAction } from '@/components/ui';
 import { FolderPlus, Sparkles } from 'lucide-react-native';
@@ -7,11 +8,13 @@ import { CategoriesManagerHeader } from './Header';
 import { DeleteCategoriesModal } from './Modals/DeleteCategoriesModal';
 import { DeleteTransactionsModal } from './Modals/DeleteTransactionsModal';
 import { MoveTransactionsModal } from './Modals/MoveTransactionsModal';
+import { PremiumFeatureModal } from './Modals/PremiumFeatureModal';
 import { SuccessMessage } from './SuccessMessage';
 import { CategorizeButton } from './CategorizeButton';
 import { CustomCategoryCard } from './CustomCategoryCard';
 import { useCategoriesManager } from '../../../hooks/budget/useCategoriesManager';
 import { UserCategoriesState } from '@/hooks/budget/useUserCategories';
+import { useSubscriptionStatus } from '@/hooks/common/useSubscriptionStatus';
 
 interface CategoriesManagerProps {
   userCategories: UserCategoriesState;
@@ -19,6 +22,10 @@ interface CategoriesManagerProps {
 }
 
 export function CategoriesManager({ userCategories, onResetOnboarding }: CategoriesManagerProps) {
+  const { isPremium } = useSubscriptionStatus();
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
+  const [premiumFeatureName, setPremiumFeatureName] = useState('Esta funcionalidad');
+
   const {
     // State
     activeTab,
@@ -133,6 +140,20 @@ export function CategoriesManager({ userCategories, onResetOnboarding }: Categor
     { key: 'expenses', label: t('budget.expenses', 'Gastos') }
   ];
 
+  const handleCustomCategoryPress = () => {
+    if (!isPremium) {
+      setPremiumFeatureName('Nueva Categoría Personalizada');
+      setShowPremiumModal(true);
+      return;
+    }
+    handleNewCustomCategory();
+  };
+
+  const handlePremiumFeaturePress = (featureName: string) => {
+    setPremiumFeatureName(featureName);
+    setShowPremiumModal(true);
+  };
+
   const floatingActions: FloatingAction[] = [
     {
       label: t('budget.new_category', 'Nueva Categoría'),
@@ -143,7 +164,7 @@ export function CategoriesManager({ userCategories, onResetOnboarding }: Categor
     {
       label: 'Nueva Categoría Personalizada',
       icon: <Sparkles size={20} color={Colors.primary[500]} />,
-      onPress: handleNewCustomCategory,
+      onPress: handleCustomCategoryPress,
     },
   ];
 
@@ -213,6 +234,7 @@ export function CategoriesManager({ userCategories, onResetOnboarding }: Categor
           scrollViewRef={scrollViewRef}
           categoryCardRefs={categoryCardRefs}
           subcategoryCardRefs={subcategoryCardRefs}
+          isPremium={isPremium}
           onCategoryPress={handleCategoryPress}
           onCategoryLongPress={handleCategoryLongPress}
           onSubcategoryPress={handleSubcategoryPress}
@@ -245,6 +267,7 @@ export function CategoriesManager({ userCategories, onResetOnboarding }: Categor
           onAddNewCustomSubcategoryCard={handleAddNewCustomSubcategoryCard}
           onRemoveCustomSubcategoryCard={handleRemoveCustomSubcategoryCard}
           onConfirmNewSubcategories={handleConfirmNewSubcategories}
+          onPremiumFeaturePress={handlePremiumFeaturePress}
           getAvailableSubcategoriesForCategory={getAvailableSubcategoriesForCategory}
           canAddMoreSubcategories={canAddMoreSubcategories}
           getMaxSubcategoriesAllowed={getMaxSubcategoriesAllowed}
@@ -382,6 +405,12 @@ export function CategoriesManager({ userCategories, onResetOnboarding }: Categor
       <SuccessMessage
         visible={showSuccessMessage}
         message={successMessage}
+      />
+
+      <PremiumFeatureModal
+        visible={showPremiumModal}
+        onClose={() => setShowPremiumModal(false)}
+        featureName={premiumFeatureName}
       />
     </Container>
   );

@@ -92,9 +92,10 @@ export function BudgetOverview() {
     );
   }
 
-  if (shouldBlockTab("Presupuesto")) {
-    return <LockedTabOverlay tabName={t('tabs.budget')} />;
-  }
+  // Budget tab is now free for all users - premium lock removed
+  // if (shouldBlockTab("Presupuesto")) {
+  //   return <LockedTabOverlay tabName={t('tabs.budget')} />;
+  // }
 
   return (
     <Container variant="secondaryPage">

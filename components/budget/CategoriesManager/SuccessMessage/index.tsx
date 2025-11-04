@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Text } from 'react-native';
-import { CheckCircle } from 'lucide-react-native';
+import { CheckCircle, CircleCheck } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 
 interface SuccessMessageProps {
@@ -16,7 +16,6 @@ export function SuccessMessage({ visible, message }: SuccessMessageProps) {
   useEffect(() => {
     if (visible) {
       setShouldRender(true);
-      // Animate in: slide down and fade in
       Animated.parallel([
         Animated.spring(translateY, {
           toValue: 0,
@@ -31,7 +30,6 @@ export function SuccessMessage({ visible, message }: SuccessMessageProps) {
         }),
       ]).start();
     } else {
-      // Animate out: slide up and fade out
       Animated.parallel([
         Animated.timing(translateY, {
           toValue: -100,
@@ -44,7 +42,6 @@ export function SuccessMessage({ visible, message }: SuccessMessageProps) {
           useNativeDriver: true,
         }),
       ]).start(() => {
-        // Remove from DOM after animation completes
         setShouldRender(false);
       });
     }
@@ -58,7 +55,7 @@ export function SuccessMessage({ visible, message }: SuccessMessageProps) {
       top: 100,
       left: 20,
       right: 20,
-      backgroundColor: Colors.success[500],
+      backgroundColor: Colors.primary[500],
       borderRadius: 12,
       padding: 16,
       flexDirection: 'row',
@@ -71,11 +68,9 @@ export function SuccessMessage({ visible, message }: SuccessMessageProps) {
       transform: [{ translateY }],
       opacity,
     }}>
-      <CheckCircle size={24} color="white" style={{ flexShrink: 0 }} />
-      <Text style={{
+      <CircleCheck size={24} color={Colors.success[400]} style={{ flexShrink: 0 }} />
+      <Text className="text-base font-medium" style={{
         color: 'white',
-        fontSize: 16,
-        fontWeight: '600',
         marginLeft: 12,
         flex: 1,
         flexWrap: 'wrap'

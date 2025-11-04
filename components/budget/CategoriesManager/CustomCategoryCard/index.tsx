@@ -48,7 +48,12 @@ export const CustomCategoryCard = forwardRef<View, CustomCategoryCardProps>(({
             onChangeText={onEmojiChange}
             placeholder="😀"
             maxLength={2}
-            style={{ fontSize: 24, textAlign: 'center' }}
+            style={{ 
+              fontSize: 24, 
+              textAlign: 'center',
+              paddingVertical: 8,
+              lineHeight: 32,
+            }}
           />
         </View>
 

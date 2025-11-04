@@ -50,6 +50,7 @@ interface CategoryItemProps {
   multipleCustomSubcategories: Array<{ id: string; name: string; emoji: string }>;
   creatingCategory: boolean;
   subcategoryCardRefs: Map<string, any>;
+  isPremium: boolean;
   onCategoryPress: (categoryId: string) => void;
   onCategoryLongPress: (categoryId: string) => void;
   onSubcategoryPress: (subcategoryId: string) => void;
@@ -70,6 +71,7 @@ interface CategoryItemProps {
   onAddNewCustomSubcategoryCard: () => void;
   onRemoveCustomSubcategoryCard: (cardId: string) => void;
   onConfirmNewSubcategories: () => void;
+  onPremiumFeaturePress: (featureName: string) => void;
   getAvailableSubcategoriesForCategory: (categoryId: string, currentCardId?: string) => Array<{
     id: string;
     name: { es: string; en: string; pt: string; 'es-CL': string };
@@ -102,6 +104,7 @@ export function CategoryItem({
   multipleCustomSubcategories,
   creatingCategory,
   subcategoryCardRefs,
+  isPremium,
   onCategoryPress,
   onCategoryLongPress,
   onSubcategoryPress,
@@ -122,6 +125,7 @@ export function CategoryItem({
   onAddNewCustomSubcategoryCard,
   onRemoveCustomSubcategoryCard,
   onConfirmNewSubcategories,
+  onPremiumFeaturePress,
   getAvailableSubcategoriesForCategory,
   canAddMoreSubcategories,
   getMaxSubcategoriesAllowed,
@@ -284,6 +288,10 @@ export function CategoryItem({
                   style={{ padding: 4, marginRight: 8 }}
                   onPress={(e) => {
                     e.stopPropagation();
+                    if (!isPremium) {
+                      onPremiumFeaturePress('Edición de Categorías');
+                      return;
+                    }
                     onStartEdit(category.id);
                   }}
                 >

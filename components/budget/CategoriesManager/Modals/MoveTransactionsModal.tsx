@@ -41,7 +41,7 @@ export function MoveTransactionsModal({
       cancelButtonText="Cancelar"
       confirmDisabled={!selectedDestinationCategory || loading || categoryOptions.length === 0}
     >
-      <View style={{ marginTop: 8 }}>
+      <View style={{ marginTop: 8, width: '100%' }}>
         <Select
           options={categoryOptions}
           value={selectedDestinationCategory || ''}
@@ -49,6 +49,7 @@ export function MoveTransactionsModal({
           placeholder="Selecciona una categoría"
           label={t('budget.category', 'Categoría')}
           emptyMessage={t('budget.add_categories_first', 'Debes añadir categorías para poder asignar transacciones.')}
+          className="w-full"
         />
 
         {selectedDestinationCategory && subcategoryOptions.length > 0 && (
@@ -58,6 +59,7 @@ export function MoveTransactionsModal({
             onSelect={onSubcategoryChange}
             placeholder="Selecciona una subcategoría (opcional)"
             label={t('budget.subcategory', 'Subcategoría')}
+            className="w-full"
           />
         )}
       </View>

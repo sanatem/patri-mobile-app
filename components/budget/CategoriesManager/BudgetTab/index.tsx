@@ -55,6 +55,7 @@ interface BudgetTabProps {
   scrollViewRef: any;
   categoryCardRefs: Map<string, any>;
   subcategoryCardRefs: Map<string, any>;
+  isPremium: boolean;
   onCategoryPress: (categoryId: string) => void;
   onCategoryLongPress: (categoryId: string) => void;
   onSubcategoryPress: (subcategoryId: string) => void;
@@ -90,6 +91,7 @@ interface BudgetTabProps {
   onAddNewCustomSubcategoryCard: () => void;
   onRemoveCustomSubcategoryCard: (cardId: string) => void;
   onConfirmNewSubcategories: () => void;
+  onPremiumFeaturePress: (featureName: string) => void;
   getAvailableSubcategoriesForCategory: (categoryId: string, currentCardId?: string) => Array<{
     id: string;
     name: { es: string; en: string; pt: string; 'es-CL': string };
@@ -127,6 +129,7 @@ export function BudgetTab({
   scrollViewRef,
   categoryCardRefs,
   subcategoryCardRefs,
+  isPremium,
   onCategoryPress,
   onCategoryLongPress,
   onSubcategoryPress,
@@ -158,6 +161,7 @@ export function BudgetTab({
   onAddNewCustomSubcategoryCard,
   onRemoveCustomSubcategoryCard,
   onConfirmNewSubcategories,
+  onPremiumFeaturePress,
   getAvailableSubcategoriesForCategory,
   canAddMoreSubcategories,
   getMaxSubcategoriesAllowed,
@@ -213,6 +217,7 @@ export function BudgetTab({
         multipleCustomSubcategories={multipleCustomSubcategories}
         creatingCategory={creatingCategory}
         subcategoryCardRefs={subcategoryCardRefs}
+        isPremium={isPremium}
         onCategoryPress={onCategoryPress}
         onCategoryLongPress={onCategoryLongPress}
         onSubcategoryPress={onSubcategoryPress}
@@ -233,6 +238,7 @@ export function BudgetTab({
         onAddNewCustomSubcategoryCard={onAddNewCustomSubcategoryCard}
         onRemoveCustomSubcategoryCard={onRemoveCustomSubcategoryCard}
         onConfirmNewSubcategories={onConfirmNewSubcategories}
+        onPremiumFeaturePress={onPremiumFeaturePress}
         getAvailableSubcategoriesForCategory={getAvailableSubcategoriesForCategory}
         canAddMoreSubcategories={canAddMoreSubcategories}
         getMaxSubcategoriesAllowed={getMaxSubcategoriesAllowed}
