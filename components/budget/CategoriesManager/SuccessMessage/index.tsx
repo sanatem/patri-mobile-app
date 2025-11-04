@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { Animated, Text } from 'react-native';
 import { CheckCircle } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 
@@ -9,10 +9,51 @@ interface SuccessMessageProps {
 }
 
 export function SuccessMessage({ visible, message }: SuccessMessageProps) {
-  if (!visible) return null;
+  const translateY = useRef(new Animated.Value(-100)).current;
+  const opacity = useRef(new Animated.Value(0)).current;
+  const [shouldRender, setShouldRender] = useState(false);
+
+  useEffect(() => {
+    if (visible) {
+      setShouldRender(true);
+      // Animate in: slide down and fade in
+      Animated.parallel([
+        Animated.spring(translateY, {
+          toValue: 0,
+          useNativeDriver: true,
+          tension: 50,
+          friction: 8,
+        }),
+        Animated.timing(opacity, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    } else {
+      // Animate out: slide up and fade out
+      Animated.parallel([
+        Animated.timing(translateY, {
+          toValue: -100,
+          duration: 250,
+          useNativeDriver: true,
+        }),
+        Animated.timing(opacity, {
+          toValue: 0,
+          duration: 250,
+          useNativeDriver: true,
+        }),
+      ]).start(() => {
+        // Remove from DOM after animation completes
+        setShouldRender(false);
+      });
+    }
+  }, [visible, translateY, opacity]);
+
+  if (!shouldRender) return null;
 
   return (
-    <View style={{
+    <Animated.View style={{
       position: 'absolute',
       top: 100,
       left: 20,
@@ -27,6 +68,8 @@ export function SuccessMessage({ visible, message }: SuccessMessageProps) {
       shadowOpacity: 0.25,
       shadowRadius: 3.84,
       elevation: 5,
+      transform: [{ translateY }],
+      opacity,
     }}>
       <CheckCircle size={24} color="white" style={{ flexShrink: 0 }} />
       <Text style={{
@@ -39,6 +82,6 @@ export function SuccessMessage({ visible, message }: SuccessMessageProps) {
       }}>
         {message}
       </Text>
-    </View>
+    </Animated.View>
   );
 }

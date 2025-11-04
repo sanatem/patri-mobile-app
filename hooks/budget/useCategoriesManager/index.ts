@@ -188,17 +188,18 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
   const totalVisibleTransactions = categoriesData.groupedData.uncategorized.length;
 
   // Combine success messages from different hooks
+  // Priority order matters: check most specific operations first
   const showSuccessMessage =
-    transactionSelection.showSuccessMessage ||
     selection.showSuccessMessage ||
+    editing.showSuccessMessage ||
     creation.showSuccessMessage ||
-    editing.showSuccessMessage;
+    transactionSelection.showSuccessMessage;
 
   const successMessage =
-    transactionSelection.showSuccessMessage ? 'Transacciones categorizadas correctamente' :
     selection.showSuccessMessage ? selection.successMessage :
-    creation.showSuccessMessage ? creation.successMessage :
     editing.showSuccessMessage ? editing.successMessage :
+    creation.showSuccessMessage ? creation.successMessage :
+    transactionSelection.showSuccessMessage ? 'Transacciones categorizadas correctamente' :
     '';
 
   return {
