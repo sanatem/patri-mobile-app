@@ -36,6 +36,7 @@ export function CategoriesManager({ userCategories, onResetOnboarding }: Categor
     selectedDestinationCategory,
     selectedDestinationSubcategory,
     showSuccessMessage,
+    successMessage,
     selectionAnimations,
     transactionAnimations,
     loading,
@@ -380,7 +381,7 @@ export function CategoriesManager({ userCategories, onResetOnboarding }: Categor
 
       <SuccessMessage
         visible={showSuccessMessage}
-        message="Transacciones categorizadas correctamente"
+        message={successMessage}
       />
     </Container>
   );

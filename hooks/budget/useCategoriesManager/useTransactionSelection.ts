@@ -98,8 +98,10 @@ export function useTransactionSelection({
       setShowDeleteTransactionsModal(false);
       setDeletingTransactions(false);
 
+      // Show success message instead of Alert
       const count = transactionIds.length;
-      Alert.alert('Éxito', `${count} ${count === 1 ? 'transacción eliminada' : 'transacciones eliminadas'} correctamente`);
+      setShowSuccessMessage(true);
+      setTimeout(() => setShowSuccessMessage(false), 3000);
 
     } catch (error) {
       console.error('Error deleting transactions:', error);

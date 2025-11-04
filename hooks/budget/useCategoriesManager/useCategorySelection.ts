@@ -29,6 +29,8 @@ export function useCategorySelection({
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [totalTransactionsToUncategorize, setTotalTransactionsToUncategorize] = useState(0);
   const [deletingCategories, setDeletingCategories] = useState(false);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
 
   // Handle long press on subcategory
   const handleLongPress = (subcategoryId: string) => {
@@ -236,7 +238,10 @@ export function useCategorySelection({
       setShowDeleteModal(false);
       setDeletingCategories(false);
 
-      Alert.alert('Éxito', 'Categorías eliminadas correctamente');
+      // Show success message instead of Alert
+      setSuccessMessage('Categorías eliminadas correctamente');
+      setShowSuccessMessage(true);
+      setTimeout(() => setShowSuccessMessage(false), 3000);
 
     } catch (error) {
       console.error('Error deleting categories:', error);
@@ -254,6 +259,8 @@ export function useCategorySelection({
     showDeleteModal,
     totalTransactionsToUncategorize,
     deletingCategories,
+    showSuccessMessage,
+    successMessage,
 
     // Functions
     handleLongPress,

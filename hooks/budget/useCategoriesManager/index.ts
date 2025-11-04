@@ -187,6 +187,20 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
   const loading = incomeLoading || expenseLoading || categoriesData.categoriesLoading;
   const totalVisibleTransactions = categoriesData.groupedData.uncategorized.length;
 
+  // Combine success messages from different hooks
+  const showSuccessMessage =
+    transactionSelection.showSuccessMessage ||
+    selection.showSuccessMessage ||
+    creation.showSuccessMessage ||
+    editing.showSuccessMessage;
+
+  const successMessage =
+    transactionSelection.showSuccessMessage ? 'Transacciones categorizadas correctamente' :
+    selection.showSuccessMessage ? selection.successMessage :
+    creation.showSuccessMessage ? creation.successMessage :
+    editing.showSuccessMessage ? editing.successMessage :
+    '';
+
   return {
     activeTab,
     expandedCategories,
@@ -224,7 +238,8 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
     showDeleteTransactionsModal: transactionSelection.showDeleteTransactionsModal,
     selectedDestinationCategory: transactionSelection.selectedDestinationCategory,
     selectedDestinationSubcategory: transactionSelection.selectedDestinationSubcategory,
-    showSuccessMessage: transactionSelection.showSuccessMessage,
+    showSuccessMessage, // Combined from all hooks
+    successMessage, // Combined message text
     assigningCategories: transactionSelection.assigningCategories,
     deletingTransactions: transactionSelection.deletingTransactions,
 

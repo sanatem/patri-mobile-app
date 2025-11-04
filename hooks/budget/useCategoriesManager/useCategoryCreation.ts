@@ -41,6 +41,10 @@ export function useCategoryCreation({
   const [multipleNewSubcategories, setMultipleNewSubcategories] = useState<NewSubcategoryCard[]>([]);
   const [multipleCustomSubcategories, setMultipleCustomSubcategories] = useState<CustomCategoryCard[]>([]);
 
+  // Success message state
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
+
   // Helper to scroll to a card
   const scrollToCard = (cardId: string, isSubcategory: boolean = false) => {
     const attemptScroll = (attempt: number = 0) => {
@@ -222,8 +226,11 @@ export function useCategoryCreation({
       setCreatingNewCategory(false);
       setMultipleNewCategories([]);
 
+      // Show success message instead of Alert
       const count = createPromises.length;
-      Alert.alert('Éxito', `${count} ${count === 1 ? 'categoría creada' : 'categorías creadas'} correctamente`);
+      setSuccessMessage(`${count} ${count === 1 ? 'categoría creada' : 'categorías creadas'} correctamente`);
+      setShowSuccessMessage(true);
+      setTimeout(() => setShowSuccessMessage(false), 3000);
 
     } catch (error) {
       console.error('Error creating categories:', error);
@@ -268,8 +275,11 @@ export function useCategoryCreation({
       setCreatingCustomCategory(false);
       setMultipleCustomCategories([]);
 
+      // Show success message instead of Alert
       const count = createPromises.length;
-      Alert.alert('Éxito', `${count} ${count === 1 ? 'categoría personalizada creada' : 'categorías personalizadas creadas'} correctamente`);
+      setSuccessMessage(`${count} ${count === 1 ? 'categoría personalizada creada' : 'categorías personalizadas creadas'} correctamente`);
+      setShowSuccessMessage(true);
+      setTimeout(() => setShowSuccessMessage(false), 3000);
 
     } catch (error) {
       console.error('Error creating custom categories:', error);
@@ -473,8 +483,11 @@ export function useCategoryCreation({
       setMultipleNewSubcategories([]);
       setMultipleCustomSubcategories([]);
 
+      // Show success message instead of Alert
       const count = createPromises.length;
-      Alert.alert('Éxito', `${count} ${count === 1 ? 'subcategoría creada' : 'subcategorías creadas'} correctamente`);
+      setSuccessMessage(`${count} ${count === 1 ? 'subcategoría creada' : 'subcategorías creadas'} correctamente`);
+      setShowSuccessMessage(true);
+      setTimeout(() => setShowSuccessMessage(false), 3000);
 
     } catch (error) {
       console.error('Error creating subcategories:', error);
@@ -645,6 +658,10 @@ export function useCategoryCreation({
     addingSubcategoryForCategoryId,
     multipleNewSubcategories,
     multipleCustomSubcategories,
+
+    // Success message state
+    showSuccessMessage,
+    successMessage,
 
     // Category creation functions
     handleNewCategory,

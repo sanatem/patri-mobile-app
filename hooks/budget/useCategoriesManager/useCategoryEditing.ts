@@ -32,6 +32,8 @@ export function useCategoryEditing({
   const [editingParentCategoryId, setEditingParentCategoryId] = useState<string | null>(null);
   const [updatingCategory, setUpdatingCategory] = useState(false);
   const [pendingEdits, setPendingEdits] = useState<Map<string, PendingEdit>>(new Map());
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
 
   // Start editing a category
   const handleStartEdit = (categoryId: string) => {
@@ -188,7 +190,11 @@ export function useCategoryEditing({
       await reloadCategories();
 
       handleCancelEdit();
-      Alert.alert('Éxito', `${updates.length} ${updates.length === 1 ? 'categoría actualizada' : 'categorías actualizadas'} correctamente`);
+
+      // Show success message instead of Alert
+      setSuccessMessage(`${updates.length} ${updates.length === 1 ? 'categoría actualizada' : 'categorías actualizadas'} correctamente`);
+      setShowSuccessMessage(true);
+      setTimeout(() => setShowSuccessMessage(false), 3000);
 
     } catch (error) {
       console.error('Error updating categories:', error);
@@ -203,6 +209,8 @@ export function useCategoryEditing({
     editingParentCategoryId,
     updatingCategory,
     pendingEdits,
+    showSuccessMessage,
+    successMessage,
 
     // Functions
     handleStartEdit,

@@ -44,21 +44,15 @@ export function CategoryCard({ category, isSelected, onToggle, currentLang }: Ca
         borderWidth: 1.5,
         borderColor: isSelected ? Colors.primary[200] : Colors.gray[100],
         marginBottom: 12,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.05,
-        shadowRadius: 2,
-        elevation: 1,
       }}
       activeOpacity={0.7}
     >
-      <Text style={{ fontSize: 32, marginRight: 12 }}>{category.emoji}</Text>
+      <Text className="text-2xl font-medium" style={{ marginRight: 12 }}>{category.emoji}</Text>
 
       <View style={{ flex: 1 }}>
         <Text
-          className="font-medium"
+          className="text-base font-medium"
           style={{
-            fontSize: 16,
             color: isSelected ? Colors.primary[700] : Colors.gray[900],
           }}
         >
