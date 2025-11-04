@@ -37,6 +37,7 @@ interface CategoriesListProps {
   multipleCustomSubcategories: Array<{ id: string; name: string; emoji: string }>;
   creatingCategory: boolean;
   subcategoryCardRefs: Map<string, any>;
+  scrollViewRef?: any;
   isPremium: boolean;
   onCategoryPress: (categoryId: string) => void;
   onCategoryLongPress: (categoryId: string) => void;
@@ -66,7 +67,10 @@ interface CategoriesListProps {
   }>;
   canAddMoreSubcategories: (categoryId: string) => boolean;
   getMaxSubcategoriesAllowed: (categoryId: string) => number;
-  getRotateStyle: (id: string, isCategory: boolean) => any;
+  getRotateStyle: (id: string, isCategory: boolean, isExpanded?: boolean) => any;
+  getExpansionStyle: (id: string, isCategory: boolean, isExpanded?: boolean) => any;
+  categoryRotations: Map<string, Animated.Value>;
+  categoryExpansions: Map<string, Animated.Value>;
 }
 
 export function CategoriesList({
@@ -89,7 +93,9 @@ export function CategoriesList({
   multipleCustomSubcategories,
   creatingCategory,
   subcategoryCardRefs,
+  scrollViewRef,
   isPremium,
+  activeCategoryId,
   onCategoryPress,
   onCategoryLongPress,
   onSubcategoryPress,
@@ -115,14 +121,21 @@ export function CategoriesList({
   canAddMoreSubcategories,
   getMaxSubcategoriesAllowed,
   getRotateStyle,
+  getExpansionStyle,
+  categoryRotations,
+  categoryExpansions,
+  subcategoryRotations,
+  subcategoryExpansions,
 }: CategoriesListProps) {
   return (
     <>
-      {categorizedData.map((category) => {
+      {categorizedData.map((category, index) => {
         const isCategorySelected = selectedCategories.has(category.id);
         const categoryAnimation = selectionAnimations.get(category.id) || new Animated.Value(0);
         const isExpanded = expandedCategories.has(category.id);
-        const categoryRotateStyle = getRotateStyle(category.id, true);
+        const categoryRotateStyle = getRotateStyle(category.id, true, isExpanded);
+        // Todas las categorías están siempre activas para permitir múltiples expansiones
+        const isActive = true;
 
         return (
           <CategoryItem
@@ -132,8 +145,13 @@ export function CategoriesList({
             selectionMode={selectionMode}
             isCategorySelected={isCategorySelected}
             isExpanded={isExpanded}
+            isActive={isActive}
             categoryAnimation={categoryAnimation}
             categoryRotateStyle={categoryRotateStyle}
+            categoryRotations={categoryRotations}
+            categoryExpansions={categoryExpansions}
+            subcategoryRotations={subcategoryRotations}
+            subcategoryExpansions={subcategoryExpansions}
             expandedSubcategories={expandedSubcategories}
             selectedSubcategories={selectedSubcategories}
             selectedTransactions={selectedTransactions}
@@ -148,6 +166,7 @@ export function CategoriesList({
             multipleCustomSubcategories={multipleCustomSubcategories}
             creatingCategory={creatingCategory}
             subcategoryCardRefs={subcategoryCardRefs}
+            scrollViewRef={scrollViewRef}
             isPremium={isPremium}
             onCategoryPress={onCategoryPress}
             onCategoryLongPress={onCategoryLongPress}
@@ -174,6 +193,7 @@ export function CategoriesList({
             canAddMoreSubcategories={canAddMoreSubcategories}
             getMaxSubcategoriesAllowed={getMaxSubcategoriesAllowed}
             getRotateStyle={getRotateStyle}
+            getExpansionStyle={getExpansionStyle}
           />
         );
       })}

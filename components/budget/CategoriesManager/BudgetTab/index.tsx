@@ -2,6 +2,7 @@ import React from 'react';
 import { ScrollView, Animated, View } from 'react-native';
 import { FloidTransaction } from '@/services/budget/transactions/get-floid-transactions';
 import { UncategorizedList } from '../UncategorizedList';
+import { CategorizedList } from '../CategorizedList';
 import { CategoriesList } from '../CategoriesList';
 import { NewCategoryCard } from '../NewCategoryCard';
 import { CustomCategoryCard } from '../CustomCategoryCard';
@@ -25,6 +26,7 @@ interface BudgetTabProps {
       transactionCount: number;
     }>;
     uncategorized: FloidTransaction[];
+    categorizedTransactions: FloidTransaction[];
   };
   currentLang: string;
   selectionMode: boolean;
@@ -62,6 +64,12 @@ interface BudgetTabProps {
   onSubcategoryLongPress: (subcategoryId: string) => void;
   onTransactionPress: (transactionId: number) => void;
   onToggleUncategorized: () => void;
+  onToggleCategorized: () => void;
+  activeTransactionList: 'uncategorized' | 'categorized';
+  isUncategorizedExpanded: boolean;
+  isCategorizedExpanded: boolean;
+  shouldShowUncategorizedContent: boolean;
+  shouldShowCategorizedContent: boolean;
   onSelectAllTransactions?: () => void;
   onDeselectAllTransactions?: () => void;
   onStartEdit: (categoryId: string) => void;
@@ -99,7 +107,12 @@ interface BudgetTabProps {
   }>;
   canAddMoreSubcategories: (categoryId: string) => boolean;
   getMaxSubcategoriesAllowed: (categoryId: string) => number;
-  getRotateStyle: (id: string, isCategory: boolean) => any;
+  getRotateStyle: (id: string, isCategory: boolean, isExpanded?: boolean) => any;
+  getExpansionStyle: (id: string, isCategory: boolean, isExpanded?: boolean) => any;
+  categoryRotations: Map<string, Animated.Value>;
+  categoryExpansions: Map<string, Animated.Value>;
+  subcategoryRotations: Map<string, Animated.Value>;
+  subcategoryExpansions: Map<string, Animated.Value>;
 }
 
 export function BudgetTab({
@@ -136,6 +149,12 @@ export function BudgetTab({
   onSubcategoryLongPress,
   onTransactionPress,
   onToggleUncategorized,
+  onToggleCategorized,
+  activeTransactionList,
+  isUncategorizedExpanded,
+  isCategorizedExpanded,
+  shouldShowUncategorizedContent,
+  shouldShowCategorizedContent,
   onSelectAllTransactions,
   onDeselectAllTransactions,
   onStartEdit,
@@ -166,6 +185,11 @@ export function BudgetTab({
   canAddMoreSubcategories,
   getMaxSubcategoriesAllowed,
   getRotateStyle,
+  getExpansionStyle,
+  categoryRotations,
+  categoryExpansions,
+  subcategoryRotations,
+  subcategoryExpansions,
 }: BudgetTabProps) {
   // Verificar si hay categorías creadas
   const hasCategories = groupedData.categorized.length > 0;
@@ -177,20 +201,50 @@ export function BudgetTab({
       contentContainerStyle={{ paddingBottom: 20, flexGrow: 1 }}
       showsVerticalScrollIndicator={false}
     >
-      {/* Mostrar lista de transacciones sin categorizar solo si hay categorías */}
+      {/* Mostrar lista de transacciones sin categorizar y categorizadas solo si hay categorías */}
       {hasCategories && (
-        <UncategorizedList
-          uncategorizedTransactions={groupedData.uncategorized}
-          isExpanded={expandedCategories.has('uncategorized')}
-          rotateStyle={getRotateStyle('uncategorized', true)}
-          selectedTransactions={selectedTransactions}
-          transactionAnimations={transactionAnimations}
-          transactionType={transactionType}
-          onToggle={onToggleUncategorized}
-          onTransactionPress={onTransactionPress}
-          onSelectAll={onSelectAllTransactions}
-          onDeselectAll={onDeselectAllTransactions}
-        />
+        <View style={{
+          flexDirection: 'row',
+          marginHorizontal: 20,
+          marginTop: 20,
+          gap: 12,
+        }}>
+          <UncategorizedList
+            uncategorizedTransactions={groupedData.uncategorized}
+            isExpanded={isUncategorizedExpanded}
+            isActive={activeTransactionList === 'uncategorized'}
+            shouldShowContent={shouldShowUncategorizedContent}
+            rotateStyle={getRotateStyle('uncategorized', true, isUncategorizedExpanded)}
+            expansionStyle={getExpansionStyle('uncategorized', true, isUncategorizedExpanded)}
+            categoryRotations={categoryRotations}
+            categoryExpansions={categoryExpansions}
+            selectedTransactions={selectedTransactions}
+            transactionAnimations={transactionAnimations}
+            transactionType={transactionType}
+            onToggle={onToggleUncategorized}
+            onTransactionPress={onTransactionPress}
+            onSelectAll={onSelectAllTransactions}
+            onDeselectAll={onDeselectAllTransactions}
+          />
+
+          <CategorizedList
+            categorizedTransactions={groupedData.categorizedTransactions}
+            isExpanded={isCategorizedExpanded}
+            isActive={activeTransactionList === 'categorized'}
+            shouldShowContent={shouldShowCategorizedContent}
+            rotateStyle={getRotateStyle('categorized', true, isCategorizedExpanded)}
+            expansionStyle={getExpansionStyle('categorized', true, isCategorizedExpanded)}
+            categoryRotations={categoryRotations}
+            categoryExpansions={categoryExpansions}
+            selectedTransactions={selectedTransactions}
+            transactionAnimations={transactionAnimations}
+            transactionType={transactionType}
+            onToggle={onToggleCategorized}
+            onTransactionPress={onTransactionPress}
+            onSelectAll={onSelectAllTransactions}
+            onDeselectAll={onDeselectAllTransactions}
+          />
+        </View>
       )}
 
       {/* Mostrar estado vacío o lista de categorías */}
@@ -217,6 +271,7 @@ export function BudgetTab({
         multipleCustomSubcategories={multipleCustomSubcategories}
         creatingCategory={creatingCategory}
         subcategoryCardRefs={subcategoryCardRefs}
+        scrollViewRef={scrollViewRef}
         isPremium={isPremium}
         onCategoryPress={onCategoryPress}
         onCategoryLongPress={onCategoryLongPress}
@@ -242,7 +297,12 @@ export function BudgetTab({
         getAvailableSubcategoriesForCategory={getAvailableSubcategoriesForCategory}
         canAddMoreSubcategories={canAddMoreSubcategories}
         getMaxSubcategoriesAllowed={getMaxSubcategoriesAllowed}
-        getRotateStyle={getRotateStyle}
+          getRotateStyle={getRotateStyle}
+          getExpansionStyle={getExpansionStyle}
+          categoryRotations={categoryRotations}
+          categoryExpansions={categoryExpansions}
+          subcategoryRotations={subcategoryRotations}
+          subcategoryExpansions={subcategoryExpansions}
       />
       )}
 
@@ -287,6 +347,7 @@ export function BudgetTab({
           onAdd={onAddNewCategoryCard}
           onRemove={() => onRemoveNewCategoryCard(card.id)}
           canAdd={maxCategoriesAllowed > multipleCustomCategories.length}
+          scrollViewRef={scrollViewRef}
         />
       ))}
     </ScrollView>

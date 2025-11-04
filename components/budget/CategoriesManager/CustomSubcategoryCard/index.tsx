@@ -1,5 +1,5 @@
 import React, { forwardRef } from 'react';
-import { View, TouchableOpacity } from 'react-native';
+import { View, TouchableOpacity, Platform } from 'react-native';
 import { Input, Button } from '@/components/ui';
 import Colors from '@/constants/Colors';
 import { Plus, X } from 'lucide-react-native';
@@ -14,6 +14,7 @@ interface CustomSubcategoryCardProps {
   onAdd?: () => void;
   onRemove?: () => void;
   canAdd?: boolean;
+  scrollViewRef?: React.RefObject<any>;
 }
 
 export const CustomSubcategoryCard = forwardRef<View, CustomSubcategoryCardProps>(({
@@ -26,7 +27,17 @@ export const CustomSubcategoryCard = forwardRef<View, CustomSubcategoryCardProps
   onAdd,
   onRemove,
   canAdd = true,
+  scrollViewRef,
 }, ref) => {
+  const handleInputFocus = () => {
+    if (scrollViewRef?.current) {
+      // Usar setTimeout para asegurar que el teclado ya esté visible
+      setTimeout(() => {
+        scrollViewRef.current?.scrollToEnd({ animated: true });
+      }, Platform.OS === 'ios' ? 300 : 150);
+    }
+  };
+
   return (
     <View
       ref={ref}
@@ -47,11 +58,16 @@ export const CustomSubcategoryCard = forwardRef<View, CustomSubcategoryCardProps
             onChangeText={onEmojiChange}
             placeholder="😀"
             maxLength={2}
+            includeFontPadding={false}
+            textAlignVertical="center"
+            onFocus={handleInputFocus}
             style={{ 
               fontSize: 24, 
               textAlign: 'center',
-              paddingVertical: 8,
-              lineHeight: 32,
+              paddingTop: 12,
+              paddingBottom: 8,
+              lineHeight: 28,
+              height: 56,
             }}
           />
         </View>
@@ -61,6 +77,7 @@ export const CustomSubcategoryCard = forwardRef<View, CustomSubcategoryCardProps
             value={subcategoryName}
             onChangeText={onNameChange}
             placeholder="Ej: Netflix, Spotify, etc."
+            onFocus={handleInputFocus}
           />
         </View>
 

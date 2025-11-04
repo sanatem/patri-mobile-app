@@ -32,6 +32,7 @@ export interface CategoryData {
 export interface GroupedData {
   categorized: CategoryData[];
   uncategorized: any[];
+  categorizedTransactions: any[];
 }
 
 export interface NewCategoryCard {

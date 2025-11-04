@@ -31,6 +31,11 @@ export function CategoriesManager({ userCategories, onResetOnboarding }: Categor
     activeTab,
     expandedCategories,
     expandedSubcategories,
+    activeTransactionList,
+    isUncategorizedExpanded,
+    isCategorizedExpanded,
+    shouldShowUncategorizedContent,
+    shouldShowCategorizedContent,
     selectionMode,
     selectedSubcategories,
     selectedCategories,
@@ -78,6 +83,11 @@ export function CategoriesManager({ userCategories, onResetOnboarding }: Categor
     // Handlers
     setActiveTab,
     getRotateStyle,
+    getExpansionStyle,
+    categoryRotations,
+    categoryExpansions,
+    subcategoryRotations,
+    subcategoryExpansions,
     handleCategoryPress,
     handleCategoryLongPress,
     handleSubcategoryPress,
@@ -97,6 +107,8 @@ export function CategoriesManager({ userCategories, onResetOnboarding }: Categor
     setShowDeleteModal,
     setShowDeleteTransactionsModal,
     toggleCategory,
+    toggleUncategorizedList,
+    toggleCategorizedList,
     handleNewCategory,
     handleNewCustomCategory,
     handleSelectAllTransactions,
@@ -240,7 +252,13 @@ export function CategoriesManager({ userCategories, onResetOnboarding }: Categor
           onSubcategoryPress={handleSubcategoryPress}
           onSubcategoryLongPress={handleLongPress}
           onTransactionPress={handleTransactionPress}
-          onToggleUncategorized={() => toggleCategory('uncategorized')}
+          onToggleUncategorized={toggleUncategorizedList}
+          onToggleCategorized={toggleCategorizedList}
+          activeTransactionList={activeTransactionList}
+          isUncategorizedExpanded={isUncategorizedExpanded}
+          isCategorizedExpanded={isCategorizedExpanded}
+          shouldShowUncategorizedContent={shouldShowUncategorizedContent}
+          shouldShowCategorizedContent={shouldShowCategorizedContent}
           onSelectAllTransactions={handleSelectAllTransactions}
           onDeselectAllTransactions={handleDeselectAllTransactions}
           onStartEdit={handleStartEdit}
@@ -272,6 +290,11 @@ export function CategoriesManager({ userCategories, onResetOnboarding }: Categor
           canAddMoreSubcategories={canAddMoreSubcategories}
           getMaxSubcategoriesAllowed={getMaxSubcategoriesAllowed}
           getRotateStyle={getRotateStyle}
+          getExpansionStyle={getExpansionStyle}
+          categoryRotations={categoryRotations}
+          categoryExpansions={categoryExpansions}
+          subcategoryRotations={subcategoryRotations}
+          subcategoryExpansions={subcategoryExpansions}
         />
 
         {transactionSelectionMode && (

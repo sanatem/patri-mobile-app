@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, Animated, TextInput } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { View, Text, TouchableOpacity, Animated, TextInput, Easing } from 'react-native';
 import { CheckboxItem } from '@/components/ui';
 import Colors from '@/constants/Colors';
 import { ChevronDown, Edit2, X, Check } from 'lucide-react-native';
@@ -18,8 +18,12 @@ interface SubCategoryItemProps {
   selectionMode: boolean;
   isSelected: boolean;
   isExpanded: boolean;
+  isActive: boolean;
   animation: Animated.Value;
   rotateStyle: any;
+  expansionStyle: any;
+  subcategoryRotations: Map<string, Animated.Value>;
+  subcategoryExpansions: Map<string, Animated.Value>;
   transactionType: 'income' | 'outcome';
   selectedTransactions: Set<number>;
   transactionAnimations: Map<number, Animated.Value>;
@@ -40,8 +44,12 @@ export function SubCategoryItem({
   selectionMode,
   isSelected,
   isExpanded,
+  isActive,
   animation,
   rotateStyle,
+  expansionStyle,
+  subcategoryRotations,
+  subcategoryExpansions,
   transactionType,
   selectedTransactions,
   transactionAnimations,
@@ -68,6 +76,94 @@ export function SubCategoryItem({
   const isEditingModeEnabled = editingParentCategoryId === parentCategoryId; // Modo edición habilitado si la categoría padre está en edición
   const subcatPendingEdit = pendingEdits.get(subcat.id);
   const isEditingSubcat = isEditingModeEnabled && subcatPendingEdit !== undefined;
+
+  const contentHeightRef = useRef<number>(0);
+  const [contentHeight, setContentHeight] = useState<number>(0);
+  const [isMounted, setIsMounted] = useState(false);
+
+  // Get expansion animation value
+  const expansionValue = subcategoryExpansions.get(subcat.id);
+  
+  // Create expansion style dynamically - use fixed large value for maxHeight
+  // React Native interpolations don't update dynamically, so we use a large fixed value
+  const dynamicExpansionStyle = expansionValue ? {
+    opacity: expansionValue.interpolate({
+      inputRange: [0, 0.15, 1],
+      outputRange: [0, 0.9, 1], // More gradual fade for smoother vertical slide
+    }),
+    maxHeight: expansionValue.interpolate({
+      inputRange: [0, 1],
+      outputRange: [0, 10000], // Fixed large value that will accommodate any content
+    }),
+  } : { opacity: 0, maxHeight: 0 };
+
+  // Mark component as mounted after first render
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // Sync rotation animation with expanded state
+  useEffect(() => {
+    // Ensure animations exist
+    if (!subcategoryRotations.has(subcat.id)) {
+      subcategoryRotations.set(subcat.id, new Animated.Value(0));
+    }
+    if (!subcategoryExpansions.has(subcat.id)) {
+      subcategoryExpansions.set(subcat.id, new Animated.Value(0));
+    }
+    
+    const rotation = subcategoryRotations.get(subcat.id)!;
+    const expansion = subcategoryExpansions.get(subcat.id)!;
+    
+    // Only animate if card is active AND expanded
+    // If inactive, immediately set to 0 to prevent content from showing
+    const toValue = (isActive && isExpanded) ? 1 : 0;
+    
+    // If inactive, set values immediately without animation
+    if (!isActive) {
+      rotation.setValue(0);
+      expansion.setValue(0);
+      return;
+    }
+    
+    // Only animate if component is mounted (not on initial mount with isExpanded=true)
+    // This ensures the animation is visible when expanding
+    if (isMounted) {
+      // Use requestAnimationFrame to ensure layout is ready before animating
+      requestAnimationFrame(() => {
+        Animated.parallel([
+          Animated.timing(rotation, {
+            toValue,
+            duration: 450,
+            useNativeDriver: true,
+            easing: toValue === 1 
+              ? Easing.bezier(0.25, 0.1, 0.25, 1) // Smooth ease-out for expand
+              : Easing.bezier(0.4, 0.0, 0.2, 1), // Smooth ease-in for collapse
+          }),
+          Animated.timing(expansion, {
+            toValue,
+            duration: 450,
+            useNativeDriver: false,
+            easing: toValue === 1 
+              ? Easing.bezier(0.25, 0.1, 0.25, 1) // Smooth ease-out for expand
+              : Easing.bezier(0.4, 0.0, 0.2, 1), // Smooth ease-in for collapse
+          })
+        ]).start();
+      });
+    } else if (isExpanded) {
+      // If component mounts already expanded, set values immediately without animation
+      rotation.setValue(1);
+      expansion.setValue(1);
+    }
+  }, [isExpanded, isActive, isMounted, subcat.id, subcategoryRotations, subcategoryExpansions]);
+
+  const handleContentLayout = (event: any) => {
+    const { height } = event.nativeEvent.layout;
+    if (height > 0 && height !== contentHeightRef.current) {
+      contentHeightRef.current = height;
+      setContentHeight(height);
+    }
+  };
 
   return (
     <View style={{ marginBottom: 12 }}>
@@ -166,24 +262,36 @@ export function SubCategoryItem({
         )}
       </View>
 
-      {isExpanded && subcat.transactions.length > 0 && (
-        <View style={{ marginTop: 8, marginLeft: 12 }}>
-          {subcat.transactions.map((transaction) => {
-            const isTransactionSelected = selectedTransactions.has(transaction.id);
-            const transactionAnimation = transactionAnimations.get(transaction.id) || new Animated.Value(0);
+      {isActive && isExpanded && (
+        <Animated.View 
+          style={[
+            dynamicExpansionStyle,
+            { overflow: 'hidden' }
+          ]}
+        >
+          {subcat.transactions.length > 0 && (
+            <View 
+              style={{ marginTop: 8, marginLeft: 12 }}
+              onLayout={handleContentLayout}
+            >
+            {subcat.transactions.map((transaction) => {
+              const isTransactionSelected = selectedTransactions.has(transaction.id);
+              const transactionAnimation = transactionAnimations.get(transaction.id) || new Animated.Value(0);
 
-            return (
-              <TransactionItem
-                key={transaction.id}
-                transaction={transaction}
-                transactionType={transactionType}
-                isSelected={isTransactionSelected}
-                animation={transactionAnimation}
-                onPress={onTransactionPress}
-              />
-            );
-          })}
-        </View>
+              return (
+                <TransactionItem
+                  key={transaction.id}
+                  transaction={transaction}
+                  transactionType={transactionType}
+                  isSelected={isTransactionSelected}
+                  animation={transactionAnimation}
+                  onPress={onTransactionPress}
+                />
+              );
+            })}
+          </View>
+        )}
+        </Animated.View>
       )}
     </View>
   );

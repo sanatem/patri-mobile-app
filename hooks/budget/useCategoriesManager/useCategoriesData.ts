@@ -139,6 +139,7 @@ export function useCategoriesData({ activeTab, allTransactions, currentLang }: U
   // Group transactions by category and subcategory
   const groupedData = useMemo((): GroupedData => {
     const uncategorized = allTransactions.filter(t => !t.category || !t.category.id);
+    const categorizedTransactions = allTransactions.filter(t => t.category && t.category.id);
 
     const categorized = categories.map(category => {
       const categoryId = parseInt(category.id);
@@ -174,7 +175,7 @@ export function useCategoriesData({ activeTab, allTransactions, currentLang }: U
       };
     });
 
-    return { categorized, uncategorized };
+    return { categorized, uncategorized, categorizedTransactions };
   }, [allTransactions, categories]);
 
   // Category options for select dropdowns

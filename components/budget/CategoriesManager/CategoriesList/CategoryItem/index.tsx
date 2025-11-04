@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, Animated, TextInput } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { View, Text, TouchableOpacity, Animated, TextInput, Easing } from 'react-native';
 import { CheckboxItem, Button } from '@/components/ui';
 import Colors from '@/constants/Colors';
 import { ChevronDown, Edit2, Plus, X, Check } from 'lucide-react-native';
@@ -34,6 +34,7 @@ interface CategoryItemProps {
   selectionMode: boolean;
   isCategorySelected: boolean;
   isExpanded: boolean;
+  isActive: boolean;
   categoryAnimation: Animated.Value;
   categoryRotateStyle: any;
   expandedSubcategories: Set<string>;
@@ -50,6 +51,7 @@ interface CategoryItemProps {
   multipleCustomSubcategories: Array<{ id: string; name: string; emoji: string }>;
   creatingCategory: boolean;
   subcategoryCardRefs: Map<string, any>;
+  scrollViewRef?: any;
   isPremium: boolean;
   onCategoryPress: (categoryId: string) => void;
   onCategoryLongPress: (categoryId: string) => void;
@@ -79,7 +81,12 @@ interface CategoryItemProps {
   }>;
   canAddMoreSubcategories: (categoryId: string) => boolean;
   getMaxSubcategoriesAllowed: (categoryId: string) => number;
-  getRotateStyle: (id: string, isCategory: boolean) => any;
+  getRotateStyle: (id: string, isCategory: boolean, isExpanded?: boolean) => any;
+  getExpansionStyle: (id: string, isCategory: boolean, isExpanded?: boolean) => any;
+  categoryRotations: Map<string, Animated.Value>;
+  categoryExpansions: Map<string, Animated.Value>;
+  subcategoryRotations: Map<string, Animated.Value>;
+  subcategoryExpansions: Map<string, Animated.Value>;
 }
 
 export function CategoryItem({
@@ -88,6 +95,7 @@ export function CategoryItem({
   selectionMode,
   isCategorySelected,
   isExpanded,
+  isActive,
   categoryAnimation,
   categoryRotateStyle,
   expandedSubcategories,
@@ -104,6 +112,7 @@ export function CategoryItem({
   multipleCustomSubcategories,
   creatingCategory,
   subcategoryCardRefs,
+  scrollViewRef,
   isPremium,
   onCategoryPress,
   onCategoryLongPress,
@@ -130,6 +139,11 @@ export function CategoryItem({
   canAddMoreSubcategories,
   getMaxSubcategoriesAllowed,
   getRotateStyle,
+  getExpansionStyle,
+  categoryRotations,
+  categoryExpansions,
+  subcategoryRotations,
+  subcategoryExpansions,
 }: CategoryItemProps) {
   const categoryCheckboxOpacity = categoryAnimation.interpolate({
     inputRange: [0, 1],
@@ -159,6 +173,94 @@ export function CategoryItem({
     }
     return false;
   });
+
+  const contentHeightRef = useRef<number>(0);
+  const [contentHeight, setContentHeight] = useState<number>(0);
+  const [isMounted, setIsMounted] = useState(false);
+
+  // Get expansion animation value
+  const expansionValue = categoryExpansions.get(category.id);
+  
+  // Create expansion style dynamically - use fixed large value for maxHeight
+  // React Native interpolations don't update dynamically, so we use a large fixed value
+  const expansionStyle = expansionValue ? {
+    opacity: expansionValue.interpolate({
+      inputRange: [0, 0.15, 1],
+      outputRange: [0, 0.9, 1], // More gradual fade for smoother vertical slide
+    }),
+    maxHeight: expansionValue.interpolate({
+      inputRange: [0, 1],
+      outputRange: [0, 10000], // Fixed large value that will accommodate any content
+    }),
+  } : { opacity: 0, maxHeight: 0 };
+
+  // Mark component as mounted after first render
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // Sync rotation animation with expanded state
+  useEffect(() => {
+    // Ensure animations exist
+    if (!categoryRotations.has(category.id)) {
+      categoryRotations.set(category.id, new Animated.Value(0));
+    }
+    if (!categoryExpansions.has(category.id)) {
+      categoryExpansions.set(category.id, new Animated.Value(0));
+    }
+    
+    const rotation = categoryRotations.get(category.id)!;
+    const expansion = categoryExpansions.get(category.id)!;
+    
+    // Only animate if card is active AND expanded
+    // If inactive, immediately set to 0 to prevent content from showing
+    const toValue = (isActive && isExpanded) ? 1 : 0;
+    
+    // If inactive, set values immediately without animation
+    if (!isActive) {
+      rotation.setValue(0);
+      expansion.setValue(0);
+      return;
+    }
+    
+    // Only animate if component is mounted (not on initial mount with isExpanded=true)
+    // This ensures the animation is visible when expanding
+    if (isMounted) {
+      // Use requestAnimationFrame to ensure layout is ready before animating
+      requestAnimationFrame(() => {
+        Animated.parallel([
+          Animated.timing(rotation, {
+            toValue,
+            duration: 450,
+            useNativeDriver: true,
+            easing: toValue === 1 
+              ? Easing.bezier(0.25, 0.1, 0.25, 1) // Smooth ease-out for expand
+              : Easing.bezier(0.4, 0.0, 0.2, 1), // Smooth ease-in for collapse
+          }),
+          Animated.timing(expansion, {
+            toValue,
+            duration: 450,
+            useNativeDriver: false,
+            easing: toValue === 1 
+              ? Easing.bezier(0.25, 0.1, 0.25, 1) // Smooth ease-out for expand
+              : Easing.bezier(0.4, 0.0, 0.2, 1), // Smooth ease-in for collapse
+          })
+        ]).start();
+      });
+    } else if (isExpanded) {
+      // If component mounts already expanded, set values immediately without animation
+      rotation.setValue(1);
+      expansion.setValue(1);
+    }
+  }, [isExpanded, isActive, isMounted, category.id, categoryRotations, categoryExpansions]);
+
+  const handleContentLayout = (event: any) => {
+    const { height } = event.nativeEvent.layout;
+    if (height > 0 && height !== contentHeightRef.current) {
+      contentHeightRef.current = height;
+      setContentHeight(height);
+    }
+  };
 
   return (
     <View
@@ -307,8 +409,17 @@ export function CategoryItem({
         )}
       </View>
 
-      {isExpanded && (
-        <View style={{ paddingHorizontal: 16, paddingBottom: 16 }}>
+      {isActive && isExpanded && (
+        <Animated.View 
+          style={[
+            expansionStyle,
+            { overflow: 'hidden' }
+          ]}
+        >
+          <View 
+            style={{ paddingHorizontal: 16, paddingBottom: 16 }}
+            onLayout={handleContentLayout}
+          >
           {category.uncategorizedTransactions.length > 0 && (
             <View style={{ marginBottom: 8 }}>
               {category.uncategorizedTransactions.map((transaction) => {
@@ -333,7 +444,7 @@ export function CategoryItem({
             const isSelected = selectedSubcategories.has(subcat.id);
             const animation = selectionAnimations.get(subcat.id) || new Animated.Value(0);
             const isSubcatExpanded = expandedSubcategories.has(subcat.id);
-            const rotateStyle = getRotateStyle(subcat.id, false);
+            const rotateStyle = getRotateStyle(subcat.id, false, isSubcatExpanded);
 
             return (
               <SubCategoryItem
@@ -343,8 +454,12 @@ export function CategoryItem({
                 selectionMode={selectionMode}
                 isSelected={isSelected}
                 isExpanded={isSubcatExpanded}
+                isActive={isActive}
                 animation={animation}
                 rotateStyle={rotateStyle}
+                expansionStyle={getExpansionStyle(subcat.id, false, isSubcatExpanded)}
+                subcategoryRotations={subcategoryRotations}
+                subcategoryExpansions={subcategoryExpansions}
                 transactionType={transactionType}
                 selectedTransactions={selectedTransactions}
                 transactionAnimations={transactionAnimations}
@@ -416,6 +531,7 @@ export function CategoryItem({
                     onAdd={onAddNewCustomSubcategoryCard}
                     onRemove={() => onRemoveCustomSubcategoryCard(card.id)}
                     canAdd={canAddMore}
+                    scrollViewRef={scrollViewRef}
                   />
                 );
               })}
@@ -442,6 +558,7 @@ export function CategoryItem({
             </>
           )}
         </View>
+        </Animated.View>
       )}
     </View>
   );

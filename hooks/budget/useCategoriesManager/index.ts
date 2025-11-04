@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { LayoutAnimation, Platform, UIManager } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useFloidTransactions } from '@/hooks/budget/useFloidTransactions';
@@ -24,6 +24,14 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
 
   // Tab state
   const [activeTab, setActiveTab] = useState<'income' | 'expenses'>('income');
+
+  // Transaction list active/expanded state
+  const [activeTransactionList, setActiveTransactionList] = useState<'uncategorized' | 'categorized'>('uncategorized');
+  const [isUncategorizedExpanded, setIsUncategorizedExpanded] = useState(false);
+  const [isCategorizedExpanded, setIsCategorizedExpanded] = useState(false);
+  // Control when content should be visible (prevents flash when switching cards)
+  const [shouldShowUncategorizedContent, setShouldShowUncategorizedContent] = useState(false);
+  const [shouldShowCategorizedContent, setShouldShowCategorizedContent] = useState(false);
 
   // Expansion state
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
@@ -95,7 +103,6 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
     currentLang,
     expandedCategories,
     toggleCategory: (categoryId: string) => {
-      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       const newExpanded = new Set(expandedCategories);
       const isExpanding = !newExpanded.has(categoryId);
 
@@ -141,13 +148,19 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
     refetchTransactions,
   });
 
+  // Clear transaction selections when switching tabs
+  useEffect(() => {
+    if (transactionSelection.selectedTransactions.size > 0) {
+      transactionSelection.handleCancelTransactionSelection();
+    }
+  }, [activeTab]);
+
   // Toggle functions with animations
   const toggleCategory = (categoryId: string) => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     const newExpanded = new Set(expandedCategories);
     const isExpanding = !newExpanded.has(categoryId);
 
-    animations.animateRotation(categoryId, true, isExpanding);
+    // Don't call animateRotation here - useEffect will handle it
 
     if (isExpanding) {
       newExpanded.add(categoryId);
@@ -158,11 +171,10 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
   };
 
   const toggleSubcategory = (subcategoryId: string) => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     const newExpanded = new Set(expandedSubcategories);
     const isExpanding = !newExpanded.has(subcategoryId);
 
-    animations.animateRotation(subcategoryId, false, isExpanding);
+    // Don't call animateRotation here - useEffect will handle it
 
     if (isExpanding) {
       newExpanded.add(subcategoryId);
@@ -170,6 +182,73 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
       newExpanded.delete(subcategoryId);
     }
     setExpandedSubcategories(newExpanded);
+  };
+
+  // Toggle transaction lists (uncategorized/categorized)
+  const toggleUncategorizedList = () => {
+    // If uncategorized is already active, just toggle expansion
+    if (activeTransactionList === 'uncategorized') {
+      const newExpanded = !isUncategorizedExpanded;
+      setIsUncategorizedExpanded(newExpanded);
+      setShouldShowUncategorizedContent(newExpanded);
+    } else {
+      // Switching to uncategorized from categorized
+      // STEP 1: Collapse content of currently active card (200ms) if expanded
+      if (isCategorizedExpanded) {
+        setShouldShowCategorizedContent(false);
+        setIsCategorizedExpanded(false);
+
+        // STEP 2: After collapse, switch active card and start horizontal transition (350ms)
+        setTimeout(() => {
+          setActiveTransactionList('uncategorized');
+          // Keep content hidden during horizontal transition
+          setShouldShowUncategorizedContent(false);
+          setIsUncategorizedExpanded(false);
+        }, 200);
+      } else {
+        // If categorized wasn't expanded, switch immediately (no collapse animation needed)
+        setActiveTransactionList('uncategorized');
+        setShouldShowUncategorizedContent(false);
+        setIsUncategorizedExpanded(false);
+      }
+
+      // Always ensure categorized is fully reset
+      setIsCategorizedExpanded(false);
+      setShouldShowCategorizedContent(false);
+    }
+  };
+
+  const toggleCategorizedList = () => {
+    // If categorized is already active, just toggle expansion
+    if (activeTransactionList === 'categorized') {
+      const newExpanded = !isCategorizedExpanded;
+      setIsCategorizedExpanded(newExpanded);
+      setShouldShowCategorizedContent(newExpanded);
+    } else {
+      // Switching to categorized from uncategorized
+      // STEP 1: Collapse content of currently active card (200ms) if expanded
+      if (isUncategorizedExpanded) {
+        setShouldShowUncategorizedContent(false);
+        setIsUncategorizedExpanded(false);
+
+        // STEP 2: After collapse, switch active card and start horizontal transition (350ms)
+        setTimeout(() => {
+          setActiveTransactionList('categorized');
+          // Keep content hidden during horizontal transition
+          setShouldShowCategorizedContent(false);
+          setIsCategorizedExpanded(false);
+        }, 200);
+      } else {
+        // If uncategorized wasn't expanded, switch immediately (no collapse animation needed)
+        setActiveTransactionList('categorized');
+        setShouldShowCategorizedContent(false);
+        setIsCategorizedExpanded(false);
+      }
+
+      // Always ensure uncategorized is fully reset
+      setIsUncategorizedExpanded(false);
+      setShouldShowUncategorizedContent(false);
+    }
   };
 
   const handleCategoryPress = (categoryId: string) => {
@@ -199,13 +278,18 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
     selection.showSuccessMessage ? selection.successMessage :
     editing.showSuccessMessage ? editing.successMessage :
     creation.showSuccessMessage ? creation.successMessage :
-    transactionSelection.showSuccessMessage ? 'Transacciones categorizadas correctamente' :
+    transactionSelection.showSuccessMessage ? transactionSelection.successMessage :
     '';
 
   return {
     activeTab,
     expandedCategories,
     expandedSubcategories,
+    activeTransactionList,
+    isUncategorizedExpanded,
+    isCategorizedExpanded,
+    shouldShowUncategorizedContent,
+    shouldShowCategorizedContent,
     loading,
     currentLang,
     totalVisibleTransactions,
@@ -260,7 +344,10 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
     setActiveTab,
     toggleCategory,
     toggleSubcategory,
+    toggleUncategorizedList,
+    toggleCategorizedList,
     getRotateStyle: animations.getRotateStyle,
+    getExpansionStyle: animations.getExpansionStyle,
 
     handleLongPress: selection.handleLongPress,
     handleCategoryLongPress: selection.handleCategoryLongPress,
@@ -316,6 +403,13 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
     getAvailableSubcategoriesForCategory: creation.getAvailableSubcategoriesForCategory,
     canAddMoreSubcategories: creation.canAddMoreSubcategories,
     getMaxSubcategoriesAllowed: creation.getMaxSubcategoriesAllowed,
+
+    getRotateStyle: animations.getRotateStyle,
+    getExpansionStyle: animations.getExpansionStyle,
+    categoryRotations: animations.categoryRotations,
+    categoryExpansions: animations.categoryExpansions,
+    subcategoryRotations: animations.subcategoryRotations,
+    subcategoryExpansions: animations.subcategoryExpansions,
 
     t,
   };

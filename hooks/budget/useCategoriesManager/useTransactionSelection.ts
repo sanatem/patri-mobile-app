@@ -27,6 +27,7 @@ export function useTransactionSelection({
   const [selectedDestinationCategory, setSelectedDestinationCategory] = useState<string | null>(null);
   const [selectedDestinationSubcategory, setSelectedDestinationSubcategory] = useState<string | null>(null);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
   const [assigningCategories, setAssigningCategories] = useState(false);
   const [deletingTransactions, setDeletingTransactions] = useState(false);
 
@@ -100,6 +101,7 @@ export function useTransactionSelection({
 
       // Show success message instead of Alert
       const count = transactionIds.length;
+      setSuccessMessage(`${count} ${count === 1 ? 'transacción eliminada' : 'transacciones eliminadas'} correctamente`);
       setShowSuccessMessage(true);
       setTimeout(() => setShowSuccessMessage(false), 3000);
 
@@ -162,6 +164,9 @@ export function useTransactionSelection({
       batchAnimateTransactionSelections(transactionIds, false);
 
       setShowMoveModal(false);
+
+      const count = transactionIds.length;
+      setSuccessMessage(`${count} ${count === 1 ? 'transacción categorizada' : 'transacciones categorizadas'} correctamente`);
       setShowSuccessMessage(true);
       setTimeout(() => setShowSuccessMessage(false), 3000);
 
@@ -215,6 +220,7 @@ export function useTransactionSelection({
     selectedDestinationCategory,
     selectedDestinationSubcategory,
     showSuccessMessage,
+    successMessage,
     assigningCategories,
     deletingTransactions,
 
