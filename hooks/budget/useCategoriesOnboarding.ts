@@ -142,8 +142,8 @@ export function useCategoriesOnboarding() {
       if (prev.includes(categoryId)) {
         return prev.filter(id => id !== categoryId);
       } else {
-        if (prev.length >= 3) {
-          setError(t('budget.max_income_categories', 'Puedes seleccionar hasta 3 categorías de ingresos'));
+        if (prev.length >= incomeCategories.length) {
+          setError(t('budget.max_income_categories_reached', 'Ya has seleccionado todas las categorías de ingresos disponibles'));
           return prev;
         }
         return [...prev, categoryId];
@@ -157,8 +157,8 @@ export function useCategoriesOnboarding() {
       if (prev.includes(categoryId)) {
         return prev.filter(id => id !== categoryId);
       } else {
-        if (prev.length >= 3) {
-          setError(t('budget.max_expense_categories', 'Puedes seleccionar hasta 3 categorías de gastos'));
+        if (prev.length >= expenseCategories.length) {
+          setError(t('budget.max_expense_categories_reached', 'Ya has seleccionado todas las categorías de gastos disponibles'));
           return prev;
         }
         return [...prev, categoryId];
@@ -167,17 +167,17 @@ export function useCategoriesOnboarding() {
   };
 
   const isIncomeValid = useMemo(() => {
-    return selectedIncome.length >= 1 && selectedIncome.length <= 3;
-  }, [selectedIncome]);
+    return selectedIncome.length >= 1 && selectedIncome.length <= incomeCategories.length;
+  }, [selectedIncome, incomeCategories]);
 
   const isExpenseValid = useMemo(() => {
-    return selectedExpenses.length >= 1 && selectedExpenses.length <= 3;
-  }, [selectedExpenses]);
+    return selectedExpenses.length >= 1 && selectedExpenses.length <= expenseCategories.length;
+  }, [selectedExpenses, expenseCategories]);
 
   const handleNext = () => {
     if (currentStep === 1) {
       if (!isIncomeValid) {
-        setError(t('budget.select_income_categories', 'Debes seleccionar entre 1 y 4 categorías de ingresos'));
+        setError(t('budget.select_income_categories', 'Debes seleccionar al menos 1 categoría de ingresos'));
         return;
       }
       setError(null);

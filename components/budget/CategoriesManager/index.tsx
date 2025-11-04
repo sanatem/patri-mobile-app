@@ -1,4 +1,4 @@
-import { View } from 'react-native';
+import { View, ActivityIndicator } from 'react-native';
 import { Container, Tabs, FloatingActionButton, Button, type FloatingAction } from '@/components/ui';
 import { FolderPlus, Sparkles } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
@@ -38,8 +38,10 @@ export function CategoriesManager({ userCategories, onResetOnboarding }: Categor
     showSuccessMessage,
     selectionAnimations,
     transactionAnimations,
+    loading,
     assigningCategories,
     deletingCategories,
+    deletingTransactions,
     updatingCategory,
     editingParentCategoryId,
     pendingEdits,
@@ -48,6 +50,8 @@ export function CategoriesManager({ userCategories, onResetOnboarding }: Categor
     creatingCategory,
     multipleNewCategories,
     multipleCustomCategories,
+    addingSubcategoryForCategoryId,
+    multipleNewSubcategories,
 
     // Computed values
     groupedData,
@@ -56,6 +60,11 @@ export function CategoriesManager({ userCategories, onResetOnboarding }: Categor
     currentLang,
     totalVisibleTransactions,
     availableSystemCategories,
+
+    // Refs
+    scrollViewRef,
+    categoryCardRefs,
+    subcategoryCardRefs,
 
     // Handlers
     setActiveTab,
@@ -97,6 +106,17 @@ export function CategoriesManager({ userCategories, onResetOnboarding }: Categor
     handleAddNewCategoryCard,
     handleRemoveNewCategoryCard,
     getMaxCategoriesAllowed,
+    canAddMoreSystemCategories,
+    getAvailableCategoriesForCard,
+    handleAddSubcategory,
+    handleCancelAddSubcategory,
+    handleSelectSystemSubcategory,
+    handleAddNewSubcategoryCard,
+    handleRemoveNewSubcategoryCard,
+    handleConfirmNewSubcategories,
+    getAvailableSubcategoriesForCategory,
+    canAddMoreSubcategories,
+    getMaxSubcategoriesAllowed,
 
     // Translation
     t,
@@ -112,6 +132,7 @@ export function CategoriesManager({ userCategories, onResetOnboarding }: Categor
       label: t('budget.new_category', 'Nueva Categoría'),
       icon: <FolderPlus size={20} color={Colors.primary[500]} />,
       onPress: handleNewCategory,
+      disabled: !canAddMoreSystemCategories(),
     },
     {
       label: 'Nueva Categoría Personalizada',
@@ -119,6 +140,16 @@ export function CategoriesManager({ userCategories, onResetOnboarding }: Categor
       onPress: handleNewCustomCategory,
     },
   ];
+
+  if (loading) {
+    return (
+      <Container variant="secondaryPage">
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+          <ActivityIndicator size="large" color={Colors.secondary[500]} />
+        </View>
+      </Container>
+    );
+  }
 
   return (
     <Container variant="secondaryPage">
@@ -166,9 +197,15 @@ export function CategoriesManager({ userCategories, onResetOnboarding }: Categor
           pendingEdits={pendingEdits}
           creatingNewCategory={creatingNewCategory}
           creatingCustomCategory={creatingCustomCategory}
+          creatingCategory={creatingCategory}
           multipleNewCategories={multipleNewCategories}
           multipleCustomCategories={multipleCustomCategories}
+          addingSubcategoryForCategoryId={addingSubcategoryForCategoryId}
+          multipleNewSubcategories={multipleNewSubcategories}
           availableSystemCategories={availableSystemCategories}
+          scrollViewRef={scrollViewRef}
+          categoryCardRefs={categoryCardRefs}
+          subcategoryCardRefs={subcategoryCardRefs}
           onCategoryPress={handleCategoryPress}
           onCategoryLongPress={handleCategoryLongPress}
           onSubcategoryPress={handleSubcategoryPress}
@@ -189,6 +226,17 @@ export function CategoriesManager({ userCategories, onResetOnboarding }: Categor
           onAddNewCategoryCard={handleAddNewCategoryCard}
           onRemoveNewCategoryCard={handleRemoveNewCategoryCard}
           maxCategoriesAllowed={getMaxCategoriesAllowed()}
+          canAddMoreSystemCategories={canAddMoreSystemCategories()}
+          getAvailableCategoriesForCard={getAvailableCategoriesForCard}
+          onAddSubcategory={handleAddSubcategory}
+          onCancelAddSubcategory={handleCancelAddSubcategory}
+          onSelectSystemSubcategory={handleSelectSystemSubcategory}
+          onAddNewSubcategoryCard={handleAddNewSubcategoryCard}
+          onRemoveNewSubcategoryCard={handleRemoveNewSubcategoryCard}
+          onConfirmNewSubcategories={handleConfirmNewSubcategories}
+          getAvailableSubcategoriesForCategory={getAvailableSubcategoriesForCategory}
+          canAddMoreSubcategories={canAddMoreSubcategories}
+          getMaxSubcategoriesAllowed={getMaxSubcategoriesAllowed}
           getRotateStyle={getRotateStyle}
         />
 
@@ -252,7 +300,33 @@ export function CategoriesManager({ userCategories, onResetOnboarding }: Categor
           </View>
         )}
 
-        {!transactionSelectionMode && !creatingNewCategory && !creatingCustomCategory && <FloatingActionButton actions={floatingActions} />}
+        {addingSubcategoryForCategoryId && (
+          <View
+            style={{
+              backgroundColor: '#fff',
+              paddingHorizontal: 24,
+              paddingVertical: 16,
+              gap: 10,
+            }}
+          >
+            <Button
+              title={`Añadir ${multipleNewSubcategories.length > 1 ? `${multipleNewSubcategories.length} Subcategorías` : 'Subcategoría'}`}
+              onPress={handleConfirmNewSubcategories}
+              variant="primary"
+              fullWidth
+              loading={creatingCategory}
+              disabled={!multipleNewSubcategories.every(card => card.systemSubcategoryId !== null)}
+            />
+            <Button
+              title="Cancelar"
+              onPress={handleCancelAddSubcategory}
+              variant="ghost"
+              fullWidth
+            />
+          </View>
+        )}
+
+        {!transactionSelectionMode && !creatingNewCategory && !creatingCustomCategory && !addingSubcategoryForCategoryId && <FloatingActionButton actions={floatingActions} />}
       </View>
 
       <DeleteCategoriesModal
@@ -271,6 +345,7 @@ export function CategoriesManager({ userCategories, onResetOnboarding }: Categor
         onClose={() => setShowDeleteTransactionsModal(false)}
         onConfirm={confirmDeleteTransactions}
         selectedTransactionsCount={selectedTransactions.size}
+        isDeleting={deletingTransactions}
         t={t}
       />
 

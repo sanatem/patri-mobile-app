@@ -6,6 +6,7 @@ interface DeleteTransactionsModalProps {
   onClose: () => void;
   onConfirm: () => void;
   selectedTransactionsCount: number;
+  isDeleting?: boolean;
   t: (key: string, fallback: string) => string;
 }
 
@@ -14,6 +15,7 @@ export function DeleteTransactionsModal({
   onClose,
   onConfirm,
   selectedTransactionsCount,
+  isDeleting = false,
   t,
 }: DeleteTransactionsModalProps) {
   return (
@@ -25,6 +27,7 @@ export function DeleteTransactionsModal({
       onClose={onClose}
       confirmButtonText={t('common.delete', 'Eliminar')}
       cancelButtonText={t('common.cancel', 'Cancelar')}
+      isDeleting={isDeleting}
     />
   );
 }

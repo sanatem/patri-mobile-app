@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { View, TouchableOpacity } from 'react-native';
 import { Input, Button } from '@/components/ui';
 import Colors from '@/constants/Colors';
@@ -16,7 +16,7 @@ interface CustomCategoryCardProps {
   canAdd?: boolean;
 }
 
-export function CustomCategoryCard({
+export const CustomCategoryCard = forwardRef<View, CustomCategoryCardProps>(({
   categoryName,
   categoryEmoji,
   onNameChange,
@@ -26,9 +26,10 @@ export function CustomCategoryCard({
   onAdd,
   onRemove,
   canAdd = true,
-}: CustomCategoryCardProps) {
+}, ref) => {
   return (
     <View
+      ref={ref}
       style={{
         marginHorizontal: 20,
         marginTop: 20,
@@ -93,4 +94,4 @@ export function CustomCategoryCard({
       )}
     </View>
   );
-}
+});

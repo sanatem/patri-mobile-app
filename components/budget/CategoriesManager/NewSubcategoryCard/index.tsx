@@ -1,18 +1,18 @@
 import React, { forwardRef } from 'react';
-import { View, TouchableOpacity } from 'react-native';
+import { View, TouchableOpacity, Text } from 'react-native';
 import { Select, Button } from '@/components/ui';
 import Colors from '@/constants/Colors';
-import { Plus, X } from 'lucide-react-native';
+import { Plus, X, Check } from 'lucide-react-native';
 
-interface NewCategoryCardProps {
+interface NewSubcategoryCardProps {
   currentLang: string;
-  availableCategories: Array<{
+  availableSubcategories: Array<{
     id: string;
     name: { es: string; en: string; pt: string; 'es-CL': string };
     emoji: string;
   }>;
-  selectedCategoryId: string | null;
-  onSelectCategory: (categoryId: string) => void;
+  selectedSubcategoryId: string | null;
+  onSelectSubcategory: (subcategoryId: string) => void;
   showAddButton?: boolean;
   showRemoveButton?: boolean;
   onAdd?: () => void;
@@ -20,32 +20,31 @@ interface NewCategoryCardProps {
   canAdd?: boolean;
 }
 
-export const NewCategoryCard = forwardRef<View, NewCategoryCardProps>(({
+export const NewSubcategoryCard = forwardRef<View, NewSubcategoryCardProps>(({
   currentLang,
-  availableCategories,
-  selectedCategoryId,
-  onSelectCategory,
+  availableSubcategories,
+  selectedSubcategoryId,
+  onSelectSubcategory,
   showAddButton = false,
   showRemoveButton = false,
   onAdd,
   onRemove,
   canAdd = true,
 }, ref) => {
-  const categoryOptions = availableCategories.map(cat => ({
-    label: `${cat.emoji} ${cat.name[currentLang as keyof typeof cat.name] || cat.name.es}`,
-    value: cat.id
+  const subcategoryOptions = availableSubcategories.map(subcat => ({
+    label: `${subcat.emoji} ${subcat.name[currentLang as keyof typeof subcat.name] || subcat.name.es}`,
+    value: subcat.id
   }));
 
   return (
     <View
       ref={ref}
       style={{
-        marginHorizontal: 20,
-        marginTop: 20,
+        marginTop: 8,
         backgroundColor: 'white',
-        borderRadius: 12,
+        borderRadius: 8,
         borderWidth: 1,
-        borderColor: Colors.primary[400],
+        borderColor: Colors.primary[300],
         borderStyle: 'dashed',
         padding: 10,
       }}
@@ -53,10 +52,10 @@ export const NewCategoryCard = forwardRef<View, NewCategoryCardProps>(({
       <View style={{ flexDirection: 'row', gap: 12, alignItems: 'flex-start' }}>
         <View style={{ flex: 1 }}>
           <Select
-            options={categoryOptions}
-            value={selectedCategoryId || undefined}
-            onSelect={onSelectCategory}
-            placeholder="Selecciona una categoría..."
+            options={subcategoryOptions}
+            value={selectedSubcategoryId || undefined}
+            onSelect={onSelectSubcategory}
+            placeholder="Selecciona una subcategoría..."
           />
         </View>
 
@@ -82,7 +81,7 @@ export const NewCategoryCard = forwardRef<View, NewCategoryCardProps>(({
           }} />
           <View style={{ transform: [{ scale: 0.9 }] }}>
             <Button
-              title="Categoría"
+              title="Subcategoría"
               variant="ghost"
               fullWidth
               icon={<Plus size={16} color={canAdd ? Colors.primary[500] : Colors.gray[300]} />}

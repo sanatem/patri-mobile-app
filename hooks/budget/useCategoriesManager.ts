@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
-import { Animated, LayoutAnimation, Platform, UIManager, Alert } from 'react-native';
+import { Animated, LayoutAnimation, Platform, UIManager, Alert, findNodeHandle } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { INCOME_CATEGORIES, EXPENSE_CATEGORIES } from '@/constants/BudgetCategories';
 import { useFloidTransactions } from '@/hooks/budget/useFloidTransactions';
@@ -9,6 +9,7 @@ import { getUserCategories, deleteUserCategory, updateUserCategory, createUserCa
 import type { UserCategory, TransactionCategory } from '@/services/budget/categories-manager';
 import { UserCategoriesState } from './useUserCategories';
 import { assignTransactionCategory } from '@/services/budget/transactions/assign-transaction-category';
+import { deleteFloidTransaction } from '@/services/budget/transactions/delete-floid-transaction';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -53,6 +54,7 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
   const [selectedDestinationSubcategory, setSelectedDestinationSubcategory] = useState<string | null>(null);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [assigningCategories, setAssigningCategories] = useState(false);
+  const [deletingTransactions, setDeletingTransactions] = useState(false);
 
   // Estados para modo de edición
   const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
@@ -74,9 +76,19 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
   const [multipleNewCategories, setMultipleNewCategories] = useState<Array<{ id: string; systemCategoryId: string | null }>>([]);
   const [multipleCustomCategories, setMultipleCustomCategories] = useState<Array<{ id: string; name: string; emoji: string }>>([]);
 
+  // Estados para agregar subcategorías
+  const [addingSubcategoryForCategoryId, setAddingSubcategoryForCategoryId] = useState<string | null>(null);
+  const [multipleNewSubcategories, setMultipleNewSubcategories] = useState<Array<{ id: string; systemSubcategoryId: string | null }>>([]);
+
   // Animaciones para selección de categorías/subcategorías
   const selectionAnimations = useRef<Map<string, Animated.Value>>(new Map()).current;
   const transactionAnimations = useRef<Map<number, Animated.Value>>(new Map()).current;
+
+  // Refs para scroll automático
+  const categoryCardRefs = useRef<Map<string, any>>(new Map()).current;
+  const subcategoryCardRefs = useRef<Map<string, any>>(new Map()).current;
+  const scrollViewRef = useRef<any>(null);
+  const cardPositions = useRef<Map<string, number>>(new Map()).current;
 
   // Obtener cuentas
   const { accounts } = useFloidAccounts();
@@ -601,29 +613,88 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
     try {
       setDeletingCategories(true);
 
-      // Recolectar todos los IDs a eliminar (categorías y subcategorías)
-      const idsToDelete: number[] = [];
+      // Recolectar IDs de subcategorías y categorías padre por separado
+      const subcategoryIdsToDelete: number[] = [];
+      const parentCategoryIdsToDelete: number[] = [];
 
-      // Agregar categorías seleccionadas
+      // Agregar categorías padre seleccionadas
       selectedCategories.forEach(id => {
-        idsToDelete.push(parseInt(id));
+        parentCategoryIdsToDelete.push(parseInt(id));
       });
 
-      // Agregar subcategorías seleccionadas
+      // Agregar TODAS las subcategorías seleccionadas (incluyendo las de categorías padre seleccionadas)
+      selectedSubcategories.forEach(subcatId => {
+        subcategoryIdsToDelete.push(parseInt(subcatId));
+      });
+
+      // También agregar las subcategorías de las categorías padre seleccionadas
+      // (por si no estaban explícitamente seleccionadas)
+      selectedCategories.forEach(catId => {
+        const category = categories.find(cat => cat.id === catId);
+        if (category?.subcategories) {
+          category.subcategories.forEach(subcat => {
+            const subcatIdNum = parseInt(subcat.id);
+            if (!subcategoryIdsToDelete.includes(subcatIdNum)) {
+              subcategoryIdsToDelete.push(subcatIdNum);
+            }
+          });
+        }
+      });
+
+      // PASO 1: Eliminar todas las subcategorías PRIMERO
+      if (subcategoryIdsToDelete.length > 0) {
+        const deleteSubcategoryPromises = subcategoryIdsToDelete.map(id =>
+          deleteUserCategory(id, accessToken)
+        );
+        await Promise.all(deleteSubcategoryPromises);
+      }
+
+      // PASO 2: Luego eliminar las categorías padre
+      if (parentCategoryIdsToDelete.length > 0) {
+        const deleteParentPromises = parentCategoryIdsToDelete.map(id =>
+          deleteUserCategory(id, accessToken)
+        );
+        await Promise.all(deleteParentPromises);
+      }
+
+      // Resetear animaciones primero (antes de actualizar el estado)
       selectedSubcategories.forEach(id => {
-        idsToDelete.push(parseInt(id));
+        const animation = getSelectionAnimation(id);
+        Animated.spring(animation, {
+          toValue: 0,
+          useNativeDriver: false,
+          friction: 8,
+          tension: 40
+        }).start();
       });
 
-      // Eliminar todas las categorías/subcategorías en paralelo
-      const deletePromises = idsToDelete.map(id => deleteUserCategory(id, accessToken));
-      await Promise.all(deletePromises);
+      selectedCategories.forEach(id => {
+        const animation = getSelectionAnimation(id);
+        Animated.spring(animation, {
+          toValue: 0,
+          useNativeDriver: false,
+          friction: 8,
+          tension: 40
+        }).start();
+      });
 
-      // Recargar las categorías desde el API
-      const [incomeResponse, expenseResponse] = await Promise.all([
+      // Resetear selecciones antes de recargar datos
+      setSelectionMode(false);
+      setSelectedSubcategories(new Set());
+      setSelectedCategories(new Set());
+
+      // Esperar un momento para que las animaciones comiencen y el backend procese
+      await new Promise(resolve => setTimeout(resolve, 400));
+
+      // Recargar las categorías desde el API y system categories
+      const [incomeResponse, expenseResponse, systemIncomeResponse, systemExpenseResponse] = await Promise.all([
         getUserCategories({ kind: 'income', per_page: 100 }, accessToken),
-        getUserCategories({ kind: 'expense', per_page: 100 }, accessToken)
+        getUserCategories({ kind: 'expense', per_page: 100 }, accessToken),
+        getIncomeCategories({ per_page: 100 }, accessToken),
+        getExpenseCategories({ per_page: 100 }, accessToken)
       ]);
 
+      // Actualizar user categories
       if (incomeResponse?.success && incomeResponse.data) {
         const parentCategories = incomeResponse.data.filter(cat => cat.parent_id === null);
         setApiIncomeCategories(parentCategories);
@@ -634,50 +705,38 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
         setApiExpenseCategories(parentCategories);
       }
 
+      // Actualizar system categories
+      if (systemIncomeResponse?.success && systemIncomeResponse.data) {
+        const parentCategories = systemIncomeResponse.data.filter(cat => cat.parent_id === null);
+        setSystemIncomeCategories(parentCategories);
+      }
+
+      if (systemExpenseResponse?.success && systemExpenseResponse.data) {
+        const parentCategories = systemExpenseResponse.data.filter(cat => cat.parent_id === null);
+        setSystemExpenseCategories(parentCategories);
+      }
+
       // Refrescar transacciones para actualizar contadores
       await Promise.all([
         refetchIncomeTransactions(),
         refetchExpenseTransactions()
       ]);
 
-      // Resetear animaciones
-      selectedSubcategories.forEach(id => {
-        const animation = getSelectionAnimation(id);
-        Animated.spring(animation, {
-          toValue: 0,
-          useNativeDriver: false,
-          friction: 8,
-          tension: 40
-        }).start();
-      });
-
-      selectedCategories.forEach(id => {
-        const animation = getSelectionAnimation(id);
-        Animated.spring(animation, {
-          toValue: 0,
-          useNativeDriver: false,
-          friction: 8,
-          tension: 40
-        }).start();
-      });
-
-      // Resetear selecciones
+      // Forzar layout animation después de que todo esté actualizado
       LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-      setSelectionMode(false);
-      setSelectedSubcategories(new Set());
-      setSelectedCategories(new Set());
 
-      // Mostrar mensaje de éxito después de que todo esté actualizado
+      // Cerrar modal y resetear loading
+      setShowDeleteModal(false);
+      setDeletingCategories(false);
+
+      // Mostrar mensaje de éxito
       Alert.alert('Éxito', 'Categorías eliminadas correctamente');
 
     } catch (error) {
       console.error('Error deleting categories:', error);
-      Alert.alert('Error', 'Hubo un problema al eliminar las categorías. Por favor intenta nuevamente.');
-    } finally {
-      // IMPORTANTE: Cerrar el modal y resetear el estado de loading en el finally
-      // para asegurar que siempre se ejecute, sin importar si hubo éxito o error
-      setDeletingCategories(false);
       setShowDeleteModal(false);
+      setDeletingCategories(false);
+      Alert.alert('Error', 'Hubo un problema al eliminar las categorías. Por favor intenta nuevamente.');
     }
   };
 
@@ -736,21 +795,62 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
     setShowDeleteTransactionsModal(true);
   };
 
-  const confirmDeleteTransactions = () => {
-    selectedTransactions.forEach(id => {
-      const animation = getTransactionAnimation(id);
-      Animated.spring(animation, {
-        toValue: 0,
-        useNativeDriver: false,
-        friction: 8,
-        tension: 40
-      }).start();
-    });
+  const confirmDeleteTransactions = async () => {
+    if (!accessToken) {
+      Alert.alert('Error', 'No hay token de autenticación disponible');
+      setShowDeleteTransactionsModal(false);
+      return;
+    }
 
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setTransactionSelectionMode(false);
-    setSelectedTransactions(new Set());
-    setShowDeleteTransactionsModal(false);
+    try {
+      setDeletingTransactions(true);
+
+      // Convertir Set a Array para poder mapearlo
+      const transactionIds = Array.from(selectedTransactions);
+
+      // Eliminar todas las transacciones en paralelo
+      const deletePromises = transactionIds.map(id =>
+        deleteFloidTransaction({ transactionId: id.toString() }, accessToken)
+      );
+
+      await Promise.all(deletePromises);
+
+      // Refrescar transacciones para actualizar la vista
+      await Promise.all([
+        refetchIncomeTransactions(),
+        refetchExpenseTransactions()
+      ]);
+
+      // Resetear animaciones
+      selectedTransactions.forEach(id => {
+        const animation = getTransactionAnimation(id);
+        Animated.spring(animation, {
+          toValue: 0,
+          useNativeDriver: false,
+          friction: 8,
+          tension: 40
+        }).start();
+      });
+
+      // Resetear selecciones
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+      setTransactionSelectionMode(false);
+      setSelectedTransactions(new Set());
+
+      // Cerrar modal y resetear loading ANTES del Alert
+      setShowDeleteTransactionsModal(false);
+      setDeletingTransactions(false);
+
+      // Mostrar mensaje de éxito
+      const count = transactionIds.length;
+      Alert.alert('Éxito', `${count} ${count === 1 ? 'transacción eliminada' : 'transacciones eliminadas'} correctamente`);
+
+    } catch (error) {
+      console.error('Error deleting transactions:', error);
+      setShowDeleteTransactionsModal(false);
+      setDeletingTransactions(false);
+      Alert.alert('Error', 'Hubo un problema al eliminar las transacciones. Por favor intenta nuevamente.');
+    }
   };
 
   const handleMoveTransactions = () => {
@@ -833,14 +933,43 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
     setSelectedDestinationSubcategory(null);
   };
 
-  const handleNewCategory = () => {
-    // Verificar límite máximo de 4 categorías
-    const currentCategories = activeTab === 'income' ? apiIncomeCategories : apiExpenseCategories;
+  // Helper para hacer scroll a un elemento
+  const scrollToCard = (cardId: string, isSubcategory: boolean = false) => {
+    // Usar múltiples intentos con delays incrementales para asegurar el renderizado
+    const attemptScroll = (attempt: number = 0) => {
+      if (attempt > 3) return; // Máximo 3 intentos
 
-    if (currentCategories.length >= 4) {
+      const delay = 150 * (attempt + 1); // 150ms, 300ms, 450ms, 600ms
+
+      setTimeout(() => {
+        const scrollRef = scrollViewRef.current;
+
+        if (scrollRef) {
+          // Para nuevas cards siempre están al final, usar scrollToEnd es más confiable
+          try {
+            scrollRef.scrollToEnd({ animated: true });
+          } catch (error) {
+            console.log('Error en scrollToCard, intento', attempt + 1, error);
+            if (attempt < 3) {
+              attemptScroll(attempt + 1);
+            }
+          }
+        }
+      }, delay);
+    };
+
+    attemptScroll();
+  };
+
+  const handleNewCategory = () => {
+    const currentCategories = activeTab === 'income' ? apiIncomeCategories : apiExpenseCategories;
+    const systemCategories = activeTab === 'income' ? systemIncomeCategories : systemExpenseCategories;
+
+    // Verificar que no se exceda el total de categorías disponibles del sistema
+    if (currentCategories.length >= systemCategories.length) {
       Alert.alert(
         'Límite alcanzado',
-        'Has alcanzado el límite máximo de 4 categorías. Elimina alguna categoría existente para poder agregar una nueva.'
+        'Ya has agregado todas las categorías disponibles del sistema. No hay más categorías para agregar.'
       );
       return;
     }
@@ -849,26 +978,26 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
     setCreatingNewCategory(true);
     setCreatingCustomCategory(false);
     // Inicializar con una tarjeta vacía
-    setMultipleNewCategories([{ id: Date.now().toString(), systemCategoryId: null }]);
+    const newCardId = Date.now().toString();
+    setMultipleNewCategories([{ id: newCardId, systemCategoryId: null }]);
+
+    // Hacer scroll a la nueva tarjeta
+    scrollToCard(newCardId);
   };
 
   const handleNewCustomCategory = () => {
-    // Verificar límite máximo de 4 categorías
-    const currentCategories = activeTab === 'income' ? apiIncomeCategories : apiExpenseCategories;
-
-    if (currentCategories.length >= 4) {
-      Alert.alert(
-        'Límite alcanzado',
-        'Has alcanzado el límite máximo de 4 categorías. Elimina alguna categoría existente para poder agregar una nueva.'
-      );
-      return;
-    }
+    // Las categorías personalizadas no tienen límite, ya que no dependen del sistema
+    // El usuario puede crear tantas como necesite
 
     // Activar modo de creación de categoría personalizada
     setCreatingCustomCategory(true);
     setCreatingNewCategory(false);
     // Inicializar con una tarjeta vacía
-    setMultipleCustomCategories([{ id: Date.now().toString(), name: '', emoji: '' }]);
+    const newCardId = Date.now().toString();
+    setMultipleCustomCategories([{ id: newCardId, name: '', emoji: '' }]);
+
+    // Hacer scroll a la nueva tarjeta
+    scrollToCard(newCardId);
   };
 
   const handleCancelNewCategory = () => {
@@ -905,21 +1034,31 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
 
   const handleAddNewCategoryCard = () => {
     const currentCategories = activeTab === 'income' ? apiIncomeCategories : apiExpenseCategories;
-    const currentCards = creatingNewCategory ? multipleNewCategories.length : multipleCustomCategories.length;
-    const totalCategories = currentCategories.length + currentCards;
-
-    if (totalCategories >= 4) {
-      Alert.alert(
-        'Límite alcanzado',
-        'Has alcanzado el límite máximo de 4 categorías.'
-      );
-      return;
-    }
+    const systemCategories = activeTab === 'income' ? systemIncomeCategories : systemExpenseCategories;
 
     if (creatingNewCategory) {
-      setMultipleNewCategories(prev => [...prev, { id: Date.now().toString(), systemCategoryId: null }]);
+      // Para categorías del sistema, verificar que no se exceda el límite de categorías disponibles
+      const currentCards = multipleNewCategories.length;
+      const totalCategories = currentCategories.length + currentCards;
+
+      if (totalCategories >= systemCategories.length) {
+        Alert.alert(
+          'Límite alcanzado',
+          'Ya has alcanzado el límite de categorías disponibles del sistema.'
+        );
+        return;
+      }
+
+      const newCardId = Date.now().toString();
+      setMultipleNewCategories(prev => [...prev, { id: newCardId, systemCategoryId: null }]);
+      // Hacer scroll a la nueva tarjeta
+      scrollToCard(newCardId);
     } else if (creatingCustomCategory) {
-      setMultipleCustomCategories(prev => [...prev, { id: Date.now().toString(), name: '', emoji: '' }]);
+      // Para categorías personalizadas, no hay límite
+      const newCardId = Date.now().toString();
+      setMultipleCustomCategories(prev => [...prev, { id: newCardId, name: '', emoji: '' }]);
+      // Hacer scroll a la nueva tarjeta
+      scrollToCard(newCardId);
     }
   };
 
@@ -945,7 +1084,90 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
 
   const getMaxCategoriesAllowed = () => {
     const currentCategories = activeTab === 'income' ? apiIncomeCategories : apiExpenseCategories;
-    return 4 - currentCategories.length;
+    const systemCategories = activeTab === 'income' ? systemIncomeCategories : systemExpenseCategories;
+
+    // El máximo permitido es la cantidad de categorías del sistema menos las ya creadas
+    return systemCategories.length - currentCategories.length;
+  };
+
+  const canAddMoreSystemCategories = () => {
+    const currentCategories = activeTab === 'income' ? apiIncomeCategories : apiExpenseCategories;
+    const systemCategories = activeTab === 'income' ? systemIncomeCategories : systemExpenseCategories;
+
+    // Retorna true si aún hay categorías del sistema disponibles para agregar
+    return currentCategories.length < systemCategories.length;
+  };
+
+  // Obtener categorías disponibles para una tarjeta específica (excluyendo las ya seleccionadas en otras tarjetas)
+  const getAvailableCategoriesForCard = (currentCardId: string) => {
+    // Obtener los IDs de categorías seleccionadas en otras tarjetas
+    const selectedInOtherCards = multipleNewCategories
+      .filter(card => card.id !== currentCardId && card.systemCategoryId !== null)
+      .map(card => card.systemCategoryId);
+
+    // Filtrar las categorías disponibles excluyendo las ya seleccionadas en otras tarjetas
+    return availableSystemCategories.filter(
+      cat => !selectedInOtherCards.includes(cat.id)
+    );
+  };
+
+  // Obtener las subcategorías disponibles del sistema para una categoría específica
+  const getAvailableSubcategoriesForCategory = (categoryId: string, currentCardId?: string) => {
+    const systemCategories = activeTab === 'income' ? systemIncomeCategories : systemExpenseCategories;
+    const userCategories = activeTab === 'income' ? apiIncomeCategories : apiExpenseCategories;
+    const isIncome = activeTab === 'income';
+
+    // Encontrar la categoría de usuario
+    const userCategory = userCategories.find(cat => cat.id.toString() === categoryId);
+    if (!userCategory || !userCategory.transaction_category_id) return [];
+
+    // Encontrar la categoría del sistema correspondiente
+    const systemCategory = systemCategories.find(cat => cat.id === userCategory.transaction_category_id);
+    if (!systemCategory || !systemCategory.children) return [];
+
+    // Obtener los IDs de subcategorías ya creadas por el usuario
+    const existingSubcategoryIds = new Set(
+      (userCategory.children || [])
+        .filter(sub => sub.transaction_category_id !== undefined && sub.transaction_category_id !== null)
+        .map(sub => sub.transaction_category_id)
+    );
+
+    // Si estamos filtrando para una tarjeta específica, excluir las ya seleccionadas en otras tarjetas
+    let selectedInOtherCards: (string | null)[] = [];
+    if (currentCardId) {
+      selectedInOtherCards = multipleNewSubcategories
+        .filter(card => card.id !== currentCardId && card.systemSubcategoryId !== null)
+        .map(card => card.systemSubcategoryId);
+    }
+
+    // Filtrar subcategorías del sistema que NO están en user subcategories y NO están seleccionadas
+    return systemCategory.children
+      .filter(subcat =>
+        !existingSubcategoryIds.has(subcat.id) &&
+        !selectedInOtherCards.includes(subcat.id.toString())
+      )
+      .map(subcat => ({
+        id: subcat.id.toString(),
+        name: {
+          es: subcat.translated_name || subcat.name,
+          en: subcat.name,
+          pt: subcat.translated_name || subcat.name,
+          'es-CL': subcat.translated_name || subcat.name
+        },
+        emoji: getEmojiFromBudgetCategories(subcat.name, isIncome)
+      }));
+  };
+
+  // Verificar si se pueden agregar más subcategorías a una categoría
+  const canAddMoreSubcategories = (categoryId: string) => {
+    const availableSubcategories = getAvailableSubcategoriesForCategory(categoryId);
+    return availableSubcategories.length > 0;
+  };
+
+  // Obtener el máximo de subcategorías permitidas para una categoría
+  const getMaxSubcategoriesAllowed = (categoryId: string) => {
+    const availableSubcategories = getAvailableSubcategoriesForCategory(categoryId);
+    return availableSubcategories.length;
   };
 
   const handleConfirmNewCategory = async () => {
@@ -980,7 +1202,7 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
             name: selectedCategory.name,
             kind: activeTab === 'income' ? 'income' : 'expense',
             emoji_code: emoji,
-            transaction_category_id: selectedCategory.id // ¡Esto es clave para que se creen las subcategorías!
+            transaction_category_id: selectedCategory.id 
           },
           accessToken
         );
@@ -1087,6 +1309,161 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
     } catch (error) {
       console.error('Error creating custom categories:', error);
       Alert.alert('Error', 'Hubo un problema al crear las categorías personalizadas');
+    } finally {
+      setCreatingCategory(false);
+    }
+  };
+
+  // ===== FUNCIONES PARA MANEJAR SUBCATEGORÍAS =====
+
+  const handleAddSubcategory = (categoryId: string) => {
+    // Verificar si hay subcategorías disponibles
+    if (!canAddMoreSubcategories(categoryId)) {
+      Alert.alert(
+        'Límite alcanzado',
+        'Ya has agregado todas las subcategorías disponibles para esta categoría.'
+      );
+      return;
+    }
+
+    // Activar modo de agregar subcategoría para esta categoría
+    setAddingSubcategoryForCategoryId(categoryId);
+    // Inicializar con una tarjeta vacía
+    const newCardId = Date.now().toString();
+    setMultipleNewSubcategories([{ id: newCardId, systemSubcategoryId: null }]);
+
+    // Hacer scroll a la nueva tarjeta de subcategoría
+    scrollToCard(newCardId, true);
+  };
+
+  const handleCancelAddSubcategory = () => {
+    setAddingSubcategoryForCategoryId(null);
+    setMultipleNewSubcategories([]);
+  };
+
+  const handleSelectSystemSubcategory = (cardId: string, subcategoryId: string) => {
+    setMultipleNewSubcategories(prev =>
+      prev.map(card => card.id === cardId ? { ...card, systemSubcategoryId: subcategoryId } : card)
+    );
+  };
+
+  const handleAddNewSubcategoryCard = (categoryId: string) => {
+    const availableSubcategories = getAvailableSubcategoriesForCategory(categoryId);
+    const currentCards = multipleNewSubcategories.length;
+
+    if (currentCards >= availableSubcategories.length) {
+      Alert.alert(
+        'Límite alcanzado',
+        'Ya has alcanzado el límite de subcategorías disponibles.'
+      );
+      return;
+    }
+
+    const newCardId = Date.now().toString();
+    setMultipleNewSubcategories(prev => [...prev, { id: newCardId, systemSubcategoryId: null }]);
+
+    // Hacer scroll a la nueva tarjeta de subcategoría
+    scrollToCard(newCardId, true);
+  };
+
+  const handleRemoveNewSubcategoryCard = (cardId: string) => {
+    setMultipleNewSubcategories(prev => {
+      const newList = prev.filter(card => card.id !== cardId);
+      if (newList.length === 0) {
+        setAddingSubcategoryForCategoryId(null);
+      }
+      return newList;
+    });
+  };
+
+  const handleConfirmNewSubcategories = async () => {
+    if (!accessToken || !addingSubcategoryForCategoryId) {
+      Alert.alert('Error', 'No hay token de autenticación disponible');
+      return;
+    }
+
+    // Validar que todas las subcategorías tengan una selección
+    const invalidCards = multipleNewSubcategories.filter(card => !card.systemSubcategoryId);
+    if (invalidCards.length > 0) {
+      Alert.alert('Error', 'Por favor selecciona una subcategoría en todas las tarjetas');
+      return;
+    }
+
+    try {
+      setCreatingCategory(true);
+
+      const systemCategories = activeTab === 'income' ? systemIncomeCategories : systemExpenseCategories;
+      const userCategories = activeTab === 'income' ? apiIncomeCategories : apiExpenseCategories;
+
+      // Encontrar la categoría de usuario (padre)
+      const parentCategory = userCategories.find(cat => cat.id.toString() === addingSubcategoryForCategoryId);
+      if (!parentCategory) {
+        Alert.alert('Error', 'No se encontró la categoría padre');
+        return;
+      }
+
+      // Encontrar la categoría del sistema correspondiente
+      const systemCategory = systemCategories.find(cat => cat.id === parentCategory.transaction_category_id);
+      if (!systemCategory) {
+        Alert.alert('Error', 'No se encontró la categoría del sistema');
+        return;
+      }
+
+      // Crear todas las subcategorías en paralelo
+      const createPromises = multipleNewSubcategories.map(card => {
+        // Buscar la subcategoría del sistema usando el ID que guardamos
+        const selectedSubcategory = systemCategory.children?.find(subcat => subcat.id.toString() === card.systemSubcategoryId);
+        if (!selectedSubcategory) return Promise.reject(new Error('Subcategoría no encontrada'));
+
+        // Obtener el emoji desde BudgetCategories
+        const emoji = getEmojiFromBudgetCategories(selectedSubcategory.name, activeTab === 'income');
+
+        return createUserCategory(
+          {
+            name: selectedSubcategory.name,
+            kind: activeTab === 'income' ? 'income' : 'expense',
+            emoji_code: emoji,
+            transaction_category_id: selectedSubcategory.id,
+            parent_id: parentCategory.id // IMPORTANTE: asignar el parent_id
+          },
+          accessToken
+        );
+      });
+
+      await Promise.all(createPromises);
+
+      // Recargar las categorías
+      const [incomeResponse, expenseResponse] = await Promise.all([
+        getUserCategories({ kind: 'income', per_page: 100 }, accessToken),
+        getUserCategories({ kind: 'expense', per_page: 100 }, accessToken)
+      ]);
+
+      if (incomeResponse?.success && incomeResponse.data) {
+        const parentCategories = incomeResponse.data.filter(cat => cat.parent_id === null);
+        setApiIncomeCategories(parentCategories);
+      }
+
+      if (expenseResponse?.success && expenseResponse.data) {
+        const parentCategories = expenseResponse.data.filter(cat => cat.parent_id === null);
+        setApiExpenseCategories(parentCategories);
+      }
+
+      // Refrescar transacciones
+      await Promise.all([
+        refetchIncomeTransactions(),
+        refetchExpenseTransactions()
+      ]);
+
+      // Resetear estado de creación
+      setAddingSubcategoryForCategoryId(null);
+      setMultipleNewSubcategories([]);
+
+      const count = createPromises.length;
+      Alert.alert('Éxito', `${count} ${count === 1 ? 'subcategoría creada' : 'subcategorías creadas'} correctamente`);
+
+    } catch (error) {
+      console.error('Error creating subcategories:', error);
+      Alert.alert('Error', 'Hubo un problema al crear las subcategorías');
     } finally {
       setCreatingCategory(false);
     }
@@ -1382,6 +1759,7 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
     categoriesLoading,
     assigningCategories,
     deletingCategories,
+    deletingTransactions,
     updatingCategory,
     editingParentCategoryId,
     pendingEdits,
@@ -1390,6 +1768,8 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
     creatingCategory,
     multipleNewCategories,
     multipleCustomCategories,
+    addingSubcategoryForCategoryId,
+    multipleNewSubcategories,
 
     apiIncomeCategories,
     apiExpenseCategories,
@@ -1401,6 +1781,11 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
     currentLang,
     totalVisibleTransactions,
     availableSystemCategories,
+
+    // Refs para scroll automático
+    scrollViewRef,
+    categoryCardRefs,
+    subcategoryCardRefs,
 
     setActiveTab,
     toggleCategory,
@@ -1442,6 +1827,17 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
     handleAddNewCategoryCard,
     handleRemoveNewCategoryCard,
     getMaxCategoriesAllowed,
+    canAddMoreSystemCategories,
+    getAvailableCategoriesForCard,
+    handleAddSubcategory,
+    handleCancelAddSubcategory,
+    handleSelectSystemSubcategory,
+    handleAddNewSubcategoryCard,
+    handleRemoveNewSubcategoryCard,
+    handleConfirmNewSubcategories,
+    getAvailableSubcategoriesForCategory,
+    canAddMoreSubcategories,
+    getMaxSubcategoriesAllowed,
 
     t,
   };

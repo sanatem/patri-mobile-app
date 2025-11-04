@@ -32,6 +32,10 @@ interface CategoriesListProps {
   updatingCategory: boolean;
   editingParentCategoryId: string | null;
   pendingEdits: Map<string, { name: string; emoji: string }>;
+  addingSubcategoryForCategoryId: string | null;
+  multipleNewSubcategories: Array<{ id: string; systemSubcategoryId: string | null }>;
+  creatingCategory: boolean;
+  subcategoryCardRefs: Map<string, any>;
   onCategoryPress: (categoryId: string) => void;
   onCategoryLongPress: (categoryId: string) => void;
   onSubcategoryPress: (subcategoryId: string) => void;
@@ -42,6 +46,19 @@ interface CategoriesListProps {
   onSaveEdit: () => void;
   onEditNameChange: (categoryId: string, name: string) => void;
   onEditEmojiChange: (categoryId: string, emoji: string) => void;
+  onAddSubcategory: (categoryId: string) => void;
+  onCancelAddSubcategory: () => void;
+  onSelectSystemSubcategory: (cardId: string, subcategoryId: string) => void;
+  onAddNewSubcategoryCard: (categoryId: string) => void;
+  onRemoveNewSubcategoryCard: (cardId: string) => void;
+  onConfirmNewSubcategories: () => void;
+  getAvailableSubcategoriesForCategory: (categoryId: string, currentCardId?: string) => Array<{
+    id: string;
+    name: { es: string; en: string; pt: string; 'es-CL': string };
+    emoji: string;
+  }>;
+  canAddMoreSubcategories: (categoryId: string) => boolean;
+  getMaxSubcategoriesAllowed: (categoryId: string) => number;
   getRotateStyle: (id: string, isCategory: boolean) => any;
 }
 
@@ -60,6 +77,10 @@ export function CategoriesList({
   updatingCategory,
   editingParentCategoryId,
   pendingEdits,
+  addingSubcategoryForCategoryId,
+  multipleNewSubcategories,
+  creatingCategory,
+  subcategoryCardRefs,
   onCategoryPress,
   onCategoryLongPress,
   onSubcategoryPress,
@@ -70,6 +91,15 @@ export function CategoriesList({
   onSaveEdit,
   onEditNameChange,
   onEditEmojiChange,
+  onAddSubcategory,
+  onCancelAddSubcategory,
+  onSelectSystemSubcategory,
+  onAddNewSubcategoryCard,
+  onRemoveNewSubcategoryCard,
+  onConfirmNewSubcategories,
+  getAvailableSubcategoriesForCategory,
+  canAddMoreSubcategories,
+  getMaxSubcategoriesAllowed,
   getRotateStyle,
 }: CategoriesListProps) {
   return (
@@ -99,6 +129,10 @@ export function CategoriesList({
             updatingCategory={updatingCategory}
             editingParentCategoryId={editingParentCategoryId}
             pendingEdits={pendingEdits}
+            addingSubcategoryForCategoryId={addingSubcategoryForCategoryId}
+            multipleNewSubcategories={multipleNewSubcategories}
+            creatingCategory={creatingCategory}
+            subcategoryCardRefs={subcategoryCardRefs}
             onCategoryPress={onCategoryPress}
             onCategoryLongPress={onCategoryLongPress}
             onSubcategoryPress={onSubcategoryPress}
@@ -109,6 +143,15 @@ export function CategoriesList({
             onSaveEdit={onSaveEdit}
             onEditNameChange={onEditNameChange}
             onEditEmojiChange={onEditEmojiChange}
+            onAddSubcategory={onAddSubcategory}
+            onCancelAddSubcategory={onCancelAddSubcategory}
+            onSelectSystemSubcategory={onSelectSystemSubcategory}
+            onAddNewSubcategoryCard={onAddNewSubcategoryCard}
+            onRemoveNewSubcategoryCard={onRemoveNewSubcategoryCard}
+            onConfirmNewSubcategories={onConfirmNewSubcategories}
+            getAvailableSubcategoriesForCategory={getAvailableSubcategoriesForCategory}
+            canAddMoreSubcategories={canAddMoreSubcategories}
+            getMaxSubcategoriesAllowed={getMaxSubcategoriesAllowed}
             getRotateStyle={getRotateStyle}
           />
         );

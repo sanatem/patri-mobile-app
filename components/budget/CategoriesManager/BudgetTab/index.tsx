@@ -41,13 +41,19 @@ interface BudgetTabProps {
   pendingEdits: Map<string, { name: string; emoji: string }>;
   creatingNewCategory: boolean;
   creatingCustomCategory: boolean;
+  creatingCategory: boolean;
   multipleNewCategories: Array<{ id: string; systemCategoryId: string | null }>;
   multipleCustomCategories: Array<{ id: string; name: string; emoji: string }>;
+  addingSubcategoryForCategoryId: string | null;
+  multipleNewSubcategories: Array<{ id: string; systemSubcategoryId: string | null }>;
   availableSystemCategories: Array<{
     id: string;
     name: { es: string; en: string; pt: string; 'es-CL': string };
     emoji: string;
   }>;
+  scrollViewRef: any;
+  categoryCardRefs: Map<string, any>;
+  subcategoryCardRefs: Map<string, any>;
   onCategoryPress: (categoryId: string) => void;
   onCategoryLongPress: (categoryId: string) => void;
   onSubcategoryPress: (subcategoryId: string) => void;
@@ -68,6 +74,24 @@ interface BudgetTabProps {
   onAddNewCategoryCard: () => void;
   onRemoveNewCategoryCard: (cardId: string) => void;
   maxCategoriesAllowed: number;
+  getAvailableCategoriesForCard: (cardId: string) => Array<{
+    id: string;
+    name: { es: string; en: string; pt: string; 'es-CL': string };
+    emoji: string;
+  }>;
+  onAddSubcategory: (categoryId: string) => void;
+  onCancelAddSubcategory: () => void;
+  onSelectSystemSubcategory: (cardId: string, subcategoryId: string) => void;
+  onAddNewSubcategoryCard: (categoryId: string) => void;
+  onRemoveNewSubcategoryCard: (cardId: string) => void;
+  onConfirmNewSubcategories: () => void;
+  getAvailableSubcategoriesForCategory: (categoryId: string, currentCardId?: string) => Array<{
+    id: string;
+    name: { es: string; en: string; pt: string; 'es-CL': string };
+    emoji: string;
+  }>;
+  canAddMoreSubcategories: (categoryId: string) => boolean;
+  getMaxSubcategoriesAllowed: (categoryId: string) => number;
   getRotateStyle: (id: string, isCategory: boolean) => any;
 }
 
@@ -88,9 +112,15 @@ export function BudgetTab({
   pendingEdits,
   creatingNewCategory,
   creatingCustomCategory,
+  creatingCategory,
   multipleNewCategories,
   multipleCustomCategories,
+  addingSubcategoryForCategoryId,
+  multipleNewSubcategories,
   availableSystemCategories,
+  scrollViewRef,
+  categoryCardRefs,
+  subcategoryCardRefs,
   onCategoryPress,
   onCategoryLongPress,
   onSubcategoryPress,
@@ -111,6 +141,16 @@ export function BudgetTab({
   onAddNewCategoryCard,
   onRemoveNewCategoryCard,
   maxCategoriesAllowed,
+  getAvailableCategoriesForCard,
+  onAddSubcategory,
+  onCancelAddSubcategory,
+  onSelectSystemSubcategory,
+  onAddNewSubcategoryCard,
+  onRemoveNewSubcategoryCard,
+  onConfirmNewSubcategories,
+  getAvailableSubcategoriesForCategory,
+  canAddMoreSubcategories,
+  getMaxSubcategoriesAllowed,
   getRotateStyle,
 }: BudgetTabProps) {
   // Verificar si hay categorías creadas
@@ -118,6 +158,7 @@ export function BudgetTab({
 
   return (
     <ScrollView
+      ref={scrollViewRef}
       style={{ flex: 1 }}
       contentContainerStyle={{ paddingBottom: 20, flexGrow: 1 }}
       showsVerticalScrollIndicator={false}
@@ -157,6 +198,10 @@ export function BudgetTab({
         updatingCategory={updatingCategory}
         editingParentCategoryId={editingParentCategoryId}
         pendingEdits={pendingEdits}
+        addingSubcategoryForCategoryId={addingSubcategoryForCategoryId}
+        multipleNewSubcategories={multipleNewSubcategories}
+        creatingCategory={creatingCategory}
+        subcategoryCardRefs={subcategoryCardRefs}
         onCategoryPress={onCategoryPress}
         onCategoryLongPress={onCategoryLongPress}
         onSubcategoryPress={onSubcategoryPress}
@@ -167,6 +212,15 @@ export function BudgetTab({
         onSaveEdit={onSaveEdit}
         onEditNameChange={onEditNameChange}
         onEditEmojiChange={onEditEmojiChange}
+        onAddSubcategory={onAddSubcategory}
+        onCancelAddSubcategory={onCancelAddSubcategory}
+        onSelectSystemSubcategory={onSelectSystemSubcategory}
+        onAddNewSubcategoryCard={onAddNewSubcategoryCard}
+        onRemoveNewSubcategoryCard={onRemoveNewSubcategoryCard}
+        onConfirmNewSubcategories={onConfirmNewSubcategories}
+        getAvailableSubcategoriesForCategory={getAvailableSubcategoriesForCategory}
+        canAddMoreSubcategories={canAddMoreSubcategories}
+        getMaxSubcategoriesAllowed={getMaxSubcategoriesAllowed}
         getRotateStyle={getRotateStyle}
       />
       )}
@@ -174,8 +228,15 @@ export function BudgetTab({
       {creatingNewCategory && multipleNewCategories.map((card, index) => (
         <NewCategoryCard
           key={card.id}
+          ref={(ref) => {
+            if (ref) {
+              categoryCardRefs.set(card.id, ref);
+            } else {
+              categoryCardRefs.delete(card.id);
+            }
+          }}
           currentLang={currentLang}
-          availableCategories={availableSystemCategories}
+          availableCategories={getAvailableCategoriesForCard(card.id)}
           selectedCategoryId={card.systemCategoryId}
           onSelectCategory={(categoryId) => onSelectSystemCategory(card.id, categoryId)}
           showAddButton={index === multipleNewCategories.length - 1}
@@ -189,6 +250,13 @@ export function BudgetTab({
       {creatingCustomCategory && multipleCustomCategories.map((card, index) => (
         <CustomCategoryCard
           key={card.id}
+          ref={(ref) => {
+            if (ref) {
+              categoryCardRefs.set(card.id, ref);
+            } else {
+              categoryCardRefs.delete(card.id);
+            }
+          }}
           categoryName={card.name}
           categoryEmoji={card.emoji}
           onNameChange={(text) => onCustomCategoryNameChange(card.id, text)}

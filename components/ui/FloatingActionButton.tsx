@@ -7,6 +7,7 @@ export interface FloatingAction {
   label: string;
   icon: React.ReactNode;
   onPress: () => void;
+  disabled?: boolean;
 }
 
 interface FloatingActionButtonProps {
@@ -40,6 +41,7 @@ export function FloatingActionButton({ actions }: FloatingActionButtonProps) {
   };
 
   const handleActionPress = (action: FloatingAction) => {
+    if (action.disabled) return;
     toggleMenu();
     setTimeout(() => action.onPress(), 200);
   };
@@ -94,7 +96,7 @@ export function FloatingActionButton({ actions }: FloatingActionButtonProps) {
                   style={{
                     flexDirection: 'row',
                     alignItems: 'center',
-                    backgroundColor: 'white',
+                    backgroundColor: action.disabled ? Colors.gray[200] : 'white',
                     paddingVertical: 12,
                     paddingHorizontal: 16,
                     borderRadius: 24,
@@ -103,19 +105,20 @@ export function FloatingActionButton({ actions }: FloatingActionButtonProps) {
                       width: 0,
                       height: 2,
                     },
-                    shadowOpacity: 0.25,
+                    shadowOpacity: action.disabled ? 0.1 : 0.25,
                     shadowRadius: 3.84,
-                    elevation: 5,
+                    elevation: action.disabled ? 2 : 5,
                   }}
                   onPress={() => handleActionPress(action)}
-                  activeOpacity={0.8}
+                  activeOpacity={action.disabled ? 1 : 0.8}
+                  disabled={action.disabled}
                 >
-                  <View style={{ marginRight: 12 }}>
+                  <View style={{ marginRight: 12, opacity: action.disabled ? 0.4 : 1 }}>
                     {action.icon}
                   </View>
                   <Text
                     className="text-sm font-medium"
-                    style={{ color: Colors.primary[600] }}
+                    style={{ color: action.disabled ? Colors.gray[400] : Colors.primary[600] }}
                   >
                     {action.label}
                   </Text>

@@ -6,6 +6,7 @@ import { ChevronDown, Edit2, Plus, X, Check } from 'lucide-react-native';
 import { FloidTransaction } from '@/services/budget/transactions/get-floid-transactions';
 import { SubCategoryItem } from '../SubCategoryItem';
 import { TransactionItem } from '../../UncategorizedList/TransactionItem';
+import { NewSubcategoryCard } from '../../NewSubcategoryCard';
 
 interface CategoryItemProps {
   category: {
@@ -42,6 +43,10 @@ interface CategoryItemProps {
   updatingCategory: boolean;
   editingParentCategoryId: string | null;
   pendingEdits: Map<string, { name: string; emoji: string }>;
+  addingSubcategoryForCategoryId: string | null;
+  multipleNewSubcategories: Array<{ id: string; systemSubcategoryId: string | null }>;
+  creatingCategory: boolean;
+  subcategoryCardRefs: Map<string, any>;
   onCategoryPress: (categoryId: string) => void;
   onCategoryLongPress: (categoryId: string) => void;
   onSubcategoryPress: (subcategoryId: string) => void;
@@ -52,6 +57,19 @@ interface CategoryItemProps {
   onSaveEdit: () => void;
   onEditNameChange: (categoryId: string, name: string) => void;
   onEditEmojiChange: (categoryId: string, emoji: string) => void;
+  onAddSubcategory: (categoryId: string) => void;
+  onCancelAddSubcategory: () => void;
+  onSelectSystemSubcategory: (cardId: string, subcategoryId: string) => void;
+  onAddNewSubcategoryCard: (categoryId: string) => void;
+  onRemoveNewSubcategoryCard: (cardId: string) => void;
+  onConfirmNewSubcategories: () => void;
+  getAvailableSubcategoriesForCategory: (categoryId: string, currentCardId?: string) => Array<{
+    id: string;
+    name: { es: string; en: string; pt: string; 'es-CL': string };
+    emoji: string;
+  }>;
+  canAddMoreSubcategories: (categoryId: string) => boolean;
+  getMaxSubcategoriesAllowed: (categoryId: string) => number;
   getRotateStyle: (id: string, isCategory: boolean) => any;
 }
 
@@ -72,6 +90,10 @@ export function CategoryItem({
   updatingCategory,
   editingParentCategoryId,
   pendingEdits,
+  addingSubcategoryForCategoryId,
+  multipleNewSubcategories,
+  creatingCategory,
+  subcategoryCardRefs,
   onCategoryPress,
   onCategoryLongPress,
   onSubcategoryPress,
@@ -82,6 +104,15 @@ export function CategoryItem({
   onSaveEdit,
   onEditNameChange,
   onEditEmojiChange,
+  onAddSubcategory,
+  onCancelAddSubcategory,
+  onSelectSystemSubcategory,
+  onAddNewSubcategoryCard,
+  onRemoveNewSubcategoryCard,
+  onConfirmNewSubcategories,
+  getAvailableSubcategoriesForCategory,
+  canAddMoreSubcategories,
+  getMaxSubcategoriesAllowed,
   getRotateStyle,
 }: CategoryItemProps) {
   const categoryCheckboxOpacity = categoryAnimation.interpolate({
@@ -321,7 +352,37 @@ export function CategoryItem({
             );
           })}
 
-          {!selectionMode && (
+          {/* Tarjetas para agregar nuevas subcategorías */}
+          {addingSubcategoryForCategoryId === category.id && multipleNewSubcategories.map((card, index) => {
+            const availableSubcats = getAvailableSubcategoriesForCategory(category.id, card.id);
+            const maxAllowed = getMaxSubcategoriesAllowed(category.id);
+            const canAddMore = multipleNewSubcategories.length < maxAllowed;
+            const isLastCard = index === multipleNewSubcategories.length - 1;
+
+            return (
+              <NewSubcategoryCard
+                key={card.id}
+                ref={(ref) => {
+                  if (ref) {
+                    subcategoryCardRefs.set(card.id, ref);
+                  } else {
+                    subcategoryCardRefs.delete(card.id);
+                  }
+                }}
+                currentLang={currentLang}
+                availableSubcategories={availableSubcats}
+                selectedSubcategoryId={card.systemSubcategoryId}
+                onSelectSubcategory={(subcatId) => onSelectSystemSubcategory(card.id, subcatId)}
+                showAddButton={isLastCard}
+                showRemoveButton={multipleNewSubcategories.length > 1}
+                onAdd={() => onAddNewSubcategoryCard(category.id)}
+                onRemove={() => onRemoveNewSubcategoryCard(card.id)}
+                canAdd={canAddMore}
+              />
+            );
+          })}
+
+          {!selectionMode && !isEditingMode && addingSubcategoryForCategoryId !== category.id && (
             <>
               <View style={{
                 height: 0.5,
@@ -333,10 +394,9 @@ export function CategoryItem({
                   title="Subcategoría"
                   variant="ghost"
                   fullWidth
-                  icon={<Plus size={16} color={Colors.primary[500]} />}
-                  onPress={() => {
-                    // TODO: Implementar creación de subcategoría
-                  }}
+                  icon={<Plus size={16} color={canAddMoreSubcategories(category.id) ? Colors.primary[500] : Colors.gray[300]} />}
+                  onPress={() => onAddSubcategory(category.id)}
+                  disabled={!canAddMoreSubcategories(category.id)}
                 />
               </View>
             </>
