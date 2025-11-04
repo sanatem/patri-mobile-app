@@ -7,6 +7,7 @@ import { FloidTransaction } from '@/services/budget/transactions/get-floid-trans
 import { SubCategoryItem } from '../SubCategoryItem';
 import { TransactionItem } from '../../UncategorizedList/TransactionItem';
 import { NewSubcategoryCard } from '../../NewSubcategoryCard';
+import { CustomSubcategoryCard } from '../../CustomSubcategoryCard';
 
 interface CategoryItemProps {
   category: {
@@ -15,6 +16,7 @@ interface CategoryItemProps {
     emoji: string;
     originalName?: string; // display_name del API
     originalEmoji?: string; // emoji_code del API
+    isCustomCategory?: boolean; // Indica si es categoría personalizada
     subcategories?: Array<{
       id: string;
       name: { es: string; en: string; pt: string };
@@ -45,6 +47,7 @@ interface CategoryItemProps {
   pendingEdits: Map<string, { name: string; emoji: string }>;
   addingSubcategoryForCategoryId: string | null;
   multipleNewSubcategories: Array<{ id: string; systemSubcategoryId: string | null }>;
+  multipleCustomSubcategories: Array<{ id: string; name: string; emoji: string }>;
   creatingCategory: boolean;
   subcategoryCardRefs: Map<string, any>;
   onCategoryPress: (categoryId: string) => void;
@@ -62,6 +65,10 @@ interface CategoryItemProps {
   onSelectSystemSubcategory: (cardId: string, subcategoryId: string) => void;
   onAddNewSubcategoryCard: (categoryId: string) => void;
   onRemoveNewSubcategoryCard: (cardId: string) => void;
+  onCustomSubcategoryNameChange: (cardId: string, text: string) => void;
+  onCustomSubcategoryEmojiChange: (cardId: string, text: string) => void;
+  onAddNewCustomSubcategoryCard: () => void;
+  onRemoveCustomSubcategoryCard: (cardId: string) => void;
   onConfirmNewSubcategories: () => void;
   getAvailableSubcategoriesForCategory: (categoryId: string, currentCardId?: string) => Array<{
     id: string;
@@ -92,6 +99,7 @@ export function CategoryItem({
   pendingEdits,
   addingSubcategoryForCategoryId,
   multipleNewSubcategories,
+  multipleCustomSubcategories,
   creatingCategory,
   subcategoryCardRefs,
   onCategoryPress,
@@ -109,6 +117,10 @@ export function CategoryItem({
   onSelectSystemSubcategory,
   onAddNewSubcategoryCard,
   onRemoveNewSubcategoryCard,
+  onCustomSubcategoryNameChange,
+  onCustomSubcategoryEmojiChange,
+  onAddNewCustomSubcategoryCard,
+  onRemoveCustomSubcategoryCard,
   onConfirmNewSubcategories,
   getAvailableSubcategoriesForCategory,
   canAddMoreSubcategories,
@@ -353,34 +365,68 @@ export function CategoryItem({
           })}
 
           {/* Tarjetas para agregar nuevas subcategorías */}
-          {addingSubcategoryForCategoryId === category.id && multipleNewSubcategories.map((card, index) => {
-            const availableSubcats = getAvailableSubcategoriesForCategory(category.id, card.id);
-            const maxAllowed = getMaxSubcategoriesAllowed(category.id);
-            const canAddMore = multipleNewSubcategories.length < maxAllowed;
-            const isLastCard = index === multipleNewSubcategories.length - 1;
+          {addingSubcategoryForCategoryId === category.id && (
+            <>
+              {/* Subcategorías del sistema (con select) */}
+              {multipleNewSubcategories.map((card, index) => {
+                const availableSubcats = getAvailableSubcategoriesForCategory(category.id, card.id);
+                const maxAllowed = getMaxSubcategoriesAllowed(category.id);
+                const canAddMore = multipleNewSubcategories.length < maxAllowed;
+                const isLastCard = index === multipleNewSubcategories.length - 1;
 
-            return (
-              <NewSubcategoryCard
-                key={card.id}
-                ref={(ref) => {
-                  if (ref) {
-                    subcategoryCardRefs.set(card.id, ref);
-                  } else {
-                    subcategoryCardRefs.delete(card.id);
-                  }
-                }}
-                currentLang={currentLang}
-                availableSubcategories={availableSubcats}
-                selectedSubcategoryId={card.systemSubcategoryId}
-                onSelectSubcategory={(subcatId) => onSelectSystemSubcategory(card.id, subcatId)}
-                showAddButton={isLastCard}
-                showRemoveButton={multipleNewSubcategories.length > 1}
-                onAdd={() => onAddNewSubcategoryCard(category.id)}
-                onRemove={() => onRemoveNewSubcategoryCard(card.id)}
-                canAdd={canAddMore}
-              />
-            );
-          })}
+                return (
+                  <NewSubcategoryCard
+                    key={card.id}
+                    ref={(ref) => {
+                      if (ref) {
+                        subcategoryCardRefs.set(card.id, ref);
+                      } else {
+                        subcategoryCardRefs.delete(card.id);
+                      }
+                    }}
+                    currentLang={currentLang}
+                    availableSubcategories={availableSubcats}
+                    selectedSubcategoryId={card.systemSubcategoryId}
+                    onSelectSubcategory={(subcatId) => onSelectSystemSubcategory(card.id, subcatId)}
+                    showAddButton={isLastCard}
+                    showRemoveButton={multipleNewSubcategories.length > 1}
+                    onAdd={() => onAddNewSubcategoryCard(category.id)}
+                    onRemove={() => onRemoveNewSubcategoryCard(card.id)}
+                    canAdd={canAddMore}
+                  />
+                );
+              })}
+
+              {/* Subcategorías personalizadas (con inputs) */}
+              {multipleCustomSubcategories.map((card, index) => {
+                const maxAllowed = getMaxSubcategoriesAllowed(category.id);
+                const canAddMore = multipleCustomSubcategories.length < maxAllowed;
+                const isLastCard = index === multipleCustomSubcategories.length - 1;
+
+                return (
+                  <CustomSubcategoryCard
+                    key={card.id}
+                    ref={(ref) => {
+                      if (ref) {
+                        subcategoryCardRefs.set(card.id, ref);
+                      } else {
+                        subcategoryCardRefs.delete(card.id);
+                      }
+                    }}
+                    subcategoryName={card.name}
+                    subcategoryEmoji={card.emoji}
+                    onNameChange={(text) => onCustomSubcategoryNameChange(card.id, text)}
+                    onEmojiChange={(text) => onCustomSubcategoryEmojiChange(card.id, text)}
+                    showAddButton={isLastCard}
+                    showRemoveButton={multipleCustomSubcategories.length > 1}
+                    onAdd={onAddNewCustomSubcategoryCard}
+                    onRemove={() => onRemoveCustomSubcategoryCard(card.id)}
+                    canAdd={canAddMore}
+                  />
+                );
+              })}
+            </>
+          )}
 
           {!selectionMode && !isEditingMode && addingSubcategoryForCategoryId !== category.id && (
             <>

@@ -23,6 +23,7 @@ interface SelectProps {
   error?: string;
   disabled?: boolean;
   className?: string;
+  emptyMessage?: string;
 }
 export function Select({
   options,
@@ -33,6 +34,7 @@ export function Select({
   error,
   disabled = false,
   className,
+  emptyMessage,
 }: SelectProps) {
   const { t } = useTranslation();
   const placeholderText = placeholder ?? t('common.select_option')
@@ -218,7 +220,13 @@ export function Select({
               showsVerticalScrollIndicator={true}
               nestedScrollEnabled={true}
             >
-              {filteredOptions.length > 0 ? (
+              {options.length === 0 && emptyMessage ? (
+                <View style={{ paddingVertical: 20, alignItems: 'center', paddingHorizontal: 20 }}>
+                  <Text className="text-base font-regular" style={{ color: Colors.gray[400], textAlign: 'center' }}>
+                    {emptyMessage}
+                  </Text>
+                </View>
+              ) : filteredOptions.length > 0 ? (
                 filteredOptions.map((option, index) => (
                   <TouchableOpacity
                     key={option.value}
@@ -248,7 +256,7 @@ export function Select({
                 ))
               ) : (
                 <View style={{ paddingVertical: 20, alignItems: 'center' }}>
-                  <Text style={{ color: Colors.gray[500], fontSize: 14 }}>
+                  <Text className="text-base font-regular" style={{ color: Colors.gray[400] }}>
                     {t('common.no_results', 'No se encontraron resultados')}
                   </Text>
                 </View>

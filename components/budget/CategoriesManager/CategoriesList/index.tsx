@@ -34,6 +34,7 @@ interface CategoriesListProps {
   pendingEdits: Map<string, { name: string; emoji: string }>;
   addingSubcategoryForCategoryId: string | null;
   multipleNewSubcategories: Array<{ id: string; systemSubcategoryId: string | null }>;
+  multipleCustomSubcategories: Array<{ id: string; name: string; emoji: string }>;
   creatingCategory: boolean;
   subcategoryCardRefs: Map<string, any>;
   onCategoryPress: (categoryId: string) => void;
@@ -51,6 +52,10 @@ interface CategoriesListProps {
   onSelectSystemSubcategory: (cardId: string, subcategoryId: string) => void;
   onAddNewSubcategoryCard: (categoryId: string) => void;
   onRemoveNewSubcategoryCard: (cardId: string) => void;
+  onCustomSubcategoryNameChange: (cardId: string, text: string) => void;
+  onCustomSubcategoryEmojiChange: (cardId: string, text: string) => void;
+  onAddNewCustomSubcategoryCard: () => void;
+  onRemoveCustomSubcategoryCard: (cardId: string) => void;
   onConfirmNewSubcategories: () => void;
   getAvailableSubcategoriesForCategory: (categoryId: string, currentCardId?: string) => Array<{
     id: string;
@@ -79,6 +84,7 @@ export function CategoriesList({
   pendingEdits,
   addingSubcategoryForCategoryId,
   multipleNewSubcategories,
+  multipleCustomSubcategories,
   creatingCategory,
   subcategoryCardRefs,
   onCategoryPress,
@@ -96,6 +102,10 @@ export function CategoriesList({
   onSelectSystemSubcategory,
   onAddNewSubcategoryCard,
   onRemoveNewSubcategoryCard,
+  onCustomSubcategoryNameChange,
+  onCustomSubcategoryEmojiChange,
+  onAddNewCustomSubcategoryCard,
+  onRemoveCustomSubcategoryCard,
   onConfirmNewSubcategories,
   getAvailableSubcategoriesForCategory,
   canAddMoreSubcategories,
@@ -131,6 +141,7 @@ export function CategoriesList({
             pendingEdits={pendingEdits}
             addingSubcategoryForCategoryId={addingSubcategoryForCategoryId}
             multipleNewSubcategories={multipleNewSubcategories}
+            multipleCustomSubcategories={multipleCustomSubcategories}
             creatingCategory={creatingCategory}
             subcategoryCardRefs={subcategoryCardRefs}
             onCategoryPress={onCategoryPress}
@@ -148,6 +159,10 @@ export function CategoriesList({
             onSelectSystemSubcategory={onSelectSystemSubcategory}
             onAddNewSubcategoryCard={onAddNewSubcategoryCard}
             onRemoveNewSubcategoryCard={onRemoveNewSubcategoryCard}
+            onCustomSubcategoryNameChange={onCustomSubcategoryNameChange}
+            onCustomSubcategoryEmojiChange={onCustomSubcategoryEmojiChange}
+            onAddNewCustomSubcategoryCard={onAddNewCustomSubcategoryCard}
+            onRemoveCustomSubcategoryCard={onRemoveCustomSubcategoryCard}
             onConfirmNewSubcategories={onConfirmNewSubcategories}
             getAvailableSubcategoriesForCategory={getAvailableSubcategoriesForCategory}
             canAddMoreSubcategories={canAddMoreSubcategories}

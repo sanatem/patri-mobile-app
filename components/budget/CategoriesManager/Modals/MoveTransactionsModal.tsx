@@ -39,7 +39,7 @@ export function MoveTransactionsModal({
       onClose={onClose}
       confirmButtonText={loading ? "Categorizando..." : "Categorizar"}
       cancelButtonText="Cancelar"
-      confirmDisabled={!selectedDestinationCategory || loading}
+      confirmDisabled={!selectedDestinationCategory || loading || categoryOptions.length === 0}
     >
       <View style={{ marginTop: 8 }}>
         <Select
@@ -48,6 +48,7 @@ export function MoveTransactionsModal({
           onSelect={onCategoryChange}
           placeholder="Selecciona una categoría"
           label={t('budget.category', 'Categoría')}
+          emptyMessage={t('budget.add_categories_first', 'Debes añadir categorías para poder asignar transacciones.')}
         />
 
         {selectedDestinationCategory && subcategoryOptions.length > 0 && (

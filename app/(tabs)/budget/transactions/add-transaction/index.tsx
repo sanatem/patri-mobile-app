@@ -285,6 +285,7 @@ export default function AddTransactionScreen() {
           value={selectedParentCategoryId}
           onSelect={handleCategoryChange}
           placeholder={t('budget.no_category', 'Sin categoría')}
+          emptyMessage={t('budget.add_categories_first', 'Debes añadir categorías para poder asignar transacciones.')}
         />
 
         {selectedParentCategoryId && subcategoryOptions.length > 0 && (

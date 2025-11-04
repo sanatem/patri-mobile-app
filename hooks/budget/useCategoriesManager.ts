@@ -79,6 +79,7 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
   // Estados para agregar subcategorías
   const [addingSubcategoryForCategoryId, setAddingSubcategoryForCategoryId] = useState<string | null>(null);
   const [multipleNewSubcategories, setMultipleNewSubcategories] = useState<Array<{ id: string; systemSubcategoryId: string | null }>>([]);
+  const [multipleCustomSubcategories, setMultipleCustomSubcategories] = useState<Array<{ id: string; name: string; emoji: string }>>([]);
 
   // Animaciones para selección de categorías/subcategorías
   const selectionAnimations = useRef<Map<string, Animated.Value>>(new Map()).current;
@@ -1119,8 +1120,49 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
 
     // Encontrar la categoría de usuario
     const userCategory = userCategories.find(cat => cat.id.toString() === categoryId);
-    if (!userCategory || !userCategory.transaction_category_id) return [];
+    if (!userCategory) return [];
 
+    // Si es una categoría personalizada (sin transaction_category_id)
+    if (!userCategory.transaction_category_id) {
+      // Las categorías personalizadas permiten hasta 20 subcategorías del sistema
+      // Combinar todas las subcategorías del sistema disponibles
+      const allSystemSubcategories = systemCategories.flatMap(cat =>
+        cat.children ? cat.children.map(subcat => ({
+          id: subcat.id.toString(),
+          name: {
+            es: subcat.translated_name || subcat.name,
+            en: subcat.name,
+            pt: subcat.translated_name || subcat.name,
+            'es-CL': subcat.translated_name || subcat.name
+          },
+          emoji: getEmojiFromBudgetCategories(subcat.name, isIncome)
+        })) : []
+      );
+
+      // Obtener los IDs de subcategorías ya creadas por el usuario
+      const existingSubcategoryIds = new Set(
+        (userCategory.children || [])
+          .filter(sub => sub.transaction_category_id !== undefined && sub.transaction_category_id !== null)
+          .map(sub => sub.transaction_category_id)
+      );
+
+      // Si estamos filtrando para una tarjeta específica, excluir las ya seleccionadas en otras tarjetas
+      let selectedInOtherCards: (string | null)[] = [];
+      if (currentCardId) {
+        selectedInOtherCards = multipleNewSubcategories
+          .filter(card => card.id !== currentCardId && card.systemSubcategoryId !== null)
+          .map(card => card.systemSubcategoryId);
+      }
+
+      // Filtrar subcategorías que NO están ya creadas y NO están seleccionadas
+      return allSystemSubcategories
+        .filter(subcat =>
+          !existingSubcategoryIds.has(parseInt(subcat.id)) &&
+          !selectedInOtherCards.includes(subcat.id)
+        );
+    }
+
+    // Para categorías del sistema, mantener la lógica original
     // Encontrar la categoría del sistema correspondiente
     const systemCategory = systemCategories.find(cat => cat.id === userCategory.transaction_category_id);
     if (!systemCategory || !systemCategory.children) return [];
@@ -1160,12 +1202,36 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
 
   // Verificar si se pueden agregar más subcategorías a una categoría
   const canAddMoreSubcategories = (categoryId: string) => {
+    const userCategories = activeTab === 'income' ? apiIncomeCategories : apiExpenseCategories;
+    const userCategory = userCategories.find(cat => cat.id.toString() === categoryId);
+
+    if (!userCategory) return false;
+
+    // Para categorías personalizadas, verificar límite de 20
+    if (!userCategory.transaction_category_id) {
+      const currentSubcategoryCount = (userCategory.children || []).length;
+      return currentSubcategoryCount < 20;
+    }
+
+    // Para categorías del sistema, verificar disponibilidad
     const availableSubcategories = getAvailableSubcategoriesForCategory(categoryId);
     return availableSubcategories.length > 0;
   };
 
   // Obtener el máximo de subcategorías permitidas para una categoría
   const getMaxSubcategoriesAllowed = (categoryId: string) => {
+    const userCategories = activeTab === 'income' ? apiIncomeCategories : apiExpenseCategories;
+    const userCategory = userCategories.find(cat => cat.id.toString() === categoryId);
+
+    if (!userCategory) return 0;
+
+    // Para categorías personalizadas, el límite es 20
+    if (!userCategory.transaction_category_id) {
+      const currentSubcategoryCount = (userCategory.children || []).length;
+      return Math.max(0, 20 - currentSubcategoryCount);
+    }
+
+    // Para categorías del sistema, retornar la cantidad disponible
     const availableSubcategories = getAvailableSubcategoriesForCategory(categoryId);
     return availableSubcategories.length;
   };
@@ -1326,11 +1392,25 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
       return;
     }
 
+    // Determinar si es una categoría personalizada
+    const userCategories = activeTab === 'income' ? apiIncomeCategories : apiExpenseCategories;
+    const userCategory = userCategories.find(cat => cat.id.toString() === categoryId);
+    const isCustomCategory = userCategory && !userCategory.transaction_category_id;
+
     // Activar modo de agregar subcategoría para esta categoría
     setAddingSubcategoryForCategoryId(categoryId);
     // Inicializar con una tarjeta vacía
     const newCardId = Date.now().toString();
-    setMultipleNewSubcategories([{ id: newCardId, systemSubcategoryId: null }]);
+
+    if (isCustomCategory) {
+      // Para categorías personalizadas, usar inputs personalizados
+      setMultipleCustomSubcategories([{ id: newCardId, name: '', emoji: '' }]);
+      setMultipleNewSubcategories([]);
+    } else {
+      // Para categorías del sistema, usar select
+      setMultipleNewSubcategories([{ id: newCardId, systemSubcategoryId: null }]);
+      setMultipleCustomSubcategories([]);
+    }
 
     // Hacer scroll a la nueva tarjeta de subcategoría
     scrollToCard(newCardId, true);
@@ -1339,6 +1419,7 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
   const handleCancelAddSubcategory = () => {
     setAddingSubcategoryForCategoryId(null);
     setMultipleNewSubcategories([]);
+    setMultipleCustomSubcategories([]);
   };
 
   const handleSelectSystemSubcategory = (cardId: string, subcategoryId: string) => {
@@ -1376,59 +1457,126 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
     });
   };
 
+  // Funciones para manejar subcategorías personalizadas
+  const handleCustomSubcategoryNameChange = (cardId: string, text: string) => {
+    // Filtrar emojis del nombre
+    const emojiRegex = /[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu;
+    const filteredText = text.replace(emojiRegex, '');
+    setMultipleCustomSubcategories(prev =>
+      prev.map(card => card.id === cardId ? { ...card, name: filteredText } : card)
+    );
+  };
+
+  const handleCustomSubcategoryEmojiChange = (cardId: string, text: string) => {
+    // Solo permitir emojis
+    const emojiRegex = /[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu;
+    const emojis = text.match(emojiRegex);
+    const filteredEmoji = emojis ? emojis[0] : '';
+    setMultipleCustomSubcategories(prev =>
+      prev.map(card => card.id === cardId ? { ...card, emoji: filteredEmoji } : card)
+    );
+  };
+
+  const handleAddNewCustomSubcategoryCard = () => {
+    if (!addingSubcategoryForCategoryId) return;
+
+    const newCardId = Date.now().toString();
+    setMultipleCustomSubcategories(prev => [...prev, { id: newCardId, name: '', emoji: '' }]);
+
+    // Hacer scroll a la nueva tarjeta
+    scrollToCard(newCardId, true);
+  };
+
+  const handleRemoveCustomSubcategoryCard = (cardId: string) => {
+    setMultipleCustomSubcategories(prev => {
+      const newList = prev.filter(card => card.id !== cardId);
+      if (newList.length === 0) {
+        setAddingSubcategoryForCategoryId(null);
+      }
+      return newList;
+    });
+  };
+
   const handleConfirmNewSubcategories = async () => {
     if (!accessToken || !addingSubcategoryForCategoryId) {
       Alert.alert('Error', 'No hay token de autenticación disponible');
       return;
     }
 
-    // Validar que todas las subcategorías tengan una selección
-    const invalidCards = multipleNewSubcategories.filter(card => !card.systemSubcategoryId);
-    if (invalidCards.length > 0) {
-      Alert.alert('Error', 'Por favor selecciona una subcategoría en todas las tarjetas');
+    const userCategories = activeTab === 'income' ? apiIncomeCategories : apiExpenseCategories;
+    const parentCategory = userCategories.find(cat => cat.id.toString() === addingSubcategoryForCategoryId);
+
+    if (!parentCategory) {
+      Alert.alert('Error', 'No se encontró la categoría padre');
       return;
+    }
+
+    const isCustomCategory = !parentCategory.transaction_category_id;
+
+    // Validaciones según el tipo de categoría
+    if (isCustomCategory) {
+      // Validar subcategorías personalizadas
+      const invalidCards = multipleCustomSubcategories.filter(card => !card.name.trim() || !card.emoji.trim());
+      if (invalidCards.length > 0) {
+        Alert.alert('Error', 'Por favor completa el nombre y emoji en todas las subcategorías');
+        return;
+      }
+    } else {
+      // Validar subcategorías del sistema
+      const invalidCards = multipleNewSubcategories.filter(card => !card.systemSubcategoryId);
+      if (invalidCards.length > 0) {
+        Alert.alert('Error', 'Por favor selecciona una subcategoría en todas las tarjetas');
+        return;
+      }
     }
 
     try {
       setCreatingCategory(true);
 
-      const systemCategories = activeTab === 'income' ? systemIncomeCategories : systemExpenseCategories;
-      const userCategories = activeTab === 'income' ? apiIncomeCategories : apiExpenseCategories;
+      let createPromises;
 
-      // Encontrar la categoría de usuario (padre)
-      const parentCategory = userCategories.find(cat => cat.id.toString() === addingSubcategoryForCategoryId);
-      if (!parentCategory) {
-        Alert.alert('Error', 'No se encontró la categoría padre');
-        return;
+      if (isCustomCategory) {
+        // Crear subcategorías personalizadas
+        createPromises = multipleCustomSubcategories.map(card => {
+          return createUserCategory(
+            {
+              name: card.name.trim(),
+              kind: activeTab === 'income' ? 'income' : 'expense',
+              emoji_code: card.emoji,
+              parent_id: parentCategory.id
+              // NO enviar transaction_category_id para subcategorías personalizadas
+            },
+            accessToken
+          );
+        });
+      } else {
+        // Crear subcategorías del sistema
+        const systemCategories = activeTab === 'income' ? systemIncomeCategories : systemExpenseCategories;
+        const systemCategory = systemCategories.find(cat => cat.id === parentCategory.transaction_category_id);
+
+        if (!systemCategory) {
+          Alert.alert('Error', 'No se encontró la categoría del sistema');
+          return;
+        }
+
+        createPromises = multipleNewSubcategories.map(card => {
+          const selectedSubcategory = systemCategory.children?.find(subcat => subcat.id.toString() === card.systemSubcategoryId);
+          if (!selectedSubcategory) return Promise.reject(new Error('Subcategoría no encontrada'));
+
+          const emoji = getEmojiFromBudgetCategories(selectedSubcategory.name, activeTab === 'income');
+
+          return createUserCategory(
+            {
+              name: selectedSubcategory.name,
+              kind: activeTab === 'income' ? 'income' : 'expense',
+              emoji_code: emoji,
+              transaction_category_id: selectedSubcategory.id,
+              parent_id: parentCategory.id
+            },
+            accessToken
+          );
+        });
       }
-
-      // Encontrar la categoría del sistema correspondiente
-      const systemCategory = systemCategories.find(cat => cat.id === parentCategory.transaction_category_id);
-      if (!systemCategory) {
-        Alert.alert('Error', 'No se encontró la categoría del sistema');
-        return;
-      }
-
-      // Crear todas las subcategorías en paralelo
-      const createPromises = multipleNewSubcategories.map(card => {
-        // Buscar la subcategoría del sistema usando el ID que guardamos
-        const selectedSubcategory = systemCategory.children?.find(subcat => subcat.id.toString() === card.systemSubcategoryId);
-        if (!selectedSubcategory) return Promise.reject(new Error('Subcategoría no encontrada'));
-
-        // Obtener el emoji desde BudgetCategories
-        const emoji = getEmojiFromBudgetCategories(selectedSubcategory.name, activeTab === 'income');
-
-        return createUserCategory(
-          {
-            name: selectedSubcategory.name,
-            kind: activeTab === 'income' ? 'income' : 'expense',
-            emoji_code: emoji,
-            transaction_category_id: selectedSubcategory.id,
-            parent_id: parentCategory.id // IMPORTANTE: asignar el parent_id
-          },
-          accessToken
-        );
-      });
 
       await Promise.all(createPromises);
 
@@ -1457,6 +1605,7 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
       // Resetear estado de creación
       setAddingSubcategoryForCategoryId(null);
       setMultipleNewSubcategories([]);
+      setMultipleCustomSubcategories([]);
 
       const count = createPromises.length;
       Alert.alert('Éxito', `${count} ${count === 1 ? 'subcategoría creada' : 'subcategorías creadas'} correctamente`);
@@ -1518,7 +1667,21 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
       return catNameEn === normalizedName || catNameEs === normalizedName;
     });
 
-    return found?.emoji || '📁'; // Emoji por defecto si no se encuentra
+    if (found) return found.emoji;
+
+    // Buscar en subcategorías
+    for (const category of staticCategories) {
+      if (category.subcategories) {
+        const subcatFound = category.subcategories.find(subcat => {
+          const subcatNameEn = subcat.name.en.toLowerCase();
+          const subcatNameEs = subcat.name.es.toLowerCase();
+          return subcatNameEn === normalizedName || subcatNameEs === normalizedName;
+        });
+        if (subcatFound) return subcatFound.emoji;
+      }
+    }
+
+    return '📁'; // Emoji por defecto si no se encuentra
   };
 
   // Categorías del sistema disponibles (que no han sido seleccionadas)
@@ -1770,6 +1933,7 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
     multipleCustomCategories,
     addingSubcategoryForCategoryId,
     multipleNewSubcategories,
+    multipleCustomSubcategories,
 
     apiIncomeCategories,
     apiExpenseCategories,
@@ -1834,6 +1998,10 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
     handleSelectSystemSubcategory,
     handleAddNewSubcategoryCard,
     handleRemoveNewSubcategoryCard,
+    handleCustomSubcategoryNameChange,
+    handleCustomSubcategoryEmojiChange,
+    handleAddNewCustomSubcategoryCard,
+    handleRemoveCustomSubcategoryCard,
     handleConfirmNewSubcategories,
     getAvailableSubcategoriesForCategory,
     canAddMoreSubcategories,

@@ -46,6 +46,7 @@ interface BudgetTabProps {
   multipleCustomCategories: Array<{ id: string; name: string; emoji: string }>;
   addingSubcategoryForCategoryId: string | null;
   multipleNewSubcategories: Array<{ id: string; systemSubcategoryId: string | null }>;
+  multipleCustomSubcategories: Array<{ id: string; name: string; emoji: string }>;
   availableSystemCategories: Array<{
     id: string;
     name: { es: string; en: string; pt: string; 'es-CL': string };
@@ -84,6 +85,10 @@ interface BudgetTabProps {
   onSelectSystemSubcategory: (cardId: string, subcategoryId: string) => void;
   onAddNewSubcategoryCard: (categoryId: string) => void;
   onRemoveNewSubcategoryCard: (cardId: string) => void;
+  onCustomSubcategoryNameChange: (cardId: string, text: string) => void;
+  onCustomSubcategoryEmojiChange: (cardId: string, text: string) => void;
+  onAddNewCustomSubcategoryCard: () => void;
+  onRemoveCustomSubcategoryCard: (cardId: string) => void;
   onConfirmNewSubcategories: () => void;
   getAvailableSubcategoriesForCategory: (categoryId: string, currentCardId?: string) => Array<{
     id: string;
@@ -117,6 +122,7 @@ export function BudgetTab({
   multipleCustomCategories,
   addingSubcategoryForCategoryId,
   multipleNewSubcategories,
+  multipleCustomSubcategories,
   availableSystemCategories,
   scrollViewRef,
   categoryCardRefs,
@@ -147,6 +153,10 @@ export function BudgetTab({
   onSelectSystemSubcategory,
   onAddNewSubcategoryCard,
   onRemoveNewSubcategoryCard,
+  onCustomSubcategoryNameChange,
+  onCustomSubcategoryEmojiChange,
+  onAddNewCustomSubcategoryCard,
+  onRemoveCustomSubcategoryCard,
   onConfirmNewSubcategories,
   getAvailableSubcategoriesForCategory,
   canAddMoreSubcategories,
@@ -200,6 +210,7 @@ export function BudgetTab({
         pendingEdits={pendingEdits}
         addingSubcategoryForCategoryId={addingSubcategoryForCategoryId}
         multipleNewSubcategories={multipleNewSubcategories}
+        multipleCustomSubcategories={multipleCustomSubcategories}
         creatingCategory={creatingCategory}
         subcategoryCardRefs={subcategoryCardRefs}
         onCategoryPress={onCategoryPress}
@@ -217,6 +228,10 @@ export function BudgetTab({
         onSelectSystemSubcategory={onSelectSystemSubcategory}
         onAddNewSubcategoryCard={onAddNewSubcategoryCard}
         onRemoveNewSubcategoryCard={onRemoveNewSubcategoryCard}
+        onCustomSubcategoryNameChange={onCustomSubcategoryNameChange}
+        onCustomSubcategoryEmojiChange={onCustomSubcategoryEmojiChange}
+        onAddNewCustomSubcategoryCard={onAddNewCustomSubcategoryCard}
+        onRemoveCustomSubcategoryCard={onRemoveCustomSubcategoryCard}
         onConfirmNewSubcategories={onConfirmNewSubcategories}
         getAvailableSubcategoriesForCategory={getAvailableSubcategoriesForCategory}
         canAddMoreSubcategories={canAddMoreSubcategories}

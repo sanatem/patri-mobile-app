@@ -52,6 +52,7 @@ export function CategoriesManager({ userCategories, onResetOnboarding }: Categor
     multipleCustomCategories,
     addingSubcategoryForCategoryId,
     multipleNewSubcategories,
+    multipleCustomSubcategories,
 
     // Computed values
     groupedData,
@@ -113,6 +114,10 @@ export function CategoriesManager({ userCategories, onResetOnboarding }: Categor
     handleSelectSystemSubcategory,
     handleAddNewSubcategoryCard,
     handleRemoveNewSubcategoryCard,
+    handleCustomSubcategoryNameChange,
+    handleCustomSubcategoryEmojiChange,
+    handleAddNewCustomSubcategoryCard,
+    handleRemoveCustomSubcategoryCard,
     handleConfirmNewSubcategories,
     getAvailableSubcategoriesForCategory,
     canAddMoreSubcategories,
@@ -202,6 +207,7 @@ export function CategoriesManager({ userCategories, onResetOnboarding }: Categor
           multipleCustomCategories={multipleCustomCategories}
           addingSubcategoryForCategoryId={addingSubcategoryForCategoryId}
           multipleNewSubcategories={multipleNewSubcategories}
+          multipleCustomSubcategories={multipleCustomSubcategories}
           availableSystemCategories={availableSystemCategories}
           scrollViewRef={scrollViewRef}
           categoryCardRefs={categoryCardRefs}
@@ -233,6 +239,10 @@ export function CategoriesManager({ userCategories, onResetOnboarding }: Categor
           onSelectSystemSubcategory={handleSelectSystemSubcategory}
           onAddNewSubcategoryCard={handleAddNewSubcategoryCard}
           onRemoveNewSubcategoryCard={handleRemoveNewSubcategoryCard}
+          onCustomSubcategoryNameChange={handleCustomSubcategoryNameChange}
+          onCustomSubcategoryEmojiChange={handleCustomSubcategoryEmojiChange}
+          onAddNewCustomSubcategoryCard={handleAddNewCustomSubcategoryCard}
+          onRemoveCustomSubcategoryCard={handleRemoveCustomSubcategoryCard}
           onConfirmNewSubcategories={handleConfirmNewSubcategories}
           getAvailableSubcategoriesForCategory={getAvailableSubcategoriesForCategory}
           canAddMoreSubcategories={canAddMoreSubcategories}
@@ -310,12 +320,16 @@ export function CategoriesManager({ userCategories, onResetOnboarding }: Categor
             }}
           >
             <Button
-              title={`Añadir ${multipleNewSubcategories.length > 1 ? `${multipleNewSubcategories.length} Subcategorías` : 'Subcategoría'}`}
+              title={`Añadir ${(multipleNewSubcategories.length + multipleCustomSubcategories.length) > 1 ? `${multipleNewSubcategories.length + multipleCustomSubcategories.length} Subcategorías` : 'Subcategoría'}`}
               onPress={handleConfirmNewSubcategories}
               variant="primary"
               fullWidth
               loading={creatingCategory}
-              disabled={!multipleNewSubcategories.every(card => card.systemSubcategoryId !== null)}
+              disabled={
+                multipleNewSubcategories.length > 0
+                  ? !multipleNewSubcategories.every(card => card.systemSubcategoryId !== null)
+                  : !multipleCustomSubcategories.every(card => card.name.trim() !== '' && card.emoji.trim() !== '')
+              }
             />
             <Button
               title="Cancelar"
