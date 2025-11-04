@@ -141,15 +141,12 @@ export function CategoryItem({
   const categoryPendingEdit = pendingEdits.get(category.id);
   const isEditingCategory = isEditingMode && categoryPendingEdit !== undefined;
 
-  // Verificar si hay cambios en esta categoría o sus subcategorías
   const hasChanges = isEditingMode && Array.from(pendingEdits.entries()).some(([id, edits]) => {
-    // Verificar si este id pertenece a esta categoría
     if (id === category.id) {
       const originalName = category.originalName || category.name[currentLang as keyof typeof category.name];
       const originalEmoji = category.originalEmoji || category.emoji;
       return edits.name !== originalName || edits.emoji !== originalEmoji;
     }
-    // Verificar subcategorías
     const subcat = category.subcategories?.find(s => s.id === id);
     if (subcat) {
       const originalName = subcat.originalName || subcat.name[currentLang as keyof typeof subcat.name];
@@ -195,7 +192,6 @@ export function CategoryItem({
             </Animated.View>
           )}
 
-          {/* Emoji editable */}
           {isEditingCategory ? (
             <TextInput
               style={{
@@ -220,12 +216,11 @@ export function CategoryItem({
           )}
 
           <View style={{ flex: 1 }}>
-            {/* Nombre editable */}
             {isEditingCategory ? (
               <TextInput
+                className="font-medium"
                 style={{
                   fontSize: 16,
-                  fontWeight: '500',
                   color: Colors.primary[600],
                   borderBottomWidth: 1,
                   borderBottomColor: Colors.primary[300],
@@ -260,7 +255,6 @@ export function CategoryItem({
           <>
             {isEditingMode ? (
               <>
-                {/* Botón Cancelar */}
                 <TouchableOpacity
                   style={{ padding: 4, marginRight: 8 }}
                   onPress={(e) => {
@@ -271,7 +265,6 @@ export function CategoryItem({
                   <X size={16} color={Colors.gray[500]} />
                 </TouchableOpacity>
 
-                {/* Botón Guardar (solo si hay cambios) */}
                 {hasChanges && (
                   <TouchableOpacity
                     style={{ padding: 4, marginRight: 8 }}
@@ -287,7 +280,6 @@ export function CategoryItem({
               </>
             ) : (
               <>
-                {/* Botón Editar */}
                 <TouchableOpacity
                   style={{ padding: 4, marginRight: 8 }}
                   onPress={(e) => {
@@ -298,7 +290,6 @@ export function CategoryItem({
                   <Edit2 size={16} color={Colors.primary[500]} />
                 </TouchableOpacity>
 
-                {/* Chevron para expandir/colapsar */}
                 <Animated.View style={categoryRotateStyle}>
                   <ChevronDown size={20} color={Colors.primary[500]} />
                 </Animated.View>
@@ -310,7 +301,6 @@ export function CategoryItem({
 
       {isExpanded && (
         <View style={{ paddingHorizontal: 16, paddingBottom: 16 }}>
-          {/* Transacciones sin subcategoría primero */}
           {category.uncategorizedTransactions.length > 0 && (
             <View style={{ marginBottom: 8 }}>
               {category.uncategorizedTransactions.map((transaction) => {
@@ -331,7 +321,6 @@ export function CategoryItem({
             </View>
           )}
 
-          {/* Subcategorías después */}
           {category.subcategories && category.subcategories.map((subcat) => {
             const isSelected = selectedSubcategories.has(subcat.id);
             const animation = selectionAnimations.get(subcat.id) || new Animated.Value(0);
@@ -364,10 +353,8 @@ export function CategoryItem({
             );
           })}
 
-          {/* Tarjetas para agregar nuevas subcategorías */}
           {addingSubcategoryForCategoryId === category.id && (
             <>
-              {/* Subcategorías del sistema (con select) */}
               {multipleNewSubcategories.map((card, index) => {
                 const availableSubcats = getAvailableSubcategoriesForCategory(category.id, card.id);
                 const maxAllowed = getMaxSubcategoriesAllowed(category.id);
@@ -397,7 +384,6 @@ export function CategoryItem({
                 );
               })}
 
-              {/* Subcategorías personalizadas (con inputs) */}
               {multipleCustomSubcategories.map((card, index) => {
                 const maxAllowed = getMaxSubcategoriesAllowed(category.id);
                 const canAddMore = multipleCustomSubcategories.length < maxAllowed;

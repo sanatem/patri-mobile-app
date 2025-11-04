@@ -55,7 +55,6 @@ export function SubCategoryItem({
   onEditNameChange,
   onEditEmojiChange,
 }: SubCategoryItemProps) {
-  // Interpolaciones de animación
   const checkboxOpacity = animation.interpolate({
     inputRange: [0, 1],
     outputRange: [0.6, 1]
@@ -101,7 +100,6 @@ export function SubCategoryItem({
             </Animated.View>
           )}
 
-          {/* Emoji editable */}
           {isEditingSubcat ? (
             <TextInput
               style={{
@@ -126,12 +124,11 @@ export function SubCategoryItem({
           )}
 
           <View style={{ flex: 1 }}>
-            {/* Nombre editable */}
             {isEditingSubcat ? (
               <TextInput
+                className="font-medium"
                 style={{
                   fontSize: 14,
-                  fontWeight: '500',
                   color: Colors.primary[600],
                   borderBottomWidth: 1,
                   borderBottomColor: Colors.primary[300],
