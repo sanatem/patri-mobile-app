@@ -32,7 +32,12 @@
         "backgroundColor": "#ff6501"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.patrimore.patrimore"
+      "package": "com.patrimore.patrimore",
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE"
+      ]
     },
     "assetBundlePatterns": [
       "**/*"

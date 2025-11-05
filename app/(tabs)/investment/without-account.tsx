@@ -1,13 +1,17 @@
 import { View, Text } from 'react-native';
 import { useRouter } from 'expo-router';
 import { TrendingUp } from 'lucide-react-native';
-import { Header } from '@/components/ui';
+import { Header, Button } from '@/components/ui';
 import Colors from '@/constants/Colors';
 import { useTranslation } from 'react-i18next';
 
 export default function WithoutAccountScreen() {
   const router = useRouter();
   const { t } = useTranslation();
+
+  const handleCreateAccount = () => {
+    router.push('/investment/create-account/investment-survey/start-profile' as any);
+  };
 
   return (
     <View className="flex-1 bg-white">
@@ -21,6 +25,15 @@ export default function WithoutAccountScreen() {
         <Text className="text-base font-regular text-center mb-6 px-2" style={{ color: Colors.gray[600] }}>
           {t('investments.needAccount')}
         </Text>
+        
+        <View className="w-full px-4">
+          <Button
+            title={t('investments.createAccount')}
+            onPress={handleCreateAccount}
+            variant="primary"
+            fullWidth
+          />
+        </View>
       </View>
     </View>
   );

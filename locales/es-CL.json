@@ -225,12 +225,28 @@
     "identityConfirm": {
         "title": "Confirma tus datos",
         "description": "Edítala si encuentras un error o falta algo.",
-        "firstName": "Nombre",
-        "lastName1": "Primer apellido",
-        "lastName2": "Segundo apellido",
+        "firstName": "Nombres",
+        "lastName1": "Apellidos",
         "gender": "Género",
         "birthDate": "Fecha de nacimiento",
-        "idExpiryDate": "Fecha de vencimiento del documento"
+        "dateOfBirth": "Fecha de nacimiento",
+        "nationality": "Nacionalidad",
+        "documentNumber": "Número de documento",
+        "idExpiryDate": "Fecha de vencimiento del documento",
+        "verifyingDescription": "Verificando tu documento de identidad",
+        "verifying": "Verificando documento...",
+        "verificationSuccess": "Documento verificado correctamente",
+        "verificationWarning": "Documento verificado con observaciones",
+        "confidence": "Confianza",
+        "manualReviewRequired": "Se requiere revisión manual",
+        "extractedData": "Datos extraídos",
+        "dataIsCorrect": "Los datos son correctos",
+        "retakePhoto": "Tomar foto nuevamente",
+        "dataWillBePrefilled": "Estos datos serán pre-llenados en el siguiente paso",
+        "noDataFound": "No se pudieron extraer datos del documento",
+        "errorLoadingImages": "No se pudieron cargar las imágenes del documento",
+        "submitError": "Error al enviar los datos al servidor",
+        "serverError": "Error en la respuesta del servidor"
     },
     "identityMethod": {
         "title": "Verificación de identidad",
@@ -285,98 +301,96 @@
             "noGlare": "Evita reflejos o sombras"
         }
     },
-    "investmentSurvey": {
-        "loadingMessage": "Definiendo tu perfil de inversor...",
-        "questions": [
-            {
-                "text": "¿Cuál es el principal objetivo de tu inversión?",
-                "options": [
-                    "Ahorrar para la educación de mis hijos",
-                    "Asegurar mi jubilación",
-                    "Incrementar mi patrimonio",
-                    "Planificar un viaje"
-                ]
-            },
-            {
-                "text": "¿Cuál de estas alternativas representa mejor tu horizonte de inversión?",
-                "options": [
-                    "Podría necesitar el dinero en cualquier momento",
-                    "Necesitaré parte del dinero este año",
-                    "Quizás haga retiros esporádicos, pero la mayor parte de la inversión será a largo plazo",
-                    "No usaré este dinero en los próximos 3 años"
-                ]
-            },
-            {
-                "text": "¿Qué grado de conocimiento financiero posees?",
-                "options": [
-                    "Nulo",
-                    "Entiendo la diferencia entre acciones y renta fija",
-                    "Conozco distintas opciones de inversión y sus niveles de riesgo",
-                    "Tengo un amplio conocimiento sobre productos y estrategias de inversión"
-                ]
-            },
-            {
-                "text": "¿En qué productos has invertido anteriormente?",
-                "options": [
-                    "Cuenta de ahorro, depósitos a plazo y/o instrumentos de renta fija",
-                    "Fondos mutuos",
-                    "Acciones",
-                    "Productos derivados"
-                ]
-            },
-            {
-                "text": "¿Con cuál de las siguientes afirmaciones te identificas mejor?",
-                "options": [
-                    "Lo más importante es que mi inversión crezca de manera estable, no acepto fluctuaciones negativas del mercado",
-                    "Acepto oscilaciones negativas en el valor de mi patrimonio durante períodos de tiempo inferiores a un año",
-                    "Me importa la rentabilidad a mediano y largo plazo, sin sufrir fluctuaciones negativas importantes en el valor de mi patrimonio",
-                    "Puedo asumir fluctuaciones de mercado importantes en mis inversiones a cambio de mayores rentabilidades en el largo plazo"
-                ]
-            },
-            {
-                "text": "Si tienes una inversión con una rentabilidad del 30% y tiene una baja de 20% obteniendo un 10% a favor, ¿qué harías?",
-                "options": [
-                    "Me cambiaría a instrumentos sin riesgo",
-                    "Transferiría parte de los fondos a inversiones de menor riesgo",
-                    "Me preocuparía, pero no tomaría ninguna acción",
-                    "Invertiría más si hay fundamentos para ello"
-                ]
-            },
-            {
-                "text": "¿Cuál es tu nivel de ingreso mensual neto considerando todas tus fuentes de ingresos?",
-                "options": [
-                    "Menos de 1 millón de pesos",
-                    "Entre 1 y 3 millones de pesos",
-                    "Entre 3 y 5 millones de pesos",
-                    "Más de 5 millones de pesos"
-                ]
-            },
-            {
-                "text": "¿Cuánto de tus ahorros estás dispuesto a invertir?",
-                "options": [
-                    "Menos del 30%",
-                    "Entre el 30% y el 60%",
-                    "Más del 60%"
-                ]
-            },
-            {
-                "text": "¿Qué relación tiene tu profesión con temas financieros?",
-                "options": [
-                    "Está muy relacionada",
-                    "Tiene cierta relación",
-                    "Tiene poca relación",
-                    "No tiene relación"
-                ]
-            },
-            {
-                "text": "¿Cuál es el valor aproximado de tu patrimonio disponible para invertir?",
-                "options": [
-                    "Más de $200 millones",
-                    "Entre $50 y $200 millones",
-                    "Menos de $50 millones"
-                ]
-            }
-        ]
+      "investmentSurvey": {
+    "loadingMessage": "Definiendo tu perfil de inversor...",
+    "question1": {
+      "title": "¿Cuál es el principal objetivo de tu inversión?",
+      "options": [
+        "Ahorrar para la educación de mis hijos",
+        "Asegurar mi jubilación",
+        "Incrementar mi patrimonio",
+        "Planificar un viaje"
+      ]
+    },
+    "question2": {
+      "title": "¿Cuál de estas alternativas representa mejor tu horizonte de inversión?",
+      "options": [
+        "Podría necesitar el dinero en cualquier momento",
+        "Necesitaré parte del dinero este año",
+        "Quizás haga retiros esporádicos, pero la mayor parte de la inversión será a largo plazo",
+        "No usaré este dinero en los próximos 3 años"
+      ]
+    },
+    "question3": {
+      "title": "¿Qué grado de conocimiento financiero posees?",
+      "options": [
+        "Nulo",
+        "Entiendo la diferencia entre acciones y renta fija",
+        "Conozco distintas opciones de inversión y sus niveles de riesgo",
+        "Tengo un amplio conocimiento sobre productos y estrategias de inversión"
+      ]
+    },
+    "question4": {
+      "title": "¿En qué productos has invertido anteriormente?",
+      "options": [
+        "Cuenta de ahorro, depósitos a plazo y/o instrumentos de renta fija",
+        "Fondos mutuos",
+        "Acciones",
+        "Productos derivados"
+      ]
+    },
+    "question5": {
+      "title": "¿Con cuál de las siguientes afirmaciones te identificas mejor?",
+      "options": [
+        "Lo más importante es que mi inversión crezca de manera estable, no acepto fluctuaciones negativas del mercado",
+        "Acepto oscilaciones negativas en el valor de mi patrimonio durante períodos de tiempo inferiores a un año",
+        "Me importa la rentabilidad a mediano y largo plazo, sin sufrir fluctuaciones negativas importantes en el valor de mi patrimonio",
+        "Puedo asumir fluctuaciones de mercado importantes en mis inversiones a cambio de mayores rentabilidades en el largo plazo"
+      ]
+    },
+    "question6": {
+      "title": "Si tienes una inversión con una rentabilidad del 30% y tiene una baja de 20% obteniendo un 10% a favor, ¿qué harías?",
+      "options": [
+        "Me cambiaría a instrumentos sin riesgo",
+        "Transferiría parte de los fondos a inversiones de menor riesgo",
+        "Me preocuparía, pero no tomaría ninguna acción",
+        "Invertiría más si hay fundamentos para ello"
+      ]
+    },
+    "question7": {
+      "title": "¿Cuál es tu nivel de ingreso mensual neto considerando todas tus fuentes de ingresos?",
+      "options": [
+        "Menos de 1 millón de pesos",
+        "Entre 1 y 3 millones de pesos",
+        "Entre 3 y 5 millones de pesos",
+        "Más de 5 millones de pesos"
+      ]
+    },
+    "question8": {
+      "title": "¿Cuánto de tus ahorros estás dispuesto a invertir?",
+      "options": [
+        "Menos del 30%",
+        "Entre el 30% y el 60%",
+        "Más del 60%"
+      ]
+    },
+    "question9": {
+      "title": "¿Qué relación tiene tu profesión con temas financieros?",
+      "options": [
+        "Está muy relacionada",
+        "Tiene cierta relación",
+        "Tiene poca relación",
+        "No tiene relación"
+      ]
+    },
+    "question10": {
+      "title": "¿Cuál es el valor aproximado de tu patrimonio disponible para invertir?",
+      "options": [
+        "Más de $200 millones",
+        "Entre $50 y $200 millones",
+        "Menos de $50 millones"
+      ]
+    }
     },
     "profileResult": {
         "title": "Tu perfil es conservador",
@@ -384,7 +398,7 @@
         "description2": "Puedes cambiarlo más adelante si lo deseas."
     },
     "startProfile": {
-        "title": "Veamos qué tipo de inversionista eres",
+        "title": "Qué tipo de inversionista eres",
         "description": "Te haremos algunas preguntas para determinar tu perfil de inversionista. Puedes cambiarlo más adelante si lo necesitas.",
         "timeEstimate": "⏱ aprox. 4 minutos"
     },
@@ -686,7 +700,8 @@
     },
     "investments": {
         "title": "Inversión",
-        "needAccount": "Para acceder a esta sección necesitas tener una cuenta de inversión activa."
+        "needAccount": "Para acceder a esta sección necesitas tener una cuenta de inversión activa.",
+        "createAccount": "Crear Cuenta"
     },
     "floid": {
         "title": "Sincronizar datos bancarios"

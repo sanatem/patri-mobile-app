@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, TextInput } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { router } from 'expo-router';
-import { Container } from '@/components/ui/Container';
+import { FormLayout, Button } from '@/components/ui';
 import { useTranslation } from 'react-i18next';
 import { REGIONS_AND_COMMUNES } from '@/constants/AppConstants';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import type { ExtractedPersonalData } from '@/services/id-analyzer';
 
 interface PersonalInfoQuestion {
   id: string;
@@ -27,8 +29,46 @@ export default function PersonalInformationStepper() {
   const questions = t('personalInfo.questions', { returnObjects: true }) as PersonalInfoQuestion[];
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, any>>({});
+  const [extractedData, setExtractedData] = useState<ExtractedPersonalData | null>(null);
 
   const currentQuestion = questions[currentStep];
+
+  useEffect(() => {
+    loadExtractedData();
+  }, []);
+
+  const loadExtractedData = async () => {
+    try {
+      const data = await AsyncStorage.getItem('extracted_personal_data');
+      if (data) {
+        const parsed: ExtractedPersonalData = JSON.parse(data);
+        setExtractedData(parsed);
+        
+        const preFilledAnswers: Record<string, any> = {};
+
+        if (parsed.firstName) {
+          preFilledAnswers['firstName'] = parsed.firstName;
+        }
+        if (parsed.lastName) {
+          preFilledAnswers['lastName'] = parsed.lastName;
+        }
+        if (parsed.dateOfBirth) {
+          preFilledAnswers['dateOfBirth'] = parsed.dateOfBirth;
+        }
+        if (parsed.nationality) {
+          preFilledAnswers['nationality'] = parsed.nationality;
+        }
+        if (parsed.documentNumber) {
+          preFilledAnswers['documentNumber'] = parsed.documentNumber;
+        }
+        
+        setAnswers(preFilledAnswers);
+        
+        await AsyncStorage.removeItem('extracted_personal_data');
+      }
+    } catch (error) {
+    }
+  };
 
   const handleChoiceSelect = (value: string) => {
     const newAnswers = { ...answers, [currentQuestion.id]: value };
@@ -82,6 +122,8 @@ export default function PersonalInformationStepper() {
   const goBack = () => {
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
+    } else {
+      router.back();
     }
   };
 
@@ -112,14 +154,6 @@ export default function PersonalInformationStepper() {
               onChangeText={handleInputChange}
               className="bg-gray-100 p-3 rounded-lg mb-3"
             />
-            <TouchableOpacity
-              className="bg-primary-500 py-3 px-8 rounded-lg"
-              onPress={handleContinue}
-              disabled={!canContinue()}
-              style={{ opacity: canContinue() ? 1 : 0.5 }}
-            >
-              <Text className="text-white font-semibold text-base text-center">{t('common.continue')}</Text>
-            </TouchableOpacity>
           </View>
         );
 
@@ -174,15 +208,6 @@ export default function PersonalInformationStepper() {
               
               return null;
             })}
-            
-            <TouchableOpacity
-              className="bg-primary-500 py-3 px-8 rounded-lg"
-              onPress={handleContinue}
-              disabled={!canContinue()}
-              style={{ opacity: canContinue() ? 1 : 0.5 }}
-            >
-              <Text className="text-white font-semibold text-base text-center">{t('common.continue')}</Text>
-            </TouchableOpacity>
           </View>
         );
 
@@ -192,40 +217,29 @@ export default function PersonalInformationStepper() {
   };
 
   return (
-    <Container variant="secondaryPage" style={{ padding: 20 }}>
-      <View className="flex-1 p-5 justify-center bg-white">
-        <View className="flex-row mb-6">
-          {questions.map((_, index) => (
-            <View
-              key={index}
-              className={`flex-1 h-1 mx-1 rounded ${
-                index <= currentStep ? 'bg-primary-500' : 'bg-gray-200'
-              }`}
-            />
-          ))}
-        </View>
-
-        <Text className="text-lg font-semibold mb-5">
-          {currentQuestion.text}
-        </Text>
-
-        {currentQuestion.subtitle && (
-          <Text className="text-sm text-gray-500 mb-5">
-            {currentQuestion.subtitle}
-          </Text>
-        )}
-
-        {renderQuestion()}
-
-        {currentStep > 0 && (
-          <TouchableOpacity
-            className="mt-4 items-center"
-            onPress={goBack}
-          >
-            <Text className="text-gray-500">{t('common.back')}</Text>
-          </TouchableOpacity>
-        )}
+    <FormLayout
+      title={currentQuestion.text}
+      subtitle=''
+      currentStep={0}
+      totalSteps={0}
+      onNext={currentQuestion.type === 'choice' ? undefined : canContinue() ? handleContinue : undefined}
+      onPrevious={goBack}
+      nextButtonTitle={t('common.continue')}
+      isNextDisabled={!canContinue()}
+    >
+      
+      <View className="flex-row mb-6">
+        {questions.map((_, index) => (
+          <View
+            key={index}
+            className={`flex-1 h-1 mx-1 rounded ${
+              index <= currentStep ? 'bg-primary-500' : 'bg-gray-200'
+            }`}
+          />
+        ))}
       </View>
-    </Container>
+
+      {renderQuestion()}
+    </FormLayout>
   );
 } 

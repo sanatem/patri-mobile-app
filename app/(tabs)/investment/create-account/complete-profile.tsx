@@ -1,51 +1,64 @@
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
-import { Container } from '@/components/ui/Container';
-import { Header } from '@/components/ui/Header';
+import { FormLayout } from '@/components/ui';
 import { useTranslation } from 'react-i18next';
 
 export default function CompleteProfile() {
   const { t } = useTranslation();
+  
+  const handleNext = () => {
+    router.push("/investment/create-account/identity-step/identity-upload" as any);
+  };
+
   return (
-    <Container variant="secondaryPage" style={{ padding: 20 }}>
-      <Header title={t('completeProfile.title')} />
-      <ScrollView className="flex-1 bg-white px-6" showsVerticalScrollIndicator={false}>
+    <FormLayout
+      title={t('completeProfile.title')}
+      subtitle={t('completeProfile.subtitle')}
+      currentStep={8}
+      totalSteps={8}
+      onNext={handleNext}
+      nextButtonTitle={t('completeProfile.getStarted')}
+    >
+      <View className="space-y-4">
         <TouchableOpacity
-          className="bg-primary-500 p-4 rounded-xl mb-4"
-          onPress={() => router.push("/investment/create-account/identity-step/identity-method")}
+          className="bg-primary-500 p-4 rounded-xl"
+          onPress={handleNext}
         >
-          <View className="flex-row items-center">
-            <View className="bg-primary-500 p-4 rounded-xl mb-4" style={{paddingLeft: 10, paddingRight: 10, paddingTop: 10, paddingBottom: 10 }}>
-              <Text className="text-white font-semibold text-base">
-                {t('completeProfile.steps.identity.title')}
-              </Text>
-              <Text className="text-white mt-1 font-regular">{t('completeProfile.steps.identity.description')}</Text>
-            </View>
-          </View>
+          <Text className="text-white font-semibold text-base">
+            {t('completeProfile.steps.identity.title')}
+          </Text>
+          <Text className="text-white mt-1 font-regular">
+            {t('completeProfile.steps.identity.description')}
+          </Text>
         </TouchableOpacity>
 
-        <View className="flex-row">
-          <View className="bg-gray-100 p-4 rounded-xl mb-4" style={{paddingLeft: 10, paddingRight: 10, paddingTop: 10, paddingBottom: 10 }}>
-            <Text className="text-gray-400 font-semibold text-base">→
-            {t('completeProfile.steps.basic.title')}</Text>
-            <Text className="text-gray-400 mt-1 font-regular">{t('completeProfile.steps.basic.description')}</Text>
-          </View>
+        <View className="bg-gray-100 p-4 rounded-xl mt-4">
+          <Text className="text-gray-400 font-semibold text-base">
+            {t('completeProfile.steps.basic.title')}
+          </Text>
+          <Text className="text-gray-400 mt-1 font-regular">
+            {t('completeProfile.steps.basic.description')}
+          </Text>
         </View>
 
-        <View className="flex-row">
-          <View className="bg-gray-100 p-4 rounded-xl mb-4" style={{paddingLeft: 10, paddingRight: 10, paddingTop: 10, paddingBottom: 10 }}>
-            <Text className="text-gray-400 font-semibold text-base">{t('completeProfile.steps.contract.title')}</Text>
-            <Text className="text-gray-400 mt-1 font-regular">{t('completeProfile.steps.contract.description')}</Text>
-          </View>
+        <View className="bg-gray-100 p-4 rounded-xl mt-4">
+          <Text className="text-gray-400 font-semibold text-base">
+            {t('completeProfile.steps.contract.title')}
+          </Text>
+          <Text className="text-gray-400 mt-1 font-regular">
+            {t('completeProfile.steps.contract.description')}
+          </Text>
         </View>
 
-        <View className="flex-row">
-          <View className="bg-gray-100 p-4 rounded-xl mb-4" style={{paddingLeft: 10, paddingRight: 10, paddingTop: 10, paddingBottom: 10 }}>
-            <Text className="text-gray-400 font-semibold text-base">{t('completeProfile.steps.start.title')}</Text>
-            <Text className="text-gray-400 mt-1 font-regular">{t('completeProfile.steps.start.description')}</Text>
-          </View>
+        <View className="bg-gray-100 p-4 rounded-xl mt-4">
+          <Text className="text-gray-400 font-semibold text-base">
+            {t('completeProfile.steps.start.title')}
+          </Text>
+          <Text className="text-gray-400 mt-1 font-regular">
+            {t('completeProfile.steps.start.description')}
+          </Text>
         </View>
-      </ScrollView>
-    </Container>
+      </View>
+    </FormLayout>
   );
 }

@@ -224,13 +224,29 @@
   },
   "identityConfirm": {
     "title": "Confirm your information",
-    "description": "Edit if there’s a mistake or something is missing.",
+    "description": "Edit if there's a mistake or something is missing.",
     "firstName": "First name",
     "lastName1": "Last name",
-    "lastName2": "Second last name",
     "gender": "Gender",
     "birthDate": "Date of birth",
-    "idExpiryDate": "ID expiration date"
+    "dateOfBirth": "Date of birth",
+    "nationality": "Nationality",
+    "documentNumber": "Document number",
+    "idExpiryDate": "ID expiration date",
+    "verifyingDescription": "Verifying your identity document",
+    "verifying": "Verifying document...",
+    "verificationSuccess": "Document verified successfully",
+    "verificationWarning": "Document verified with observations",
+    "confidence": "Confidence",
+    "manualReviewRequired": "Manual review required",
+    "extractedData": "Extracted data",
+    "dataIsCorrect": "Data is correct",
+    "retakePhoto": "Retake photo",
+    "dataWillBePrefilled": "This data will be pre-filled in the next step",
+    "noDataFound": "Could not extract data from document",
+    "errorLoadingImages": "Could not load document images",
+    "submitError": "Error sending data to server",
+    "serverError": "Server response error"
   },
   "identityMethod": {
     "title": "Identity verification",
@@ -287,96 +303,94 @@
   },
   "investmentSurvey": {
     "loadingMessage": "Assessing your investor profile...",
-    "questions": [
-      {
-        "text": "What is your main investment goal?",
-        "options": [
-          "Save for my children’s education",
-          "Secure my retirement",
-          "Grow my wealth",
-          "Save for a trip"
-        ]
-      },
-      {
-        "text": "Which of the following best describes your investment time horizon?",
-        "options": [
-          "I might need the money at any moment",
-          "I’ll need part of the money this year",
-          "I might withdraw occasionally, but most will stay long term",
-          "I won’t use this money for at least 3 years"
-        ]
-      },
-      {
-        "text": "What is your level of financial knowledge?",
-        "options": [
-          "None",
-          "I understand the difference between stocks and fixed income",
-          "I’m familiar with different investment options and their risks",
-          "I have deep knowledge of investment products and strategies"
-        ]
-      },
-      {
-        "text": "What have you invested in before?",
-        "options": [
-          "Savings account, time deposits and/or fixed income instruments",
-          "Mutual funds",
-          "Stocks",
-          "Derivatives"
-        ]
-      },
-      {
-        "text": "Which of the following statements best represents you?",
-        "options": [
-          "I prefer stable growth and avoid losses",
-          "I accept short-term losses under 1 year",
-          "I care about long-term returns without big losses",
-          "I accept high volatility in exchange for long-term gains"
-        ]
-      },
-      {
-        "text": "If your investment gains 30% and then drops 20%, leaving a 10% profit, what would you do?",
-        "options": [
-          "Move to risk-free assets",
-          "Shift part of it to lower-risk investments",
-          "Feel worried but take no action",
-          "Invest more if fundamentals support it"
-        ]
-      },
-      {
-        "text": "What is your approximate monthly net income?",
-        "options": [
-          "Less than 1 million CLP",
-          "Between 1 and 3 million CLP",
-          "Between 3 and 5 million CLP",
-          "More than 5 million CLP"
-        ]
-      },
-      {
-        "text": "How much of your savings are you willing to invest?",
-        "options": [
-          "Less than 30%",
-          "Between 30% and 60%",
-          "More than 60%"
-        ]
-      },
-      {
-        "text": "Is your profession related to finance?",
-        "options": [
-          "Strongly related",
-          "Somewhat related",
-          "Slightly related",
-          "Not related"
-        ]
-      },
-      {
-        "text": "What is your estimated investable networth?",
-        "options": [
-          "Over CLP 200 million",
-          "Between CLP 50 and 200 million",
-          "Less than CLP 50 million"
-        ]
-      }
-    ]
+    "question1": {
+      "title": "What is your main investment goal?",
+      "options": [
+        "Save for my children's education",
+        "Secure my retirement",
+        "Grow my wealth",
+        "Save for a trip"
+      ]
+    },
+    "question2": {
+      "title": "Which of the following best describes your investment time horizon?",
+      "options": [
+        "I might need the money at any moment",
+        "I'll need part of the money this year",
+        "I might withdraw occasionally, but most will stay long term",
+        "I won't use this money for at least 3 years"
+      ]
+    },
+    "question3": {
+      "title": "What is your level of financial knowledge?",
+      "options": [
+        "None",
+        "I understand the difference between stocks and fixed income",
+        "I'm familiar with different investment options and their risks",
+        "I have deep knowledge of investment products and strategies"
+      ]
+    },
+    "question4": {
+      "title": "What have you invested in before?",
+      "options": [
+        "Savings account, time deposits and/or fixed income instruments",
+        "Mutual funds",
+        "Stocks",
+        "Derivatives"
+      ]
+    },
+    "question5": {
+      "title": "Which of the following statements best represents you?",
+      "options": [
+        "I prefer stable growth and avoid losses",
+        "I accept short-term losses under 1 year",
+        "I care about long-term returns without big losses",
+        "I accept high volatility in exchange for long-term gains"
+      ]
+    },
+    "question6": {
+      "title": "If your investment gains 30% and then drops 20%, leaving a 10% profit, what would you do?",
+      "options": [
+        "Move to risk-free assets",
+        "Shift part of it to lower-risk investments",
+        "Feel worried but take no action",
+        "Invest more if fundamentals support it"
+      ]
+    },
+    "question7": {
+      "title": "What is your approximate monthly net income?",
+      "options": [
+        "Less than 1 million CLP",
+        "Between 1 and 3 million CLP",
+        "Between 3 and 5 million CLP",
+        "More than 5 million CLP"
+      ]
+    },
+    "question8": {
+      "title": "How much of your savings are you willing to invest?",
+      "options": [
+        "Less than 30%",
+        "Between 30% and 60%",
+        "More than 60%"
+      ]
+    },
+    "question9": {
+      "title": "Is your profession related to finance?",
+      "options": [
+        "Strongly related",
+        "Somewhat related",
+        "Slightly related",
+        "Not related"
+      ]
+    },
+    "question10": {
+      "title": "What is your estimated investable networth?",
+      "options": [
+        "Over CLP 200 million",
+        "Between CLP 50 and 200 million",
+        "Less than CLP 50 million"
+      ]
+    }
   },
   "profileResult": {
     "title": "Your profile is conservative",
@@ -686,7 +700,8 @@
   },
   "investments": {
     "title": "Investment",
-    "needAccount": "You need an active investment account to access this section."
+    "needAccount": "You need an active investment account to access this section.",
+    "createAccount": "Create Account"
   },
   "floid": {
     "title": "Sync bank data"

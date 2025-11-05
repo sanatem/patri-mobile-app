@@ -4,7 +4,9 @@ export interface OnboardingPersonalInformation {
   rut: string;
   birth_date: string;
   monthly_incomes: string;
-  residence_country_name: string;
+  residence_country: string;
+  first_name: string;
+  last_name: string;
 }
 
 export interface OnboardingRequest {
@@ -62,8 +64,12 @@ export async function submitOnboarding(
       throw new Error(`Error del servidor (${response.status}): ${errorMessage}`);
     }
 
-    const data: OnboardingResponse = await response.json();
-    return data;
+    try {
+      const data: OnboardingResponse = await response.json();
+      return { ...data, success: true };
+    } catch (parseError) {
+      return { success: true, message: 'Datos actualizados correctamente' };
+    }
 
   } catch (error) {
     console.error('Onboarding Service: Error submitting onboarding data:', error);
