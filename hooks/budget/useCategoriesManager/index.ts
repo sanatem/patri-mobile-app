@@ -346,8 +346,6 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
     toggleSubcategory,
     toggleUncategorizedList,
     toggleCategorizedList,
-    getRotateStyle: animations.getRotateStyle,
-    getExpansionStyle: animations.getExpansionStyle,
 
     handleLongPress: selection.handleLongPress,
     handleCategoryLongPress: selection.handleCategoryLongPress,

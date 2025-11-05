@@ -1,6 +1,7 @@
 import React, { forwardRef } from 'react';
 import { View, TouchableOpacity } from 'react-native';
 import { Select, Button } from '@/components/ui';
+import { CategoryTranslation } from '@/hooks/budget/useCategoriesManager/types';
 import Colors from '@/constants/Colors';
 import { Plus, X } from 'lucide-react-native';
 
@@ -8,7 +9,7 @@ interface NewCategoryCardProps {
   currentLang: string;
   availableCategories: Array<{
     id: string;
-    name: { es: string; en: string; pt: string; 'es-CL': string };
+    name: CategoryTranslation;
     emoji: string;
   }>;
   selectedCategoryId: string | null;

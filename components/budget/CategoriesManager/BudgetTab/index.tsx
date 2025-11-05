@@ -1,6 +1,7 @@
 import React from 'react';
 import { ScrollView, Animated, View } from 'react-native';
 import { FloidTransaction } from '@/services/budget/transactions/get-floid-transactions';
+import { CategoryTranslation } from '@/hooks/budget/useCategoriesManager/types';
 import { UncategorizedList } from '../UncategorizedList';
 import { CategorizedList } from '../CategorizedList';
 import { CategoriesList } from '../CategoriesList';
@@ -12,11 +13,11 @@ interface BudgetTabProps {
   groupedData: {
     categorized: Array<{
       id: string;
-      name: { es: string; en: string; pt: string };
+      name: CategoryTranslation;
       emoji: string;
       subcategories?: Array<{
         id: string;
-        name: { es: string; en: string; pt: string };
+        name: CategoryTranslation;
         emoji: string;
         transactions: FloidTransaction[];
         total: number;
@@ -51,7 +52,7 @@ interface BudgetTabProps {
   multipleCustomSubcategories: Array<{ id: string; name: string; emoji: string }>;
   availableSystemCategories: Array<{
     id: string;
-    name: { es: string; en: string; pt: string; 'es-CL': string };
+    name: CategoryTranslation;
     emoji: string;
   }>;
   scrollViewRef: any;
@@ -86,7 +87,7 @@ interface BudgetTabProps {
   maxCategoriesAllowed: number;
   getAvailableCategoriesForCard: (cardId: string) => Array<{
     id: string;
-    name: { es: string; en: string; pt: string; 'es-CL': string };
+    name: CategoryTranslation;
     emoji: string;
   }>;
   onAddSubcategory: (categoryId: string) => void;
@@ -102,7 +103,7 @@ interface BudgetTabProps {
   onPremiumFeaturePress: (featureName: string) => void;
   getAvailableSubcategoriesForCategory: (categoryId: string, currentCardId?: string) => Array<{
     id: string;
-    name: { es: string; en: string; pt: string; 'es-CL': string };
+    name: CategoryTranslation;
     emoji: string;
   }>;
   canAddMoreSubcategories: (categoryId: string) => boolean;

@@ -1,16 +1,17 @@
 import React from 'react';
 import { Animated } from 'react-native';
 import { FloidTransaction } from '@/services/budget/transactions/get-floid-transactions';
+import { CategoryTranslation } from '@/hooks/budget/useCategoriesManager/types';
 import { CategoryItem } from './CategoryItem';
 
 interface CategoriesListProps {
   categorizedData: Array<{
     id: string;
-    name: { es: string; en: string; pt: string };
+    name: CategoryTranslation;
     emoji: string;
     subcategories?: Array<{
       id: string;
-      name: { es: string; en: string; pt: string };
+      name: CategoryTranslation;
       emoji: string;
       transactions: FloidTransaction[];
       total: number;
@@ -62,7 +63,7 @@ interface CategoriesListProps {
   onPremiumFeaturePress: (featureName: string) => void;
   getAvailableSubcategoriesForCategory: (categoryId: string, currentCardId?: string) => Array<{
     id: string;
-    name: { es: string; en: string; pt: string; 'es-CL': string };
+    name: CategoryTranslation;
     emoji: string;
   }>;
   canAddMoreSubcategories: (categoryId: string) => boolean;
@@ -71,6 +72,9 @@ interface CategoriesListProps {
   getExpansionStyle: (id: string, isCategory: boolean, isExpanded?: boolean) => any;
   categoryRotations: Map<string, Animated.Value>;
   categoryExpansions: Map<string, Animated.Value>;
+  subcategoryRotations: Map<string, Animated.Value>;
+  subcategoryExpansions: Map<string, Animated.Value>;
+  activeCategoryId?: string | null;
 }
 
 export function CategoriesList({

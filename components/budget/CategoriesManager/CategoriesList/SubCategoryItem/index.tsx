@@ -4,12 +4,13 @@ import { CheckboxItem } from '@/components/ui';
 import Colors from '@/constants/Colors';
 import { ChevronDown, Edit2, X, Check } from 'lucide-react-native';
 import { FloidTransaction } from '@/services/budget/transactions/get-floid-transactions';
+import { CategoryTranslation } from '@/hooks/budget/useCategoriesManager/types';
 import { TransactionItem } from '../../UncategorizedList/TransactionItem';
 
 interface SubCategoryItemProps {
   subcat: {
     id: string;
-    name: { es: string; en: string; pt: string };
+    name: CategoryTranslation;
     emoji: string;
     transactions: FloidTransaction[];
     total: number;

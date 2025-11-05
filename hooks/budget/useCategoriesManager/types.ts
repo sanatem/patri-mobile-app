@@ -24,7 +24,7 @@ export interface CategoryData {
   originalName?: string;
   originalEmoji?: string;
   subcategories?: SubcategoryData[];
-  uncategorizedTransactions?: any[];
+  uncategorizedTransactions: any[];
   total: number;
   transactionCount: number;
 }

@@ -4,6 +4,7 @@ import { CheckboxItem, Button } from '@/components/ui';
 import Colors from '@/constants/Colors';
 import { ChevronDown, Edit2, Plus, X, Check } from 'lucide-react-native';
 import { FloidTransaction } from '@/services/budget/transactions/get-floid-transactions';
+import { CategoryTranslation } from '@/hooks/budget/useCategoriesManager/types';
 import { SubCategoryItem } from '../SubCategoryItem';
 import { TransactionItem } from '../../UncategorizedList/TransactionItem';
 import { NewSubcategoryCard } from '../../NewSubcategoryCard';
@@ -12,14 +13,14 @@ import { CustomSubcategoryCard } from '../../CustomSubcategoryCard';
 interface CategoryItemProps {
   category: {
     id: string;
-    name: { es: string; en: string; pt: string };
+    name: CategoryTranslation;
     emoji: string;
     originalName?: string; // display_name del API
     originalEmoji?: string; // emoji_code del API
     isCustomCategory?: boolean; // Indica si es categoría personalizada
     subcategories?: Array<{
       id: string;
-      name: { es: string; en: string; pt: string };
+      name: CategoryTranslation;
       emoji: string;
       originalName?: string; // display_name del API
       originalEmoji?: string; // emoji_code del API
@@ -76,7 +77,7 @@ interface CategoryItemProps {
   onPremiumFeaturePress: (featureName: string) => void;
   getAvailableSubcategoriesForCategory: (categoryId: string, currentCardId?: string) => Array<{
     id: string;
-    name: { es: string; en: string; pt: string; 'es-CL': string };
+    name: CategoryTranslation;
     emoji: string;
   }>;
   canAddMoreSubcategories: (categoryId: string) => boolean;

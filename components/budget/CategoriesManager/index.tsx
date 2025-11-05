@@ -273,7 +273,6 @@ export function CategoriesManager({ userCategories, onResetOnboarding }: Categor
           onAddNewCategoryCard={handleAddNewCategoryCard}
           onRemoveNewCategoryCard={handleRemoveNewCategoryCard}
           maxCategoriesAllowed={getMaxCategoriesAllowed()}
-          canAddMoreSystemCategories={canAddMoreSystemCategories()}
           getAvailableCategoriesForCard={getAvailableCategoriesForCard}
           onAddSubcategory={handleAddSubcategory}
           onCancelAddSubcategory={handleCancelAddSubcategory}
