@@ -4,7 +4,7 @@ import {
   getFloidTransactions, 
   FloidTransactionsResponse,
   GetFloidTransactionsParams 
-} from '@/services/budget/get-floid-transactions';
+} from '@/services/budget/transactions/get-floid-transactions';
 import { useAuth } from '@/providers/AuthProvider';
 
 interface UseFloidTransactionsProps {

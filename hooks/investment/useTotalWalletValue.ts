@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/providers/AuthProvider';
 import config from '@/config/constants';
-import { getCash } from '@/services/cash/get-cash';
+import { getCash } from '@/services/investment/cash/get-cash';
 
 interface UseTotalWalletValueReturn {
   totalWalletValue: number;
