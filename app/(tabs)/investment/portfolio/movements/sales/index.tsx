@@ -11,11 +11,11 @@ import { useTranslation } from 'react-i18next';
 import { useGoals } from '@/hooks/investment/useGoals';
 import { useFormatValue } from '@/hooks/common/useFormatValue';
 import { useAuth } from '@/providers/AuthProvider';
-import { getCash } from '@/services/cash/get-cash';
+import { getCash } from '@/services/investment/cash/get-cash';
 import { getBankAccounts, type BankAccount } from '@/services/investment/bank-accounts/get-bank-account';
 import { getPortfolioDetails } from '@/services/investment/portfolio/portfolio-details/get-portfolio-details';
 import type { Goal } from '@/types/api';
-import type { Cash } from '@/services/cash/get-cash';
+import type { Cash } from '@/services/investment/cash/get-cash';
 
 export default function SalesFlow() {
   const { t } = useTranslation();

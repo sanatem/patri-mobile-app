@@ -1081,8 +1081,8 @@ export default function PatrimonyScreen() {
               <View style={{ width: 40, height: 4, backgroundColor: '#D1D5DB', borderRadius: 2 }} />
             </View>
             {[
-              { label: t('patrimony.addAsset'), value: 'activo', icon: undefined },
-              { label: t('patrimony.addLiability'), value: 'pasivo', icon: undefined }
+              { label: t('patrimony.addAsset'), value: 'activo', icon: <Plus size={20} color={Colors.gray[700]} /> },
+              { label: t('patrimony.addLiability'), value: 'pasivo', icon: <Plus size={20} color={Colors.gray[700]} /> }
             ].map((option, index) => (
               <TouchableOpacity
                 key={option.value}
@@ -1090,7 +1090,7 @@ export default function PatrimonyScreen() {
                   paddingVertical: 16,
                   flexDirection: 'row',
                   alignItems: 'center',
-                  borderBottomWidth: 0,
+                  borderBottomWidth: index !== 1 ? 1 : 0,
                   borderColor: '#F3F4F6',
                 }}
                 onPress={() => {
@@ -1102,10 +1102,8 @@ export default function PatrimonyScreen() {
                 }}
                 activeOpacity={0.7}
               >
-                {option.icon ? (
+                {option.icon && (
                   <View style={{ marginRight: 12 }}>{option.icon}</View>
-                ) : (
-                  <View style={{ marginRight: 12, width: 20, height: 20 }} />
                 )}
                 <Text className="text-base font-regular" style={{ color: Colors.gray[700] }}>
                   {option.label}

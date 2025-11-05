@@ -26,7 +26,7 @@ export const inputStyles = StyleSheet.create({
     borderWidth: 0,
     padding: 0,
     margin: 0,
-    fontSize: 16,
+    fontSize: 14,
     fontFamily: 'Poppins-Regular',
     color: '#1F2937',
   },

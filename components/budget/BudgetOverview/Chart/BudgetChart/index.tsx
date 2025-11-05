@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, Dimensions, Animated } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import Colors from '@/constants/Colors';
-import { budgetService } from '@/services/budget/get-budget';
+import { budgetService } from '@/services/budget/transactions/get-budget';
 import { SkeletonBase } from '@/components/ui/SkeletonBase';
 import { useTranslation } from 'react-i18next';
 

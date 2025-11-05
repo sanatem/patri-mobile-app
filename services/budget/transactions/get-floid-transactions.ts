@@ -1,16 +1,36 @@
 
 import config from '@/config/constants';
 
+export type CategorizationStatus = 'uncategorized' | 'automatic' | 'manual';
+
+export interface TransactionCategoryInfo {
+  id: number;
+  name: string;
+  translated_name: string;
+  kind: 'income' | 'expense';
+  emoji_code?: string;
+}
+
 export interface FloidTransaction {
   id: number;
   transaction_id: string;
   date: string;
-  balance: number;
+  custom_date?: string | null;
+  balance: string | number;
   transaction_type: 'income' | 'outcome';
-  amount: number;
+  amount: string | number;
   description: string;
   bank: string;
   account_number: string;
+  categorized?: boolean;
+  auto_category?: boolean;
+  category?: TransactionCategoryInfo | null;
+  user_category_id?: number | null;
+  categorization_status?: CategorizationStatus;
+  subcategory?: string | null;
+  processed?: boolean;
+  amount_in?: number;
+  amount_out?: number;
 }
 
 export interface FloidTransactionsResponse {
@@ -130,4 +150,72 @@ export function calculateTransactionTotals(transactions: FloidTransaction[]) {
   totals.balance = totals.totalIncome - totals.totalOutcome;
 
   return totals;
+}
+
+export interface GetFloidTransactionParams {
+  id: string;
+}
+
+export async function getFloidTransaction(
+  params: GetFloidTransactionParams,
+  token: string
+): Promise<FloidTransaction | null> {
+  try {
+    if (!token) {
+      throw new Error('No hay token de autenticación disponible');
+    }
+
+    const { id } = params;
+    const url = `${config.apiBaseUrl}/api/v2/floid/transactions/${id}`;
+
+    console.log('[getFloidTransaction] Calling API:', url);
+    console.log('[getFloidTransaction] Transaction ID:', id);
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    console.log('[getFloidTransaction] Response status:', response.status);
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        throw new Error('Token de autenticación inválido o expirado');
+      }
+
+      if (response.status === 404) {
+        console.log('[getFloidTransaction] Transaction not found (404)');
+        return null;
+      }
+
+      const errorText = await response.text();
+      console.log('[getFloidTransaction] Error response:', errorText);
+      throw new Error(`API Error ${response.status}: ${errorText}`);
+    }
+
+    const responseData = await response.json();
+    console.log('[getFloidTransaction] Response data:', responseData);
+
+    // El API devuelve {success: true, data: {transaction: {...}}}
+    if (responseData.success && responseData.data) {
+      // Si data contiene un objeto transaction, devolverlo
+      if (responseData.data.transaction) {
+        console.log('[getFloidTransaction] Returning transaction from data.transaction');
+        return responseData.data.transaction as FloidTransaction;
+      }
+      // Si no, devolver data directamente
+      console.log('[getFloidTransaction] Returning data directly');
+      return responseData.data as FloidTransaction;
+    }
+
+    // Si no viene en ese formato, devolver directamente
+    return responseData as FloidTransaction;
+
+  } catch (error) {
+    console.error('Floid Transaction Service: Error fetching transaction detail from API:', error);
+    throw error;
+  }
 }

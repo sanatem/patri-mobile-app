@@ -12,6 +12,7 @@ interface MutualFundsFieldsProps {
   unit: string;
   name: string;
   fund: string;
+  fund_kind?: string;
   series: string;
   onInputChange: (field: string, value: string) => void;
   onSelectChange: (field: string, value: string) => void;
@@ -32,6 +33,7 @@ export default function MutualFundsFields({
   unit,
   name,
   fund,
+  fund_kind,
   series,
   onInputChange,
   onSelectChange,
@@ -113,7 +115,7 @@ export default function MutualFundsFields({
       setFundsError(null);
 
       try {
-        const perPage = 100;
+        const perPage = 200;
 
         const firstResponse = await getSavingInstrumentsFunds(accessToken, {
           page: 1,
@@ -141,40 +143,56 @@ export default function MutualFundsFields({
         const pagination = firstResponse.data.pagination;
 
         if (pagination) {
-          const pagesToFetch: number[] = [];
-
+          const mutualPagesToFetch: number[] = [];
           if (pagination.next_mutual_page) {
             for (let page = pagination.next_mutual_page; page <= pagination.total_mutual_pages; page++) {
-              pagesToFetch.push(page);
+              mutualPagesToFetch.push(page);
             }
           }
 
+          const investmentPagesToFetch: number[] = [];
           if (pagination.next_investment_page) {
             for (let page = pagination.next_investment_page; page <= pagination.total_investment_pages; page++) {
-              pagesToFetch.push(page);
+              investmentPagesToFetch.push(page);
             }
           }
 
           const BATCH_SIZE = 100;
-          for (let i = 0; i < pagesToFetch.length; i += BATCH_SIZE) {
-            const batch = pagesToFetch.slice(i, i + BATCH_SIZE);
+
+          for (let i = 0; i < mutualPagesToFetch.length; i += BATCH_SIZE) {
+            const batch = mutualPagesToFetch.slice(i, i + BATCH_SIZE);
             const batchRequests = batch.map(page =>
               getSavingInstrumentsFunds(accessToken, {
                 page,
-                per_page: perPage
+                per_page: perPage,
+                kind: 'mutual'
               })
             );
 
             const batchResponses = await Promise.all(batchRequests);
 
             batchResponses.forEach(response => {
-              if (response?.success && response?.data) {
-                if (response.data.mutual_funds) {
-                  allMutualFunds = [...allMutualFunds, ...response.data.mutual_funds];
-                }
-                if (response.data.investment_funds) {
-                  allInvestmentFunds = [...allInvestmentFunds, ...response.data.investment_funds];
-                }
+              if (response?.success && response?.data?.mutual_funds) {
+                allMutualFunds = [...allMutualFunds, ...response.data.mutual_funds];
+              }
+            });
+          }
+
+          for (let i = 0; i < investmentPagesToFetch.length; i += BATCH_SIZE) {
+            const batch = investmentPagesToFetch.slice(i, i + BATCH_SIZE);
+            const batchRequests = batch.map(page =>
+              getSavingInstrumentsFunds(accessToken, {
+                page,
+                per_page: perPage,
+                kind: 'investment'
+              })
+            );
+
+            const batchResponses = await Promise.all(batchRequests);
+
+            batchResponses.forEach(response => {
+              if (response?.success && response?.data?.investment_funds) {
+                allInvestmentFunds = [...allInvestmentFunds, ...response.data.investment_funds];
               }
             });
           }
@@ -202,10 +220,17 @@ export default function MutualFundsFields({
     fetchFunds();
   }, [accessToken]);
 
-  const fundOptions = funds.map(fundItem => ({
-    label: fundItem.name,
-    value: `${fundItem.kind}@${fundItem.id}`,
-  }));
+  const fundOptions = funds
+    .filter(fundItem => {
+      if (fund_kind && fund_kind !== '') {
+        return fundItem.kind === fund_kind;
+      }
+      return true;
+    })
+    .map(fundItem => ({
+      label: fundItem.name,
+      value: `${fundItem.kind}@${fundItem.id}`,
+    }));
 
   type FundKind = 'investment' | 'mutual';
 
