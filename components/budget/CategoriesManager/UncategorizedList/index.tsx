@@ -57,8 +57,8 @@ export function UncategorizedList({
   // React Native interpolations don't update dynamically, so we use a large fixed value
   const dynamicExpansionStyle = expansionValue ? {
     opacity: expansionValue.interpolate({
-      inputRange: [0, 0.15, 1],
-      outputRange: [0, 0.9, 1], // More gradual fade for smoother vertical slide
+      inputRange: [0, 0.3, 1],
+      outputRange: [0, 0.6, 1], // Smoother fade in progression
     }),
     maxHeight: expansionValue.interpolate({
       inputRange: [0, 1],
@@ -73,23 +73,24 @@ export function UncategorizedList({
 
   // Animate active state changes (horizontal transition)
   useEffect(() => {
-    Animated.timing(activeAnim, {
+    Animated.spring(activeAnim, {
       toValue: isActive ? 1 : 0,
-      duration: 350, // Horizontal transition duration (300-400ms range)
-      easing: Easing.bezier(0.2, 0.0, 0.0, 1.0),
-      useNativeDriver: false,
+      useNativeDriver: true,
+      tension: 40,
+      friction: 12,
+      velocity: 0,
     }).start();
   }, [isActive, activeAnim]);
 
-  // Create animated styles for card size and horizontal slide
-  const cardWidth = activeAnim.interpolate({
+  // Create animated styles for card opacity and scale
+  const cardOpacity = activeAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: [56, 300], // Width when inactive vs active (will be overridden by flex when active)
+    outputRange: [0.8, 1],
   });
 
-  const cardHeight = activeAnim.interpolate({
+  const cardScale = activeAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: [56, 300], // Height when inactive vs active (will be overridden when expanded)
+    outputRange: [0.97, 1],
   });
 
 
@@ -146,19 +147,15 @@ export function UncategorizedList({
         Animated.parallel([
           Animated.timing(rotation, {
             toValue,
-            duration: isExpanded ? 450 : 350, // Smooth collapse (350ms), smooth expand (450ms)
+            duration: 280,
             useNativeDriver: true,
-            easing: isExpanded 
-              ? Easing.bezier(0.25, 0.1, 0.25, 1) // Smooth ease-out for expand
-              : Easing.bezier(0.4, 0.0, 0.2, 1), // Smooth ease-in for collapse
+            easing: Easing.bezier(0.25, 0.1, 0.25, 1), // Smooth ease for both expand and collapse
           }),
           Animated.timing(expansion, {
             toValue,
-            duration: isExpanded ? 450 : 350, // Smooth collapse (350ms), smooth expand (450ms)
+            duration: 280,
             useNativeDriver: false,
-            easing: isExpanded 
-              ? Easing.bezier(0.25, 0.1, 0.25, 1) // Smooth ease-out for expand
-              : Easing.bezier(0.4, 0.0, 0.2, 1), // Smooth ease-in for collapse
+            easing: Easing.bezier(0.25, 0.1, 0.25, 1), // Smooth ease for both expand and collapse
           })
         ]).start((finished) => {
           // After animation completes, update render state
@@ -195,8 +192,10 @@ export function UncategorizedList({
       borderColor: Colors.warning[500],
       overflow: 'hidden',
       flex: isActive ? 1 : undefined,
-      width: isActive ? undefined : cardWidth,
-      height: isActive ? undefined : cardHeight,
+      width: isActive ? undefined : 56,
+      height: isActive ? undefined : 56,
+      opacity: cardOpacity,
+      transform: [{ scale: cardScale }],
     }}>
       <TouchableOpacity
         style={{
@@ -240,6 +239,7 @@ export function UncategorizedList({
                 placeholder={t('budget.search_transactions', 'Buscar transacciones...')}
                 value={searchQuery}
                 onChangeText={setSearchQuery}
+                fontSize={14}
               />
             </View>
 

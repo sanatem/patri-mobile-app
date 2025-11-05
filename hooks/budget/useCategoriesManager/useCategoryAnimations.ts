@@ -38,26 +38,26 @@ export function useCategoryAnimations() {
   const animateRotation = (id: string, isCategory: boolean, isExpanding: boolean) => {
     const rotation = getOrCreateRotation(id, isCategory);
     const expansions = isCategory ? categoryExpansions : subcategoryExpansions;
-    
+
     // Get or create expansion animation
     if (!expansions.has(id)) {
       expansions.set(id, new Animated.Value(isExpanding ? 1 : 0));
     }
     const expansion = expansions.get(id)!;
-    
-    // Animate both rotation and expansion with easing
+
+    // Animate both rotation and expansion with smooth easing
     Animated.parallel([
       Animated.timing(rotation, {
         toValue: isExpanding ? 1 : 0,
-        duration: 300,
+        duration: 280,
         useNativeDriver: true,
-        easing: Easing.bezier(0.4, 0.0, 0.2, 1), // Material Design easing
+        easing: Easing.bezier(0.25, 0.1, 0.25, 1), // Smooth ease for both expand and collapse
       }),
       Animated.timing(expansion, {
         toValue: isExpanding ? 1 : 0,
-        duration: 300,
-        useNativeDriver: false,
-        easing: Easing.bezier(0.4, 0.0, 0.2, 1), // Material Design easing
+        duration: 280,
+        useNativeDriver: false, // maxHeight can't use native driver
+        easing: Easing.bezier(0.25, 0.1, 0.25, 1), // Smooth ease for both expand and collapse
       })
     ]).start();
   };
@@ -70,11 +70,11 @@ export function useCategoryAnimations() {
       expansions.set(id, new Animated.Value(0));
     }
     const expansion = expansions.get(id)!;
-    
+
     return {
       opacity: expansion.interpolate({
-        inputRange: [0, 0.1, 1],
-        outputRange: [0, 0.95, 1], // Fade in aún más gradual y suave
+        inputRange: [0, 0.3, 1],
+        outputRange: [0, 0.6, 1], // Smoother fade in progression
       }),
       maxHeight: expansion.interpolate({
         inputRange: [0, 1],

@@ -32,6 +32,7 @@ interface SubCategoryItemProps {
   editingParentCategoryId: string | null;
   pendingEdits: Map<string, { name: string; emoji: string }>;
   parentCategoryId: string;
+  scrollViewRef?: any;
   onPress: (subcategoryId: string) => void;
   onLongPress: (subcategoryId: string) => void;
   onTransactionPress: (transactionId: number) => void;
@@ -58,6 +59,7 @@ export function SubCategoryItem({
   editingParentCategoryId,
   pendingEdits,
   parentCategoryId,
+  scrollViewRef,
   onPress,
   onLongPress,
   onTransactionPress,
@@ -81,6 +83,7 @@ export function SubCategoryItem({
   const contentHeightRef = useRef<number>(0);
   const [contentHeight, setContentHeight] = useState<number>(0);
   const [isMounted, setIsMounted] = useState(false);
+  const subcategoryViewRef = useRef<View>(null);
 
   // Get expansion animation value
   const expansionValue = subcategoryExpansions.get(subcat.id);
@@ -89,8 +92,8 @@ export function SubCategoryItem({
   // React Native interpolations don't update dynamically, so we use a large fixed value
   const dynamicExpansionStyle = expansionValue ? {
     opacity: expansionValue.interpolate({
-      inputRange: [0, 0.15, 1],
-      outputRange: [0, 0.9, 1], // More gradual fade for smoother vertical slide
+      inputRange: [0, 0.3, 1],
+      outputRange: [0, 0.6, 1], // Smoother fade in progression
     }),
     maxHeight: expansionValue.interpolate({
       inputRange: [0, 1],
@@ -135,28 +138,41 @@ export function SubCategoryItem({
         Animated.parallel([
           Animated.timing(rotation, {
             toValue,
-            duration: 450,
+            duration: 280,
             useNativeDriver: true,
-            easing: toValue === 1 
-              ? Easing.bezier(0.25, 0.1, 0.25, 1) // Smooth ease-out for expand
-              : Easing.bezier(0.4, 0.0, 0.2, 1), // Smooth ease-in for collapse
+            easing: Easing.bezier(0.25, 0.1, 0.25, 1), // Smooth ease for both expand and collapse
           }),
           Animated.timing(expansion, {
             toValue,
-            duration: 450,
+            duration: 280,
             useNativeDriver: false,
-            easing: toValue === 1 
-              ? Easing.bezier(0.25, 0.1, 0.25, 1) // Smooth ease-out for expand
-              : Easing.bezier(0.4, 0.0, 0.2, 1), // Smooth ease-in for collapse
+            easing: Easing.bezier(0.25, 0.1, 0.25, 1), // Smooth ease for both expand and collapse
           })
         ]).start();
+
+        // Auto-scroll to center the subcategory when expanding
+        if (isExpanded && scrollViewRef?.current && subcategoryViewRef.current) {
+          setTimeout(() => {
+            subcategoryViewRef.current?.measureLayout(
+              scrollViewRef.current,
+              (x, y, width, height) => {
+                // Calculate position to center the subcategory
+                scrollViewRef.current?.scrollTo({
+                  y: y - 100, // Offset to position near top with some padding
+                  animated: true,
+                });
+              },
+              () => {} // Error callback
+            );
+          }, 50); // Small delay to ensure layout is ready
+        }
       });
     } else if (isExpanded) {
       // If component mounts already expanded, set values immediately without animation
       rotation.setValue(1);
       expansion.setValue(1);
     }
-  }, [isExpanded, isActive, isMounted, subcat.id, subcategoryRotations, subcategoryExpansions]);
+  }, [isExpanded, isActive, isMounted, subcat.id, subcategoryRotations, subcategoryExpansions, scrollViewRef]);
 
   const handleContentLayout = (event: any) => {
     const { height } = event.nativeEvent.layout;
@@ -167,7 +183,7 @@ export function SubCategoryItem({
   };
 
   return (
-    <View style={{ marginBottom: 12 }}>
+    <View ref={subcategoryViewRef} style={{ marginBottom: 12 }}>
       <View
         style={{
           flexDirection: 'row',
@@ -257,9 +273,15 @@ export function SubCategoryItem({
           </View>
         </TouchableOpacity>
         {!selectionMode && (
-          <Animated.View style={rotateStyle}>
-            <ChevronDown size={16} color={Colors.primary[500]} />
-          </Animated.View>
+          <TouchableOpacity
+            onPress={() => onPress(subcat.id)}
+            activeOpacity={0.7}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            <Animated.View style={rotateStyle}>
+              <ChevronDown size={16} color={Colors.primary[500]} />
+            </Animated.View>
+          </TouchableOpacity>
         )}
       </View>
 

@@ -178,6 +178,7 @@ export function CategoryItem({
   const contentHeightRef = useRef<number>(0);
   const [contentHeight, setContentHeight] = useState<number>(0);
   const [isMounted, setIsMounted] = useState(false);
+  const categoryViewRef = useRef<View>(null);
 
   // Get expansion animation value
   const expansionValue = categoryExpansions.get(category.id);
@@ -232,28 +233,41 @@ export function CategoryItem({
         Animated.parallel([
           Animated.timing(rotation, {
             toValue,
-            duration: 450,
+            duration: 280,
             useNativeDriver: true,
-            easing: toValue === 1 
-              ? Easing.bezier(0.25, 0.1, 0.25, 1) // Smooth ease-out for expand
-              : Easing.bezier(0.4, 0.0, 0.2, 1), // Smooth ease-in for collapse
+            easing: Easing.bezier(0.25, 0.1, 0.25, 1), // Smooth ease for both expand and collapse
           }),
           Animated.timing(expansion, {
             toValue,
-            duration: 450,
+            duration: 280,
             useNativeDriver: false,
-            easing: toValue === 1 
-              ? Easing.bezier(0.25, 0.1, 0.25, 1) // Smooth ease-out for expand
-              : Easing.bezier(0.4, 0.0, 0.2, 1), // Smooth ease-in for collapse
+            easing: Easing.bezier(0.25, 0.1, 0.25, 1), // Smooth ease for both expand and collapse
           })
         ]).start();
+
+        // Auto-scroll to center the category when expanding
+        if (isExpanded && scrollViewRef?.current && categoryViewRef.current) {
+          setTimeout(() => {
+            categoryViewRef.current?.measureLayout(
+              scrollViewRef.current,
+              (x, y, width, height) => {
+                // Calculate position to center the category
+                scrollViewRef.current?.scrollTo({
+                  y: y - 100, // Offset to position near top with some padding
+                  animated: true,
+                });
+              },
+              () => {} // Error callback
+            );
+          }, 50); // Small delay to ensure layout is ready
+        }
       });
     } else if (isExpanded) {
       // If component mounts already expanded, set values immediately without animation
       rotation.setValue(1);
       expansion.setValue(1);
     }
-  }, [isExpanded, isActive, isMounted, category.id, categoryRotations, categoryExpansions]);
+  }, [isExpanded, isActive, isMounted, category.id, categoryRotations, categoryExpansions, scrollViewRef]);
 
   const handleContentLayout = (event: any) => {
     const { height } = event.nativeEvent.layout;
@@ -265,6 +279,7 @@ export function CategoryItem({
 
   return (
     <View
+      ref={categoryViewRef}
       style={{
         marginHorizontal: 20,
         marginTop: 20,
@@ -401,9 +416,15 @@ export function CategoryItem({
                   <Edit2 size={16} color={Colors.primary[500]} />
                 </TouchableOpacity>
 
-                <Animated.View style={categoryRotateStyle}>
-                  <ChevronDown size={20} color={Colors.primary[500]} />
-                </Animated.View>
+                <TouchableOpacity
+                  onPress={() => onCategoryPress(category.id)}
+                  activeOpacity={0.7}
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                >
+                  <Animated.View style={categoryRotateStyle}>
+                    <ChevronDown size={20} color={Colors.primary[500]} />
+                  </Animated.View>
+                </TouchableOpacity>
               </>
             )}
           </>
@@ -468,6 +489,7 @@ export function CategoryItem({
                 editingParentCategoryId={editingParentCategoryId}
                 pendingEdits={pendingEdits}
                 parentCategoryId={category.id}
+                scrollViewRef={scrollViewRef}
                 onPress={onSubcategoryPress}
                 onLongPress={onSubcategoryLongPress}
                 onTransactionPress={onTransactionPress}

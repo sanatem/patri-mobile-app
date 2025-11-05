@@ -172,7 +172,7 @@ export function Select({
               'text-base font-regular',
               isDisabled && 'text-gray-400'
             )}
-            style={{ 
+            style={{
               flex: 1,
               color: selectedOption ? textColor : placeholderColor,
             }}
@@ -214,6 +214,7 @@ export function Select({
                 value={searchQuery}
                 onChangeText={setSearchQuery}
                 autoFocus={false}
+                fontSize={14}
               />
             </View>
 
