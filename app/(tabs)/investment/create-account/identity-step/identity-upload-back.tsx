@@ -33,6 +33,7 @@ export default function IdentityUploadBack() {
       onPrevious={() => router.back()}
       isNextDisabled={!backImage}
       nextButtonTitle={t('common.continue')}
+      showLogo={false}
     >
       <ImageDropbox
         image={backImage}

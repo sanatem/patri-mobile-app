@@ -34,6 +34,7 @@ export default function IdentityUpload() {
       onNext={handleContinue}
       isNextDisabled={!frontImage}
       nextButtonTitle={t('common.continue')}
+      showLogo={false}
     >
       <ImageDropbox
         image={frontImage}

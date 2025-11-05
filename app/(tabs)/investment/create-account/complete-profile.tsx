@@ -18,6 +18,7 @@ export default function CompleteProfile() {
       totalSteps={8}
       onNext={handleNext}
       nextButtonTitle={t('completeProfile.getStarted')}
+      showLogo={false}
     >
       <View className="space-y-4">
         <TouchableOpacity

@@ -226,6 +226,7 @@ export default function PersonalInformationStepper() {
       onPrevious={goBack}
       nextButtonTitle={t('common.continue')}
       isNextDisabled={!canContinue()}
+      showLogo={false}
     >
       
       <View className="flex-row mb-6">

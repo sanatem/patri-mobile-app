@@ -415,6 +415,7 @@ export default function AddLiabilityScreen() {
       savedText={isEditMode ? t('common.saved') : t('common.created')}
       isNextDisabled={errors.length > 0}
       error={serverError || (errors.length > 0 ? errors[0] : null)}
+      showLogo={false}
     >
       {loadingInitialData ? (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', minHeight: 300 }}>

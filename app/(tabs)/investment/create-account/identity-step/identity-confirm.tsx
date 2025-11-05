@@ -151,6 +151,7 @@ export default function IdentityConfirm() {
         totalSteps={3}
         isLoading={true}
         loadingText={t('identityConfirm.verifying')}
+        showLogo={false}
       >
         <View className="flex-1 justify-center items-center py-12">
           <ActivityIndicator size="large" color="#FF6501" />
@@ -174,6 +175,7 @@ export default function IdentityConfirm() {
         nextButtonTitle={t('identityConfirm.continueAnyway')}
         previousButtonTitle={t('identityConfirm.retakePhoto')}
         error={error}
+        showLogo={false}
       >
         <View className="bg-red-50 p-4 rounded-xl mb-6">
           <Text className="text-red-800 font-medium mb-2">
@@ -201,6 +203,7 @@ export default function IdentityConfirm() {
         nextButtonTitle={isSubmitting ? t('common.sending') : t('identityConfirm.dataIsCorrect')}
         previousButtonTitle={t('identityConfirm.retakePhoto')}
         isLoading={isSubmitting}
+        showLogo={false}
       >
         <View className="space-y-4 mb-6">
           <Input
@@ -251,6 +254,7 @@ export default function IdentityConfirm() {
       totalSteps={4}
       onNext={handleRetake}
       nextButtonTitle={t('identityConfirm.retakePhoto')}
+      showLogo={false}
     >
       <View className="flex-1 justify-center items-center py-12">
         <Text className="text-lg font-medium text-center">
