@@ -11,13 +11,21 @@ interface ApiGoal {
   target_date: string;
   unit: string;
   created_at: string;
-  wallet_value: number;
+  goal_wallet: number;
+  available_value_for_retirement?: number;
   investment_account_id: number;
 }
 
-interface GoalsApiResponse {
+interface AccountGoals {
+  account_id: number;
+  account_name: string;
   goals: ApiGoal[];
   total_count: number;
+}
+
+interface GoalsApiResponse {
+  investment?: AccountGoals;
+  savings?: AccountGoals;
 }
   
 const transformApiGoalToAppGoal = (apiGoal: ApiGoal): Goal => {
@@ -30,26 +38,65 @@ const transformApiGoalToAppGoal = (apiGoal: ApiGoal): Goal => {
     targetDate: apiGoal.target_date,
     unit: apiGoal.unit,
     createdAt: apiGoal.created_at,
-    currentAmount: Math.round(apiGoal.wallet_value),
+    currentAmount: Math.round(apiGoal.goal_wallet),
+    goalWallet: Math.round(apiGoal.goal_wallet),
+    availableValueForRetirement: apiGoal.available_value_for_retirement
+      ? Math.round(apiGoal.available_value_for_retirement)
+      : undefined,
     investmentAccountId: apiGoal.investment_account_id,
-    progress: apiGoal.target_amount > 0 
-      ? Math.round((apiGoal.wallet_value / apiGoal.target_amount) * 100) 
+    progress: apiGoal.target_amount > 0
+      ? Math.round((apiGoal.goal_wallet / apiGoal.target_amount) * 100)
+      : 0
+  };
+};
+
+const transformMockGoalToAppGoal = (mockGoal: any): Goal => {
+  return {
+    id: mockGoal.id.toString(),
+    name: mockGoal.title,
+    kind: mockGoal.category || 'general',
+    kindName: mockGoal.category || 'Meta general',
+    targetAmount: mockGoal.targetAmount || 0,
+    targetDate: mockGoal.deadline || 'Sin fecha',
+    unit: 'CLP',
+    createdAt: '2024-01-01',
+    currentAmount: Math.round(mockGoal.currentAmount || 0),
+    investmentAccountId: 1083,
+    progress: (mockGoal.targetAmount || 0) > 0 
+      ? Math.round(((mockGoal.currentAmount || 0) / mockGoal.targetAmount) * 100) 
       : 0
   };
 };
 
 export const goalsService = {
   async getGoals(token: string): Promise<{
-    shortTerm: Goal[];
-    mediumTerm: Goal[];
-    longTerm: Goal[];
+    investment: {
+      shortTerm: Goal[];
+      mediumTerm: Goal[];
+      longTerm: Goal[];
+      accountInfo?: {
+        id: number;
+        name: string;
+      };
+    };
+    savings: {
+      shortTerm: Goal[];
+      mediumTerm: Goal[];
+      longTerm: Goal[];
+      accountInfo?: {
+        id: number;
+        name: string;
+      };
+    };
   }> {
     try {
       if (!token) {
         throw new Error('No hay token de autenticación disponible');
       }
 
-      const response = await fetch(`${config.apiBaseUrl}/api/v2/goals`, {
+      const url = `${config.apiBaseUrl}/api/v2/goals`;
+
+      const response = await fetch(url, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -59,6 +106,7 @@ export const goalsService = {
 
       if (!response.ok) {
         const errorText = await response.text();
+        console.error('Goals Service: Error en respuesta:', response.status, errorText);
         
         if (response.status === 401) {
           throw new Error('Token de autenticación inválido o expirado');
@@ -69,24 +117,32 @@ export const goalsService = {
 
       const data: GoalsApiResponse = await response.json();
 
-      const transformedGoals = data.goals.map(transformApiGoalToAppGoal);
+      const investmentGoals = data.investment?.goals?.map(transformApiGoalToAppGoal) || [];
+      const categorizedInvestmentGoals = categorizeGoalsByTimeframe(investmentGoals);
+      const savingsGoals = data.savings?.goals?.map(transformApiGoalToAppGoal) || [];
+      const categorizedSavingsGoals = categorizeGoalsByTimeframe(savingsGoals);
 
-      const categorizedGoals = categorizeGoalsByTimeframe(transformedGoals);
+      const result = {
+        investment: {
+          ...categorizedInvestmentGoals,
+          accountInfo: data.investment ? {
+            id: data.investment.account_id,
+            name: data.investment.account_name
+          } : undefined
+        },
+        savings: {
+          ...categorizedSavingsGoals,
+          accountInfo: data.savings ? {
+            id: data.savings.account_id,
+            name: data.savings.account_name
+          } : undefined
+        }
+      };
 
-      return categorizedGoals;
+      return result;
 
     } catch (error) {
-      console.error('❌ Goals Service: Error fetching goals from API:', error);
-      
-      if (__DEV__) {
-        const mockUserData = require('@/data/mock/mock-data.json');
-        return mockUserData.goals as {
-          shortTerm: Goal[];
-          mediumTerm: Goal[];
-          longTerm: Goal[];
-        };
-      }
-      
+      console.error('Goals Service: Error fetching goals from API:', error);
       throw error;
     }
   }

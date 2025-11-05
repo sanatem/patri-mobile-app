@@ -44,6 +44,7 @@ interface SavingInstrumentFieldsProps {
   fund_series_id?: string;
   series?: string;
   comments?: string;
+  isEditMode?: boolean;
   onInputChange: (field: string, value: string) => void;
   onSelectChange: (field: string, value: string) => void;
   onNumericInputChange: (field: string, value: string) => void;
@@ -64,7 +65,7 @@ const INVESTMENT_TYPE_OPTIONS = [
   { label: 'Otros', value: 'other' },
 ];
 
-export default function SavingInstrumentFields({ 
+export default function SavingInstrumentFields({
   investment_type,
   institution = '',
   fund1 = '',
@@ -92,6 +93,7 @@ export default function SavingInstrumentFields({
   fund_series_id = '',
   series = '',
   comments = '',
+  isEditMode = false,
   onInputChange,
   onSelectChange,
   onNumericInputChange,
@@ -240,6 +242,7 @@ export default function SavingInstrumentFields({
             unit={unit}
             name={name}
             fund={fund}
+            fund_kind={fund_kind}
             series={series || ''}
             onInputChange={onInputChange}
             onSelectChange={onSelectChange}
@@ -274,8 +277,9 @@ export default function SavingInstrumentFields({
         value={investment_type}
         onSelect={(value) => onSelectChange('investment_type', value)}
         placeholder="Selecciona el tipo de inversión"
+        disabled={isEditMode}
       />
-      
+
       {investment_type && renderSpecificFields()}
     </View>
   );

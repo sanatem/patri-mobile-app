@@ -11,6 +11,8 @@
             "privacySubtitle": "Configuración de privacidad",
             "help": "Ayuda y soporte",
             "helpSubtitle": "Centro de ayuda y contacto",
+            "bankAccounts": "Mis cuentas bancarias",
+            "bankAccountsSubtitle": "Gestionar cuentas bancarias vinculadas",
             "logout": "Cerrar sesión",
             "logoutSubtitle": "Salir de la aplicación"
         },
@@ -35,9 +37,29 @@
         },
         "links": {
             "cannotOpen": "No se puede abrir el enlace: {{title}}"
+        },
+        "bankAccounts": {
+            "title": "Mis cuentas bancarias",
+            "subtitle": "Gestiona las cuentas bancarias vinculadas a tu perfil",
+            "addAccount": "Agregar cuenta",
+            "noAccounts": "Aún no tienes cuentas bancarias agregadas",
+            "addForm": {
+                "title": "Agregar cuenta bancaria",
+                "subtitle": "Completa la información de tu cuenta bancaria",
+                "bankLabel": "¿Dónde tienes tu cuenta bancaria?",
+                "bankPlaceholder": "Selecciona el banco",
+                "accountTypeLabel": "¿Qué tipo de cuenta es?",
+                "accountTypePlaceholder": "Selecciona la cuenta",
+                "accountNumberLabel": "¿Cuál es tu número de cuenta?",
+                "accountNumberPlaceholder": "Ingresa tu número de cuenta",
+                "setAsDefault": "Usar como cuenta predeterminada",
+                "save": "Guardar cuenta",
+                "cancel": "Cancelar"
+            }
         }
     },
     "common": {
+        "language_code": "es-CL",
         "cancel": "Cancelar",
         "error": "Error",
         "continue": "Continuar",
@@ -49,11 +71,15 @@
         "finish": "Finalizar",
         "backToPortfolio": "Volver al portafolio",
         "retry": "Reintentar",
+        "save": "Guardar",
         "saving": "Guardando...",
+        "saved": "Guardado",
         "loading": "Cargando...",
-        "per_month": "/mes",
-        "already_subscribed": "Ya suscrito",
+    "per_month": "/mes",
+    "per_year": "/año",
+    "already_subscribed": "Ya suscrito",
         "active": "Activo",
+        "purchased": "Comprado",
         "from": "Desde",
         "select": "Seleccionar...",
         "search_placeholder": "Buscar...",
@@ -64,15 +90,137 @@
     },
     "budget": {
         "income": "Ingresos",
+        "income_singular": "Ingreso",
         "expenses": "Gastos",
+        "expense_singular": "Gasto",
         "all_categories": "Todas",
+        "all_accounts": "Todas las cuentas",
+        "select_account": "Seleccionar cuenta",
+        "no_accounts": "No hay cuentas sincronizadas",
         "integrate_data": "Integrar datos bancarios",
         "tab_name": "Presupuesto",
         "title": "Presupuesto",
         "search_income_placeholder": "Buscar ingresos...",
         "search_expenses_placeholder": "Buscar gastos...",
         "total_income": "Total de ingresos",
-        "total_expenses": "Total de gastos"
+        "total_expenses": "Total de gastos",
+        "add_transaction": "Añadir ingreso/gasto",
+        "add_transaction_income": "Añadir nueva transacción 💰",
+        "add_transaction_expense": "Añadir nueva transacción 💸",
+        "edit_transaction_income": "Editar ingreso 💰",
+        "edit_transaction_expense": "Editar gasto 💸",
+        "transaction_type": "Tipo de transacción",
+        "transaction_name": "Nombre de la transacción",
+        "transaction_amount": "Monto",
+        "transaction_date": "Fecha de transacción",
+        "transaction_bank": "Banco",
+        "transaction_description": "Descripción",
+        "select_bank_account": "Selecciona una cuenta bancaria",
+        "create_transaction": "Crear transacción",
+        "update_transaction": "Editar transacción",
+        "save_transaction": "Guardar transacción",
+        "cancel": "Cancelar",
+        "creating_transaction": "Creando transacción...",
+        "transaction_created": "Transacción creada",
+        "updating_transaction": "Editando transacción...",
+        "transaction_updated": "Transacción editada",
+        "transaction_saved": "Transacción guardada exitosamente",
+        "error_saving_transaction": "Error al guardar la transacción",
+        "edit_transaction": "Editar transacción",
+        "delete_transaction": "¿Eliminar transacción?",
+        "delete_transaction_message": "Esta acción no se puede deshacer",
+        "transaction_deleted": "Transacción eliminada exitosamente",
+        "error_deleting_transaction": "Error al eliminar la transacción",
+        "categorization": {
+            "uncategorized": "Sin categorizar",
+            "automatic": "Automática",
+            "manual": "Manual",
+            "categorize": "Categorizar",
+            "edit": "Editar"
+        },
+        "categorize_transaction": "Categorizar transacción",
+        "categories_manager": "Categorías",
+        "uncategorized": "Sin Categorizar",
+        "new_category": "Nueva Categoría",
+        "new_subcategory": "Nueva Subcategoría",
+        "select_category": "Selecciona una categoría",
+        "category": "Categoría",
+        "no_category": "Sin categoría",
+        "subcategory": "Subcategoría",
+        "no_subcategory": "Sin subcategoría",
+        "categories": {
+            "income": {
+                "salary_wages": "Sueldo y Honorarios",
+                "business_freelance": "Negocios y Freelance",
+                "investments": "Inversiones",
+                "rentals_real_estate": "Arriendos e Inmuebles",
+                "refunds_reimbursements": "Reembolsos y Devoluciones",
+                "gifts_donations_received": "Regalos y Donaciones Recibidas",
+                "other_income": "Otros Ingresos"
+            },
+            "expense": {
+                "housing": "Vivienda",
+                "bills_utilities": "Cuentas y Servicios",
+                "food_dining": "Alimentación",
+                "auto_transport": "Transporte",
+                "healthcare": "Salud",
+                "personal_care": "Cuidado Personal",
+                "entertainment": "Entretenimiento",
+                "shopping": "Compras",
+                "education": "Educación",
+                "insurance": "Seguros",
+                "taxes": "Impuestos",
+                "savings_investments": "Ahorros e Inversiones",
+                "debt_payments": "Pagos de Deudas",
+                "gifts_donations": "Regalos y Donaciones",
+                "travel": "Viajes",
+                "pets": "Mascotas",
+                "subscriptions": "Suscripciones",
+                "other_expenses": "Otros Gastos"
+            }
+        },
+        "subcategories": {
+            "income": {
+                "base_salary": "Sueldo Base",
+                "bonuses_commissions": "Bonos / Comisiones",
+                "overtime": "Horas Extra",
+                "sales": "Ventas",
+                "freelance": "Freelance",
+                "services": "Servicios",
+                "dividends": "Dividendos",
+                "interest": "Intereses",
+                "capital_gains": "Ganancias de Capital",
+                "property_rentals": "Arriendo de Propiedades",
+                "airbnb": "Airbnb",
+                "other_real_estate_income": "Otros ingresos inmobiliarios",
+                "bank_refunds": "Reembolsos Bancarios",
+                "tax_refunds": "Devolución de Impuestos",
+                "other_refunds": "Otros Reembolsos",
+                "cash_gifts": "Regalos en Dinero",
+                "inheritance": "Herencias",
+                "donations": "Donaciones",
+                "lottery_prizes": "Loterías / Premios",
+                "asset_sales": "Venta de Activos",
+                "miscellaneous_income": "Otros Ingresos"
+            },
+            "expense": {
+                "mortgage": "Crédito Hipotecario",
+                "rent": "Arriendo",
+                "home_improvement": "Mejoras en la Casa",
+                "electricity": "Luz",
+                "gas": "Gas",
+                "water": "Agua",
+                "internet": "Internet",
+                "cable_tv": "Cable",
+                "phone": "Celular / Teléfono",
+                "garbage": "Aseo",
+                "groceries": "Supermercado",
+                "restaurants_bars": "Restaurantes y Bares",
+                "coffee_shops": "Cafeterías",
+                "fast_food": "Comida Rápida",
+                "takeout_delivery": "Delivery"
+            }
+        }
     },
     "identityConfirm": {
         "title": "Confirma tus datos",
@@ -314,11 +462,107 @@
         "rateNote": "(a ${{ rate }} el dólar)"
     },
     "investmentMovement": {
-        "header": {
-            "from": "Mover desde {{from}}",
-            "amount": "Ingresar monto"
-        }
+    "header": {
+      "from": "Mover desde {{from}}",
+      "amount": "Ingresar monto"
     },
+      "goalStep": {
+        "title": "Creación de depósito 💰",
+        "portfolioInfo": {
+          "label": "Ver portafolio asociado"
+        }
+      },
+    "amountStep": {
+      "title": "Creación de depósito ",
+      "subtitle": "Ingresa el monto que deseas depositar"
+    }
+  },
+  "sourceFunds": {
+    "title": "Origen de los fondos",
+    "subtitle": "Selecciona de dónde quieres transferir el dinero",
+    "placeholder": "Selecciona origen de fondos",
+    "options": {
+      "fintoc": "Transferir sin salir de Patrimore",
+      "fintocDesc": "Conecta tu banco de forma segura",
+      "bank": "Transferir desde tu banco",
+      "bankDesc": "Transferencia bancaria manual",
+      "check": "Depositar cheque",
+      "checkDesc": "Deposita un cheque físico",
+      "cash": "Utilizar mi saldo en caja ({{amount}})",
+      "cashDesc": "Usar fondos disponibles en tu cuenta"
+    },
+    "bankTransfer": {
+      "instructions": {
+        "line1": "Haz la transferencia desde <1>una cuenta a tu nombre</1>.",
+        "line2": "Para identificar tu transferencia más rápido, recuerda incluir el correo electrónico indicado en la creación del destinatario."
+      },
+      "bankName": "Banco Security",
+      "fields": {
+        "name": "Nombre",
+        "rut": "RUT",
+        "accountNumber": "Nº de cuenta",
+        "accountType": "Tipo de cuenta",
+        "currency": "Moneda",
+        "email": "Correo electrónico"
+      },
+      "values": {
+        "accountType": "Cuenta corriente",
+        "currency": "CLP"
+      },
+      "copyAll": "Copiar todo",
+      "alerts": {
+        "copied": "Copiado",
+        "copiedField": "{{field}} copiado al portapapeles",
+        "copiedAll": "Todos los datos bancarios copiados al portapapeles",
+        "error": "Error",
+        "copyError": "No se pudo copiar al portapapeles"
+      }
+    },
+    "fintocTransfer": {
+      "title": "Transferir sin salir de Patrimore",
+      "amount": "Transferir {{amount}}",
+      "openWidget": "Conectar mi banco",
+      "info": {
+        "title": "Transferencia bancaria segura",
+        "description": "Monto: {{amount}}\\n\\nSerá redirigido a Fintoc para completar su transferencia. Al completarla puede que se demore unos minutos la confirmación de la misma.",
+        "amountLabel": "Monto a transferir"
+      },
+      "success": {
+        "title": "¡Transferencia exitosa!",
+        "message": "Tu transferencia ha sido procesada correctamente."
+      },
+      "security": {
+        "title": "🔒 Transferencia 100% segura",
+        "description": "Utilizamos tecnología bancaria de nivel institucional para proteger tu información."
+      }
+    },
+    "cashTransfer": {
+      "title": "Utilizar saldo en caja",
+      "description": "Se utilizará tu saldo disponible en caja para esta operación.",
+      "availableBalance": "Saldo disponible: {{amount}}"
+    },
+    "checkDeposit": {
+      "title": "Depositar cheque",
+      "description": "Instrucciones para depositar un cheque físico aparecerán aquí.",
+      "instructions": {
+        "line1": "Deposita el cheque desde <1>una cuenta a tu nombre</1>.",
+        "line2": "Para identificar tu depósito más rápido, recuerda incluir el correo electrónico indicado en la creación del destinatario."
+      },
+      "voucher": {
+        "title": "Envía el comprobante por nuestro chat o directamente a tu asesor",
+        "description": "Recuerda que el depósito estará disponible en un plazo de 2 días hábiles."
+      },
+      "rutRequirement": {
+        "title": "El cheque deberá estar asociado a tu RUT",
+        "description": "Caso contrario, el depósito será rechazado."
+      }
+    },
+    "cashBalance": {
+      "title": "Utilizar saldo en caja",
+      "description": "Se utilizará tu saldo disponible en caja para esta operación.",
+      "availableBalance": "Saldo disponible: {{amount}}"
+    }
+  },
     "confirmationStep": {
         "title": "Confirma que los datos sean correctos antes de finalizar la operación.",
         "origin": "Origen",
@@ -330,57 +574,63 @@
     },
     "fromAssetStep": {
         "assetQuestion": {
-            "part1": "¿De",
-            "part2": "qué activo",
-            "part3": "quieres vender cuotas?"
+            "part2": "¿De qué activo quieres vender cuotas?"
         },
         "assetPlaceholder": "Selecciona un activo",
         "accountQuestion": {
-            "part1": "¿En",
-            "part2": "qué cuenta bancaria",
-            "part3": "quieres recibir el dinero?"
+            "part2": "¿En qué cuenta bancaria quieres recibir el dinero?"
         },
         "accountPlaceholder": "Selecciona cuenta bancaria"
     },
     "fromGoalStep": {
         "from": {
-            "part1": "¿De",
-            "part2": "dónde",
-            "part3": "quieres retirar dinero?"
+            "part2": "¿De dónde quieres retirar dinero?"
         },
         "to": {
-            "part1": "¿A",
-            "part2": "dónde",
-            "part3": "quieres destinarlo?"
+            "part2": "¿A dónde quieres destinarlo?"
         },
         "goalPlaceholder": "Selecciona una meta",
         "destinationPlaceholder": "Selecciona destino",
         "metaTo": {
-            "part1": "¿A qué ",
-            "part2": "meta",
-            "part3": "quieres invertir?"
+            "part2": "¿En qué meta quieres invertir?"
         }
     },
     "salesFlow": {
-        "header": "Solicitud de retiro",
         "next": "Siguiente",
         "previous": "Anterior",
         "finish": "Finalizar",
-        "mockGoals": {
-            "newGoal": "Nueva meta ($1.492.500,00)",
-            "cashBalance": "Saldo en caja ($7.560,00)"
+        "cashBalance": "Saldo en caja",
+        "bankAccount": "Mi cuenta bancaria",
+        "cashBalanceInfo": "Recibirás el dinero en tu cuenta bancaria",
+        "totalAvailable": "Total disponible",
+        "investmentFunds": "fondos de inversión",
+        "asOf": "al {{date}}",
+        "quickOptions": "Opciones rápidas",
+        "individualFunds": "Fondos individuales",
+        "allPortfolio": "Todo mi portafolio",
+        "sellAllShares": "Vender todas las cuotas de todos los fondos",
+        "proportionalWithdrawal": "Retiro proporcional",
+        "maintainStructure": "Mantiene la estructura del portafolio",
+        "availableShares": "Cuotas disponibles",
+        "noIndividualFunds": "No hay fondos individuales disponibles",
+        "pricePerShare": "Precio por cuota",
+        "total": "Total",
+        "forSpecificWithdrawals": "Para retiros específicos por fondo",
+        "fromGoalStep": {
+            "title": "Solicitud de retiro 💸"
         },
-        "mockDestinos": {
-            "bankAccount": "Mi cuenta bancaria",
-            "cashBalance": "Mi saldo en caja"
+        "fromAssetStep": {
+            "title": "Solicitud de retiro 💸"
         },
-        "mockActivos": {
-            "option1": "Singular Chile Deuda Corta Duración CFIETFCD\n$1.492.500 CLP al 10/05/2023 · 14.925,0 cuotas",
-            "option2": "Todo mi portafolio\n$1.492.500 CLP al 26/06/2025",
-            "option3": "Retiro proporcional\nMantiene la estructura del portafolio"
+        "cashSale": {
+            "amountLabel": "¿Cuánto dinero quieres recibir?",
+            "bankAccountLabel": "¿En qué cuenta bancaria quieres recibir el dinero?",
+            "bankAccountPlaceholder": "Selecciona una cuenta bancaria"
         },
-        "mockCuentas": {
-            "account1": "CA 6677 · Chile-Edwards"
+        "confirmationStep": {
+            "title": "Solicitud de retiro 💸",
+            "subtitle": "Confirma que los datos sean correctos antes de finalizar la operación.",
+            "finalNote": "• Tu solicitud será enviada a la corredora\n• El dinero llegará en 2 días hábiles\n• Fondos con poca liquidez pueden demorar más"
         }
     },
     "movements": {
@@ -410,9 +660,19 @@
     "portfolio": {
         "title": "Portafolio",
         "goalsTitle": "Metas",
+        "savingsTitle": "Metas",
         "goalsError": "Error al cargar metas",
         "noGoals": "Aún no tienes metas definidas.",
+        "savingInstrumentsError": "Error al cargar metas",
+        "noSavingInstruments": "Aún no tienes metas definidas.",
+        "savingInstrumentSubtitle": "Meta",
         "goalPrefix": "Meta",
+        "accountTypeLabel": "Tipo de cuenta",
+        "selectAccountType": "Selecciona el tipo de cuenta",
+        "accountTypes": {
+            "investment": "Cuenta de Inversión",
+            "savings": "Cuenta de Ahorro"
+        },
         "actions": {
             "invest": "Invertir",
             "withdraw": "Retirar"
@@ -471,7 +731,12 @@
         "netWorthTitle": "Patrimonio Neto",
         "assets": "Activos",
         "liabilities": "Pasivos",
-        "comparedToLastMonth": "vs último mes"
+        "comparedToLastMonth": "vs último mes",
+        "chart": {
+            "noData": "No hay datos disponibles para el rango seleccionado.\nTus datos históricos comenzarán a acumularse a medida que uses la app.",
+            "buildingHistory": "Estamos construyendo tu historial",
+            "buildingHistorySubtitle": "A medida que uses Patrimore, verás aquí la evolución de tu patrimonio en el tiempo."
+        }
     },
     "tabs": {
         "networth": "Patrimonio",
@@ -490,12 +755,57 @@
             "subscription": "Hubo un problema con la suscripción. Intenta nuevamente.",
             "unexpected": "Hubo un problema inesperado. Intenta nuevamente."
         },
+        "consulting": {
+            "success": {
+                "title": "¡Compra exitosa!",
+                "message": "Tu hora de asesoría ha sido confirmada. En breve nos contactaremos contigo para agendar.",
+                "scheduleNow": "Tu compra fue exitosa. Ahora puedes agendar tu reunión de 45 minutos."
+            },
+            "error": {
+                "purchase": "No disponible",
+                "unexpected": "Ocurrió un error inesperado. Intenta nuevamente."
+            },
+            "schedule": {
+                "title": "Agendar reunión",
+                "subtitle": "Selecciona fecha y hora para tu asesoría",
+                "success": {
+                    "title": "¡Reunión agendada!",
+                    "message": "Tu sesión de asesoría ha sido confirmada exitosamente"
+                },
+                "error": {
+                    "title": "No disponible",
+                    "unknown": "No se pudo verificar tu disponibilidad",
+                    "validation": "Ocurrió un error al validar tu compra",
+                    "widget": "No se pudo cargar el sistema de agendamiento"
+                }
+            }
+        },
         "cardTitles": {
             "premiumMobile": "Suscripción Premium",
             "plans": "Planes"
         },
         "top_title": "Comienza tu planificación financiera",
-        "top_subtitle": "Accede a herramientas profesionales y asesoría experta para alcanzar tus metas financieras"
+        "top_subtitle": "Accede a herramientas profesionales y asesoría experta para alcanzar tus metas financieras",
+    "subscription": {
+      "currentPlan": "Plan actual",
+      "nextPayment": "Próximo cobro:",
+      "noNextPayment": "No hay próximo cobro programado",
+      "unlimited": "Ilimitado",
+      "unlimitedBenefits": "Tendrás los beneficios de este plan de forma ilimitada",
+      "totalAmount": "Monto total",
+      "paymentsTitle": "Pagos 💵",
+      "noPayments": "No hay pagos registrados",
+      "of": "de",
+      "payments": "pagos",
+      "paymentStates": {
+        "approved": "Aprobado",
+        "pending": "Pendiente",
+        "rejected": "Rechazado",
+        "authorized": "Autorizado",
+        "cancelled": "Cancelado",
+        "refunded": "Reembolsado"
+      }
+    }
     },
     "onboarding": {
         "title": "Información Personal",
@@ -639,6 +949,18 @@
             "duration": "/mes",
             "description": "Accede a todas las funcionalidades premium y herramientas avanzadas de planificación financiera.",
             "button": "Suscribirme"
+        },
+        "consulting": {
+            "title": "Asesoría Personalizada",
+            "price": "$120.000",
+            "description": "Agenda una sesión de 1 hora con un asesor financiero certificado para resolver tus dudas y crear tu plan personalizado.",
+            "button": "Agendar hora",
+            "payButton": "Pagar Reunión",
+            "scheduleButton": "Agendar Reunión",
+            "alreadyScheduled": "Ya agendada",
+            "scheduledThisYear": "Reunión agendada este año",
+            "oneHourAvailable": "1 reunión disponible",
+            "hoursAvailable": "{{count}} reuniones disponibles"
         },
         "general": {
             "title": "Planes",

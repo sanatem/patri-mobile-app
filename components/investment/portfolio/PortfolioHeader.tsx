@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Animated, StyleSheet } from 'react-native';
 import Colors from '@/constants/Colors';
-import { useCash } from '@/hooks/patrimony/useCash';
 import { ChevronDown } from 'lucide-react-native';
 import { SkeletonBase } from '@/components/ui/SkeletonBase';
 import { useTranslation } from 'react-i18next';
@@ -9,15 +8,15 @@ import { useTranslation } from 'react-i18next';
 interface PortfolioHeaderProps {
   patrimony: string;
   isLoading?: boolean;
+  cashAmount?: number;
+  selectedAccountType?: string;
 }
 
-export function PortfolioHeader({ patrimony, isLoading }: PortfolioHeaderProps) {
+export function PortfolioHeader({ patrimony, isLoading, cashAmount, selectedAccountType }: PortfolioHeaderProps) {
   const { t } = useTranslation();
-  const { cashData, loading: cashLoading, error } = useCash();
   const [isExpanded, setIsExpanded] = useState(false);
   const [rotateAnim] = useState(new Animated.Value(0));
 
-  // Show skeleton when loading
   if (isLoading) {
     return (
       <View style={styles.card}>
@@ -60,13 +59,10 @@ export function PortfolioHeader({ patrimony, isLoading }: PortfolioHeaderProps) 
   }
 
   const getCashDisplayValue = () => {
-    if (cashLoading) {
-      return null;
+    if (cashAmount === undefined || cashAmount === null) {
+      return '0';
     }
-    if (error || !cashData) {
-      return '$0';
-    }
-    return `${Math.round(cashData.cash.user_cash).toLocaleString('es-CL')}`;
+    return Math.round(cashAmount).toLocaleString('es-CL');
   };
 
   const cashDisplayValue = getCashDisplayValue();
@@ -105,7 +101,7 @@ export function PortfolioHeader({ patrimony, isLoading }: PortfolioHeaderProps) 
         <View style={styles.expandedContainer}>
           <View style={styles.rowContainer}>
             <Text style={styles.subtitle}>{t('patrimony.cash_balance')}</Text>
-            <Text style={styles.cashAmount}>${cashDisplayValue}</Text>
+            <Text style={[styles.cashAmount, { marginLeft: 8 }]}>${cashDisplayValue}</Text>
           </View>
         </View>
       )}
@@ -153,8 +149,7 @@ const styles = StyleSheet.create({
   },
   rowContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'baseline',
     justifyContent: 'center',
-    gap: 8,
   },
 });

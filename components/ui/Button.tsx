@@ -2,12 +2,14 @@ import React from 'react';
 import { TouchableOpacity, Text, ActivityIndicator, View, StyleSheet } from 'react-native';
 import { cn } from '@/lib/utils';
 import Colors from '@/constants/Colors';
+import { CheckCircle } from 'lucide-react-native';
 
 type ButtonProps = {
   title: string;
   onPress: () => void;
-  variant?: 'primary' | 'outline' | 'ghost' | 'disabled';
+  variant?: 'primary' | 'outline' | 'ghost' | 'disabled' | 'success';
   loading?: boolean;
+  saved?: boolean;
   disabled?: boolean;
   fullWidth?: boolean;
   size?: 'small' | 'medium' | 'large';
@@ -43,6 +45,10 @@ const buttonStyles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 16,
   },
+  saved: {
+    backgroundColor: Colors.success[500],
+    borderRadius: 16,
+  },
 });
 
 export function Button({
@@ -50,6 +56,7 @@ export function Button({
   onPress,
   variant = 'primary',
   loading = false,
+  saved = false,
   disabled = false,
   fullWidth = false,
   icon = null,
@@ -61,20 +68,25 @@ export function Button({
       if (variant === 'primary') {
         return 'bg-gray-200 text-gray-300 border border-gray-200';
       }
-      return 'border border-gray-200 text-gray-300 bg-gray-100';
-    }
-    if (disabled) {
+      if (variant === 'ghost') {
+        return 'bg-transparent';
+      }
       if (variant === 'outline') {
         return 'border border-gray-200 text-gray-300';
       }
-      return 'text-gray-500 border border-gray-300';
+      return 'border border-gray-200 text-gray-300 bg-gray-100';
     }
     
+    if (saved) {
+      return 'text-white';
+    }
+
     const variants: Record<typeof variant, string> = {
       primary: 'bg-primary-500 text-white',
       outline: 'border border-primary-500 text-primary-500 bg-white',
-      ghost: 'bg-transparent text-primary-500 underline',
-      disabled: 'border border-gray-300 text-gray-400 bg-white'
+      ghost: 'bg-transparent text-primary-500',
+      disabled: 'border border-gray-300 text-gray-400 bg-white',
+      success: 'text-white'
     };
     return variants[variant];
   };
@@ -87,13 +99,24 @@ export function Button({
       if (variant === 'outline') {
         return 'text-gray-300';
       }
+      if (variant === 'ghost') {
+        return '';
+      }
     }
     return variant === 'primary' ? 'text-white' : 'text-primary-500';
   };
 
   const getDisabledStyle = () => {
+    if (saved) {
+      return buttonStyles.saved;
+    }
+
     if (!disabled) return {};
-    
+
+    if (variant === 'ghost') {
+      return {};
+    }
+
     if (variant === 'primary') {
       return buttonStyles.disabledPrimary;
     }
@@ -107,6 +130,10 @@ export function Button({
   const getDisabledTextStyle = () => {
     if (!disabled) return {};
     
+    if (variant === 'ghost') {
+      return { color: Colors.gray[300] };
+    }
+    
     if (variant === 'primary') {
       return buttonStyles.disabledPrimaryText;
     }
@@ -119,7 +146,7 @@ export function Button({
   return (
     <TouchableOpacity
       onPress={onPress}
-      disabled={disabled || loading}
+      disabled={disabled || loading || saved}
       style={[buttonStyles.base, getDisabledStyle()]}
       className={cn(
         baseStyles,
@@ -130,6 +157,13 @@ export function Button({
     >
       {loading ? (
         <ActivityIndicator color={variant === 'primary' ? '#fff' : Colors.secondary[500]} />
+      ) : saved ? (
+        <View className="flex-row items-center">
+          <CheckCircle size={20} color="#fff" style={{ marginRight: 8 }} />
+          <Text className={cn('text-sm font-medium text-white')}>
+            {title}
+          </Text>
+        </View>
       ) : (
         <View className="flex-row items-center">
           {icon && (
@@ -137,7 +171,9 @@ export function Button({
               {React.isValidElement(icon) && (icon as any).props && 'color' in (icon as any).props
                 ? React.cloneElement(icon as React.ReactElement<any>, {
                     color: disabled
-                      ? Colors.gray[300]
+                      ? variant === 'ghost'
+                        ? Colors.gray[300]
+                        : Colors.gray[300]
                       : variant === 'primary'
                       ? '#fff'
                       : Colors.secondary[500],
@@ -145,7 +181,7 @@ export function Button({
                 : icon}
             </View>
           )}
-          <Text 
+          <Text
             className={cn('text-sm font-medium', getTextColor())}
             style={getDisabledTextStyle()}
           >

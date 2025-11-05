@@ -41,9 +41,8 @@ export function Tabs({ tabs, activeTab, onTabChange, className }: TabsProps) {
               onPress={() => onTabChange(tab.key)}
               activeOpacity={0.85}
             >
-              <Text style={[
-                tabsStyles.tabText,
-                !isActive && tabsStyles.tabTextInactive,
+              <Text className="text-lg font-medium" style={[
+                { color: isActive ? Colors.primary[500] : Colors.gray[300] }
               ]}>
                 {tab.label}
               </Text>

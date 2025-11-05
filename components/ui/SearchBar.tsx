@@ -15,6 +15,7 @@ interface SearchBarProps {
   onSubmitEditing?: () => void;
   returnKeyType?: 'done' | 'go' | 'next' | 'search' | 'send';
   blurOnSubmit?: boolean;
+  fontSize?: number;
 }
 export function SearchBar({
   placeholder,
@@ -26,6 +27,7 @@ export function SearchBar({
   onSubmitEditing,
   returnKeyType = 'search',
   blurOnSubmit = true,
+  fontSize = 16,
 }: SearchBarProps) {
   const { t } = useTranslation();
   const defaultPlaceholder = placeholder || t('common.search_placeholder');
@@ -78,7 +80,7 @@ export function SearchBar({
         style={inputStyles.iconContainer}
       />
       <TextInput
-        style={inputStyles.textInput}
+        style={[inputStyles.textInput, { fontSize }]}
         placeholder={defaultPlaceholder}
         placeholderTextColor={Colors.gray[400]}
         value={currentValue}

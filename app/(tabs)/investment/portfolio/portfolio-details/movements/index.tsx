@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, FlatList } from 'react-native';
-import { ChevronLeft, ArrowUp, ArrowDown } from 'lucide-react-native';
+import { ChevronLeft, ArrowUp, ArrowDown, ArrowLeftRight } from 'lucide-react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Header } from '@/components/ui/Header';
 import { Container } from '@/components/ui/Container';
 import { Card } from '@/components/ui/Card';
-import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { Pagination } from '@/components/ui/Pagination';
 import { getMovementsByGoal, Movement } from '@/services/investment/portfolio/movements/get-movements';
 import { useAuth } from '@/providers/AuthProvider';
 import Colors from '@/constants/Colors';
@@ -16,16 +16,23 @@ export default function MovementsScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const { goalId, goalName } = useLocalSearchParams<{ goalId: string; goalName: string }>();
-  
+
   const { accessToken } = useAuth();
   const [movements, setMovements] = useState<Movement[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const ITEMS_PER_PAGE = 10;
+  const totalPages = Math.ceil(movements.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const visibleMovements = movements.slice(startIndex, endIndex);
 
   const handleBackPress = () => {
     if (!goalId || goalId.trim() === '') {
-      console.warn('goalId está vacío, navegando al portfolio principal');
-      router.push('/investment/portfolio');
+      console.warn('goalId está vacío, navegando al portfolio principal')
+      router.push('/(tabs)/investment/portfolio')
       return;
     }
     
@@ -33,12 +40,12 @@ export default function MovementsScreen() {
     const safeGoalName = goalName || '';
     
     router.replace({
-      pathname: '/investment/portfolio/portfolio-details',
+      pathname: '/(tabs)/investment/portfolio/portfolio-details',
       params: {
         goalId: safeGoalId,
         goalName: safeGoalName,
       },
-    } as any);
+    });
   };
 
   useEffect(() => {
@@ -46,12 +53,13 @@ export default function MovementsScreen() {
       try {
         setLoading(true);
         setError(null);
-        
+
         const movementsData = await getMovementsByGoal(goalId, accessToken || undefined);
         setMovements(movementsData);
+        setCurrentPage(1);
       } catch (err) {
         console.error('Error loading movements:', err);
-        setError(err instanceof Error ? err.message : 'Error cargando movimientos');
+        setError(err instanceof Error ? err.message : 'Error cargando movimientos')
       } finally {
         setLoading(false);
       }
@@ -59,6 +67,10 @@ export default function MovementsScreen() {
 
     loadMovements();
   }, [goalId, accessToken]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('es-CO', {
@@ -212,22 +224,34 @@ export default function MovementsScreen() {
           </TouchableOpacity>
         }
       />
-      <View className="flex-1 px-4 py-2">
+      <View style={{ flex: 1, paddingHorizontal: 16, paddingVertical: 8 }}>
         {movements.length > 0 ? (
-          <FlatList
-            data={movements}
-            renderItem={renderMovementItem}
-            keyExtractor={(item) => item.id}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 20 }}
-          />
+          <View style={{ flex: 1 }}>
+            <View style={{ flex: 1 }}>
+              <FlatList
+                data={visibleMovements}
+                renderItem={renderMovementItem}
+                keyExtractor={(item) => item.id}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingBottom: 20 }}
+                scrollEnabled={true}
+              />
+            </View>
+            <View style={{ minHeight: 68 }}>
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+              />
+            </View>
+          </View>
         ) : (
           <View className="flex-1 justify-center items-center py-8">
-            <Text className="text-lg font-semibold text-gray-900 mb-2">
+            <View className="w-16 h-16 rounded-full bg-gray-100 justify-center items-center mb-4">
+              <ArrowLeftRight size={32} color={Colors.gray[400]} />
+            </View>
+            <Text className="text-center font-medium" style={{ color: Colors.gray[400] }}>
               {t('movements.emptyTitle')}
-            </Text>
-            <Text className="text-sm text-gray-600 text-center">
-              {t('movements.emptySubtitle')}
             </Text>
           </View>
         )}

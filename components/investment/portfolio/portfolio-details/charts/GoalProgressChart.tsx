@@ -26,10 +26,10 @@ export function GoalProgressChart({
   const { t } = useTranslation();
   const { historyData, loading, error } = useGoalHistory({
     goalId,
-    period: 'ALL', // Forzar a mostrar todo el histórico
+    period: 'ALL',
     perPage: 100
   });
-  
+
   const progressPercentage = (currentAmount / targetAmount) * 100;
   
   const generateChartData = () => {
@@ -68,7 +68,7 @@ export function GoalProgressChart({
 
   const chartData = generateChartData();
   
-  if (!currentAmount || !targetAmount) {
+  if (currentAmount === null || currentAmount === undefined || !targetAmount) {
     return (
       <View style={styles.card}>
         <View style={{ marginBottom: 20 }}>

@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { ChevronLeft, ArrowDown, ArrowUp } from 'lucide-react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Header } from '@/components/ui/Header';
 import { Container } from '@/components/ui/Container';
-import { 
-  PortfolioDetailsHeader, 
-  PortfolioOverviewSection, 
-  GoalProgressChart 
+import {
+  PortfolioDetailsHeader,
+  PortfolioOverviewSection,
+  GoalProgressChart
 } from '@/components/investment/portfolio/portfolio-details';
 import { getMovementsByGoal, Movement } from '@/services/investment/portfolio/movements/get-movements';
 import { getPortfolioDetails, MetaDetails } from '@/services/investment/portfolio/portfolio-details/get-portfolio-details';
@@ -33,11 +33,11 @@ export default function PortfolioDetailsScreen() {
         setError(null);
         
         if (!goalId) {
-          throw new Error('portfolioDetails.error.noGoalId');
+          throw new Error('portfolioDetails.error.noGoalId')
         }
         
         if (!accessToken) {
-          throw new Error('portfolioDetails.error.noToken');
+          throw new Error('portfolioDetails.error.noToken')
         }
         
         const [movementsData, metaData] = await Promise.all([
@@ -49,7 +49,7 @@ export default function PortfolioDetailsScreen() {
         setMetaDetails(metaData);
       } catch (error) {
         console.error('Error loading portfolio details:', error);
-        setError(error instanceof Error ? error.message : 'portfolioDetails.error.unknown');
+        setError(error instanceof Error ? error.message : 'portfolioDetails.error.unknown')
       } finally {
         setLoading(false);
       }
@@ -63,30 +63,34 @@ export default function PortfolioDetailsScreen() {
   if (loading || !metaDetails) {
     return (
       <Container variant="secondaryPage">
-          <Header 
-            title={t('portfolioDetails.title')} 
-            leftAction={
-              <TouchableOpacity
-                onPress={() => router.push('/investment/portfolio')}
-                className="w-10 h-10 rounded-full justify-center items-center"
-              >
-                <ChevronLeft size={24} color={Colors.primary[700]} />
-              </TouchableOpacity>
-            }
-          />
-          {error && (
-            <View className="flex-1 justify-center items-center px-6">
-              <Text className="text-red-500 text-center mb-4">
-                {t(error) || error}
-              </Text>
-              <TouchableOpacity
-                onPress={() => router.push('/investment/portfolio')}
-                className="bg-primary-500 px-4 py-2 rounded-lg"
-              >
-                <Text className="text-white">{t('common.backToPortfolio')}</Text>
-              </TouchableOpacity>
-            </View>
-          )}
+        <Header
+          title={t('portfolioDetails.title')}
+          leftAction={
+            <TouchableOpacity
+              onPress={() => router.push('/(tabs)/investment/portfolio')}
+              className="w-10 h-10 rounded-full justify-center items-center"
+            >
+              <ChevronLeft size={24} color={Colors.primary[700]} />
+            </TouchableOpacity>
+          }
+        />
+        {error ? (
+          <View className="flex-1 justify-center items-center px-6">
+            <Text className="text-red-500 text-center mb-4">
+              {t(error) || error}
+            </Text>
+            <TouchableOpacity
+              onPress={() => router.push('/(tabs)/investment/portfolio')}
+              className="bg-primary-500 px-4 py-2 rounded-lg"
+            >
+              <Text className="text-white">{t('common.backToPortfolio')}</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <View className="flex-1 justify-center items-center">
+            <ActivityIndicator size="large" color={Colors.secondary[500]} />
+          </View>
+        )}
       </Container>
     );
   }
@@ -99,12 +103,14 @@ export default function PortfolioDetailsScreen() {
     { title: t('portfolioDetails.summary.variation'), value: `$${Math.round(metaDetails.summary.variacionPesos).toLocaleString('es-CL')}` },
   ];
 
-  const transformedAssets = metaDetails.assets.map(asset => ({
-    name: asset.title,
-    percentage: Math.round((asset.value / metaDetails.current) * 100),
-    value: `$${Math.round(asset.value).toLocaleString('es-CO')}`,
-    allocation: asset.subtitle,
-  }));
+  const transformedAssets = metaDetails.assets
+    .filter(asset => asset.value > 0)
+    .map(asset => ({
+      name: asset.title,
+      percentage: Math.round((asset.value / metaDetails.current) * 100),
+      value: `$${Math.round(asset.value).toLocaleString('es-CO')}`,
+      allocation: asset.subtitle,
+    }));
 
   return (
     <Container variant="secondaryPage" className="px-1">
@@ -113,7 +119,7 @@ export default function PortfolioDetailsScreen() {
           title={t('portfolioDetails.title')} 
           leftAction={
             <TouchableOpacity
-              onPress={() => router.push('/investment/portfolio')}
+              onPress={() => router.push('/(tabs)/investment/portfolio')}
               className="p-1 mr-3"
             >
               <ChevronLeft size={24} color={Colors.primary[500]} />
@@ -142,14 +148,14 @@ export default function PortfolioDetailsScreen() {
             actions={[
               {
                 title: t('portfolioDetails.actions.invest'),
-                onPress: () => router.push('/investment/portfolio/movements/investment' as any),
+                onPress: () => router.push('/(tabs)/investment/portfolio/movements/investment'),
                 icon: <ArrowDown size={20} color="#fff" />,
                 variant: 'primary'
               },
               {
                 title: t('portfolioDetails.actions.withdraw'),
                 onPress: () => {
-                  router.push('/investment/portfolio/movements/sales' as any);
+                  router.push('/(tabs)/investment/portfolio/movements/sales')
                 },
                 icon: <ArrowUp size={20} color="#FF5603" />,
                 variant: 'outline'

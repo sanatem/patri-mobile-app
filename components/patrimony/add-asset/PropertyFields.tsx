@@ -10,6 +10,7 @@ interface PropertyFieldsProps {
   property_kind: string;
   commercial_value: string;
   unit: string;
+  isEditMode?: boolean;
   onInputChange: (field: string, value: string) => void;
   onSelectChange: (field: string, value: string) => void;
   onNumericInputChange: (field: string, value: string) => void;
@@ -17,13 +18,14 @@ interface PropertyFieldsProps {
 }
 
 
-export default function PropertyFields({ 
-  location, 
-  square_mts, 
+export default function PropertyFields({
+  location,
+  square_mts,
   property_kind,
   commercial_value,
   unit,
-  onInputChange, 
+  isEditMode = false,
+  onInputChange,
   onSelectChange,
   onNumericInputChange,
   formatValue
@@ -104,21 +106,23 @@ export default function PropertyFields({
         </View>
       </View>
 
-      <View>
-        <Text className='text-base font-medium'
-          style={{
-            color: Colors.primary[500],
-            marginBottom: 8,
-          }}
-        >
-          {t('propertyFields.mainHomeLabel')}
-        </Text>
-        <RadioButton
-          options={PROPERTY_OWNERSHIP_OPTIONS}
-          selectedValue={property_kind}
-          onSelect={(value) => onSelectChange('property_kind', value)}
-        />
-      </View>
+      {!isEditMode && (
+        <View>
+          <Text className='text-base font-medium'
+            style={{
+              color: Colors.primary[500],
+              marginBottom: 8,
+            }}
+          >
+            {t('propertyFields.mainHomeLabel')}
+          </Text>
+          <RadioButton
+            options={PROPERTY_OWNERSHIP_OPTIONS}
+            selectedValue={property_kind}
+            onSelect={(value) => onSelectChange('property_kind', value)}
+          />
+        </View>
+      )}
     </>
   );
 } 

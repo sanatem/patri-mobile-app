@@ -76,7 +76,7 @@ export default function PersonalInformationStepper() {
     if (currentStep < questions.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
-      router.push('/investment/create-account/summary' as any);
+      router.push('/(tabs)/investment/create-account/summary')
     }
   };
 
@@ -115,7 +115,7 @@ export default function PersonalInformationStepper() {
     if (currentStep < questions.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
-      router.push('/investment/create-account/summary' as any);
+      router.push('/(tabs)/investment/create-account/summary')
     }
   };
 

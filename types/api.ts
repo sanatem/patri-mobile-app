@@ -183,7 +183,8 @@ export interface ApiGoal {
   target_date: string;
   unit: string;
   created_at: string;
-  wallet_value: number;
+  goal_wallet: number;
+  available_value_for_retirement?: number;
   investment_account_id: number;
 }
 
@@ -202,6 +203,8 @@ export interface Goal {
   unit: string;
   createdAt: string;
   currentAmount: number;
+  goalWallet?: number;
+  availableValueForRetirement?: number;
   investmentAccountId: number;
   progress: number;
 }
@@ -270,9 +273,23 @@ export interface ApiSavingInstrumentFund {
   updated_at: string;
 }
 
+export interface ApiSavingInstrumentsFundsPagination {
+  current_page: number;
+  per_page: number;
+  total_mutual_pages: number;
+  total_mutual_count: number;
+  next_mutual_page: number | null;
+  prev_mutual_page: number | null;
+  total_investment_pages: number;
+  total_investment_count: number;
+  next_investment_page: number | null;
+  prev_investment_page: number | null;
+}
+
 export interface ApiSavingInstrumentsFundsData {
   investment_funds: ApiSavingInstrumentFund[];
   mutual_funds: ApiSavingInstrumentFund[];
+  pagination?: ApiSavingInstrumentsFundsPagination;
 }
 
 export interface ApiSavingInstrumentsFundsResponse {
@@ -337,8 +354,9 @@ export interface ApiDebt {
   installment_amount: number;
   installments_quantity: number;
   unit: string;
-  cae_percentage: number;
-  comments: string;
+  cae_percentage: number | string;
+  comments: string | null;
+  property_id?: number | null;
   created_at: string;
   updated_at: string;
 }

@@ -10,7 +10,7 @@ export default function LoadingProfile() {
   
   useEffect(() => {
     const timeout = setTimeout(() => {
-      router.push('/investment/create-account/investment-survey/profile-result' as any);
+      router.push('/(tabs)/investment/create-account/investment-survey/profile-result');
     }, 2000);
 
     return () => clearTimeout(timeout);

@@ -1,22 +1,24 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Animated, Dimensions, ActivityIndicator, RefreshControl } from 'react-native';
-import { Settings, Plus } from 'lucide-react-native';
+import { View, Text, ScrollView, TouchableOpacity, Animated, Dimensions, ActivityIndicator, RefreshControl, Modal, Alert } from 'react-native';
+import { Settings, Plus, Trash2 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
-import { 
+import {
 
-  TAB_CONFIG 
+  TAB_CONFIG
 } from '@/constants/AppConstants';
 import { useAuth } from '@/providers/AuthProvider';
 import AreaChart from '@/components/patrimony/AreaChart';
 import { PatrimonySummary } from '@/components/patrimony/PatrimonySummary';
-import LiabilityCard from '@/components/patrimony/LiabilityCard';
 import { useChartRangeStore, RangeSize } from '@/store/chartRangeStore';
+import { useAssetEditStore } from '@/store/assetEditStore';
+import { useLiabilityEditStore } from '@/store/liabilityEditStore';
 import { Asset, Liability } from '@/types';
 import { patrimonyService } from '@/services/patrimony/get-patrimony';
 import { useAssets, useDebts } from '@/hooks/patrimony';
-import { 
-  SearchBar, 
+import { useNetworthHistoric } from '@/hooks/patrimony/useNetworthHistoric';
+import {
+  SearchBar,
   Tabs,
   ListItem,
   Header,
@@ -26,7 +28,10 @@ import {
   KeyboardAwareContainer,
   LockedTabOverlay,
   Button,
+  ConfirmModal,
 } from '@/components/ui';
+import { deleteAsset } from '@/services/patrimony/delete-asset';
+import { deleteDebt } from '@/services/patrimony/delete-debt';
 import { SkeletonBase } from '@/components/ui/SkeletonBase';
 import { useUserData } from '@/hooks/user/useUserData';
 import { useSubscriptionStatus } from '@/hooks/common/useSubscriptionStatus';
@@ -40,10 +45,12 @@ import { useTranslation } from 'react-i18next';
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
 export default function PatrimonyScreen() {
-  const { user } = useAuth();
+  const { user, accessToken } = useAuth();
   const { shouldBlockTab, loading: subscriptionLoading } = useSubscriptionStatus();
   const { userData, loading: userLoading } = useUserData();
   const { rangeSize, setRangeSize } = useChartRangeStore();
+  const { setEditData: setAssetEditData } = useAssetEditStore();
+  const { setEditData: setLiabilityEditData } = useLiabilityEditStore();
   const router = useRouter();
   const { t } = useTranslation();
 
@@ -71,9 +78,13 @@ export default function PatrimonyScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [visibleCount, setVisibleCount] = useState(5);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<any>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isLoadingDetail, setIsLoadingDetail] = useState(false);
 
   const overlayAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(0)).current;  
+  const slideAnim = useRef(new Animated.Value(0)).current;
   const skeletonFadeAnim = useRef(new Animated.Value(1)).current;
 
   const { assets: apiAssets, loading: assetsLoading, error: assetsError, refetch: refetchAssets } = useAssets({
@@ -85,6 +96,8 @@ export default function PatrimonyScreen() {
     page: 1,
     per_page: 100
   }, true);
+
+  const { historicData, loading: historicLoading, error: historicError } = useNetworthHistoric();
 
   useEffect(() => {
     setVisibleCount(5);
@@ -111,11 +124,11 @@ export default function PatrimonyScreen() {
           return;
 
         }
-        const apiKey = Platform.OS === 'android' 
+        const apiKey = Platform.OS === 'android'
           ? process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_KEY
-          : Platform.OS === 'ios' 
-          ? process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY
-          : null;
+          : Platform.OS === 'ios'
+            ? process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY
+            : null;
         if (!apiKey) {
           throw new Error(`RevenueCat API key not found for platform: ${Platform.OS}`);
         }
@@ -228,9 +241,9 @@ export default function PatrimonyScreen() {
       'SavingInstruments::Other': { backgroundColor: '#6B7280', text: '?' },
     };
 
-    return iconMapping[type] || { 
-      backgroundColor: '#EA4335', 
-      text: name.charAt(0) 
+    return iconMapping[type] || {
+      backgroundColor: '#EA4335',
+      text: name.charAt(0)
     };
   };
 
@@ -251,7 +264,7 @@ export default function PatrimonyScreen() {
   const onRefresh = async () => {
     setRefreshing(true);
     try {
-      await loadPatrimonyData(); 
+      await loadPatrimonyData();
     } catch (error) {
       console.error('Error during refresh:', error);
     } finally {
@@ -259,41 +272,141 @@ export default function PatrimonyScreen() {
     }
   };
 
-  const extractInitialsFromAuth0User = (user: any): string => {
+  const extractInitialsFromPersonalInfo = (): string => {
     try {
-      const userMetadata = user['https://app.patrimore.com/user_metadata'];
+      if (userData?.user?.personal_information) {
+        const { first_name, last_name } = userData.user.personal_information;
 
-      if (userMetadata?.first_name && userMetadata?.last_name) {
-        const firstInitial = userMetadata.first_name.charAt(0).toUpperCase();
-        const lastInitial = userMetadata.last_name.charAt(0).toUpperCase();
-        return firstInitial + lastInitial;
-      }
-
-      if (user.nickname) {
-        const parts = user.nickname.split('.');
-        if (parts.length >= 2) {
-          return (parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase();
+        if (first_name && last_name) {
+          const firstInitial = first_name.charAt(0).toUpperCase();
+          const lastInitial = last_name.charAt(0).toUpperCase();
+          return firstInitial + lastInitial;
         }
       }
-
-      if (user.email) {
-        const username = user.email.split('@')[0];
-        const parts = username.split(/[._-]+/);
-        if (parts.length >= 2) {
-          return (parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase();
+      if (user) {
+        const auth0User = user as any;
+        const userMetadata = auth0User['https://app.patrimore.com/user_metadata'];
+        if (userMetadata?.first_name && userMetadata?.last_name) {
+          const firstInitial = userMetadata.first_name.charAt(0).toUpperCase();
+          const lastInitial = userMetadata.last_name.charAt(0).toUpperCase();
+          return firstInitial + lastInitial;
         }
-        return username.slice(0, 2).toUpperCase();
+
+        if (auth0User.nickname) {
+          const parts = auth0User.nickname.split('.');
+          if (parts.length >= 2) {
+            return (parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase();
+          }
+        }
+
+        if (auth0User.email) {
+          const username = auth0User.email.split('@')[0];
+          const parts = username.split(/[._-]+/);
+          if (parts.length >= 2) {
+            return (parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase();
+          }
+          return username.slice(0, 2).toUpperCase();
+        }
       }
 
       return 'U';
     } catch (error) {
-      console.warn('Error extracting initials:', error);
       return 'U';
     }
   };
 
   const closeModal = () => {
     setShowAddModal(false);
+  };
+
+  const handleItemPress = (item: any) => {
+    if (!accessToken || isLoadingDetail) return;
+
+    try {
+      if (activeTab === 'assets') {
+        setAssetEditData({
+          editMode: true,
+          itemId: parseInt(item.id),
+          itemType: item.type
+        });
+        router.push('/(tabs)/patrimony/add-asset');
+      } else {
+        setLiabilityEditData({
+          editMode: true,
+          itemId: parseInt(item.id),
+          itemType: item.type
+        });
+        router.push('/(tabs)/patrimony/add-liability');
+      }
+    } catch (error) {
+      console.error('Error navigating to edit:', error);
+      Alert.alert('Error', 'Ocurrió un error. Por favor intenta nuevamente.');
+    }
+  };
+
+  const handleItemDelete = (item: any) => {
+    setItemToDelete(item);
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!itemToDelete) return;
+    if (!accessToken) {
+      Alert.alert('Error', 'Sesión no disponible. Intenta nuevamente.');
+      return;
+    }
+
+    setIsDeleting(true);
+
+    try {
+      if (activeTab === 'assets') {
+        const response = await deleteAsset(itemToDelete.rawData.id, accessToken, itemToDelete.type);
+
+        if (response.success) {
+          // Asset deleted successfully
+        } else {
+          console.error('Delete asset failed:', response.error);
+          Alert.alert('Error', response.error || 'No se pudo eliminar el activo');
+          setIsDeleting(false);
+          setShowDeleteModal(false);
+          setItemToDelete(null);
+          return;
+        }
+      } else {
+        const response = await deleteDebt(itemToDelete.rawData.id, accessToken);
+        if (response.success) {
+          // Debt deleted successfully
+        } else {
+          console.error('Delete debt failed:', response.error);
+          Alert.alert('Error', response.error || 'No se pudo eliminar el pasivo');
+          setIsDeleting(false);
+          setShowDeleteModal(false);
+          setItemToDelete(null);
+          return;
+        }
+      }
+
+      if (activeTab === 'assets') {
+        refetchAssets();
+      } else {
+        refetchDebts();
+      }
+
+      await loadPatrimonyData();
+
+      setShowDeleteModal(false);
+      setItemToDelete(null);
+    } catch (error) {
+      console.error('Error deleting item:', error);
+      Alert.alert('Error', 'No se pudo eliminar el elemento');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setShowDeleteModal(false);
+    setItemToDelete(null);
   };
 
   const myAssets = patrimonyData.MY_ASSETS;
@@ -307,13 +420,13 @@ export default function PatrimonyScreen() {
   const currentAssets = ownerView === 'mine' ? myAssets : ownerView === 'partner' ? partnerAssets : combinedAssets;
   const currentLiabilities = ownerView === 'mine' ? myLiabilities : ownerView === 'partner' ? partnerLiabilities : combinedLiabilities;
 
-  const filteredAssets = currentAssets.filter((a) => 
-    a.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+  const filteredAssets = currentAssets.filter((a) =>
+    a.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     a.type.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const filteredLiabilities = currentLiabilities.filter((l) => 
-    l.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+  const filteredLiabilities = currentLiabilities.filter((l) =>
+    l.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     l.type.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -347,7 +460,9 @@ export default function PatrimonyScreen() {
         badge: {
           text: '0.00%',
           variant: 'positive' as const
-        }
+        },
+        type: 'fixed_asset',
+        rawData: asset
       })),
 
       ...apiAssets.assets.saving_instruments.map(asset => {
@@ -362,14 +477,16 @@ export default function PatrimonyScreen() {
           badge: {
             text: '0.00%',
             variant: 'positive' as const
-          }
+          },
+          type: 'saving_instrument',
+          rawData: asset
         };
       }),
 
       ...apiAssets.assets.investment_properties.map(asset => ({
         id: asset.id.toString(),
         title: `Propiedad ${asset.location}`,
-        subtitle: asset.square_mts 
+        subtitle: asset.square_mts
           ? `${asset.square_mts}m² - ${asset.number_of_bedrooms || 0} hab`
           : 'Propiedad de inversión',
         value: Math.round(asset.commercial_value),
@@ -380,13 +497,15 @@ export default function PatrimonyScreen() {
         badge: {
           text: '0.00%',
           variant: 'positive' as const
-        }
+        },
+        type: 'investment_property',
+        rawData: { ...asset, property_type: 'rent' }
       })),
 
       ...apiAssets.assets.main_homes.map(asset => ({
         id: asset.id.toString(),
         title: `Casa ${asset.location}`,
-        subtitle: asset.square_mts 
+        subtitle: asset.square_mts
           ? `${asset.square_mts}m² - ${asset.number_of_bedrooms || 0} hab`
           : asset.kind === 'leased' ? 'Casa arrendada' : 'Casa propia',
         value: Math.round(asset.commercial_value),
@@ -397,16 +516,33 @@ export default function PatrimonyScreen() {
         badge: {
           text: '0.00%',
           variant: 'positive' as const
-        }
+        },
+        type: 'main_home',
+        rawData: { ...asset, property_type: 'own' }
       }))
     ];
 
-    const filteredAssets = allAssets.filter(asset => 
-      asset.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    const filteredAssets = allAssets.filter(asset =>
+      asset.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       asset.subtitle.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     return filteredAssets;
+  };
+
+  const getDebtTypeFromCategory = (categoryName: string): string => {
+    const nameMap: Record<string, string> = {
+      'automotriz': 'automotive_credit',
+      'caja de compensación': 'consumer_credit',
+      'consumo': 'consumer_credit',
+      'crédito universitario': 'commercial_credit',
+      'hipotecario de uso': 'mortgage_credit',
+      'hipotecario de inversión': 'mortgage',
+      'línea de crédito': 'credit_line',
+      'préstamos familiares o amigos': 'family_loan',
+      'tarjeta de crédito': 'credit_card'
+    };
+    return nameMap[categoryName?.toLowerCase()] || 'other';
   };
 
   const transformApiDebts = () => {
@@ -424,9 +560,11 @@ export default function PatrimonyScreen() {
       badge: {
         text: `${debt.cae_percentage}% CAE`,
         variant: 'negative' as const
-      }
-    })).filter(debt => 
-      debt.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      },
+      type: getDebtTypeFromCategory(debt.debt_category),
+      rawData: debt
+    })).filter(debt =>
+      debt.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       debt.subtitle.toLowerCase().includes(searchQuery.toLowerCase())
     );
   };
@@ -527,7 +665,7 @@ export default function PatrimonyScreen() {
       : (apiDebts ? apiDebtsData.length : 0)
     ).toString()
   }));
-  
+
 
   const currentData = activeTab === 'assets' ? assetsData : liabilitiesData;
   const paginatedData = getPaginatedData(currentData);
@@ -553,7 +691,7 @@ export default function PatrimonyScreen() {
 
   if (shouldBlockTab("Patrimonio")) {
     return <LockedTabOverlay tabName={t('tabs.networth')} />;
-  } 
+  }
 
   if (isLoading) {
     return (
@@ -579,7 +717,7 @@ export default function PatrimonyScreen() {
         />
         <View className="flex-1 items-center justify-center">
           <Text className="text-red-600 mb-2">{error}</Text>
-          <TouchableOpacity 
+          <TouchableOpacity
             className="bg-primary px-4 py-2 rounded-lg"
             onPress={() => {
               setError(null);
@@ -606,28 +744,28 @@ export default function PatrimonyScreen() {
             onViewChange={handleUserViewChange}
             showSelector={showSelector}
             onToggle={() => setShowSelector(!showSelector)}
-            myLabel={user ? extractInitialsFromAuth0User(user) : 'U'}
+            myLabel={extractInitialsFromPersonalInfo()}
             partnerLabel="P"
             enabled={false}
           />
         }
         rightAction={
           <View className="flex-row items-center">
-            <TouchableOpacity 
+            <TouchableOpacity
               onPress={() => setShowAddModal(true)}
               className="mr-3"
             >
               <Plus size={24} color={Colors.primary[500]} />
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => router.push('/settings')}>
+            <TouchableOpacity onPress={() => router.push('/settings/settings')}>
               <Settings size={24} color={Colors.primary[500]} />
             </TouchableOpacity>
           </View>
         }
       />
       <KeyboardAwareContainer>
-        <ScrollView 
-          className="flex-1" 
+        <ScrollView
+          className="flex-1"
           showsVerticalScrollIndicator={false}
           refreshControl={
             <RefreshControl
@@ -640,7 +778,7 @@ export default function PatrimonyScreen() {
         >
           <PatrimonySummary
             totalNetWorth={netWorth}
-            totalAssets={totalAssets} 
+            totalAssets={totalAssets}
             totalLiabilities={totalLiabilities}
             variation={netWorth}
             variationPercentage={0}
@@ -673,40 +811,40 @@ export default function PatrimonyScreen() {
             )}
           </Container>
           <AreaChart />
-            <Container variant="content" className="mb-4">
-              {showSkeletons ? (
-                <Animated.View style={{ opacity: skeletonFadeAnim }}>
-                  <SkeletonBase
-                    width={380}
-                    height={56}
-                    x={0}
-                    y={0}
-                    rows={1}
-                    rowHeight={56}
-                    rowWidth={380}
-                    borderRadius={16}
-                  />
-                </Animated.View>
-              ) : (
-                <SearchBar
-                  placeholder={t('labels.patrimony.search_placeholder')}
-                  value={searchQuery}
-                  onChangeText={setSearchQuery}
+          <Container variant="content" className="mb-4">
+            {showSkeletons ? (
+              <Animated.View style={{ opacity: skeletonFadeAnim }}>
+                <SkeletonBase
+                  width={380}
+                  height={56}
+                  x={0}
+                  y={0}
+                  rows={1}
+                  rowHeight={56}
+                  rowWidth={380}
+                  borderRadius={16}
                 />
-              )}
-            </Container>
+              </Animated.View>
+            ) : (
+              <SearchBar
+                placeholder={t('labels.patrimony.search_placeholder')}
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+              />
+            )}
+          </Container>
           <Container variant="content">
             <View style={listItemStyles.cardContainer}>
-                             <Tabs
-                 tabs={tabs}
-                 activeTab={activeTab}
-                 onTabChange={handleTabChange}
-               />
+              <Tabs
+                tabs={tabs}
+                activeTab={activeTab}
+                onTabChange={handleTabChange}
+              />
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingBottom: 20, paddingTop: 12, borderBottomWidth: 1, borderBottomColor: Colors.gray[200] }}>
-                <Text style={{ color: Colors.gray[700], fontSize: 18, fontFamily: 'Poppins-medium' }}>
+                <Text className="font-medium text-lg" style={{ color: Colors.gray[700] }}>
                   {activeTab === 'assets' ? t('labels.patrimony.total_assets') : t('labels.patrimony.total_liabilities')}
                 </Text>
-                <Text style={{ color: Colors.gray[700], fontSize: 18, fontFamily: 'Poppins-medium' }}>
+                <Text className="font-medium text-lg" style={{ color: Colors.gray[700] }}>
                   {activeTab === 'assets' ? '+' : '-'}${currentTabTotal.toLocaleString('es-CL')}
                 </Text>
               </View>
@@ -714,12 +852,12 @@ export default function PatrimonyScreen() {
               {isLoadingData ? (
                 <Animated.View style={{ padding: 20, opacity: skeletonFadeAnim }}>
                   {Array.from({ length: 6 }).map((_, index) => (
-                    <View key={index} style={{ 
-                      flexDirection: 'row', 
-                      alignItems: 'center', 
-                      paddingVertical: 16, 
-                      borderBottomWidth: 1, 
-                      borderBottomColor: '#f3f4f6' 
+                    <View key={index} style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      paddingVertical: 16,
+                      borderBottomWidth: 1,
+                      borderBottomColor: '#f3f4f6'
                     }}>
                       <SkeletonBase
                         width={48}
@@ -760,16 +898,14 @@ export default function PatrimonyScreen() {
                 </Animated.View>
               ) : currentError ? (
                 <View style={{ padding: 40, alignItems: 'center' }}>
-                  <Text style={{ 
-                    color: Colors.error[500], 
-                    fontSize: 16, 
-                    fontFamily: 'Poppins-regular',
+                  <Text className="font-regular text-base" style={{
+                    color: Colors.error[500],
                     textAlign: 'center',
                     marginBottom: 12
                   }}>
                     {currentError}
                   </Text>
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     className="bg-primary px-4 py-2 rounded-lg"
                     onPress={() => {
                       if (activeTab === 'assets') {
@@ -777,51 +913,47 @@ export default function PatrimonyScreen() {
                       }
                     }}
                   >
-                    <Text className="text-white">Reintentar</Text>
+                    <Text className="text-white font-regular text-base">Reintentar</Text>
                   </TouchableOpacity>
                 </View>
               ) : hasNoCurrentData ? (
                 <View style={{ padding: 40, alignItems: 'center' }}>
-                  <Text style={{ 
-                    color: Colors.gray[500], 
-                    fontSize: 16, 
-                    fontFamily: 'Poppins-regular',
+                  <Text className="font-regular text-base" style={{
+                    color: Colors.primary[500],
                     textAlign: 'center',
                     marginBottom: 8
                   }}>
                     {t(`patrimony.empty.${activeTab}.title`)}
                   </Text>
-                  <Text style={{ 
-                    color: Colors.gray[400], 
-                    fontSize: 14, 
-                    fontFamily: 'Poppins-regular',
+                  <Text className="font-regular text-sm" style={{
+                    color: Colors.gray[500],
                     textAlign: 'center',
                     marginBottom: 12
                   }}>
                     {t(`patrimony.empty.${activeTab}.subtitle`)}
                   </Text>
                   <Button className="mt-4"
-                     variant="primary"
-                     onPress={() => {
-                       if (activeTab === 'assets') {
-                         router.push('/patrimony/add-asset');
-                       } else {
-                         router.push('/patrimony/add-liability');
-                       }
-                     }}
-                     title={activeTab === 'assets' ? t('patrimony.createAsset') : t('patrimony.createLiability')}
-                     icon={<Plus size={20} color="white" />}
-                   />
+                    variant="primary"
+                    onPress={() => {
+                      if (activeTab === 'assets') {
+                        router.push('/patrimony/add-asset');
+                      } else {
+                        router.push('/patrimony/add-liability');
+                      }
+                    }}
+                    title={activeTab === 'assets' ? t('patrimony.createAsset') : t('patrimony.createLiability')}
+                    icon={<Plus size={20} color="white" />}
+                  />
                 </View>
               ) : showSkeletons ? (
                 <Animated.View style={{ padding: 20, opacity: skeletonFadeAnim }}>
                   {Array.from({ length: 6 }).map((_, index) => (
-                    <View key={index} style={{ 
-                      flexDirection: 'row', 
-                      alignItems: 'center', 
-                      paddingVertical: 16, 
-                      borderBottomWidth: 1, 
-                      borderBottomColor: '#f3f4f6' 
+                    <View key={index} style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      paddingVertical: 16,
+                      borderBottomWidth: 1,
+                      borderBottomColor: '#f3f4f6'
                     }}>
                       <SkeletonBase
                         width={48}
@@ -861,30 +993,42 @@ export default function PatrimonyScreen() {
                   ))}
                 </Animated.View>
               ) : (
-                                 <>
-                   <ListItem
-                     data={paginatedData}
-                     showLoadMore={false}
-                     showContainer={false}
-                   />
-                   
-                    {(hasMoreData(currentData) && !isExpanded) && (
-                      <View style={{ padding: 20, alignItems: 'center' }}>
-                        <Button
-                          variant="ghost"
-                          onPress={handleToggleExpand}
-                          title={isExpanded ? t('common.viewLess') : t('common.viewMore')}
-                        />
-                      </View>
-                    )}
-                 </>
+                <>
+                  <ListItem
+                    key={`${activeTab}-${showDeleteModal}`}
+                    data={paginatedData}
+                    showLoadMore={false}
+                    showContainer={false}
+                    onItemPress={handleItemPress}
+                    onItemDelete={handleItemDelete}
+                  />
+
+                  {(hasMoreData(currentData) && !isExpanded) && (
+                    <View style={{ padding: 20, alignItems: 'center' }}>
+                      <Button
+                        variant="ghost"
+                        onPress={handleToggleExpand}
+                        title={isExpanded ? t('common.viewLess') : t('common.viewMore')}
+                      />
+                    </View>
+                  )}
+                </>
               )}
             </View>
           </Container>
         </ScrollView>
       </KeyboardAwareContainer>
+
+      <ConfirmModal
+        visible={showDeleteModal}
+        onClose={handleCancelDelete}
+        onConfirm={handleConfirmDelete}
+        title={activeTab === 'assets' ? 'Eliminar activo' : 'Eliminar pasivo'}
+        itemName={itemToDelete?.title}
+        isDeleting={isDeleting}
+      />
       {modalVisible && (
-        <View 
+        <View
           style={{
             position: 'absolute',
             top: 0,
@@ -902,19 +1046,20 @@ export default function PatrimonyScreen() {
               left: 0,
               right: 0,
               bottom: 0,
-              backgroundColor: overlayAnim.interpolate({
+              backgroundColor: 'black',
+              opacity: overlayAnim.interpolate({
                 inputRange: [0, 1],
-                outputRange: ['rgba(0,0,0,0)', 'rgba(0,0,0,0.45)'],
+                outputRange: [0, 0.45],
               }),
             }}
           >
-            <TouchableOpacity 
-              style={{ flex: 1 }} 
+            <TouchableOpacity
+              style={{ flex: 1 }}
               onPress={closeModal}
               activeOpacity={1}
             />
           </Animated.View>
-          <Animated.View 
+          <Animated.View
             style={{
               backgroundColor: '#fff',
               borderTopLeftRadius: 20,
@@ -936,8 +1081,8 @@ export default function PatrimonyScreen() {
               <View style={{ width: 40, height: 4, backgroundColor: '#D1D5DB', borderRadius: 2 }} />
             </View>
             {[
-              { label: t('patrimony.addAsset'), value: 'activo', icon: undefined },
-              { label: t('patrimony.addLiability'), value: 'pasivo', icon: undefined }
+              { label: t('patrimony.addAsset'), value: 'activo', icon: <Plus size={20} color={Colors.gray[700]} /> },
+              { label: t('patrimony.addLiability'), value: 'pasivo', icon: <Plus size={20} color={Colors.gray[700]} /> }
             ].map((option, index) => (
               <TouchableOpacity
                 key={option.value}
@@ -945,22 +1090,20 @@ export default function PatrimonyScreen() {
                   paddingVertical: 16,
                   flexDirection: 'row',
                   alignItems: 'center',
-                  borderBottomWidth: 0, 
+                  borderBottomWidth: index !== 1 ? 1 : 0,
                   borderColor: '#F3F4F6',
                 }}
                 onPress={() => {
                   closeModal();
-                  switch(option.value) {
+                  switch (option.value) {
                     case 'activo': router.push('/patrimony/add-asset'); break;
                     case 'pasivo': router.push('/patrimony/add-liability'); break;
                   }
                 }}
                 activeOpacity={0.7}
               >
-                {option.icon ? (
+                {option.icon && (
                   <View style={{ marginRight: 12 }}>{option.icon}</View>
-                ) : (
-                  <View style={{ marginRight: 12, width: 20, height: 20 }} />
                 )}
                 <Text className="text-base font-regular" style={{ color: Colors.gray[700] }}>
                   {option.label}
@@ -968,6 +1111,30 @@ export default function PatrimonyScreen() {
               </TouchableOpacity>
             ))}
           </Animated.View>
+        </View>
+      )}
+
+      {isLoadingDetail && (
+        <View style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.3)',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 2000
+        }}>
+          <View style={{
+            backgroundColor: 'white',
+            borderRadius: 12,
+            padding: 24,
+            alignItems: 'center'
+          }}>
+            <ActivityIndicator size="large" color={Colors.primary[500]} />
+            <Text style={{ marginTop: 12, color: Colors.primary[500] }}>Cargando...</Text>
+          </View>
         </View>
       )}
     </Container>
