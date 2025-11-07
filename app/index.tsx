@@ -12,7 +12,7 @@ import { BiometricPrompt } from '@/components/auth/BiometricPrompt';
 
 export default function Index() {
   const { user, loading, isAuthenticated, accessToken, loginWithBiometric } = useAuth();
-  const { biometricState } = useBiometricAuth();
+  const { biometricState, canUseBiometric, getRemainingLockoutTime } = useBiometricAuth();
   const { hasSeenOnboarding, isLoading: onboardingLoading } = useOnboarding();
   const { shouldShowOnboarding, userDataLoading, userData } = useOnboardingValidation();
   const [isReady, setIsReady] = useState(false);
@@ -34,10 +34,15 @@ export default function Index() {
         const seen = await AsyncStorage.getItem('splash_seen');
         setHasSeenSplash(seen === 'true');
 
-        const token = await AsyncStorage.getItem('auth_token');
-        const isBiometricEnabled = await SecureStorageService.isBiometricEnabled();
+        // Check if biometric should be shown
+        const canUse = await canUseBiometric();
 
-        if (token && isBiometricEnabled && biometricState.isSupported && !isAuthenticated) {
+        // Show biometric prompt if:
+        // - Biometric is enabled
+        // - There's a stored token in SecureStorage
+        // - Biometric is supported
+        // - User is not already authenticated
+        if (canUse && !isAuthenticated) {
           setShowBiometricPrompt(true);
         }
       } catch (e) {
@@ -48,9 +53,22 @@ export default function Index() {
     if (!biometricState.isLoading) {
       checkBiometricAndSplash();
     }
-  }, [biometricState.isLoading, biometricState.isSupported, isAuthenticated]);
+  }, [biometricState.isLoading, isAuthenticated, canUseBiometric]);
 
   const handleBiometricLogin = async () => {
+    const remainingTime = getRemainingLockoutTime();
+    if (remainingTime > 0) {
+      const minutes = Math.floor(remainingTime / 60);
+      const seconds = remainingTime % 60;
+      Alert.alert(
+        'Demasiados intentos',
+        `Por favor, intenta nuevamente en ${minutes}:${seconds.toString().padStart(2, '0')}`,
+        [{ text: 'OK' }]
+      );
+      setShowBiometricPrompt(false);
+      return;
+    }
+
     setBiometricLoading(true);
     try {
       const success = await loginWithBiometric();
@@ -59,9 +77,18 @@ export default function Index() {
       } else {
         setShowBiometricPrompt(false);
       }
-    } catch (error) {
-      Alert.alert('Error', 'Error al autenticar con biometría');
+    } catch (error: any) {
+      console.error('Biometric login error:', error);
       setShowBiometricPrompt(false);
+
+      // Show expiration alert if token expired
+      if (error.message?.includes('sesión ha expirado')) {
+        Alert.alert(
+          'Sesión expirada',
+          error.message,
+          [{ text: 'OK' }]
+        );
+      }
     } finally {
       setBiometricLoading(false);
     }

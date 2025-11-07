@@ -41,9 +41,7 @@ export default function MoreScreen() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
 
-  const redirectToLogin = () => {
-    router.replace('/auth/webview');
-  };
+  // Navigation is handled by the logout function itself
 
   const handleLogout = async () => {
     const logoutMessage = Platform.OS === 'ios'
@@ -62,19 +60,15 @@ export default function MoreScreen() {
             setIsLoggingOut(true);
             try {
               await logout();
-              setTimeout(() => {
-                redirectToLogin();
-              }, 500);
+              // Navigation is handled by logout function
             } catch (error) {
               console.error('Error durante logout:', error);
               try {
                 await forceLogout();
-                setTimeout(() => {
-                  redirectToLogin();
-                }, 500);
+                // Navigation is handled by forceLogout function
               } catch (forceError) {
                 console.error('Error durante logout forzado:', forceError);
-                redirectToLogin();
+                // Navigation is handled by logout functions
               }
             } finally {
               setIsLoggingOut(false);
@@ -112,7 +106,7 @@ export default function MoreScreen() {
       console.error('Error durante logout después de eliminar:', err);
       await forceLogout();
     }
-    redirectToLogin();
+    // Navigation is handled by logout functions
   };
 
   const handleOpenLink = async (url: string, title: string) => {

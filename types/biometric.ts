@@ -13,6 +13,9 @@ export interface BiometricAuthContextType {
   disableBiometric: () => Promise<void>;
   authenticateWithBiometric: () => Promise<boolean>;
   checkBiometricCapability: () => Promise<void>;
+  canUseBiometric: () => Promise<boolean>;
+  getRemainingLockoutTime: () => number;
+  clearFailedAttempts: () => Promise<void>;
 }
 
 export interface BiometricSetupResult {

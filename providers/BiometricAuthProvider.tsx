@@ -1,10 +1,14 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { BiometricAuthService } from '@/services/auth/biometric-auth.service';
 import { SecureStorageService } from '@/services/auth/secure-storage.service';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import type {
   BiometricAuthState,
   BiometricAuthContextType
 } from '@/types/biometric';
+
+const BIOMETRIC_LOCKOUT_TIME = 30 * 60 * 1000; // 30 minutes in milliseconds
+const MAX_ATTEMPTS = 3;
 
 const BiometricAuthContext = createContext<BiometricAuthContextType | undefined>(
   undefined
@@ -27,6 +31,8 @@ export const BiometricAuthProvider: React.FC<{ children: React.ReactNode }> = ({
     biometricType: 'none',
     isLoading: true,
   });
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const [lockoutEndTime, setLockoutEndTime] = useState<number | null>(null);
 
   useEffect(() => {
     initializeBiometric();
@@ -36,6 +42,18 @@ export const BiometricAuthProvider: React.FC<{ children: React.ReactNode }> = ({
     try {
       const capability = await BiometricAuthService.checkCapability();
       const isEnabled = await SecureStorageService.isBiometricEnabled();
+
+      // Load failed attempts and lockout time
+      const storedAttempts = await SecureStorageService.getFailedAttempts();
+      const storedLockoutTime = await SecureStorageService.getLockoutEndTime();
+
+      if (storedAttempts) {
+        setFailedAttempts(storedAttempts);
+      }
+
+      if (storedLockoutTime && Date.now() < storedLockoutTime) {
+        setLockoutEndTime(storedLockoutTime);
+      }
 
       setBiometricState({
         isSupported: capability.isSupported,
@@ -64,6 +82,14 @@ export const BiometricAuthProvider: React.FC<{ children: React.ReactNode }> = ({
         throw new Error(authResult.error || 'Autenticación fallida');
       }
 
+      // Get current auth token from AsyncStorage and store it in SecureStorage
+      const currentToken = await AsyncStorage.getItem('auth_token');
+      if (currentToken) {
+        await SecureStorageService.setAuthToken(currentToken);
+      } else {
+        throw new Error('No hay sesión activa. Por favor, inicia sesión primero.');
+      }
+
       await SecureStorageService.setBiometricEnabled(true);
 
       setBiometricState((prev) => ({
@@ -81,6 +107,9 @@ export const BiometricAuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const disableBiometric = async (): Promise<void> => {
     try {
       await SecureStorageService.setBiometricEnabled(false);
+      // Clear the auth token from SecureStorage when disabling biometric
+      await SecureStorageService.clearAll();
+
       setBiometricState((prev) => ({
         ...prev,
         isEnabled: false,
@@ -96,15 +125,65 @@ export const BiometricAuthProvider: React.FC<{ children: React.ReactNode }> = ({
       return false;
     }
 
+    // Check lockout
+    if (lockoutEndTime && Date.now() < lockoutEndTime) {
+      return false;
+    }
+
     const result = await BiometricAuthService.authenticate(
       'Autentícate para acceder a Patrimore'
     );
 
-    return result.success;
+    if (result.success) {
+      // Clear failed attempts on success
+      await clearFailedAttempts();
+      return true;
+    } else {
+      // Increment failed attempts
+      const newAttempts = failedAttempts + 1;
+      setFailedAttempts(newAttempts);
+      await SecureStorageService.setFailedAttempts(newAttempts);
+
+      if (newAttempts >= MAX_ATTEMPTS) {
+        const lockoutTime = Date.now() + BIOMETRIC_LOCKOUT_TIME;
+        setLockoutEndTime(lockoutTime);
+        await SecureStorageService.setLockoutEndTime(lockoutTime);
+      }
+
+      return false;
+    }
   };
 
   const checkBiometricCapability = async () => {
     await initializeBiometric();
+  };
+
+  const canUseBiometric = async (): Promise<boolean> => {
+    if (!biometricState.isEnabled || !biometricState.isSupported) {
+      return false;
+    }
+
+    // Check lockout
+    if (lockoutEndTime && Date.now() < lockoutEndTime) {
+      return false;
+    }
+
+    // Check if we have a stored token
+    const hasToken = await SecureStorageService.getAuthToken();
+    return !!hasToken;
+  };
+
+  const getRemainingLockoutTime = (): number => {
+    if (!lockoutEndTime || Date.now() >= lockoutEndTime) {
+      return 0;
+    }
+    return Math.ceil((lockoutEndTime - Date.now()) / 1000); // Return seconds
+  };
+
+  const clearFailedAttempts = async (): Promise<void> => {
+    setFailedAttempts(0);
+    setLockoutEndTime(null);
+    await SecureStorageService.clearFailedAttempts();
   };
 
   return (
@@ -115,6 +194,9 @@ export const BiometricAuthProvider: React.FC<{ children: React.ReactNode }> = ({
         disableBiometric,
         authenticateWithBiometric,
         checkBiometricCapability,
+        canUseBiometric,
+        getRemainingLockoutTime,
+        clearFailedAttempts,
       }}
     >
       {children}

@@ -153,7 +153,7 @@ export function useNetworthHistoric(params: GetNetworthHistoricParams = {}): Use
 
       }
     } catch (err) {
-      console.error('❌ Error loading networth historic data:', err);
+      console.error('Error loading networth historic data:', err);
       setError(err instanceof Error ? err.message : 'Error desconocido');
       setShouldLoadMore(false);
     } finally {

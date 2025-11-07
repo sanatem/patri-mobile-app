@@ -26,7 +26,8 @@
         "com.apple.security.application-groups": [
           "group.com.patrimore.patrimore.onesignal"
         ]
-      }
+      },
+      "appleTeamId": "JJ55Y59DRG"
     },
     "android": {
       "adaptiveIcon": {
@@ -37,7 +38,10 @@
       "package": "com.patrimore.patrimore",
       "permissions": [
         "USE_BIOMETRIC",
-        "USE_FINGERPRINT"
+        "USE_FINGERPRINT",
+        "android.permission.USE_BIOMETRIC",
+        "android.permission.USE_FINGERPRINT",
+        "com.google.android.gms.permission.AD_ID"
       ]
     },
     "assetBundlePatterns": [
@@ -63,7 +67,6 @@
           "faceIDPermission": "Patrimore utiliza Face ID para permitirte acceder de forma rápida y segura a tu información financiera."
         }
       ],
-      "expo-secure-store",
       "expo-router",
       [
         "expo-splash-screen",
@@ -83,13 +86,13 @@
       "expo-font",
       "expo-web-browser",
       "expo-localization",
+      "expo-secure-store",
       [
         "react-native-auth0",
         {
           "domain": "auth.patrimore.com"
         }
-      ],
-      "expo-secure-store"
+      ]
     ],
     "experiments": {
       "typedRoutes": true

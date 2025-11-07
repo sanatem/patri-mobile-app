@@ -403,11 +403,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.warn('RevenueCat logout failed:', error);
       }
 
-      if (Platform.OS === 'android') {
-        BackHandler.exitApp();
-      } else {
-        router.replace('/auth/webview');
-      }
+      // Navigate to home after logout
+      router.replace('/');
     } catch (error) {
       throw error;
     } finally {
@@ -623,26 +620,48 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error('No se encontró token almacenado');
       }
 
+      // Check if token might be expired client-side
+      const isExpired = await SecureStorageService.isTokenExpired();
+      if (isExpired) {
+        await SecureStorageService.clearAll();
+        throw new Error('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
+      }
+
       // 4. Validar token con backend
       setAccessToken(token);
-      const userInfo = await fetchUserInfo(token);
 
       try {
         const backendUser = await validateWithBackend(token);
+
+        // Get user info after successful validation
+        const userInfo = await fetchUserInfo(token);
+
         const completeUser: User = {
           ...userInfo,
           backendUserId: backendUser.user_id,
         };
         setUser(completeUser);
 
+        // Store token in AsyncStorage as well for consistency
+        await AsyncStorage.setItem('auth_token', token);
+
         // Initialize RevenueCat with user data
         await initializeRevenueCat(backendUser.user_id, userInfo.email);
 
         return true;
-      } catch (error) {
-        // Token expirado o inválido
-        await SecureStorageService.clearAll();
-        throw new Error('Sesión expirada. Por favor, inicia sesión nuevamente.');
+      } catch (backendError: any) {
+        // Check if it's a 401 error
+        if (backendError.message?.includes('401')) {
+          // Token is invalid/expired - clear everything
+          await SecureStorageService.clearAll();
+          await SecureStorageService.setBiometricEnabled(false);
+          await AsyncStorage.removeItem('auth_token');
+
+          throw new Error('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
+        }
+
+        // Other backend errors
+        throw new Error('Error al validar tu sesión. Por favor, intenta nuevamente.');
       }
     } catch (error) {
       console.error('Biometric login error:', error);
@@ -686,11 +705,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.warn('RevenueCat logout failed:', error);
       }
 
-      if (Platform.OS === 'android') {
-        BackHandler.exitApp();
-      } else {
-        router.replace('/auth/webview');
-      }
+      // Navigate to home after logout
+      router.replace('/');
     } catch (error) {
       setUser(null);
       setAccessToken(null);

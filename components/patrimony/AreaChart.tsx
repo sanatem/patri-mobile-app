@@ -22,6 +22,7 @@ export default function AreaChart() {
     error
   } = useNetworthHistoric();
 
+
   const filteredChartData = useMemo(() => {
     if (!historicData?.historic.timeline || historicData.historic.timeline.length === 0) {
       return [];
@@ -157,7 +158,6 @@ export default function AreaChart() {
     );
   }
 
-  // FIX: InteractiveChart crashes with empty data or insufficient data points
   if (filteredChartData.length === 0) {
     return (
       <View style={[CHART_STYLES.defaultCardStyle, areaChartCardStyles.card]}>
@@ -168,7 +168,6 @@ export default function AreaChart() {
     );
   }
 
-  // CRITICAL: Chart requires at least 2 data points to render properly
   if (filteredChartData.length < 2) {
     return (
       <View style={[CHART_STYLES.defaultCardStyle, areaChartCardStyles.card]}>
@@ -182,7 +181,8 @@ export default function AreaChart() {
     );
   }
 
-  return (
+
+  const chart = (
     <InteractiveChart
       data={filteredChartData}
       title=""
@@ -193,4 +193,6 @@ export default function AreaChart() {
       cardStyle={areaChartCardStyles.card}
     />
   );
+
+  return chart;
 }
