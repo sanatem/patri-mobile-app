@@ -14,6 +14,7 @@ interface RadioButtonProps {
   onSelect: (value: string) => void;
   disabled?: boolean;
   error?: string;
+  horizontal?: boolean;
 }
 
 export default function RadioButton({
@@ -22,7 +23,8 @@ export default function RadioButton({
   selectedValue,
   onSelect,
   disabled = false,
-  error
+  error,
+  horizontal = false
 }: RadioButtonProps) {
   return (
     <View>
@@ -38,7 +40,10 @@ export default function RadioButton({
         </Text>
       )}
       
-      <View style={{ gap: 12 }}>
+      <View style={{
+        flexDirection: horizontal ? 'row' : 'column',
+        gap: 12
+      }}>
         {options.map((option) => (
           <TouchableOpacity
             key={option.value}
@@ -46,6 +51,7 @@ export default function RadioButton({
               flexDirection: 'row',
               alignItems: 'center',
               opacity: disabled ? 0.5 : 1,
+              flex: horizontal ? 1 : undefined,
             }}
             onPress={() => !disabled && onSelect(option.value)}
             disabled={disabled}

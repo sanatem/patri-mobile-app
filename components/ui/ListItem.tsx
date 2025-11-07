@@ -19,11 +19,16 @@ interface ListItem {
     component?: React.ReactNode;
     backgroundColor?: string;
     text?: string;
+    color?: string;
+    borderColor?: string;
+    borderWidth?: number;
+    onPress?: () => void;
   };
   onPress?: () => void;
   customLayout?: boolean;
   subtitleLines?: string[];
   mediumSubtitleIndex?: number;
+  additionalContent?: React.ReactNode;
 }
 
 interface ListProps {
@@ -179,15 +184,47 @@ const SwipeableItem = ({
               activeOpacity={item.onPress || onPress ? 0.85 : 1}
             >
               {item.icon && (
-                <View style={[listItemStyles.icon, item.icon.backgroundColor ? { backgroundColor: item.icon.backgroundColor } : {}]}>
-                  {item.icon.component ? (
-                    item.icon.component
-                  ) : (
-                    <Text className="text-base font-medium" style={listItemStyles.iconText}>
-                      {item.icon.text || item.title.charAt(0)}
-                    </Text>
-                  )}
-                </View>
+                item.icon.onPress ? (
+                  <TouchableOpacity
+                    style={[
+                      listItemStyles.icon,
+                      item.icon.backgroundColor ? { backgroundColor: item.icon.backgroundColor } : {},
+                      item.icon.borderColor ? { borderColor: item.icon.borderColor } : {},
+                      item.icon.borderWidth ? { borderWidth: item.icon.borderWidth } : {}
+                    ]}
+                    onPress={item.icon.onPress}
+                    activeOpacity={0.7}
+                  >
+                    {item.icon.component ? (
+                      item.icon.component
+                    ) : (
+                      <Text className="text-base font-medium" style={[
+                        listItemStyles.iconText,
+                        item.icon.color ? { color: item.icon.color } : {}
+                      ]}>
+                        {item.icon.text || item.title.charAt(0)}
+                      </Text>
+                    )}
+                  </TouchableOpacity>
+                ) : (
+                  <View style={[
+                    listItemStyles.icon,
+                    item.icon.backgroundColor ? { backgroundColor: item.icon.backgroundColor } : {},
+                    item.icon.borderColor ? { borderColor: item.icon.borderColor } : {},
+                    item.icon.borderWidth ? { borderWidth: item.icon.borderWidth } : {}
+                  ]}>
+                    {item.icon.component ? (
+                      item.icon.component
+                    ) : (
+                      <Text className="text-base font-medium" style={[
+                        listItemStyles.iconText,
+                        item.icon.color ? { color: item.icon.color } : {}
+                      ]}>
+                        {item.icon.text || item.title.charAt(0)}
+                      </Text>
+                    )}
+                  </View>
+                )
               )}
 
               {item.customLayout ? (
@@ -229,12 +266,22 @@ const SwipeableItem = ({
                       )}
                     </View>
                   </View>
+                  {item.additionalContent && (
+                    <View style={{ width: '100%' }}>
+                      {item.additionalContent}
+                    </View>
+                  )}
                 </View>
               ) : (
                 <View style={listItemStyles.info}>
                   <Text className="text-base font-regular" style={listItemStyles.title}>{item.title}</Text>
                   {item.subtitle && (
                     <Text className="text-sm font-regular" style={listItemStyles.subtitle}>{item.subtitle}</Text>
+                  )}
+                  {item.additionalContent && (
+                    <View style={{ width: '100%' }}>
+                      {item.additionalContent}
+                    </View>
                   )}
                 </View>
               )}

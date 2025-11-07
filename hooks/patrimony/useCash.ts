@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getCash, CashResponse } from '@/services/cash/get-cash';
+import { getCash, CashResponse } from '@/services/investment/cash/get-cash';
 import { useAuth } from '@/providers/AuthProvider';
 
 interface UseCashReturn {

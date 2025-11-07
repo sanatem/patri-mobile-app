@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { getFloidAccounts, FloidAccountsResponse } from '@/services/budget/get-floid-accounts';
+import { getFloidAccounts, FloidAccountsResponse } from '@/services/budget/transactions/get-floid-accounts';
 import { useAuth } from '@/providers/AuthProvider';
 
 interface UseFloidAccountsReturn {
