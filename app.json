@@ -45,11 +45,19 @@
     },
     "plugins": [
       [
+        "expo-build-properties",
+        {
+          "ios": {
+            "deploymentTarget": "15.1"
+          }
+        }
+      ],
+      [
         "onesignal-expo-plugin",
         {
           "mode": "production",
           "devTeam": "JJ55Y59DRG",
-          "iPhoneDeploymentTarget": "12.0"
+          "iPhoneDeploymentTarget": "15.1"
         }
       ],
       "expo-router",
