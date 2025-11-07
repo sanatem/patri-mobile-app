@@ -9,7 +9,10 @@
       "ios": {
         "simulator": false
       },
-      "channel": "preview"
+      "channel": "preview",
+      "env": {
+        "EXPO_NO_CAPABILITY_SYNC": "1"
+      }
     },
     "development": {
       "developmentClient": true,
@@ -29,7 +32,10 @@
       "ios": {
         "distribution": "store"
       },
-      "channel": "production"
+      "channel": "production",
+      "env": {
+        "EXPO_NO_CAPABILITY_SYNC": "1"
+      }
     }
   },
   "submit": {
