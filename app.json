@@ -17,7 +17,8 @@
         ],
         "ITSAppUsesNonExemptEncryption": false,
         "NSCameraUsageDescription": "Esta app necesita acceso a la cámara para que los usuarios puedan escanear documentos o tomar fotografías.",
-        "NSUserTrackingUsageDescription": "Usamos esta información para ofrecerte anuncios personalizados y mejorar tu experiencia en la app."
+        "NSUserTrackingUsageDescription": "Usamos esta información para ofrecerte anuncios personalizados y mejorar tu experiencia en la app.",
+        "NSLocationWhenInUseUsageDescription": "Esta app necesita acceso a tu ubicación para mostrarte información financiera relevante a tu zona y mejorar tu experiencia."
       },
       "entitlements": {
         "aps-environment": "production",
@@ -48,6 +49,22 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "deploymentTarget": "15.1"
+          }
+        }
+      ],
+      [
+        "onesignal-expo-plugin",
+        {
+          "mode": "production",
+          "devTeam": "JJ55Y59DRG",
+          "iPhoneDeploymentTarget": "15.1"
+        }
+      ],
       "expo-router",
       [
         "expo-splash-screen",
@@ -66,13 +83,7 @@
       ],
       "expo-font",
       "expo-web-browser",
-      "expo-localization",
-      [
-        "react-native-auth0",
-        {
-          "domain": "auth.patrimore.com"
-        }
-      ]
+      "expo-localization"
     ],
     "experiments": {
       "typedRoutes": true

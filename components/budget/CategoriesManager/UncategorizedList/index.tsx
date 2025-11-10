@@ -50,28 +50,23 @@ export function UncategorizedList({
   const [shouldRenderContent, setShouldRenderContent] = useState(false);
   const activeAnim = useRef(new Animated.Value(isActive ? 1 : 0)).current;
 
-  // Get expansion animation value
   const expansionValue = categoryExpansions.get('uncategorized');
   
-  // Create expansion style dynamically - use fixed large value for maxHeight
-  // React Native interpolations don't update dynamically, so we use a large fixed value
   const dynamicExpansionStyle = expansionValue ? {
     opacity: expansionValue.interpolate({
       inputRange: [0, 0.3, 1],
-      outputRange: [0, 0.6, 1], // Smoother fade in progression
+      outputRange: [0, 0.6, 1],
     }),
     maxHeight: expansionValue.interpolate({
       inputRange: [0, 1],
-      outputRange: [0, 10000], // Fixed large value that will accommodate any content
+      outputRange: [0, 10000],
     }),
   } : { opacity: 0, maxHeight: 0 };
 
-  // Mark component as mounted after first render
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  // Animate active state changes (horizontal transition)
   useEffect(() => {
     Animated.spring(activeAnim, {
       toValue: isActive ? 1 : 0,
@@ -82,7 +77,6 @@ export function UncategorizedList({
     }).start();
   }, [isActive, activeAnim]);
 
-  // Create animated styles for card opacity and scale
   const cardOpacity = activeAnim.interpolate({
     inputRange: [0, 1],
     outputRange: [0.8, 1],
@@ -105,9 +99,7 @@ export function UncategorizedList({
     );
   }, [uncategorizedTransactions, searchQuery]);
 
-  // Sync rotation animation with expanded state
   useEffect(() => {
-    // Ensure animations exist
     if (!categoryRotations.has('uncategorized')) {
       categoryRotations.set('uncategorized', new Animated.Value(0));
     }
@@ -118,11 +110,8 @@ export function UncategorizedList({
     const rotation = categoryRotations.get('uncategorized')!;
     const expansion = categoryExpansions.get('uncategorized')!;
     
-    // Use isExpanded directly instead of shouldShowContent
-    // This ensures animation always runs when state changes
     const toValue = (isActive && isExpanded) ? 1 : 0;
     
-    // If inactive, set values immediately without animation
     if (!isActive) {
       rotation.setValue(0);
       expansion.setValue(0);
@@ -130,42 +119,35 @@ export function UncategorizedList({
       return;
     }
     
-    // Always animate when mounted and card is active (whether expanding or collapsing)
-    // This ensures both expand and collapse animations are visible
     if (isMounted) {
-      // Stop any ongoing animation first
       rotation.stopAnimation();
       expansion.stopAnimation();
       
-      // If expanding, render content immediately
       if (isExpanded) {
         setShouldRenderContent(true);
       }
       
-      // Use requestAnimationFrame to ensure layout is ready before animating
       requestAnimationFrame(() => {
         Animated.parallel([
           Animated.timing(rotation, {
             toValue,
             duration: 280,
             useNativeDriver: true,
-            easing: Easing.bezier(0.25, 0.1, 0.25, 1), // Smooth ease for both expand and collapse
+            easing: Easing.bezier(0.25, 0.1, 0.25, 1),
           }),
           Animated.timing(expansion, {
             toValue,
             duration: 280,
             useNativeDriver: false,
-            easing: Easing.bezier(0.25, 0.1, 0.25, 1), // Smooth ease for both expand and collapse
+            easing: Easing.bezier(0.25, 0.1, 0.25, 1),
           })
         ]).start((finished) => {
-          // After animation completes, update render state
           if (finished && !isExpanded) {
             setShouldRenderContent(false);
           }
         });
       });
     } else if (isExpanded) {
-      // If component mounts already expanded, set values immediately without animation
       rotation.setValue(1);
       expansion.setValue(1);
       setShouldRenderContent(true);
