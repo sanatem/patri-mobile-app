@@ -2,32 +2,22 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { router } from 'expo-router';
-import { FormLayout, Button } from '@/components/ui';
+import { FormLayout } from '@/components/ui';
 import { useTranslation } from 'react-i18next';
 import { REGIONS_AND_COMMUNES } from '@/constants/AppConstants';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import type { ExtractedPersonalData } from '@/services/id-analyzer';
 import { useAuth } from '@/providers/AuthProvider';
-import { updatePersonalInformation } from '@/services/investment/create-account/personal-information/update-personal-information';
+import { getContactInformation } from '@/services/investment/create-account/contact-information/get-contact-information';
+import { createContactInformation } from '@/services/investment/create-account/contact-information/create-contact-information';
+import { updateContactInformation } from '@/services/investment/create-account/contact-information/update-contact-information';
 
-interface PersonalInfoQuestion {
+interface ContactInfoQuestion {
   id: string;
   text: string;
-  textFeminine?: string;
-  textMasculine?: string;
-  textNoBinary?: string;
   subtitle?: string;
-  type: 'choice' | 'input' | 'form';
-  options?: Array<{
-    label: string;
-    labelFeminine?: string;
-    labelMasculine?: string;
-    labelNoBinary?: string;
-    value: string;
-  }>;
+  type: 'choice' | 'input' | 'form' | 'select';
+  options?: Array<{ label: string; value: string }>;
   placeholder?: string;
   dependsOn?: string;
-  showWhen?: string;
   fields?: Array<{
     name: string;
     type: string;
@@ -37,88 +27,96 @@ interface PersonalInfoQuestion {
   }>;
 }
 
-export default function PersonalInformationStepper() {
+export default function ContactInformationStepper() {
   const { t } = useTranslation();
   const { accessToken } = useAuth();
-  const allQuestions = t('personalInfo.questions', { returnObjects: true }) as PersonalInfoQuestion[];
+  const allQuestions = t('contactInfo.questions', { returnObjects: true }) as ContactInfoQuestion[];
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, any>>({});
-  const [extractedData, setExtractedData] = useState<ExtractedPersonalData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [hasExistingData, setHasExistingData] = useState(false);
 
   const getFilteredQuestions = () => {
     return allQuestions.filter((question) => {
-      if (!question.dependsOn || !question.showWhen) {
+      if (!question.dependsOn) {
         return true;
       }
-      return answers[question.dependsOn] === question.showWhen;
+      return !!answers[question.dependsOn];
     });
   };
 
   const questions = getFilteredQuestions();
   const currentQuestion = questions[currentStep];
-  const selectedGender = answers['gender'];
-
-  const getGenderedText = (question: PersonalInfoQuestion) => {
-    if (selectedGender === 'feminine' && question.textFeminine) {
-      return question.textFeminine;
-    } else if (selectedGender === 'masculine' && question.textMasculine) {
-      return question.textMasculine;
-    } else if (selectedGender === 'no_binary' && question.textNoBinary) {
-      return question.textNoBinary;
-    }
-    return question.text;
-  };
-  
-  const getGenderedLabel = (option: any) => {
-    if (selectedGender === 'feminine' && option.labelFeminine) {
-      return option.labelFeminine;
-    } else if (selectedGender === 'masculine' && option.labelMasculine) {
-      return option.labelMasculine;
-    } else if (selectedGender === 'no_binary' && option.labelNoBinary) {
-      return option.labelNoBinary;
-    }
-    return option.label;
-  };
 
   useEffect(() => {
-    loadExtractedData();
+    loadContactInformation();
   }, []);
 
-  const loadExtractedData = async () => {
-    try {
-      const data = await AsyncStorage.getItem('extracted_personal_data');
-      if (data) {
-        const parsed: ExtractedPersonalData = JSON.parse(data);
-        setExtractedData(parsed);
-        
-        const preFilledAnswers: Record<string, any> = {};
+  const loadContactInformation = async () => {
+    if (!accessToken) {
+      setIsLoading(false);
+      return;
+    }
 
-        if (parsed.firstName) {
-          preFilledAnswers['firstName'] = parsed.firstName;
+    try {
+      const response = await getContactInformation(accessToken);
+      console.log('GET contact information response:', response);
+
+      if (response.success && response.contact_information) {
+        const contactInfo = response.contact_information;
+        console.log('Contact info from API:', contactInfo);
+
+        const hasAnyData = !!(
+          contactInfo.address ||
+          contactInfo.address_number ||
+          contactInfo.floor_number ||
+          (contactInfo.phones && contactInfo.phones.length > 0 && contactInfo.phones[0]) ||
+          contactInfo.location_data?.region ||
+          contactInfo.location_data?.commune ||
+          contactInfo.address_data?.country ||
+          contactInfo.address_data?.state ||
+          contactInfo.address_data?.city
+        );
+
+        console.log('Has any existing data:', hasAnyData);
+        setHasExistingData(hasAnyData);
+
+        if (hasAnyData) {
+          const preFilledAnswers: Record<string, any> = {};
+
+          if (contactInfo.address) {
+            preFilledAnswers['address'] = contactInfo.address;
+          }
+          if (contactInfo.floor_number) {
+            preFilledAnswers['address_number'] = contactInfo.floor_number;
+          }
+          if (contactInfo.phones && contactInfo.phones.length > 0) {
+            preFilledAnswers['phone'] = contactInfo.phones[0];
+          }
+          if (contactInfo.location_data?.region) {
+            preFilledAnswers['region'] = contactInfo.location_data.region;
+          }
+          if (contactInfo.location_data?.commune) {
+            preFilledAnswers['commune'] = contactInfo.location_data.commune;
+          }
+
+          console.log('Pre-filled answers:', preFilledAnswers);
+          setAnswers(preFilledAnswers);
         }
-        if (parsed.lastName) {
-          preFilledAnswers['lastName'] = parsed.lastName;
-        }
-        if (parsed.dateOfBirth) {
-          preFilledAnswers['dateOfBirth'] = parsed.dateOfBirth;
-        }
-        if (parsed.nationality) {
-          preFilledAnswers['nationality'] = parsed.nationality;
-        }
-        if (parsed.documentNumber) {
-          preFilledAnswers['documentNumber'] = parsed.documentNumber;
-        }
-        
-        setAnswers(preFilledAnswers);
-        
-        await AsyncStorage.removeItem('extracted_personal_data');
+      } else {
+        console.log('No contact information found or request failed');
+        setHasExistingData(false);
       }
     } catch (error) {
+      console.error('Error loading contact information:', error);
+      setHasExistingData(false);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const submitPersonalInformation = async (finalAnswers: Record<string, any>) => {
+  const submitContactInformation = async (finalAnswers: Record<string, any>) => {
     if (!accessToken) {
       console.error('No access token available');
       return;
@@ -126,28 +124,39 @@ export default function PersonalInformationStepper() {
 
     setIsSubmitting(true);
     try {
-      const personalInfoData = {
-        sex: finalAnswers.sex || undefined,
-        gender: finalAnswers.gender || undefined,
-        employment_situation: finalAnswers.employment_situation || undefined,
-        marital_status: finalAnswers.marital_status || undefined,
-        conjugal_regime: finalAnswers.conjugal_regime || undefined,
-        us_person: finalAnswers.us_person === 'si',
-        pep: finalAnswers.pep === 'si',
-        has_broker_relationship_with_vector: finalAnswers.has_broker_relationship_with_vector === 'si',
-        broker_relationship_type: finalAnswers.broker_relationship_type || undefined,
-        has_a_broker_relationship: finalAnswers.has_a_broker_relationship === 'si',
+      const contactInfoPayload = {
+        contact_information: {
+          address: finalAnswers.address || '',
+          address_number: finalAnswers.address_number || '',
+          phones: [finalAnswers.phone || ''],
+          address_data: {
+            country: 'Chile',
+            state: finalAnswers.region || '',
+            city: finalAnswers.commune || '',
+            route: finalAnswers.address || '',
+            street_number: finalAnswers.address_number || '',
+          },
+          location_data: {
+            region: finalAnswers.region || '',
+            commune: finalAnswers.commune || '',
+          },
+        },
       };
 
-      const response = await updatePersonalInformation(accessToken, personalInfoData);
+      let response;
+      if (hasExistingData) {
+        response = await updateContactInformation(accessToken, contactInfoPayload);
+      } else {
+        response = await createContactInformation(accessToken, contactInfoPayload);
+      }
 
       if (response.success) {
-        router.push('/(tabs)/investment/create-account/personal-information/contact-information-question');
+        router.push('/(tabs)/investment/create-account/summary');
       } else {
-        console.error('Error updating personal information:', response.message);
+        console.error('Error submitting contact information:', response.message);
       }
     } catch (error) {
-      console.error('Error submitting personal information:', error);
+      console.error('Error submitting contact information:', error);
     } finally {
       setIsSubmitting(false);
     }
@@ -159,7 +168,7 @@ export default function PersonalInformationStepper() {
     if (currentStep < questions.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
-      submitPersonalInformation(newAnswers);
+      submitContactInformation(newAnswers);
     }
   };
 
@@ -167,24 +176,35 @@ export default function PersonalInformationStepper() {
     setAnswers({ ...answers, [currentQuestion.id]: value });
   };
 
+  const handleSelectChange = (value: string) => {
+    const newAnswers = { ...answers, [currentQuestion.id]: value };
+    setAnswers(newAnswers);
+
+    if (currentQuestion.id === 'region') {
+      delete newAnswers.commune;
+    }
+  };
+
   const handleFormChange = (fieldName: string, value: string) => {
     const currentFormData = answers[currentQuestion.id] || {};
     const newFormData = { ...currentFormData, [fieldName]: value };
-    
+
     if (fieldName === 'region') {
       newFormData.commune = '';
     }
-    
+
     setAnswers({ ...answers, [currentQuestion.id]: newFormData });
   };
 
   const canContinue = () => {
     const answer = answers[currentQuestion.id];
-    
+
     switch (currentQuestion.type) {
       case 'choice':
         return !!answer;
       case 'input':
+        return !!answer && answer.trim() !== '';
+      case 'select':
         return !!answer;
       case 'form':
         if (!answer) return false;
@@ -198,7 +218,7 @@ export default function PersonalInformationStepper() {
     if (currentStep < questions.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
-      submitPersonalInformation(answers);
+      submitContactInformation(answers);
     }
   };
 
@@ -222,7 +242,7 @@ export default function PersonalInformationStepper() {
                 onPress={() => !isSubmitting && handleChoiceSelect(option.value)}
                 disabled={isSubmitting}
               >
-                <Text className="text-base text-gray-800">{getGenderedLabel(option)}</Text>
+                <Text className="text-base text-gray-800">{option.label}</Text>
               </TouchableOpacity>
             ))}
             {isSubmitting && (
@@ -239,11 +259,39 @@ export default function PersonalInformationStepper() {
           <View>
             <TextInput
               placeholder={currentQuestion.placeholder || ''}
-              keyboardType="phone-pad"
+              keyboardType={currentQuestion.id === 'phone' ? 'phone-pad' : currentQuestion.id === 'address_number' ? 'numeric' : 'default'}
               value={answers[currentQuestion.id] || ''}
               onChangeText={handleInputChange}
               className="bg-gray-100 p-3 rounded-lg mb-3"
             />
+          </View>
+        );
+
+      case 'select':
+        let selectOptions: string[] = [];
+
+        if (currentQuestion.id === 'region') {
+          selectOptions = Object.keys(REGIONS_AND_COMMUNES);
+        } else if (currentQuestion.id === 'commune' && answers['region']) {
+          const regionKey = answers['region'] as keyof typeof REGIONS_AND_COMMUNES;
+          selectOptions = Array.isArray(REGIONS_AND_COMMUNES[regionKey]) ? REGIONS_AND_COMMUNES[regionKey] : [];
+        }
+
+        return (
+          <View>
+            <View className="bg-gray-100 rounded-lg">
+              <Picker
+                selectedValue={answers[currentQuestion.id] || ''}
+                onValueChange={handleSelectChange}
+                style={{ height: 50 }}
+                enabled={!currentQuestion.dependsOn || !!answers[currentQuestion.dependsOn]}
+              >
+                <Picker.Item label={currentQuestion.placeholder || 'Selecciona'} value="" />
+                {selectOptions.map((option: string, idx: number) => (
+                  <Picker.Item key={idx} label={option} value={option} />
+                ))}
+              </Picker>
+            </View>
           </View>
         );
 
@@ -263,21 +311,21 @@ export default function PersonalInformationStepper() {
                   />
                 );
               }
-              
+
               if (field.type === 'select') {
                 let options: string[] = ('options' in field && field.options) ? field.options : [];
-                
+
                 if ('dependsOn' in field && field.dependsOn && formData[field.dependsOn]) {
                   const regionKey = formData[field.dependsOn] as keyof typeof REGIONS_AND_COMMUNES;
                   options = Array.isArray(REGIONS_AND_COMMUNES[regionKey]) ? REGIONS_AND_COMMUNES[regionKey] : [];
                 }
-                
+
                 return (
                   <View key={index} className="mb-3">
                     <Text className="font-medium mb-1">
                       {field.name === 'region'
-                        ? t('personalInfo.regionLabel')
-                        : t('personalInfo.communeLabel')}
+                        ? t('contactInfo.regionLabel')
+                        : t('contactInfo.communeLabel')}
                     </Text>
                     <View className="bg-gray-100 rounded-lg">
                       <Picker
@@ -295,7 +343,7 @@ export default function PersonalInformationStepper() {
                   </View>
                 );
               }
-              
+
               return null;
             })}
           </View>
@@ -306,10 +354,26 @@ export default function PersonalInformationStepper() {
     }
   };
 
+  if (isLoading) {
+    return (
+      <FormLayout
+        title={t('common.loading')}
+        subtitle=""
+        currentStep={0}
+        totalSteps={0}
+        showLogo={false}
+      >
+        <View className="items-center justify-center py-10">
+          <ActivityIndicator size="large" color="#0066CC" />
+        </View>
+      </FormLayout>
+    );
+  }
+
   return (
     <FormLayout
-      title={getGenderedText(currentQuestion)}
-      subtitle=''
+      title={currentQuestion.text}
+      subtitle={currentQuestion.subtitle || ''}
       currentStep={0}
       totalSteps={0}
       onNext={currentQuestion.type === 'choice' ? undefined : canContinue() && !isSubmitting ? handleContinue : undefined}
@@ -318,7 +382,7 @@ export default function PersonalInformationStepper() {
       isNextDisabled={!canContinue() || isSubmitting}
       showLogo={false}
     >
-      
+
       <View className="flex-row mb-6">
         {questions.map((_, index) => (
           <View
@@ -333,4 +397,4 @@ export default function PersonalInformationStepper() {
       {renderQuestion()}
     </FormLayout>
   );
-} 
+}

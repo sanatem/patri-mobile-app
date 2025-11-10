@@ -4,9 +4,11 @@ export interface OnboardingPersonalInformation {
   rut: string;
   birth_date: string;
   monthly_incomes: string;
-  residence_country: string;
-  first_name: string;
-  last_name: string;
+  nationality?: string;
+  residence_country?: string;
+  residence_country_name?: string;
+  first_name?: string;
+  last_name?: string;
 }
 
 export interface OnboardingRequest {

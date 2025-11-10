@@ -231,6 +231,7 @@
     "birthDate": "Date of birth",
     "dateOfBirth": "Date of birth",
     "nationality": "Nationality",
+    "selectNationality": "Select nationality",
     "documentNumber": "Document number",
     "idExpiryDate": "ID expiration date",
     "verifyingDescription": "Verifying your identity document",
@@ -1138,54 +1139,134 @@
   "personalInfo": {
     "questions": [
       {
-        "id": "gender",
+        "id": "sex",
         "type": "choice",
-        "text": "How should we address you?",
+        "text": "What is your legal sex?",
         "options": [
           {
-            "label": "Feminine",
-            "value": "femenino"
+            "label": "Female",
+            "value": "female"
           },
           {
-            "label": "Masculine",
-            "value": "masculino"
+            "label": "Male",
+            "value": "male"
           }
         ]
       },
       {
-        "id": "nationality",
+        "id": "gender",
         "type": "choice",
-        "text": "Is your nationality Chilean?",
+        "text": "What pronoun do you prefer we use to address you?",
         "options": [
           {
-            "label": "Yes",
-            "value": "si"
+            "label": "She/Her",
+            "value": "feminine"
           },
           {
-            "label": "No",
-            "value": "no"
+            "label": "He/Him",
+            "value": "masculine"
+          },
+          {
+            "label": "They/Them",
+            "value": "no_binary"
+          }
+        ]
+      },
+      {
+        "id": "employment_situation",
+        "type": "choice",
+        "text": "What is your employment situation?",
+        "options": [
+          {
+            "label": "I have dependent employment",
+            "value": "dependent"
+          },
+          {
+            "label": "I have independent employment",
+            "value": "independent"
+          },
+          {
+            "label": "Student",
+            "value": "student"
+          },
+          {
+            "label": "I am in commerce",
+            "value": "commerce"
+          },
+          {
+            "label": "I am a company director",
+            "value": "associate"
+          },
+          {
+            "label": "I am a capital rentier",
+            "value": "capital_rentier"
+          },
+          {
+            "label": "Retired",
+            "value": "pensioner"
+          },
+          {
+            "label": "Unemployed",
+            "value": "unemployed"
+          }
+        ]
+      },
+      {
+        "id": "marital_status",
+        "type": "choice",
+        "text": "What is your marital status?",
+        "options": [
+          {
+            "label": "Single",
+            "value": "single"
+          },
+          {
+            "label": "Married",
+            "value": "married"
+          },
+          {
+            "label": "Divorced",
+            "value": "divorced"
+          },
+          {
+            "label": "Widowed",
+            "value": "widower"
+          },
+          {
+            "label": "Civil Union",
+            "value": "civil_union"
+          },
+          {
+            "label": "Separated",
+            "value": "separated"
+          }
+        ]
+      },
+      {
+        "id": "conjugal_regime",
+        "type": "choice",
+        "text": "Under which conjugal regime are you married?",
+        "dependsOn": "marital_status",
+        "showWhen": "married",
+        "options": [
+          {
+            "label": "Conjugal society",
+            "value": "conjugal_society"
+          },
+          {
+            "label": "Profit sharing",
+            "value": "profit_sharing"
+          },
+          {
+            "label": "Separation of property",
+            "value": "separation_of_property"
           }
         ]
       },
       {
         "id": "us_person",
         "type": "choice",
-        "text": "Are you a US Person?",
-        "options": [
-          {
-            "label": "Yes",
-            "value": "si"
-          },
-          {
-            "label": "No",
-            "value": "no"
-          }
-        ]
-      },
-      {
-        "id": "foreign_tax",
-        "type": "choice",
-        "text": "Do you have tax residency in another country?",
+        "text": "Do you have tax residency in the United States (US Person)?",
         "options": [
           {
             "label": "Yes",
@@ -1212,6 +1293,69 @@
           }
         ]
       },
+      {
+        "id": "has_broker_relationship_with_vector",
+        "type": "choice",
+        "text": "Are you an employee, director, or attorney-in-fact of Vector Capital Corredores de Bolsa?",
+        "options": [
+          {
+            "label": "Yes",
+            "value": "si"
+          },
+          {
+            "label": "No",
+            "value": "no"
+          }
+        ]
+      },
+      {
+        "id": "broker_relationship_type",
+        "type": "choice",
+        "text": "What type of relationship do you have with the brokerage firm?",
+        "dependsOn": "has_broker_relationship_with_vector",
+        "showWhen": "si",
+        "options": [
+          {
+            "label": "Partner",
+            "value": "partner"
+          },
+          {
+            "label": "Director",
+            "value": "director"
+          },
+          {
+            "label": "Employee",
+            "value": "employee"
+          },
+          {
+            "label": "Business Group Member",
+            "value": "business_group"
+          },
+          {
+            "label": "Other Relationship",
+            "value": "other"
+          }
+        ]
+      },
+      {
+        "id": "has_a_broker_relationship",
+        "type": "choice",
+        "text": "Are you an employee, director, or attorney-in-fact of another brokerage firm?",
+        "options": [
+          {
+            "label": "Yes",
+            "value": "si"
+          },
+          {
+            "label": "No",
+            "value": "no"
+          }
+        ]
+      }
+    ]
+  },
+  "contactInfo": {
+    "questions": [
       {
         "id": "address",
         "type": "form",
@@ -1242,78 +1386,6 @@
         "text": "What is your phone number?",
         "subtitle": "We ask for regulatory reasons",
         "placeholder": "9 1234 5678"
-      },
-      {
-        "id": "income_source",
-        "type": "choice",
-        "text": "What is the source of the money you want to invest?",
-        "options": [
-          {
-            "label": "Salary/Freelance",
-            "value": "sueldo"
-          },
-          {
-            "label": "Investments",
-            "value": "inversiones"
-          },
-          {
-            "label": "Business income",
-            "value": "negocio"
-          },
-          {
-            "label": "Real estate",
-            "value": "bienes_raices"
-          },
-          {
-            "label": "Inheritance",
-            "value": "herencia"
-          },
-          {
-            "label": "Savings",
-            "value": "ahorros"
-          }
-        ]
-      },
-      {
-        "id": "occupation",
-        "type": "form",
-        "text": "What do you do?",
-        "fields": [
-          {
-            "name": "employment",
-            "type": "text",
-            "placeholder": "Employment status"
-          },
-          {
-            "name": "occupation",
-            "type": "text",
-            "placeholder": "Occupation or profession"
-          }
-        ]
-      },
-      {
-        "id": "monthly_income",
-        "type": "choice",
-        "text": "What is your monthly income?",
-        "subtitle": "An estimate is fine",
-        "options": [
-          {
-            "label": "Less than $500,000",
-            "value": "menos_500"
-          },
-          {
-            "label": "$500,000–$1,000,000",
-            "value": "500_1000"
-          },
-          {
-            "label": "$1,000,000–$2,000,000",
-            "value": "1000_2000"
-          },
-          {
-            "label": "More than $2,000,000",
-            "value": "mas_2000"
-          }
-        ]
       }
     ],
     "placeholders": {

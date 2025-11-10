@@ -231,6 +231,7 @@
         "birthDate": "Fecha de nacimiento",
         "dateOfBirth": "Fecha de nacimiento",
         "nationality": "Nacionalidad",
+        "selectNationality": "Selecciona nacionalidad",
         "documentNumber": "Número de documento",
         "idExpiryDate": "Fecha de vencimiento del documento",
         "verifyingDescription": "Verificando tu documento de identidad",
@@ -1139,54 +1140,158 @@
     "personalInfo": {
         "questions": [
             {
-                "id": "gender",
+                "id": "sex",
                 "type": "choice",
-                "text": "¿Cómo debemos dirigirnos a ti?",
+                "text": "¿Cuál es tu sexo legal?",
                 "options": [
                     {
-                        "label": "En femenino",
-                        "value": "femenino"
+                        "label": "Femenino",
+                        "value": "female"
                     },
                     {
-                        "label": "En masculino",
-                        "value": "masculino"
+                        "label": "Masculino",
+                        "value": "male"
                     }
                 ]
             },
             {
-                "id": "nationality",
+                "id": "gender",
                 "type": "choice",
-                "text": "¿Tu nacionalidad es chilena?",
+                "text": "¿Con qué pronombre prefieres que nos dirijamos a ti?",
                 "options": [
                     {
-                        "label": "Sí",
-                        "value": "si"
+                        "label": "Ella",
+                        "value": "feminine"
                     },
                     {
-                        "label": "No",
-                        "value": "no"
+                        "label": "Él",
+                        "value": "masculine"
+                    },
+                    {
+                        "label": "Elle",
+                        "value": "no_binary"
+                    }
+                ]
+            },
+            {
+                "id": "employment_situation",
+                "type": "choice",
+                "text": "¿Cuál es tu situación laboral?",
+                "options": [
+                    {
+                        "label": "Tengo un trabajo dependiente",
+                        "value": "dependent"
+                    },
+                    {
+                        "label": "Tengo un trabajo independiente",
+                        "value": "independent"
+                    },
+                    {
+                        "label": "Estudio",
+                        "value": "student"
+                    },
+                    {
+                        "label": "Me dedico al comercio",
+                        "value": "commerce"
+                    },
+                    {
+                        "label": "Soy director de empresas",
+                        "labelFeminine": "Soy directora de empresas",
+                        "labelMasculine": "Soy director de empresas",
+                        "labelNoBinary": "Soy directore de empresas",
+                        "value": "associate"
+                    },
+                    {
+                        "label": "Soy rentista de capital",
+                        "value": "capital_rentier"
+                    },
+                    {
+                        "label": "Pensionado",
+                        "labelFeminine": "Pensionada",
+                        "labelMasculine": "Pensionado",
+                        "labelNoBinary": "Pensionade",
+                        "value": "pensioner"
+                    },
+                    {
+                        "label": "No tengo empleo",
+                        "value": "unemployed"
+                    }
+                ]
+            },
+            {
+                "id": "marital_status",
+                "type": "choice",
+                "text": "¿Cuál es tu estado civil?",
+                "options": [
+                    {
+                        "label": "Soltero",
+                        "labelFeminine": "Soltera",
+                        "labelMasculine": "Soltero",
+                        "labelNoBinary": "Soltere",
+                        "value": "single"
+                    },
+                    {
+                        "label": "Casado",
+                        "labelFeminine": "Casada",
+                        "labelMasculine": "Casado",
+                        "labelNoBinary": "Casade",
+                        "value": "married"
+                    },
+                    {
+                        "label": "Divorciado",
+                        "labelFeminine": "Divorciada",
+                        "labelMasculine": "Divorciado",
+                        "labelNoBinary": "Divorciade",
+                        "value": "divorced"
+                    },
+                    {
+                        "label": "Viudo",
+                        "labelFeminine": "Viuda",
+                        "labelMasculine": "Viudo",
+                        "labelNoBinary": "Viude",
+                        "value": "widower"
+                    },
+                    {
+                        "label": "Conviviente Civil",
+                        "value": "civil_union"
+                    },
+                    {
+                        "label": "Separado",
+                        "labelFeminine": "Separada",
+                        "labelMasculine": "Separado",
+                        "labelNoBinary": "Separade",
+                        "value": "separated"
+                    }
+                ]
+            },
+            {
+                "id": "conjugal_regime",
+                "type": "choice",
+                "text": "¿Bajo cuál régimen conyugal te encuentras casado?",
+                "textFeminine": "¿Bajo cuál régimen conyugal te encuentras casada?",
+                "textMasculine": "¿Bajo cuál régimen conyugal te encuentras casado?",
+                "textNoBinary": "¿Bajo cuál régimen conyugal te encuentras casade?",
+                "dependsOn": "marital_status",
+                "showWhen": "married",
+                "options": [
+                    {
+                        "label": "Sociedad conyugal",
+                        "value": "conjugal_society"
+                    },
+                    {
+                        "label": "Participación en los gananciales",
+                        "value": "profit_sharing"
+                    },
+                    {
+                        "label": "Separación total de bienes",
+                        "value": "separation_of_property"
                     }
                 ]
             },
             {
                 "id": "us_person",
                 "type": "choice",
-                "text": "¿Eres una US Person?",
-                "options": [
-                    {
-                        "label": "Sí",
-                        "value": "si"
-                    },
-                    {
-                        "label": "No",
-                        "value": "no"
-                    }
-                ]
-            },
-            {
-                "id": "foreign_tax",
-                "type": "choice",
-                "text": "¿Tienes residencia fiscal en otro país?",
+                "text": "¿Tienes residencia tributaria en Estados Unidos (US Person)?",
                 "options": [
                     {
                         "label": "Sí",
@@ -1213,6 +1318,69 @@
                     }
                 ]
             },
+            {
+                "id": "has_broker_relationship_with_vector",
+                "type": "choice",
+                "text": "¿Eres empleado, director o apoderado de Vector Capital Corredores de Bolsa?",
+                "options": [
+                    {
+                        "label": "Sí",
+                        "value": "si"
+                    },
+                    {
+                        "label": "No",
+                        "value": "no"
+                    }
+                ]
+            },
+            {
+                "id": "broker_relationship_type",
+                "type": "choice",
+                "text": "¿Qué tipo de relación tiene con la corredora?",
+                "dependsOn": "has_broker_relationship_with_vector",
+                "showWhen": "si",
+                "options": [
+                    {
+                        "label": "Socio",
+                        "value": "partner"
+                    },
+                    {
+                        "label": "Director",
+                        "value": "director"
+                    },
+                    {
+                        "label": "Trabajador",
+                        "value": "employee"
+                    },
+                    {
+                        "label": "Miembro del Grupo Empresarial",
+                        "value": "business_group"
+                    },
+                    {
+                        "label": "Otra Relación",
+                        "value": "other"
+                    }
+                ]
+            },
+            {
+                "id": "has_a_broker_relationship",
+                "type": "choice",
+                "text": "¿Eres empleado, director o apoderado de otra corredora de bolsa?",
+                "options": [
+                    {
+                        "label": "Sí",
+                        "value": "si"
+                    },
+                    {
+                        "label": "No",
+                        "value": "no"
+                    }
+                ]
+            }
+        ]
+    },
+    "contactInfo": {
+        "questions": [
             {
                 "id": "address",
                 "type": "form",
@@ -1243,78 +1411,6 @@
                 "text": "¿Cuál es tu número de teléfono?",
                 "subtitle": "Lo solicitamos por razones regulatorias",
                 "placeholder": "9 1234 5678"
-            },
-            {
-                "id": "income_source",
-                "type": "choice",
-                "text": "¿De dónde proviene el dinero que deseas invertir?",
-                "options": [
-                    {
-                        "label": "Sueldo/Honorarios",
-                        "value": "sueldo"
-                    },
-                    {
-                        "label": "Inversiones",
-                        "value": "inversiones"
-                    },
-                    {
-                        "label": "Ingresos de negocio",
-                        "value": "negocio"
-                    },
-                    {
-                        "label": "Bienes raíces",
-                        "value": "bienes_raices"
-                    },
-                    {
-                        "label": "Herencia",
-                        "value": "herencia"
-                    },
-                    {
-                        "label": "Ahorros",
-                        "value": "ahorros"
-                    }
-                ]
-            },
-            {
-                "id": "occupation",
-                "type": "form",
-                "text": "¿A qué te dedicas?",
-                "fields": [
-                    {
-                        "name": "employment",
-                        "type": "text",
-                        "placeholder": "Situación laboral"
-                    },
-                    {
-                        "name": "occupation",
-                        "type": "text",
-                        "placeholder": "Ocupación o profesión"
-                    }
-                ]
-            },
-            {
-                "id": "monthly_income",
-                "type": "choice",
-                "text": "¿Cuál es tu ingreso mensual?",
-                "subtitle": "Una estimación es suficiente",
-                "options": [
-                    {
-                        "label": "Menos de $500.000",
-                        "value": "menos_500"
-                    },
-                    {
-                        "label": "Entre $500.000 y $1.000.000",
-                        "value": "500_1000"
-                    },
-                    {
-                        "label": "Entre $1.000.000 y $2.000.000",
-                        "value": "1000_2000"
-                    },
-                    {
-                        "label": "Más de $2.000.000",
-                        "value": "mas_2000"
-                    }
-                ]
             }
         ],
         "placeholders": {

@@ -1,4 +1,5 @@
 import { View, Text, Alert, ActivityIndicator } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 import { router } from 'expo-router';
 import { FormLayout, Input } from '@/components/ui';
 import { useState, useEffect } from 'react';
@@ -7,22 +8,25 @@ import { useIdVerification } from '@/hooks/useIdVerification';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { submitOnboarding, type OnboardingRequest } from '@/services/user/onboarding';
 import { useAuth } from '@/providers/AuthProvider';
+import { getNationalities, getNationalityCode, getNationalityName } from '@/utils/countries';
 
 export default function IdentityConfirm() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { accessToken } = useAuth();
   const [frontImage, setFrontImage] = useState<string | null>(null);
   const [backImage, setBackImage] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     dateOfBirth: '',
-    nationality: '',
+    nationality: '', // This will store the nationality name (e.g., "Chilena")
     documentNumber: ''
   });
+
+  const nationalities = getNationalities(i18n.language);
   const { 
     isVerifying, 
     verificationResult, 
@@ -97,12 +101,14 @@ export default function IdentityConfirm() {
     setIsSubmitting(true);
 
     try {
+      const nationalityCode = getNationalityCode(formData.nationality, i18n.language);
+
       const onboardingData: OnboardingRequest = {
         personal_information: {
           rut: formData.documentNumber,
           birth_date: formData.dateOfBirth,
           monthly_incomes: '',
-          residence_country: formData.nationality,
+          nationality: nationalityCode || formData.nationality, // Send ISO code (e.g., "CL") or fallback to name
           first_name: formData.firstName,
           last_name: formData.lastName
         }
@@ -227,12 +233,23 @@ export default function IdentityConfirm() {
             placeholder="YYYY-MM-DD"
           />
           
-          <Input
-            label={t('identityConfirm.nationality')}
-            value={formData.nationality}
-            onChangeText={(value) => handleInputChange('nationality', value)}
-            placeholder={t('identityConfirm.nationality')}
-          />
+          <View>
+            <Text className="text-sm font-medium text-gray-700 mb-2">
+              {t('identityConfirm.nationality')}
+            </Text>
+            <View className="bg-gray-100 rounded-lg">
+              <Picker
+                selectedValue={formData.nationality}
+                onValueChange={(value) => handleInputChange('nationality', value)}
+                style={{ height: 50 }}
+              >
+                <Picker.Item label={t('identityConfirm.selectNationality') || 'Selecciona nacionalidad'} value="" />
+                {nationalities.map((nationality) => (
+                  <Picker.Item key={nationality.code} label={nationality.name} value={nationality.name} />
+                ))}
+              </Picker>
+            </View>
+          </View>
           
           <Input
             label={t('identityConfirm.documentNumber')}
