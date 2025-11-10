@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Alert } from 'react-native';
 import { router } from 'expo-router';
 import { FormLayout, RadioButton } from '@/components/ui';
 import { useTranslation } from 'react-i18next';
 import { mapSurveyAnswersToRiskProfile } from '@/constants/RiskProfileMapping';
 import { createRiskProfile } from '@/services/investment/create-account/investment-survey/create-risk-profile';
+import { updateRiskProfile } from '@/services/investment/create-account/investment-survey/update-risk-profile';
+import { getRiskProfile } from '@/services/investment/create-account/investment-survey/get-risk-profile';
 import { useAuth } from '@/providers/AuthProvider';
 
 export default function ProfileQuestion() {
@@ -21,6 +23,49 @@ export default function ProfileQuestion() {
   const [selectedValue, setSelectedValue] = useState<string>('');
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [hasExistingProfile, setHasExistingProfile] = useState(false);
+
+  useEffect(() => {
+    checkExistingProfile();
+  }, [accessToken]);
+
+  const checkExistingProfile = async () => {
+    if (!accessToken) return;
+
+    try {
+      const response = await getRiskProfile(accessToken);
+      console.log('=== CHECK EXISTING PROFILE ===');
+      console.log('Full response:', JSON.stringify(response, null, 2));
+      console.log('response.success:', response.success);
+      console.log('response.risk_profile:', response.risk_profile);
+      console.log('response.investor_questionnaire:', response.investor_questionnaire);
+      
+      // investor_category está en investor_questionnaire, no en risk_profile
+      const investorCategory = response.investor_questionnaire?.investor_category;
+      console.log('investor_category:', investorCategory);
+      console.log('investor_category type:', typeof investorCategory);
+      console.log('investor_category is null?', investorCategory === null);
+      console.log('investor_category is undefined?', investorCategory === undefined);
+      
+      // Si investor_category está poblado (no es null ni undefined), usar PATCH
+      // Si investor_category es null o undefined, usar POST
+      const hasCategory = investorCategory !== null && 
+                         investorCategory !== undefined &&
+                         investorCategory !== '';
+      
+      if (response.success && response.risk_profile && hasCategory) {
+        console.log('✅ investor_category is populated - will use PATCH');
+        setHasExistingProfile(true);
+      } else {
+        console.log('❌ investor_category is null/undefined/empty - will use POST');
+        setHasExistingProfile(false);
+      }
+      console.log('=== END CHECK ===');
+    } catch (error) {
+      console.error('Error checking existing profile:', error);
+      setHasExistingProfile(false);
+    }
+  };
 
   const handleSelect = (value: string) => {
     setSelectedValue(value);
@@ -48,10 +93,20 @@ export default function ProfileQuestion() {
 
     try {
       const riskProfileData = mapSurveyAnswersToRiskProfile(answers);
-      const response = await createRiskProfile(accessToken, riskProfileData);
+      
+      console.log('Submitting risk profile...');
+      console.log('hasExistingProfile:', hasExistingProfile);
+      console.log('Will use:', hasExistingProfile ? 'PATCH (update)' : 'POST (create)');
+      
+      // Usar PATCH si ya existe un perfil, POST si es nuevo
+      const response = hasExistingProfile
+        ? await updateRiskProfile(accessToken, riskProfileData)
+        : await createRiskProfile(accessToken, riskProfileData);
+
+      console.log('Response:', response);
 
       if (response.success) {
-        router.push('/investment/create-account/investment-survey/profile-result' as any);
+        router.push('/(tabs)/investment/create-account/investment-survey/profile-result');
       } else {
         Alert.alert(
           t('common.error'),
@@ -80,6 +135,10 @@ export default function ProfileQuestion() {
     }
   };
 
+  const handleCancel = () => {
+    router.push('/(tabs)/investment/create-account/summary');
+  };
+
   const currentQuestionKey = questionKeys[step];
   const currentQuestion = t(`investmentSurvey.${currentQuestionKey}`, { returnObjects: true }) as {
     title: string;
@@ -102,8 +161,10 @@ export default function ProfileQuestion() {
       totalSteps={totalSteps}
       onPrevious={handlePrevious}
       onNext={isLastQuestion ? submitRiskProfile : undefined}
+      onCancel={step === 0 ? handleCancel : undefined}
       previousButtonTitle={t('common.back')}
       nextButtonTitle={isLastQuestion ? t('common.continue') : undefined}
+      cancelButtonTitle={t('common.cancel')}
       isNextDisabled={!isNextButtonEnabled}
       isLoading={isSubmitting}
       loadingText={t('common.saving')}

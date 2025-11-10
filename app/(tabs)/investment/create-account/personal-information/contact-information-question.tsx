@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
+import { View, Text, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
-import { FormLayout } from '@/components/ui';
+import { FormLayout, Input, Select, RadioButton } from '@/components/ui';
 import { useTranslation } from 'react-i18next';
 import { REGIONS_AND_COMMUNES } from '@/constants/AppConstants';
 import { useAuth } from '@/providers/AuthProvider';
 import { getContactInformation } from '@/services/investment/create-account/contact-information/get-contact-information';
 import { createContactInformation } from '@/services/investment/create-account/contact-information/create-contact-information';
 import { updateContactInformation } from '@/services/investment/create-account/contact-information/update-contact-information';
+import Colors from '@/constants/Colors';
 
 interface ContactInfoQuestion {
   id: string;
@@ -33,7 +33,7 @@ export default function ContactInformationStepper() {
   const allQuestions = t('contactInfo.questions', { returnObjects: true }) as ContactInfoQuestion[];
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, any>>({});
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasExistingData, setHasExistingData] = useState(false);
 
@@ -55,7 +55,6 @@ export default function ContactInformationStepper() {
 
   const loadContactInformation = async () => {
     if (!accessToken) {
-      setIsLoading(false);
       return;
     }
 
@@ -111,8 +110,6 @@ export default function ContactInformationStepper() {
     } catch (error) {
       console.error('Error loading contact information:', error);
       setHasExistingData(false);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -230,24 +227,29 @@ export default function ContactInformationStepper() {
     }
   };
 
+  const handleCancel = () => {
+    router.back();
+  };
+
   const renderQuestion = () => {
     switch (currentQuestion.type) {
       case 'choice':
+        const radioOptions = currentQuestion.options?.map((option: any) => ({
+          label: option.label,
+          value: option.value
+        })) || [];
+
         return (
           <View>
-            {currentQuestion.options?.map((option: any, index: number) => (
-              <TouchableOpacity
-                key={index}
-                className="bg-gray-100 p-3 rounded-lg mb-3"
-                onPress={() => !isSubmitting && handleChoiceSelect(option.value)}
-                disabled={isSubmitting}
-              >
-                <Text className="text-base text-gray-800">{option.label}</Text>
-              </TouchableOpacity>
-            ))}
+            <RadioButton
+              options={radioOptions}
+              selectedValue={answers[currentQuestion.id] || ''}
+              onSelect={(value) => !isSubmitting && handleChoiceSelect(value)}
+              disabled={isSubmitting}
+            />
             {isSubmitting && (
               <View className="mt-4 items-center">
-                <ActivityIndicator size="large" color="#0066CC" />
+                <ActivityIndicator size="large" color={Colors.secondary[500]} />
                 <Text className="mt-2 text-gray-600">{t('common.loading')}</Text>
               </View>
             )}
@@ -257,12 +259,11 @@ export default function ContactInformationStepper() {
       case 'input':
         return (
           <View>
-            <TextInput
+            <Input
               placeholder={currentQuestion.placeholder || ''}
               keyboardType={currentQuestion.id === 'phone' ? 'phone-pad' : currentQuestion.id === 'address_number' ? 'numeric' : 'default'}
               value={answers[currentQuestion.id] || ''}
               onChangeText={handleInputChange}
-              className="bg-gray-100 p-3 rounded-lg mb-3"
             />
           </View>
         );
@@ -277,21 +278,20 @@ export default function ContactInformationStepper() {
           selectOptions = Array.isArray(REGIONS_AND_COMMUNES[regionKey]) ? REGIONS_AND_COMMUNES[regionKey] : [];
         }
 
+        const options = selectOptions.map(option => ({
+          label: option,
+          value: option
+        }));
+
         return (
           <View>
-            <View className="bg-gray-100 rounded-lg">
-              <Picker
-                selectedValue={answers[currentQuestion.id] || ''}
-                onValueChange={handleSelectChange}
-                style={{ height: 50 }}
-                enabled={!currentQuestion.dependsOn || !!answers[currentQuestion.dependsOn]}
-              >
-                <Picker.Item label={currentQuestion.placeholder || 'Selecciona'} value="" />
-                {selectOptions.map((option: string, idx: number) => (
-                  <Picker.Item key={idx} label={option} value={option} />
-                ))}
-              </Picker>
-            </View>
+            <Select
+              options={options}
+              value={answers[currentQuestion.id] || ''}
+              onSelect={handleSelectChange}
+              placeholder={currentQuestion.placeholder || 'Selecciona'}
+              disabled={!!(currentQuestion.dependsOn && !answers[currentQuestion.dependsOn])}
+            />
           </View>
         );
 
@@ -302,13 +302,13 @@ export default function ContactInformationStepper() {
             {currentQuestion.fields?.map((field: any, index: number) => {
               if (field.type === 'text') {
                 return (
-                  <TextInput
-                    key={index}
-                    placeholder={field.placeholder}
-                    value={formData[field.name] || ''}
-                    onChangeText={(value) => handleFormChange(field.name, value)}
-                    className="bg-gray-100 p-3 rounded-lg mb-3"
-                  />
+                  <View key={index} style={{ marginBottom: 16 }}>
+                    <Input
+                      placeholder={field.placeholder}
+                      value={formData[field.name] || ''}
+                      onChangeText={(value) => handleFormChange(field.name, value)}
+                    />
+                  </View>
                 );
               }
 
@@ -320,26 +320,23 @@ export default function ContactInformationStepper() {
                   options = Array.isArray(REGIONS_AND_COMMUNES[regionKey]) ? REGIONS_AND_COMMUNES[regionKey] : [];
                 }
 
+                const selectOptions = options.map(option => ({
+                  label: option,
+                  value: option
+                }));
+
                 return (
-                  <View key={index} className="mb-3">
-                    <Text className="font-medium mb-1">
-                      {field.name === 'region'
+                  <View key={index} style={{ marginBottom: 16 }}>
+                    <Select
+                      label={field.name === 'region'
                         ? t('contactInfo.regionLabel')
                         : t('contactInfo.communeLabel')}
-                    </Text>
-                    <View className="bg-gray-100 rounded-lg">
-                      <Picker
-                        selectedValue={formData[field.name] || ''}
-                        onValueChange={(value) => handleFormChange(field.name, value)}
-                        style={{ height: 50 }}
-                        enabled={!field.dependsOn || !!formData[field.dependsOn]}
-                      >
-                        <Picker.Item label={field.placeholder} value="" />
-                        {options.map((option: string, idx: number) => (
-                          <Picker.Item key={idx} label={option} value={option} />
-                        ))}
-                      </Picker>
-                    </View>
+                      options={selectOptions}
+                      value={formData[field.name] || ''}
+                      onSelect={(value) => handleFormChange(field.name, value)}
+                      placeholder={field.placeholder}
+                      disabled={!!(field.dependsOn && !formData[field.dependsOn])}
+                    />
                   </View>
                 );
               }
@@ -354,21 +351,6 @@ export default function ContactInformationStepper() {
     }
   };
 
-  if (isLoading) {
-    return (
-      <FormLayout
-        title={t('common.loading')}
-        subtitle=""
-        currentStep={0}
-        totalSteps={0}
-        showLogo={false}
-      >
-        <View className="items-center justify-center py-10">
-          <ActivityIndicator size="large" color="#0066CC" />
-        </View>
-      </FormLayout>
-    );
-  }
 
   return (
     <FormLayout
@@ -378,7 +360,9 @@ export default function ContactInformationStepper() {
       totalSteps={0}
       onNext={currentQuestion.type === 'choice' ? undefined : canContinue() && !isSubmitting ? handleContinue : undefined}
       onPrevious={isSubmitting ? undefined : goBack}
+      onCancel={currentStep === 0 ? handleCancel : undefined}
       nextButtonTitle={isSubmitting ? t('common.loading') : t('common.continue')}
+      cancelButtonTitle={t('common.cancel')}
       isNextDisabled={!canContinue() || isSubmitting}
       showLogo={false}
     >

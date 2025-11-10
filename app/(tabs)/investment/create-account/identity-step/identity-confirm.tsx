@@ -1,7 +1,6 @@
 import { View, Text, Alert, ActivityIndicator } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
 import { router } from 'expo-router';
-import { FormLayout, Input } from '@/components/ui';
+import { FormLayout, Input, Select, Button } from '@/components/ui';
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useIdVerification } from '@/hooks/useIdVerification';
@@ -9,6 +8,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { submitOnboarding, type OnboardingRequest } from '@/services/user/onboarding';
 import { useAuth } from '@/providers/AuthProvider';
 import { getNationalities, getNationalityCode, getNationalityName } from '@/utils/countries';
+import Colors from '@/constants/Colors';
+import { FileX } from 'lucide-react-native';
 
 export default function IdentityConfirm() {
   const { t, i18n } = useTranslation();
@@ -128,7 +129,7 @@ export default function IdentityConfirm() {
         await AsyncStorage.setItem('extracted_personal_data', JSON.stringify(extractedDataFormat));
         
 
-        router.push('/investment/create-account/personal-information/personal-information-question' as any);
+        router.push('/(tabs)/investment/create-account/summary');
       } else {
         throw new Error(t('identityConfirm.serverError'));
       }
@@ -233,23 +234,16 @@ export default function IdentityConfirm() {
             placeholder="YYYY-MM-DD"
           />
           
-          <View>
-            <Text className="text-sm font-medium text-gray-700 mb-2">
-              {t('identityConfirm.nationality')}
-            </Text>
-            <View className="bg-gray-100 rounded-lg">
-              <Picker
-                selectedValue={formData.nationality}
-                onValueChange={(value) => handleInputChange('nationality', value)}
-                style={{ height: 50 }}
-              >
-                <Picker.Item label={t('identityConfirm.selectNationality') || 'Selecciona nacionalidad'} value="" />
-                {nationalities.map((nationality) => (
-                  <Picker.Item key={nationality.code} label={nationality.name} value={nationality.name} />
-                ))}
-              </Picker>
-            </View>
-          </View>
+          <Select
+            label={t('identityConfirm.nationality')}
+            options={nationalities.map(nationality => ({
+              label: nationality.name,
+              value: nationality.name
+            }))}
+            value={formData.nationality}
+            onSelect={(value) => handleInputChange('nationality', value)}
+            placeholder={t('identityConfirm.selectNationality') || 'Selecciona nacionalidad'}
+          />
           
           <Input
             label={t('identityConfirm.documentNumber')}
@@ -263,18 +257,27 @@ export default function IdentityConfirm() {
     );
   }
 
+  const handleCancel = () => {
+    router.back();
+  };
+
   return (
     <FormLayout
       title={t('identityConfirm.title')}
-      subtitle={t('identityConfirm.noDataFound')}
+      subtitle=""
       currentStep={4}
       totalSteps={4}
       onNext={handleRetake}
+      onCancel={handleCancel}
       nextButtonTitle={t('identityConfirm.retakePhoto')}
+      cancelButtonTitle={t('common.cancel')}
       showLogo={false}
     >
-      <View className="flex-1 justify-center items-center py-12">
-        <Text className="text-lg font-medium text-center">
+      <View className="flex-1 justify-center items-center py-8">
+        <View className="w-16 h-16 rounded-full bg-gray-100 justify-center items-center mb-4">
+          <FileX size={32} color={Colors.gray[400]} />
+        </View>
+        <Text className="text-center font-medium" style={{ color: Colors.gray[400] }}>
           {t('identityConfirm.noDataFound')}
         </Text>
       </View>

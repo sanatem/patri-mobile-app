@@ -11,10 +11,25 @@ export interface RiskProfile {
   saving_choice?: string;
   financial_profession_relationship?: string;
   assets_for_investment?: string;
+  investor_category?: string;
+}
+
+export interface InvestorQuestionnaire {
+  id?: number;
+  score?: string;
+  investor_category?: string;
+  broker_document_id?: string | null;
+  answers?: Array<{
+    id: number;
+    key: string;
+    value: string;
+    score: string;
+  }>;
 }
 
 export interface GetRiskProfileResponse {
   risk_profile: RiskProfile | null;
+  investor_questionnaire?: InvestorQuestionnaire | null;
   success: boolean;
   message?: string;
 }
@@ -33,9 +48,12 @@ export async function getRiskProfile(token: string): Promise<GetRiskProfileRespo
 
     if (response.ok) {
       const data = await response.json();
+      
+      console.log('GET risk_profile - Full response:', JSON.stringify(data, null, 2));
 
       return {
-        risk_profile: data.risk_profile || null,
+        risk_profile: data.data?.risk_profile || data.risk_profile || null,
+        investor_questionnaire: data.data?.investor_questionnaire || null,
         success: true,
       };
     }

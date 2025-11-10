@@ -7,18 +7,21 @@ import Colors from '@/constants/Colors';
 import { getRiskProfile, type RiskProfile } from '@/services/investment/create-account/investment-survey/get-risk-profile';
 import { useAuth } from '@/providers/AuthProvider';
 
-const RISK_PROFILE_LABELS: Record<string, { title: string; description: string }> = {
+const RISK_PROFILE_LABELS: Record<string, { title: string; description: string; emoji: string }> = {
   conservative: {
     title: 'Perfil Conservador',
-    description: 'Valoras principalmente la estabilidad, aunque aceptas un poco de riesgo en tus inversiones.',
+    description: 'Buscas siempre la protección del capital que inviertes y, excepcionalmente, aceptas un riesgo mínimo de pérdida de la inversión.',
+    emoji: '🛡️',
   },
-  moderate: {
+  balanced: {
     title: 'Perfil Moderado',
-    description: 'Buscas un equilibrio entre estabilidad y crecimiento, aceptando cierto nivel de riesgo.',
+    description: 'Aceptas un riesgo medio de pérdida, a cambio de una expectativa de mayor rentabilidad.',
+    emoji: '⚖️',
   },
-  aggressive: {
+  risky: {
     title: 'Perfil Agresivo',
-    description: 'Priorizas el crecimiento y estás dispuesto a asumir mayores riesgos por mejores rentabilidades.',
+    description: 'Aceptas un muy alto riesgo de pérdida de la inversión, a cambio de una expectativa de muy alta rentabilidad.',
+    emoji: '🚀',
   },
 };
 
@@ -30,7 +33,12 @@ export default function ProfileResult() {
   const [profileType, setProfileType] = useState<string>('conservative');
 
   useEffect(() => {
-    fetchRiskProfile();
+    // Agregar un delay mínimo para mostrar el loading
+    const timer = setTimeout(() => {
+      fetchRiskProfile();
+    }, 800);
+
+    return () => clearTimeout(timer);
   }, []);
 
   const fetchRiskProfile = async () => {
@@ -45,7 +53,13 @@ export default function ProfileResult() {
 
       if (response.success && response.risk_profile) {
         setRiskProfile(response.risk_profile);
-        determineProfileType(response.risk_profile);
+        
+        // Usar investor_category de investor_questionnaire si está disponible
+        if (response.investor_questionnaire?.investor_category) {
+          setProfileType(response.investor_questionnaire.investor_category);
+        } else {
+          determineProfileType(response.risk_profile);
+        }
       } else {
         Alert.alert(
           t('common.error'),
@@ -61,28 +75,25 @@ export default function ProfileResult() {
   };
 
   const determineProfileType = (profile: RiskProfile) => {
-    // Lógica simple para determinar el tipo de perfil
-    // Puedes ajustar esta lógica según los criterios del negocio
+    // investor_category viene en la respuesta pero no en el objeto profile
+    // Lo manejaremos desde fetchRiskProfile
     if (profile.investment_choice === 'risky' || profile.investment_drop === 'invest_more') {
-      setProfileType('aggressive');
+      setProfileType('risky');
     } else if (profile.investment_choice === 'conservative' || profile.investment_drop === 'sell_everything') {
       setProfileType('conservative');
     } else {
-      setProfileType('moderate');
+      setProfileType('balanced');
     }
   };
 
   const handleContinue = () => {
-    router.push('/investment/create-account/complete-profile' as any);
+    router.push('/(tabs)/investment/create-account/summary');
   };
 
   if (loading) {
     return (
-      <View style={styles.container}>
-        <ActivityIndicator size="large" color={Colors.primary[500]} />
-        <Text style={styles.loadingText} className="font-regular">
-          Cargando tu perfil...
-        </Text>
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={Colors.secondary[500]} />
       </View>
     );
   }
@@ -91,26 +102,28 @@ export default function ProfileResult() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.iconContainer}>
-        <Text style={styles.detectiveEmoji}>🕵️‍♀️</Text>
+      <View style={styles.content}>
+        <View style={styles.iconContainer}>
+          <Text style={styles.detectiveEmoji}>{profileInfo.emoji}</Text>
+        </View>
+
+        <Text style={styles.title} className="font-medium">
+          {profileInfo.title}
+        </Text>
+
+        <Text style={styles.subtitle} className="font-regular text-center">
+          {profileInfo.description}
+        </Text>
+
+        <Text style={styles.changeText} className="font-regular text-center">
+          {t('profileResult.description2')}
+        </Text>
       </View>
-
-      <Text style={styles.title} className="font-medium">
-        {profileInfo.title}
-      </Text>
-
-      <Text style={styles.subtitle} className="font-regular text-center">
-        {profileInfo.description}
-      </Text>
-
-      <Text style={styles.changeText} className="font-regular text-center">
-        {t('profileResult.description2')}
-      </Text>
 
       <View style={styles.buttonContainer}>
         <Button
           onPress={handleContinue}
-          title={t('common.understoodAndContinue')}
+          title={t('common.understood')}
           className="w-full"
         />
       </View>
@@ -121,11 +134,13 @@ export default function ProfileResult() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: Colors.light.background,
+  },
+  content: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 40,
-    paddingTop: 60,
-    backgroundColor: Colors.light.background,
   },
   iconContainer: {
     width: 80,
@@ -153,18 +168,19 @@ const styles = StyleSheet.create({
   },
   changeText: {
     fontSize: 14,
-    color: Colors.primary[400],
+    color: Colors.primary[500],
     textAlign: 'center',
     lineHeight: 20,
-    marginBottom: 40,
   },
-  loadingText: {
-    fontSize: 16,
-    color: Colors.primary[500],
-    marginTop: 20,
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: Colors.light.background,
   },
   buttonContainer: {
     width: '100%',
-    paddingHorizontal: 20,
+    paddingHorizontal: 24,
+    paddingBottom: 24,
   },
 });

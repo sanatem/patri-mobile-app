@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
+import { View, Text, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
-import { FormLayout, Button } from '@/components/ui';
+import { FormLayout, Button, Input, Select, RadioButton } from '@/components/ui';
 import { useTranslation } from 'react-i18next';
 import { REGIONS_AND_COMMUNES } from '@/constants/AppConstants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { ExtractedPersonalData } from '@/services/id-analyzer';
 import { useAuth } from '@/providers/AuthProvider';
 import { updatePersonalInformation } from '@/services/investment/create-account/personal-information/update-personal-information';
+import Colors from '@/constants/Colors';
 
 interface PersonalInfoQuestion {
   id: string;
@@ -142,7 +142,7 @@ export default function PersonalInformationStepper() {
       const response = await updatePersonalInformation(accessToken, personalInfoData);
 
       if (response.success) {
-        router.push('/(tabs)/investment/create-account/personal-information/contact-information-question');
+        router.push('/(tabs)/investment/create-account/summary');
       } else {
         console.error('Error updating personal information:', response.message);
       }
@@ -210,25 +210,29 @@ export default function PersonalInformationStepper() {
     }
   };
 
+  const handleCancel = () => {
+    router.back();
+  };
+
   const renderQuestion = () => {
     switch (currentQuestion.type) {
       case 'choice':
+        const radioOptions = currentQuestion.options?.map((option: any) => ({
+          label: getGenderedLabel(option),
+          value: option.value
+        })) || [];
+
         return (
           <View>
-            {currentQuestion.options?.map((option: any, index: number) => (
-              <TouchableOpacity
-                key={index}
-                className="bg-gray-100 p-3 rounded-lg mb-3"
-                onPress={() => !isSubmitting && handleChoiceSelect(option.value)}
-                disabled={isSubmitting}
-              >
-                <Text className="text-base text-gray-800">{getGenderedLabel(option)}</Text>
-              </TouchableOpacity>
-            ))}
+            <RadioButton
+              options={radioOptions}
+              selectedValue={answers[currentQuestion.id] || ''}
+              onSelect={(value) => !isSubmitting && handleChoiceSelect(value)}
+              disabled={isSubmitting}
+            />
             {isSubmitting && (
               <View className="mt-4 items-center">
-                <ActivityIndicator size="large" color="#0066CC" />
-                <Text className="mt-2 text-gray-600">{t('common.loading')}</Text>
+                <ActivityIndicator size="large" color={Colors.secondary[500]} />
               </View>
             )}
           </View>
@@ -237,12 +241,11 @@ export default function PersonalInformationStepper() {
       case 'input':
         return (
           <View>
-            <TextInput
+            <Input
               placeholder={currentQuestion.placeholder || ''}
               keyboardType="phone-pad"
               value={answers[currentQuestion.id] || ''}
               onChangeText={handleInputChange}
-              className="bg-gray-100 p-3 rounded-lg mb-3"
             />
           </View>
         );
@@ -254,13 +257,13 @@ export default function PersonalInformationStepper() {
             {currentQuestion.fields?.map((field: any, index: number) => {
               if (field.type === 'text') {
                 return (
-                  <TextInput
-                    key={index}
-                    placeholder={field.placeholder}
-                    value={formData[field.name] || ''}
-                    onChangeText={(value) => handleFormChange(field.name, value)}
-                    className="bg-gray-100 p-3 rounded-lg mb-3"
-                  />
+                  <View key={index} style={{ marginBottom: 16 }}>
+                    <Input
+                      placeholder={field.placeholder}
+                      value={formData[field.name] || ''}
+                      onChangeText={(value) => handleFormChange(field.name, value)}
+                    />
+                  </View>
                 );
               }
               
@@ -272,26 +275,23 @@ export default function PersonalInformationStepper() {
                   options = Array.isArray(REGIONS_AND_COMMUNES[regionKey]) ? REGIONS_AND_COMMUNES[regionKey] : [];
                 }
                 
+                const selectOptions = options.map(option => ({
+                  label: option,
+                  value: option
+                }));
+                
                 return (
-                  <View key={index} className="mb-3">
-                    <Text className="font-medium mb-1">
-                      {field.name === 'region'
+                  <View key={index} style={{ marginBottom: 16 }}>
+                    <Select
+                      label={field.name === 'region'
                         ? t('personalInfo.regionLabel')
                         : t('personalInfo.communeLabel')}
-                    </Text>
-                    <View className="bg-gray-100 rounded-lg">
-                      <Picker
-                        selectedValue={formData[field.name] || ''}
-                        onValueChange={(value) => handleFormChange(field.name, value)}
-                        style={{ height: 50 }}
-                        enabled={!field.dependsOn || !!formData[field.dependsOn]}
-                      >
-                        <Picker.Item label={field.placeholder} value="" />
-                        {options.map((option: string, idx: number) => (
-                          <Picker.Item key={idx} label={option} value={option} />
-                        ))}
-                      </Picker>
-                    </View>
+                      options={selectOptions}
+                      value={formData[field.name] || ''}
+                      onSelect={(value) => handleFormChange(field.name, value)}
+                      placeholder={field.placeholder}
+                      disabled={!!(field.dependsOn && !formData[field.dependsOn])}
+                    />
                   </View>
                 );
               }
@@ -314,7 +314,9 @@ export default function PersonalInformationStepper() {
       totalSteps={0}
       onNext={currentQuestion.type === 'choice' ? undefined : canContinue() && !isSubmitting ? handleContinue : undefined}
       onPrevious={isSubmitting ? undefined : goBack}
+      onCancel={currentStep === 0 ? handleCancel : undefined}
       nextButtonTitle={isSubmitting ? t('common.loading') : t('common.continue')}
+      cancelButtonTitle={t('common.cancel')}
       isNextDisabled={!canContinue() || isSubmitting}
       showLogo={false}
     >
