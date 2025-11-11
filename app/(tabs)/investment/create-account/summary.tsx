@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { router, useFocusEffect } from 'expo-router';
 import { Container } from '@/components/ui/Container';
 import { Header } from '@/components/ui/Header';
-import { Card } from '@/components/ui';
+import { Card, LoadingSpinner } from '@/components/ui';
 import { Check, Clock, ChevronRight } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import Colors from '@/constants/Colors';
@@ -11,6 +11,7 @@ import { useAuth } from '@/providers/AuthProvider';
 import { getContactInformation } from '@/services/investment/create-account/contact-information/get-contact-information';
 import { getPersonalInformation } from '@/services/investment/create-account/personal-information/get-personal-information';
 import { getRiskProfile } from '@/services/investment/create-account/investment-survey/get-risk-profile';
+import { getEmploymentInformation } from '@/services/investment/create-account/employment-information/get-employment-information';
 
 export default function SummaryStep() {
   const { t } = useTranslation();
@@ -48,10 +49,11 @@ export default function SummaryStep() {
     }
 
     try {
-      const [contactResponse, personalResponse, riskResponse] = await Promise.all([
+      const [contactResponse, personalResponse, riskResponse, employmentResponse] = await Promise.all([
         getContactInformation(accessToken),
         getPersonalInformation(accessToken),
         getRiskProfile(accessToken),
+        getEmploymentInformation(accessToken),
       ]);
 
       const hasContactData = !!(
@@ -88,9 +90,13 @@ export default function SummaryStep() {
       const hasIdentityData = hasPersonalData;
 
       const hasWorkData = !!(
-        personalResponse.success &&
-        personalResponse.personal_information &&
-        personalResponse.personal_information.employment_situation
+        employmentResponse.success &&
+        employmentResponse.employment_information &&
+        (employmentResponse.employment_information.company_name ||
+          employmentResponse.employment_information.company_rut ||
+          employmentResponse.employment_information.position ||
+          employmentResponse.employment_information.profession ||
+          employmentResponse.employment_information.company_activity)
       );
 
       setFormStatuses({
@@ -115,33 +121,32 @@ export default function SummaryStep() {
     }, 300);
   };
 
+  // Verificar si todos los formularios están completados
+  const allFormsCompleted = !isLoadingStatuses && 
+    formStatuses.riskProfile && 
+    formStatuses.identity && 
+    formStatuses.personalInfo && 
+    formStatuses.contactInfo && 
+    formStatuses.workInfo;
+
+  // Determinar qué título y descripción mostrar
+  const title = allFormsCompleted ? t('summary.titleCompleted') : t('summary.title');
+  const description = allFormsCompleted ? t('summary.descriptionCompleted') : t('summary.description');
+
   return (
     <Container variant="secondaryPage">
-      <Header title={t('summary.title')} />
-      {isLoading && (
-        <View 
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(255, 255, 255, 0.8)',
-            justifyContent: 'center',
-            alignItems: 'center',
-            zIndex: 1000,
-          }}
-        >
-          <ActivityIndicator size="large" color={Colors.secondary[500]} />
-        </View>
-      )}
-      <ScrollView 
-        className="flex-1" 
+      <Header
+        title={title}
+        showBackButton={true}
+      />
+      {(isLoading || isLoadingStatuses) && <LoadingSpinner overlay />}
+      <ScrollView
+        className="flex-1"
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24 }}
       >
         <Text className="text-base font-regular text-center mb-6 mt-4" style={{ color: Colors.gray[600] }}>
-          {t('summary.description')}
+          {description}
         </Text>
 
         <TouchableOpacity 
@@ -264,8 +269,8 @@ export default function SummaryStep() {
           </Card>
         </TouchableOpacity>
 
-        <TouchableOpacity 
-          onPress={() => handleCardPress('/(tabs)/investment/create-account/personal-information/personal-information-question')}
+        <TouchableOpacity
+          onPress={() => handleCardPress('/(tabs)/investment/create-account/personal-information/employment-information-question')}
           activeOpacity={0.7}
         >
           <Card variant="elevated" className="mb-4">

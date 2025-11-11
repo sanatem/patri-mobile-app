@@ -224,6 +224,9 @@ export default function PersonalInformationStepper() {
 
         return (
           <View>
+            <Text className="text-base font-medium mb-6" style={{ color: Colors.primary[700] }}>
+              {getGenderedText(currentQuestion)}
+            </Text>
             <RadioButton
               options={radioOptions}
               selectedValue={answers[currentQuestion.id] || ''}
@@ -242,6 +245,7 @@ export default function PersonalInformationStepper() {
         return (
           <View>
             <Input
+              label={getGenderedText(currentQuestion)}
               placeholder={currentQuestion.placeholder || ''}
               keyboardType="phone-pad"
               value={answers[currentQuestion.id] || ''}
@@ -254,6 +258,9 @@ export default function PersonalInformationStepper() {
         const formData = answers[currentQuestion.id] || {};
         return (
           <View>
+            <Text className="text-base font-medium mb-6" style={{ color: Colors.primary[700] }}>
+              {getGenderedText(currentQuestion)}
+            </Text>
             {currentQuestion.fields?.map((field: any, index: number) => {
               if (field.type === 'text') {
                 return (
@@ -306,32 +313,22 @@ export default function PersonalInformationStepper() {
     }
   };
 
+  const isLastQuestion = currentStep === questions.length - 1;
+
   return (
     <FormLayout
-      title={getGenderedText(currentQuestion)}
+      title="Información Personal 👤"
       subtitle=''
-      currentStep={0}
-      totalSteps={0}
+      currentStep={currentStep + 1}
+      totalSteps={questions.length}
       onNext={currentQuestion.type === 'choice' ? undefined : canContinue() && !isSubmitting ? handleContinue : undefined}
       onPrevious={isSubmitting ? undefined : goBack}
       onCancel={currentStep === 0 ? handleCancel : undefined}
-      nextButtonTitle={isSubmitting ? t('common.loading') : t('common.continue')}
+      nextButtonTitle={isSubmitting ? t('common.loading') : (isLastQuestion ? t('common.finish') : t('common.continue'))}
       cancelButtonTitle={t('common.cancel')}
       isNextDisabled={!canContinue() || isSubmitting}
       showLogo={false}
     >
-      
-      <View className="flex-row mb-6">
-        {questions.map((_, index) => (
-          <View
-            key={index}
-            className={`flex-1 h-1 mx-1 rounded ${
-              index <= currentStep ? 'bg-primary-500' : 'bg-gray-200'
-            }`}
-          />
-        ))}
-      </View>
-
       {renderQuestion()}
     </FormLayout>
   );

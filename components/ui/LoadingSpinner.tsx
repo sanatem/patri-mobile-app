@@ -7,13 +7,35 @@ interface LoadingSpinnerProps {
   size?: 'small' | 'large';
   color?: string;
   className?: string;
+  overlay?: boolean;
 }
 
 export function LoadingSpinner({
   size = 'large',
-  color = Colors.primary[500],
+  color = Colors.secondary[500],
   className,
+  overlay = false,
 }: LoadingSpinnerProps) {
+  if (overlay) {
+    return (
+      <View
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(255, 255, 255, 0.8)',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 1000,
+        }}
+      >
+        <ActivityIndicator size={size} color={color} />
+      </View>
+    );
+  }
+
   return (
     <View className={cn('items-center justify-center p-4', className)}>
       <ActivityIndicator size={size} color={color} />

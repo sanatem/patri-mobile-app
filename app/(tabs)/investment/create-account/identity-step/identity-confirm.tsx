@@ -207,9 +207,10 @@ export default function IdentityConfirm() {
         totalSteps={3}
         onNext={handleContinue}
         onPrevious={handleRetake}
-        nextButtonTitle={isSubmitting ? t('common.sending') : t('identityConfirm.dataIsCorrect')}
-        previousButtonTitle={t('identityConfirm.retakePhoto')}
+        nextButtonTitle={isSubmitting ? t('common.sending') : t('common.finish')}
+        previousButtonTitle={t('common.back')}
         isLoading={isSubmitting}
+        isNextDisabled={isSubmitting}
         showLogo={false}
       >
         <View className="space-y-4 mb-6">

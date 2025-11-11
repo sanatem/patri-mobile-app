@@ -145,10 +145,15 @@ export function ImageDropbox({
   return (
     <View className={className}>
       <TouchableOpacity
-        className={`border border-dashed rounded-xl items-center mb-5 ${
-          image ? Colors.success[500] : Colors.secondary[500]
-        }`}
-        style={{ padding: showAsDocument && image ? 100 : (image ? 10 : 100) , borderColor: image ? Colors.success[500] : Colors.secondary[500] }}
+        style={{
+          padding: showAsDocument && image ? 100 : (image ? 10 : 100),
+          borderWidth: 1,
+          borderColor: image ? Colors.success[500] : Colors.primary[400],
+          borderStyle: 'dashed',
+          borderRadius: 12,
+          alignItems: 'center',
+          marginBottom: 20,
+        }}
         onPress={image ? undefined : showImageOptions}
       >
         {image ? (
@@ -193,7 +198,7 @@ export function ImageDropbox({
             </View>
           )
         ) : (
-          <Text className="text-base font-medium" style={{ color: Colors.secondary[500] }}>
+          <Text className="text-base font-medium" style={{ color: Colors.primary[400] }}>
             {placeholder || t('identityUpload.uploadPrompt')}
           </Text>
         )}

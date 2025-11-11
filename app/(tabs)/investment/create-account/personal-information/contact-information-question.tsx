@@ -148,7 +148,7 @@ export default function ContactInformationStepper() {
       }
 
       if (response.success) {
-        router.push('/(tabs)/investment/create-account/summary');
+        router.push('/(tabs)/investment/create-account/personal-information/employment-information-question');
       } else {
         console.error('Error submitting contact information:', response.message);
       }
@@ -241,6 +241,9 @@ export default function ContactInformationStepper() {
 
         return (
           <View>
+            <Text className="text-base font-medium mb-6" style={{ color: Colors.primary[700] }}>
+              {currentQuestion.text}
+            </Text>
             <RadioButton
               options={radioOptions}
               selectedValue={answers[currentQuestion.id] || ''}
@@ -260,6 +263,7 @@ export default function ContactInformationStepper() {
         return (
           <View>
             <Input
+              label={currentQuestion.text}
               placeholder={currentQuestion.placeholder || ''}
               keyboardType={currentQuestion.id === 'phone' ? 'phone-pad' : currentQuestion.id === 'address_number' ? 'numeric' : 'default'}
               value={answers[currentQuestion.id] || ''}
@@ -286,6 +290,7 @@ export default function ContactInformationStepper() {
         return (
           <View>
             <Select
+              label={currentQuestion.text}
               options={options}
               value={answers[currentQuestion.id] || ''}
               onSelect={handleSelectChange}
@@ -299,6 +304,9 @@ export default function ContactInformationStepper() {
         const formData = answers[currentQuestion.id] || {};
         return (
           <View>
+            <Text className="text-base font-medium mb-6" style={{ color: Colors.primary[700] }}>
+              {currentQuestion.text}
+            </Text>
             {currentQuestion.fields?.map((field: any, index: number) => {
               if (field.type === 'text') {
                 return (
@@ -352,32 +360,22 @@ export default function ContactInformationStepper() {
   };
 
 
+  const isLastQuestion = currentStep === questions.length - 1;
+
   return (
     <FormLayout
-      title={currentQuestion.text}
-      subtitle={currentQuestion.subtitle || ''}
-      currentStep={0}
-      totalSteps={0}
+      title="Información de Contacto 📍"
+      subtitle=''
+      currentStep={currentStep + 1}
+      totalSteps={questions.length}
       onNext={currentQuestion.type === 'choice' ? undefined : canContinue() && !isSubmitting ? handleContinue : undefined}
       onPrevious={isSubmitting ? undefined : goBack}
       onCancel={currentStep === 0 ? handleCancel : undefined}
-      nextButtonTitle={isSubmitting ? t('common.loading') : t('common.continue')}
+      nextButtonTitle={isSubmitting ? t('common.loading') : (isLastQuestion ? t('common.finish') : t('common.continue'))}
       cancelButtonTitle={t('common.cancel')}
       isNextDisabled={!canContinue() || isSubmitting}
       showLogo={false}
     >
-
-      <View className="flex-row mb-6">
-        {questions.map((_, index) => (
-          <View
-            key={index}
-            className={`flex-1 h-1 mx-1 rounded ${
-              index <= currentStep ? 'bg-primary-500' : 'bg-gray-200'
-            }`}
-          />
-        ))}
-      </View>
-
       {renderQuestion()}
     </FormLayout>
   );

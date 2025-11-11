@@ -426,8 +426,10 @@
     }
   },
   "summary": {
-    "title": "Your profile is almost ready",
-    "description": "We’re validating your information. Once it’s approved, you’ll be able to start investing 🚀",
+    "title": "Account Opening",
+    "titleCompleted": "You can almost start investing",
+    "description": "Complete the following forms to create your investment account 📋",
+    "descriptionCompleted": "We just need to validate some data to activate your account",
     "returnHome": "Return to home",
     "steps": {
       "identity": {
@@ -1398,6 +1400,50 @@
     },
     "regionLabel": "Region",
     "communeLabel": "Commune"
+  },
+  "employmentInfo": {
+    "questions": [
+      {
+        "id": "company_name",
+        "type": "input",
+        "text": "What company do you work for?",
+        "subtitle": "Enter the company name",
+        "placeholder": "Company name"
+      },
+      {
+        "id": "company_rut",
+        "type": "input",
+        "text": "What is the company's RUT?",
+        "subtitle": "Example: 30686957-4",
+        "placeholder": "30686957-4",
+        "validation": "rut"
+      },
+      {
+        "id": "charge",
+        "type": "input",
+        "text": "What is your position?",
+        "subtitle": "Example: Director",
+        "placeholder": "Director"
+      },
+      {
+        "id": "profession",
+        "type": "input",
+        "text": "What is your profession?",
+        "subtitle": "Example: Accountant",
+        "placeholder": "Accountant"
+      },
+      {
+        "id": "commercial_activity",
+        "type": "input",
+        "text": "What is the company's line of business?",
+        "subtitle": "Describe the main activity of the company",
+        "placeholder": "Company's line of business"
+      }
+    ],
+    "errors": {
+      "required": "This field is required",
+      "invalidRut": "Invalid RUT"
+    }
   },
   "investmentPortfolio": {
     "reserva": {

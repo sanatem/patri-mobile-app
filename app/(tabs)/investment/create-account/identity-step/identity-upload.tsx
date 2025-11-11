@@ -23,6 +23,10 @@ export default function IdentityUpload() {
     }
   };
 
+  const handleCancel = () => {
+    router.push('/(tabs)/investment/create-account/summary');
+  };
+
   return (
     <FormLayout
       title={t('identityUpload.title')}
@@ -32,8 +36,10 @@ export default function IdentityUpload() {
       currentStep={1}
       totalSteps={3}
       onNext={handleContinue}
+      onCancel={handleCancel}
       isNextDisabled={!frontImage}
       nextButtonTitle={t('common.continue')}
+      cancelButtonTitle={t('common.cancel')}
       showLogo={false}
     >
       <ImageDropbox

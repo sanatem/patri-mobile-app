@@ -23,6 +23,10 @@ export default function IdentityUploadBack() {
     }
   };
 
+  const handleGoBack = () => {
+    router.back();
+  };
+
   return (
     <FormLayout
       title={t('identityUploadBack.title')}
@@ -30,9 +34,10 @@ export default function IdentityUploadBack() {
       currentStep={2}
       totalSteps={3}
       onNext={handleContinue}
-      onPrevious={() => router.back()}
+      onPrevious={handleGoBack}
       isNextDisabled={!backImage}
       nextButtonTitle={t('common.continue')}
+      previousButtonTitle={t('common.back')}
       showLogo={false}
     >
       <ImageDropbox
