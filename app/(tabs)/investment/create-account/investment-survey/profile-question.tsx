@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Alert, Text } from 'react-native';
 import { router } from 'expo-router';
-import { FormLayout, RadioButton } from '@/components/ui';
+import { FormLayout, RadioButton, SuccessMessage } from '@/components/ui';
 import Colors from '@/constants/Colors';
 import { useTranslation } from 'react-i18next';
 import { mapSurveyAnswersToRiskProfile } from '@/constants/RiskProfileMapping';
@@ -25,6 +25,7 @@ export default function ProfileQuestion() {
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasExistingProfile, setHasExistingProfile] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   useEffect(() => {
     checkExistingProfile();
@@ -107,7 +108,11 @@ export default function ProfileQuestion() {
       console.log('Response:', response);
 
       if (response.success) {
-        router.push('/(tabs)/investment/create-account/investment-survey/profile-result');
+        setShowSuccess(true);
+        setTimeout(() => {
+          setShowSuccess(false);
+          router.push('/(tabs)/investment/create-account/investment-survey/profile-result');
+        }, 2000);
       } else {
         Alert.alert(
           t('common.error'),
@@ -181,6 +186,7 @@ export default function ProfileQuestion() {
           onSelect={handleSelect}
         />
       </View>
+      <SuccessMessage visible={showSuccess} message="Formulario actualizado correctamente" />
     </FormLayout>
   );
 }

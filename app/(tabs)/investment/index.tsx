@@ -85,20 +85,6 @@ export default function InvestmentIndex() {
     }
   }, [subscriptionLoading, investmentLoading, isLoadingFormData, hasInvestmentAccount, router]);
 
-  useEffect(() => {
-    if (!subscriptionLoading && !investmentLoading && !isLoadingFormData && !hasInvestmentAccount && hasAnyFormData) {
-      const timer = setTimeout(() => {
-        try {
-          router.replace('/(tabs)/investment/create-account/complete-profile')
-        } catch (error) {
-          Alert.alert('Error', 'No se pudo navegar a la pantalla solicitada')
-        }
-      }, 100);
-
-      return () => clearTimeout(timer);
-    }
-  }, [subscriptionLoading, investmentLoading, isLoadingFormData, hasInvestmentAccount, hasAnyFormData, router]);
-
   if (subscriptionLoading || investmentLoading || isLoadingFormData) {
     return (
       <View className="flex-1 bg-white justify-center items-center">
@@ -115,9 +101,5 @@ export default function InvestmentIndex() {
     return null;
   }
 
-  if (hasAnyFormData) {
-    return null;
-  }
-
-  return <WithoutAccountScreen />;
+  return <WithoutAccountScreen hasAnyFormData={hasAnyFormData} />;
 }

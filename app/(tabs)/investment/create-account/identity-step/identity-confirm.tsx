@@ -1,6 +1,6 @@
 import { View, Text, Alert } from 'react-native';
 import { router } from 'expo-router';
-import { FormLayout, Input, Select, Button, LoadingSpinner } from '@/components/ui';
+import { FormLayout, Input, Select, Button, LoadingSpinner, SuccessMessage } from '@/components/ui';
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useIdVerification } from '@/hooks/useIdVerification';
@@ -18,6 +18,7 @@ export default function IdentityConfirm() {
   const [backImage, setBackImage] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const [formData, setFormData] = useState({
     firstName: '',
@@ -127,9 +128,12 @@ export default function IdentityConfirm() {
           documentNumber: formData.documentNumber
         };
         await AsyncStorage.setItem('extracted_personal_data', JSON.stringify(extractedDataFormat));
-        
 
-        router.push('/(tabs)/investment/create-account/complete-profile');
+        setShowSuccess(true);
+        setTimeout(() => {
+          setShowSuccess(false);
+          router.push('/(tabs)/investment/create-account/complete-profile');
+        }, 2000);
       } else {
         throw new Error(t('identityConfirm.serverError'));
       }
@@ -253,7 +257,7 @@ export default function IdentityConfirm() {
             placeholder={t('identityConfirm.documentNumber')}
           />
         </View>
-
+        <SuccessMessage visible={showSuccess} message="Formulario actualizado correctamente" />
       </FormLayout>
     );
   }

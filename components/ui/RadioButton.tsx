@@ -49,7 +49,7 @@ export default function RadioButton({
             key={option.value}
             style={{
               flexDirection: 'row',
-              alignItems: 'center',
+              alignItems: 'flex-start',
               opacity: disabled ? 0.5 : 1,
               flex: horizontal ? 1 : undefined,
             }}
@@ -62,13 +62,15 @@ export default function RadioButton({
                 height: 20,
                 borderRadius: 10,
                 borderWidth: 2,
-                borderColor: selectedValue === option.value 
-                  ? Colors.primary[500] 
+                borderColor: selectedValue === option.value
+                  ? Colors.primary[500]
                   : Colors.gray[300],
                 marginRight: 12,
+                marginTop: 2,
                 justifyContent: 'center',
                 alignItems: 'center',
                 backgroundColor: 'transparent',
+                flexShrink: 0,
               }}
             >
               {selectedValue === option.value && (
@@ -82,10 +84,14 @@ export default function RadioButton({
                 />
               )}
             </View>
-            
+
             <Text
               className='text-base font-regular'
-              style={{ color: Colors.gray[700] }}
+              style={{
+                color: Colors.gray[700],
+                flex: 1,
+                flexWrap: 'wrap'
+              }}
             >
               {option.label}
             </Text>

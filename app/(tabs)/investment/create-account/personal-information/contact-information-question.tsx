@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text } from 'react-native';
 import { router } from 'expo-router';
-import { FormLayout, Input, Select, RadioButton, LoadingSpinner } from '@/components/ui';
+import { FormLayout, Input, Select, RadioButton, LoadingSpinner, SuccessMessage } from '@/components/ui';
 import { useTranslation } from 'react-i18next';
 import { REGIONS_AND_COMMUNES } from '@/constants/AppConstants';
 import { useAuth } from '@/providers/AuthProvider';
@@ -36,6 +36,7 @@ export default function ContactInformationStepper() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasExistingData, setHasExistingData] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const getFilteredQuestions = () => {
     return allQuestions.filter((question) => {
@@ -87,8 +88,8 @@ export default function ContactInformationStepper() {
           if (contactInfo.address) {
             preFilledAnswers['address'] = contactInfo.address;
           }
-          if (contactInfo.floor_number) {
-            preFilledAnswers['address_number'] = contactInfo.floor_number;
+          if (contactInfo.address_number) {
+            preFilledAnswers['address_number'] = contactInfo.address_number;
           }
           if (contactInfo.phones && contactInfo.phones.length > 0) {
             preFilledAnswers['phone'] = contactInfo.phones[0];
@@ -148,7 +149,11 @@ export default function ContactInformationStepper() {
       }
 
       if (response.success) {
-        router.push('/(tabs)/investment/create-account/personal-information/employment-information-question');
+        setShowSuccess(true);
+        setTimeout(() => {
+          setShowSuccess(false);
+          router.push('/(tabs)/investment/create-account/personal-information/employment-information-question');
+        }, 2000);
       } else {
         console.error('Error submitting contact information:', response.message);
       }
@@ -376,6 +381,7 @@ export default function ContactInformationStepper() {
       showLogo={false}
     >
       {renderQuestion()}
+      <SuccessMessage visible={showSuccess} message="Formulario actualizado correctamente" />
     </FormLayout>
   );
 }

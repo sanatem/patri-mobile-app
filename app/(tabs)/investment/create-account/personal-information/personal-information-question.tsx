@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text } from 'react-native';
 import { router } from 'expo-router';
-import { FormLayout, Button, Input, Select, RadioButton, LoadingSpinner } from '@/components/ui';
+import { FormLayout, Button, Input, Select, RadioButton, LoadingSpinner, SuccessMessage } from '@/components/ui';
 import { useTranslation } from 'react-i18next';
 import { REGIONS_AND_COMMUNES } from '@/constants/AppConstants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -45,6 +45,7 @@ export default function PersonalInformationStepper() {
   const [answers, setAnswers] = useState<Record<string, any>>({});
   const [extractedData, setExtractedData] = useState<ExtractedPersonalData | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const getFilteredQuestions = () => {
     return allQuestions.filter((question) => {
@@ -142,7 +143,11 @@ export default function PersonalInformationStepper() {
       const response = await updatePersonalInformation(accessToken, personalInfoData);
 
       if (response.success) {
-        router.push('/(tabs)/investment/create-account/complete-profile');
+        setShowSuccess(true);
+        setTimeout(() => {
+          setShowSuccess(false);
+          router.push('/(tabs)/investment/create-account/complete-profile');
+        }, 2000);
       } else {
         console.error('Error updating personal information:', response.message);
       }
@@ -330,6 +335,7 @@ export default function PersonalInformationStepper() {
       showLogo={false}
     >
       {renderQuestion()}
+      <SuccessMessage visible={showSuccess} message="Formulario actualizado correctamente" />
     </FormLayout>
   );
 } 

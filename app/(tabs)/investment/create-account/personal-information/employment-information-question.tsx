@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View } from 'react-native';
 import { router } from 'expo-router';
-import { FormLayout, Input, LoadingSpinner } from '@/components/ui';
+import { FormLayout, Input, LoadingSpinner, SuccessMessage } from '@/components/ui';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/providers/AuthProvider';
 import { getEmploymentInformation } from '@/services/investment/create-account/employment-information/get-employment-information';
@@ -29,6 +29,7 @@ export default function EmploymentInformationStepper() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasExistingData, setHasExistingData] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const questions = allQuestions;
   const currentQuestion = questions[currentStep];
@@ -143,7 +144,11 @@ export default function EmploymentInformationStepper() {
       }
 
       if (response.success) {
-        router.push('/(tabs)/investment/create-account/complete-profile');
+        setShowSuccess(true);
+        setTimeout(() => {
+          setShowSuccess(false);
+          router.push('/(tabs)/investment/create-account/complete-profile');
+        }, 2000);
       } else {
         console.error('Error submitting employment information:', response.message);
         // TODO: Show error to user
@@ -244,6 +249,7 @@ export default function EmploymentInformationStepper() {
           <LoadingSpinner />
         </View>
       )}
+      <SuccessMessage visible={showSuccess} message="Formulario actualizado correctamente" />
     </FormLayout>
   );
 }

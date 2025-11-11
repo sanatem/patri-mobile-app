@@ -52,7 +52,7 @@ export function SuccessMessage({ visible, message }: SuccessMessageProps) {
   return (
     <Animated.View style={{
       position: 'absolute',
-      top: 100,
+      top: 60,
       left: 20,
       right: 20,
       backgroundColor: Colors.primary[500],
@@ -65,6 +65,7 @@ export function SuccessMessage({ visible, message }: SuccessMessageProps) {
       shadowOpacity: 0.25,
       shadowRadius: 3.84,
       elevation: 5,
+      zIndex: 1000,
       transform: [{ translateY }],
       opacity,
     }}>

@@ -5,12 +5,20 @@ import { Header, Button } from '@/components/ui';
 import Colors from '@/constants/Colors';
 import { useTranslation } from 'react-i18next';
 
-export default function WithoutAccountScreen() {
+interface WithoutAccountScreenProps {
+  hasAnyFormData?: boolean;
+}
+
+export default function WithoutAccountScreen({ hasAnyFormData = false }: WithoutAccountScreenProps) {
   const router = useRouter();
   const { t } = useTranslation();
 
   const handleCreateAccount = () => {
-    router.push('/investment/create-account/investment-survey/start-profile' as any);
+    if (hasAnyFormData) {
+      router.push('/(tabs)/investment/create-account/complete-profile' as any);
+    } else {
+      router.push('/investment/create-account/investment-survey/start-profile' as any);
+    }
   };
 
   return (
