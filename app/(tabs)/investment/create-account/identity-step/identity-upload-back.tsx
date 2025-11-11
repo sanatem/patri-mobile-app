@@ -1,7 +1,7 @@
 import { View, Text, Alert } from 'react-native';
 import { router } from 'expo-router';
 import { FormLayout, ImageDropbox } from '@/components/ui';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Colors from '@/constants/Colors';
@@ -10,11 +10,33 @@ export default function IdentityUploadBack() {
   const { t } = useTranslation();
   const [backImage, setBackImage] = useState<string | null>(null);
 
+  useEffect(() => {
+    loadExistingBackImage();
+  }, []);
+
+  const loadExistingBackImage = async () => {
+    try {
+      // Cargar la imagen trasera desde AsyncStorage si existe
+      const savedBackImage = await AsyncStorage.getItem('identity_back_image');
+      if (savedBackImage) {
+        console.log('Found existing back image in AsyncStorage');
+        setBackImage(savedBackImage);
+      }
+    } catch (error) {
+      console.error('Error loading existing back image:', error);
+    }
+  };
 
   const handleContinue = async () => {
     if (backImage) {
       try {
-        await AsyncStorage.setItem('identity_back_image', backImage);
+        // Si la imagen ya es una URL del servidor, solo navegar
+        if (backImage.startsWith('http')) {
+          console.log('Using existing back image from server');
+        } else {
+          // Si es una imagen nueva (base64), guardarla
+          await AsyncStorage.setItem('identity_back_image', backImage);
+        }
         router.push('/investment/create-account/identity-step/identity-confirm' as any);
       } catch (error) {
         console.error('Error saving back image:', error);

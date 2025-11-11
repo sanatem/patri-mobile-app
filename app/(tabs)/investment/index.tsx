@@ -1,6 +1,6 @@
 import { View, Alert } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useRouter, useFocusEffect } from 'expo-router';
+import { useEffect, useState, useCallback } from 'react';
 import WithoutAccountScreen from './without-account';
 import { LockedTabOverlay, LoadingSpinner } from '@/components/ui';
 import { useSubscriptionStatus } from '@/hooks/common/useSubscriptionStatus';
@@ -23,9 +23,11 @@ export default function InvestmentIndex() {
 
   const { hasInvestmentAccount, loading: investmentLoading } = useHasInvestmentAccount();
 
-  useEffect(() => {
-    checkForExistingFormData();
-  }, [accessToken]);
+  useFocusEffect(
+    useCallback(() => {
+      checkForExistingFormData();
+    }, [accessToken])
+  );
 
   const checkForExistingFormData = async () => {
     if (!accessToken) {

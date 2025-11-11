@@ -160,33 +160,35 @@ export default function ProfileQuestion() {
   const isNextButtonEnabled = isLastQuestion && selectedValue !== '';
 
   return (
-    <FormLayout
-      title="Perfil de Riesgo 📊"
-      subtitle=""
-      currentStep={step + 1}
-      totalSteps={totalSteps}
-      onPrevious={handlePrevious}
-      onNext={isLastQuestion ? submitRiskProfile : undefined}
-      onCancel={step === 0 ? handleCancel : undefined}
-      previousButtonTitle={t('common.back')}
-      nextButtonTitle={isLastQuestion ? t('common.continue') : undefined}
-      cancelButtonTitle={t('common.cancel')}
-      isNextDisabled={!isNextButtonEnabled}
-      isLoading={isSubmitting}
-      loadingText={t('common.saving')}
-      showLogo={false}
-    >
-      <View className="py-4">
-        <Text className="text-base font-medium mb-6" style={{ color: Colors.primary[700] }}>
-          {currentQuestion?.title}
-        </Text>
-        <RadioButton
-          options={radioOptions}
-          selectedValue={selectedValue}
-          onSelect={handleSelect}
-        />
-      </View>
+    <>
       <SuccessMessage visible={showSuccess} message="Formulario actualizado correctamente" />
-    </FormLayout>
+      <FormLayout
+        title="Perfil de Riesgo 📊"
+        subtitle=""
+        currentStep={step + 1}
+        totalSteps={totalSteps}
+        onPrevious={handlePrevious}
+        onNext={isLastQuestion ? submitRiskProfile : undefined}
+        onCancel={step === 0 ? handleCancel : undefined}
+        previousButtonTitle={t('common.back')}
+        nextButtonTitle={isLastQuestion ? t('common.continue') : undefined}
+        cancelButtonTitle={t('common.cancel')}
+        isNextDisabled={!isNextButtonEnabled}
+        isLoading={isSubmitting}
+        loadingText={t('common.saving')}
+        showLogo={false}
+      >
+        <View className="py-4">
+          <Text className="text-base font-medium mb-6" style={{ color: Colors.primary[700] }}>
+            {currentQuestion?.title}
+          </Text>
+          <RadioButton
+            options={radioOptions}
+            selectedValue={selectedValue}
+            onSelect={handleSelect}
+          />
+        </View>
+      </FormLayout>
+    </>
   );
 }

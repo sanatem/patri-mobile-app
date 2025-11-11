@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View } from 'react-native';
 import { router } from 'expo-router';
-import { FormLayout, Input, LoadingSpinner, SuccessMessage } from '@/components/ui';
+import { FormLayout, Input, Select, LoadingSpinner, SuccessMessage } from '@/components/ui';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/providers/AuthProvider';
 import { getEmploymentInformation } from '@/services/investment/create-account/employment-information/get-employment-information';
@@ -14,7 +14,7 @@ interface EmploymentInfoQuestion {
   id: string;
   text: string;
   subtitle?: string;
-  type: 'input';
+  type: 'input' | 'select';
   placeholder?: string;
   keyboardType?: 'default' | 'numeric' | 'phone-pad';
   validation?: 'rut';
@@ -210,6 +210,27 @@ export default function EmploymentInformationStepper() {
   };
 
   const renderQuestion = () => {
+    if (currentQuestion.type === 'select' && currentQuestion.id === 'commercial_activity') {
+      const commercialActivities = t('employmentInfo.commercialActivities', { returnObjects: true }) as Record<string, string>;
+      const options = Object.entries(commercialActivities).map(([key, value]) => ({
+        label: value,
+        value: key
+      }));
+
+      return (
+        <View>
+          <Select
+            label={currentQuestion.text}
+            options={options}
+            value={answers[currentQuestion.id] || ''}
+            onSelect={handleInputChange}
+            placeholder={currentQuestion.placeholder || 'Selecciona'}
+            disabled={isSubmitting}
+          />
+        </View>
+      );
+    }
+
     return (
       <View>
         <Input
@@ -228,28 +249,30 @@ export default function EmploymentInformationStepper() {
   const isLastQuestion = currentStep === questions.length - 1;
 
   return (
-    <FormLayout
-      title="Información Laboral 💼"
-      subtitle=''
-      currentStep={currentStep + 1}
-      totalSteps={questions.length}
-      onNext={handleContinue}
-      onPrevious={currentStep > 0 && !isSubmitting ? goBack : undefined}
-      onCancel={currentStep === 0 ? handleCancel : undefined}
-      nextButtonTitle={isSubmitting ? t('common.loading') : (isLastQuestion ? t('common.finish') : t('common.continue'))}
-      previousButtonTitle={t('common.back')}
-      cancelButtonTitle={t('common.cancel')}
-      isNextDisabled={!canContinue() || isSubmitting}
-      showLogo={false}
-    >
-      {renderQuestion()}
-
-      {isSubmitting && (
-        <View className="mt-4">
-          <LoadingSpinner />
-        </View>
-      )}
+    <>
       <SuccessMessage visible={showSuccess} message="Formulario actualizado correctamente" />
-    </FormLayout>
+      <FormLayout
+        title="Información Laboral 💼"
+        subtitle=''
+        currentStep={currentStep + 1}
+        totalSteps={questions.length}
+        onNext={handleContinue}
+        onPrevious={currentStep > 0 && !isSubmitting ? goBack : undefined}
+        onCancel={currentStep === 0 ? handleCancel : undefined}
+        nextButtonTitle={isSubmitting ? t('common.loading') : (isLastQuestion ? t('common.finish') : t('common.continue'))}
+        previousButtonTitle={t('common.back')}
+        cancelButtonTitle={t('common.cancel')}
+        isNextDisabled={!canContinue() || isSubmitting}
+        showLogo={false}
+      >
+        {renderQuestion()}
+
+        {isSubmitting && (
+          <View className="mt-4">
+            <LoadingSpinner />
+          </View>
+        )}
+      </FormLayout>
+    </>
   );
 }

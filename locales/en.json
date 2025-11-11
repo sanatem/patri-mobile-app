@@ -238,17 +238,22 @@
     "verifyingDescription": "Verifying your identity document",
     "verifying": "Verifying document...",
     "verificationSuccess": "Document verified successfully",
+    "documentVerified": "Document verified successfully",
+    "verificationFailed": "Verification failed",
     "verificationWarning": "Document verified with observations",
     "confidence": "Confidence",
     "manualReviewRequired": "Manual review required",
     "extractedData": "Extracted data",
     "dataIsCorrect": "Data is correct",
-    "retakePhoto": "Retake photo",
+    "retakePhoto": "Retake or upload photo again",
+    "documentRejected": "The document did not pass authenticity verification. Please try with another document.",
+    "enterManually": "Please enter the data manually.",
     "dataWillBePrefilled": "This data will be pre-filled in the next step",
     "noDataFound": "Could not extract data from document",
     "errorLoadingImages": "Could not load document images",
     "submitError": "Error sending data to server",
-    "serverError": "Server response error"
+    "serverError": "Server response error",
+    "continueAnyway": "Continue anyway"
   },
   "identityMethod": {
     "title": "Identity verification",
@@ -425,7 +430,7 @@
       }
     }
   },
-  "completeProfile": {
+  "investmentAccount": {
     "title": "Investment Account",
     "titleCompleted": "You can almost start investing",
     "description": "Complete the following forms to create your investment account 📈",
@@ -1437,15 +1442,51 @@
       },
       {
         "id": "commercial_activity",
-        "type": "input",
+        "type": "select",
         "text": "What is the company's line of business?",
-        "subtitle": "Describe the main activity of the company",
-        "placeholder": "Company's line of business"
+        "subtitle": "Select the main activity of the company",
+        "placeholder": "Select line of business"
       }
     ],
     "errors": {
       "required": "This field is required",
       "invalidRut": "Invalid RUT"
+    },
+    "commercialActivities": {
+      "advertising": "Advertising and Marketing",
+      "agriculture": "Agriculture",
+      "agriculture_livestock": "Agriculture and Livestock",
+      "automotive": "Automotive",
+      "construction": "Construction",
+      "consulting": "Consulting",
+      "education": "Education",
+      "energy": "Energy",
+      "entertainment": "Entertainment",
+      "environmental": "Environmental Services",
+      "fashion": "Fashion and Textiles",
+      "financial_services": "Financial Services",
+      "fishing": "Fishing",
+      "food_and_beverage": "Food and Beverage",
+      "forestry": "Forestry",
+      "government": "Government",
+      "healthcare": "Healthcare",
+      "insurance": "Insurance",
+      "legal_services": "Legal Services",
+      "logistics": "Logistics",
+      "manufacturing": "Manufacturing",
+      "media": "Media",
+      "mining": "Mining",
+      "other": "Other",
+      "professional_services": "Professional Services",
+      "real_estate": "Real Estate",
+      "research": "Research and Development",
+      "retail": "Retail",
+      "sports": "Sports",
+      "technology": "Technology",
+      "telecommunications": "Telecommunications",
+      "tourism": "Tourism",
+      "transportation": "Transportation",
+      "wholesale": "Wholesale"
     }
   },
   "investmentPortfolio": {

@@ -24,7 +24,7 @@ export function ImageDropbox({
   showRemoveButton = true,
   showChangeButton = true,
   aspectRatio = [16, 10],
-  quality = 0.8,
+  quality = 1,
   className = "",
   showAsDocument = false,
   documentName,
@@ -69,6 +69,8 @@ export function ImageDropbox({
         allowsEditing: true,
         aspect: aspectRatio,
         quality: quality,
+        base64: true,
+        exif: false,
       });
 
       if (!result.canceled) {
@@ -78,7 +80,14 @@ export function ImageDropbox({
         } else {
           setFileName('documento_galeria.jpg');
         }
-        onImageChange(asset.uri);
+
+        // Si tenemos base64, usarlo directamente como data URI JPEG
+        if (asset.base64) {
+          const imageUri = `data:image/jpeg;base64,${asset.base64}`;
+          onImageChange(imageUri);
+        } else {
+          onImageChange(asset.uri);
+        }
       }
     } catch (error) {
       console.error('Error picking image:', error);
@@ -102,11 +111,21 @@ export function ImageDropbox({
         allowsEditing: true,
         aspect: aspectRatio,
         quality: quality,
+        base64: true,
+        exif: false,
       });
 
       if (!result.canceled) {
         setFileName('foto_camara.jpg');
-        onImageChange(result.assets[0].uri);
+        const asset = result.assets[0];
+
+        // Si tenemos base64, usarlo directamente como data URI JPEG
+        if (asset.base64) {
+          const imageUri = `data:image/jpeg;base64,${asset.base64}`;
+          onImageChange(imageUri);
+        } else {
+          onImageChange(asset.uri);
+        }
       }
     } catch (error) {
       console.error('Error taking photo:', error);

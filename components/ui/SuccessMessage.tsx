@@ -13,8 +13,12 @@ export function SuccessMessage({ visible, message }: SuccessMessageProps) {
   const opacity = useRef(new Animated.Value(0)).current;
   const [shouldRender, setShouldRender] = useState(false);
 
+  console.log('SuccessMessage render:', { visible, message, shouldRender });
+
   useEffect(() => {
+    console.log('SuccessMessage useEffect triggered, visible:', visible, 'shouldRender:', shouldRender);
     if (visible) {
+      console.log('Setting shouldRender to TRUE');
       setShouldRender(true);
       Animated.parallel([
         Animated.spring(translateY, {
@@ -28,8 +32,11 @@ export function SuccessMessage({ visible, message }: SuccessMessageProps) {
           duration: 300,
           useNativeDriver: true,
         }),
-      ]).start();
-    } else {
+      ]).start(() => {
+        console.log('Animation completed, message should be visible');
+      });
+    } else if (shouldRender) {
+      console.log('Hiding message, setting shouldRender to FALSE');
       Animated.parallel([
         Animated.timing(translateY, {
           toValue: -100,
@@ -42,10 +49,11 @@ export function SuccessMessage({ visible, message }: SuccessMessageProps) {
           useNativeDriver: true,
         }),
       ]).start(() => {
+        console.log('Hide animation completed');
         setShouldRender(false);
       });
     }
-  }, [visible, translateY, opacity]);
+  }, [visible, translateY, opacity, shouldRender]);
 
   if (!shouldRender) return null;
 

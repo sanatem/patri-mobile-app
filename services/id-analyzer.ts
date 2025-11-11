@@ -110,6 +110,10 @@ class RealValidator implements IValidator {
         authenticate: true,
         ocr: true,
         aml: false,
+        biometric: false,
+        // Configuración adicional para mejorar la detección de documentos chilenos nuevos
+        region: 'CL', // Especificar región Chile
+        type: 'DI', // Driver License / Identity Document
       };
 
       const response = await fetch(`${this.baseUrl}/scan`, {

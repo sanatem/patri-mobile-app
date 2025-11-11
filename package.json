@@ -5,6 +5,8 @@
   "private": true,
   "scripts": {
     "dev": "expo start",
+    "proxy": "node proxy-server.js",
+    "proxy:dev": "nodemon proxy-server.js",
     "build:web": "expo export --platform web",
     "lint": "expo lint",
     "dev:css": "tailwindcss -i ./tailwind.css -o ./app.css --watch",
@@ -69,6 +71,7 @@
     "lucide-react-native": "^0.475.0",
     "nativewind": "^4.1.23",
     "node-fetch": "^3.3.2",
+    "nodemon": "^3.1.11",
     "onesignal-expo-plugin": "^2.0.3",
     "openai": "^4.71.1",
     "react": "19.1.0",

@@ -16,11 +16,11 @@ app.post('/api/id-analyzer/scan', async (req, res) => {
   try {
     const apiKey = process.env.EXPO_PUBLIC_ID_ANALYZER_API_KEY || process.env.ID_ANALYZER_API_KEY;
     const region = process.env.ID_ANALYZER_REGION || 'US';
-    
+
     if (!apiKey) {
       return res.status(500).json({ error: 'API key not configured' });
     }
-    
+
     let baseUrl;
     switch (region) {
       case 'EU':
@@ -33,6 +33,14 @@ app.post('/api/id-analyzer/scan', async (req, res) => {
         baseUrl = 'https://api2.idanalyzer.com';
     }
 
+    const payload = { ...req.body };
+    if (payload.document && payload.document.startsWith('data:image/')) {
+      payload.document = payload.document.split(',')[1];
+    }
+    if (payload.documentback && payload.documentback.startsWith('data:image/')) {
+      payload.documentback = payload.documentback.split(',')[1];
+    }
+
     const response = await fetch(`${baseUrl}/scan`, {
       method: 'POST',
       headers: {
@@ -40,7 +48,7 @@ app.post('/api/id-analyzer/scan', async (req, res) => {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
       },
-      body: JSON.stringify(req.body),
+      body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
@@ -49,7 +57,8 @@ app.post('/api/id-analyzer/scan', async (req, res) => {
     }
 
     const data = await response.json();
-    
+
+
     const transformField = (field) => {
       if (Array.isArray(field) && field.length > 0) {
         return field[0].value || '';
@@ -65,28 +74,60 @@ app.post('/api/id-analyzer/scan', async (req, res) => {
         .join(' ');
     };
 
+    const countryToNationality = {
+      'Chile': 'Chilena',
+      'Argentina': 'Argentina',
+      'Peru': 'Peruana',
+      'Bolivia': 'Boliviana',
+      'Brazil': 'Brasileña',
+      'Colombia': 'Colombiana',
+      'Ecuador': 'Ecuatoriana',
+      'Venezuela': 'Venezolana',
+      'Uruguay': 'Uruguaya',
+      'Paraguay': 'Paraguaya',
+      'United States': 'Estadounidense',
+      'Mexico': 'Mexicana',
+      'Spain': 'Española',
+      'France': 'Francesa',
+      'Germany': 'Alemana',
+      'Italy': 'Italiana',
+      'United Kingdom': 'Británica',
+      'Canada': 'Canadiense',
+    };
+
+    const getCountryNationality = (country) => {
+      if (!country) return '';
+      return countryToNationality[country] || country;
+    };
+
     const transformedResult = {};
     if (data.data) {
       Object.keys(data.data).forEach(key => {
         transformedResult[key] = transformField(data.data[key]);
       });
     }
-    
+
+    let documentNumber = transformedResult.personalNumber ||
+                        transformedResult.documentNumber ||
+                        transformedResult.idNumber ||
+                        transformedResult.identificationNumber ||
+                        '';
+
     const mappedResult = {
       first_name: toCamelCase(transformedResult.firstName) || '',
       last_name: toCamelCase(transformedResult.lastName) || '',
       full_name: toCamelCase(transformedResult.fullName) || '',
-      rut: transformedResult.personalNumber || '',
+      rut: documentNumber,
       birth_date: transformedResult.dob || '',
       residence_country: transformedResult.countryFull || '',
-      
+
       firstName: toCamelCase(transformedResult.firstName) || '',
       lastName: toCamelCase(transformedResult.lastName) || '',
       fullName: toCamelCase(transformedResult.fullName) || '',
-      documentNumber: transformedResult.personalNumber || '',
+      documentNumber: documentNumber,
       dateOfBirth: transformedResult.dob || '',
       birthdate: transformedResult.dob || '',
-      nationality: transformedResult.countryFull || '',
+      nationality: getCountryNationality(transformedResult.countryFull) || '',
       documentType: transformedResult.documentName || '',
       expiryDate: transformedResult.expiry || '',
       issueDate: transformedResult.issued || '',

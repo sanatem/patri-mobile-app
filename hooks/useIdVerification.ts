@@ -58,10 +58,14 @@ export function useIdVerification(): UseIdVerificationReturn {
 
       if (result.success) {
         const personalData = currentAnalyzer.extractPersonalData(result);
-        setExtractedData(personalData);
+        const decision = result.result.authenticity.decision;
         
-        if (result.result.authenticity.decision === 'reject') {
+        if (decision === 'reject') {
+          // Solo rechazar si la decisión es "reject"
           setError('El documento no pasó la verificación de autenticidad. Por favor, intenta con otro documento.');
+        } else {
+          // Para "accept" y "review", prellenar los datos
+          setExtractedData(personalData);
         }
       } else {
         const errorMsg = result.error || 'No se pudo verificar el documento';

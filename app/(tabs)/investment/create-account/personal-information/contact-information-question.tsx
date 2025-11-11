@@ -152,7 +152,7 @@ export default function ContactInformationStepper() {
         setShowSuccess(true);
         setTimeout(() => {
           setShowSuccess(false);
-          router.push('/(tabs)/investment/create-account/personal-information/employment-information-question');
+          router.push('/(tabs)/investment/create-account/complete-profile');
         }, 2000);
       } else {
         console.error('Error submitting contact information:', response.message);
@@ -367,21 +367,23 @@ export default function ContactInformationStepper() {
   const isLastQuestion = currentStep === questions.length - 1;
 
   return (
-    <FormLayout
-      title="Información de Contacto 📍"
-      subtitle=''
-      currentStep={currentStep + 1}
-      totalSteps={questions.length}
-      onNext={currentQuestion.type === 'choice' ? undefined : canContinue() && !isSubmitting ? handleContinue : undefined}
-      onPrevious={isSubmitting ? undefined : goBack}
-      onCancel={currentStep === 0 ? handleCancel : undefined}
-      nextButtonTitle={isSubmitting ? t('common.loading') : (isLastQuestion ? t('common.finish') : t('common.continue'))}
-      cancelButtonTitle={t('common.cancel')}
-      isNextDisabled={!canContinue() || isSubmitting}
-      showLogo={false}
-    >
-      {renderQuestion()}
+    <>
       <SuccessMessage visible={showSuccess} message="Formulario actualizado correctamente" />
-    </FormLayout>
+      <FormLayout
+        title="Información de Contacto 📍"
+        subtitle=''
+        currentStep={currentStep + 1}
+        totalSteps={questions.length}
+        onNext={currentQuestion.type === 'choice' ? undefined : canContinue() && !isSubmitting ? handleContinue : undefined}
+        onPrevious={isSubmitting ? undefined : goBack}
+        onCancel={currentStep === 0 ? handleCancel : undefined}
+        nextButtonTitle={isSubmitting ? t('common.loading') : (isLastQuestion ? t('common.finish') : t('common.continue'))}
+        cancelButtonTitle={t('common.cancel')}
+        isNextDisabled={!canContinue() || isSubmitting}
+        showLogo={false}
+      >
+        {renderQuestion()}
+      </FormLayout>
+    </>
   );
 }

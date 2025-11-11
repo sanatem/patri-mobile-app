@@ -225,9 +225,13 @@
     },
     "identityConfirm": {
         "title": "Confirma tus datos",
-        "description": "Edítala si encuentras un error o falta algo.",
+        "description": "Edita si hay algún error o falta información.",
         "firstName": "Nombres",
         "lastName1": "Apellidos",
+        "verificationFailed": "Error de verificación",
+        "retakePhoto": "Tomar o subir foto nuevamente",
+        "documentRejected": "El documento no pasó la verificación de autenticidad. Por favor, intenta con otro documento.",
+        "enterManually": "Por favor, ingresa los datos manualmente.",
         "gender": "Género",
         "birthDate": "Fecha de nacimiento",
         "dateOfBirth": "Fecha de nacimiento",
@@ -238,12 +242,12 @@
         "verifyingDescription": "Verificando tu documento de identidad",
         "verifying": "Verificando documento...",
         "verificationSuccess": "Documento verificado correctamente",
+        "documentVerified": "Documento verificado correctamente",
         "verificationWarning": "Documento verificado con observaciones",
         "confidence": "Confianza",
         "manualReviewRequired": "Se requiere revisión manual",
         "extractedData": "Datos extraídos",
         "dataIsCorrect": "Los datos son correctos",
-        "retakePhoto": "Tomar foto nuevamente",
         "dataWillBePrefilled": "Estos datos serán pre-llenados en el siguiente paso",
         "noDataFound": "No se pudieron extraer datos del documento",
         "errorLoadingImages": "No se pudieron cargar las imágenes del documento",
@@ -425,7 +429,7 @@
             }
         }
     },
-    "completeProfile": {
+    "investmentAccount": {
         "title": "Cuenta de inversión",
         "titleCompleted": "Ya casi puedes invertir",
         "description": "Completa los siguientes formularios para crear tu cuenta de inversión 📈",
@@ -1462,15 +1466,51 @@
             },
             {
                 "id": "commercial_activity",
-                "type": "input",
+                "type": "select",
                 "text": "¿Cuál es el giro de la empresa?",
-                "subtitle": "Describe la actividad principal de la empresa",
-                "placeholder": "Giro de la empresa"
+                "subtitle": "Selecciona la actividad principal de la empresa",
+                "placeholder": "Selecciona el giro"
             }
         ],
         "errors": {
             "required": "Este campo es obligatorio",
             "invalidRut": "RUT inválido"
+        },
+        "commercialActivities": {
+            "advertising": "Publicidad y Marketing",
+            "agriculture": "Agricultura",
+            "agriculture_livestock": "Agricultura y Ganadería",
+            "automotive": "Automotriz",
+            "construction": "Construcción",
+            "consulting": "Consultoría",
+            "education": "Educación",
+            "energy": "Energía",
+            "entertainment": "Entretenimiento",
+            "environmental": "Servicios Ambientales",
+            "fashion": "Moda y Textil",
+            "financial_services": "Servicios Financieros",
+            "fishing": "Pesca",
+            "food_and_beverage": "Alimentos y Bebidas",
+            "forestry": "Forestal",
+            "government": "Gobierno",
+            "healthcare": "Salud",
+            "insurance": "Seguros",
+            "legal_services": "Servicios Legales",
+            "logistics": "Logística",
+            "manufacturing": "Manufactura",
+            "media": "Medios de Comunicación",
+            "mining": "Minería",
+            "other": "Otros",
+            "professional_services": "Servicios Profesionales",
+            "real_estate": "Bienes Raíces",
+            "research": "Investigación y Desarrollo",
+            "retail": "Comercio Minorista",
+            "sports": "Deportes",
+            "technology": "Tecnología",
+            "telecommunications": "Telecomunicaciones",
+            "tourism": "Turismo",
+            "transportation": "Transporte",
+            "wholesale": "Comercio Mayorista"
         }
     },
     "investmentPortfolio": {

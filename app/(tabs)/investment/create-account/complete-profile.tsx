@@ -12,6 +12,7 @@ import { getContactInformation } from '@/services/investment/create-account/cont
 import { getPersonalInformation } from '@/services/investment/create-account/personal-information/get-personal-information';
 import { getRiskProfile } from '@/services/investment/create-account/investment-survey/get-risk-profile';
 import { getEmploymentInformation } from '@/services/investment/create-account/employment-information/get-employment-information';
+import { getIdentityCard } from '@/services/investment/create-account/identity-verification/get-identity-verification';
 
 export default function SummaryStep() {
   const { t } = useTranslation();
@@ -49,11 +50,12 @@ export default function SummaryStep() {
     }
 
     try {
-      const [contactResponse, personalResponse, riskResponse, employmentResponse] = await Promise.all([
+      const [contactResponse, personalResponse, riskResponse, employmentResponse, identityResponse] = await Promise.all([
         getContactInformation(accessToken),
         getPersonalInformation(accessToken),
         getRiskProfile(accessToken),
         getEmploymentInformation(accessToken),
+        getIdentityCard(accessToken),
       ]);
 
       const hasContactData = !!(
@@ -64,9 +66,6 @@ export default function SummaryStep() {
           contactResponse.contact_information.floor_number)
       );
 
-      console.log('Personal information response:', personalResponse);
-      console.log('Personal information data:', personalResponse.personal_information);
-      
       const hasPersonalData = !!(
         personalResponse.success &&
         personalResponse.personal_information &&
@@ -78,8 +77,6 @@ export default function SummaryStep() {
           personalResponse.personal_information.us_person !== undefined ||
           personalResponse.personal_information.pep !== undefined)
       );
-      
-      console.log('hasPersonalData:', hasPersonalData);
 
       const hasRiskData = !!(
         riskResponse.success &&
@@ -87,7 +84,15 @@ export default function SummaryStep() {
         riskResponse.investor_questionnaire?.investor_category
       );
 
-      const hasIdentityData = hasPersonalData;
+      // Verificar si el identity card existe y tiene imágenes
+      const hasIdentityData = !!(
+        identityResponse.success &&
+        identityResponse.identity_card &&
+        identityResponse.identity_card.front_url &&
+        identityResponse.identity_card.back_url &&
+        // Si verified es false, significa que fue rechazado, no mostrar check
+        identityResponse.identity_card.verified !== false
+      );
 
       const hasWorkData = !!(
         employmentResponse.success &&
@@ -130,11 +135,11 @@ export default function SummaryStep() {
     formStatuses.workInfo;
 
   // Determinar qué título y descripción mostrar
-  const title = allFormsCompleted ? t('completeProfile.titleCompleted') : t('completeProfile.title');
-  const description = allFormsCompleted ? t('completeProfile.descriptionCompleted') : t('completeProfile.description');
+  const title = allFormsCompleted ? t('investmentAccount.titleCompleted') : t('investmentAccount.title');
+  const description = allFormsCompleted ? t('investmentAccount.descriptionCompleted') : t('investmentAccount.description');
 
   const handleBackPress = () => {
-    router.push('/(tabs)/investment/without-account' as any);
+    router.push('/(tabs)/investment' as any);
   };
 
   return (
@@ -168,7 +173,7 @@ export default function SummaryStep() {
         )}
 
         <TouchableOpacity 
-          onPress={() => handleCardPress('/(tabs)/investment/create-account/investment-survey/profile-question')}
+          onPress={() => handleCardPress('/(tabs)/investment/create-account/investment-survey/start-profile')}
           activeOpacity={0.7}
         >
           <Card variant="elevated" className="mb-4">
@@ -198,16 +203,16 @@ export default function SummaryStep() {
         </TouchableOpacity>
 
         <TouchableOpacity 
-          onPress={() => handleCardPress('/(tabs)/investment/create-account/identity-step/identity-confirm')}
+          onPress={() => handleCardPress('/(tabs)/investment/create-account/identity-step/identity-upload')}
           activeOpacity={0.7}
         >
           <Card variant="elevated" className="mb-4">
             <View className="flex-row justify-between items-center">
               <View className="flex-1">
                 <View className="flex-row items-center mb-1" style={{ alignItems: 'center' }}>
-                  <Text className="text-base font-medium" style={{ color: Colors.primary[500], lineHeight: 20 }}>
-                    {t('completeProfile.steps.identity.title')}
-                  </Text>
+                    <Text className="text-base font-medium" style={{ color: Colors.primary[500], lineHeight: 20 }}>
+                      {t('investmentAccount.steps.identity.title')}
+                    </Text>
                   {!isLoadingStatuses && (
                     <View style={{ marginLeft: 8, marginTop: -1 }}>
                       {formStatuses.identity ? (
@@ -313,6 +318,33 @@ export default function SummaryStep() {
                 </Text>
               </View>
               <ChevronRight size={20} color={Colors.gray[500]} />
+            </View>
+          </Card>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => allFormsCompleted && handleCardPress('/(tabs)/investment/create-account/contract-signature')}
+          activeOpacity={allFormsCompleted ? 0.7 : 1}
+          disabled={!allFormsCompleted}
+        >
+          <Card variant="elevated" className="mb-4" style={{ opacity: allFormsCompleted ? 1 : 0.5 }}>
+            <View className="flex-row justify-between items-center">
+              <View className="flex-1">
+                <View className="flex-row items-center mb-1" style={{ alignItems: 'center' }}>
+                  <Text className="text-base font-medium" style={{ color: Colors.primary[500], lineHeight: 20 }}>
+                    Firma del contrato
+                  </Text>
+                  {!isLoadingStatuses && allFormsCompleted && (
+                    <View style={{ marginLeft: 8, marginTop: -1 }}>
+                      <Clock size={16} color={Colors.warning[500]} />
+                    </View>
+                  )}
+                </View>
+                <Text className="text-sm font-regular" style={{ color: Colors.gray[600] }}>
+                  Lee y acepta los términos y condiciones para abrir tu cuenta de inversión
+                </Text>
+              </View>
+              {allFormsCompleted && <ChevronRight size={20} color={Colors.gray[500]} />}
             </View>
           </Card>
         </TouchableOpacity>
