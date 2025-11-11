@@ -1,8 +1,8 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { View, Text, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { Container, Header, Input, Select, Button, KeyboardAwareContainer } from '@/components/ui';
+import { Container, Header, Input, Select, Button, KeyboardAwareContainer, LoadingSpinner } from '@/components/ui';
 import CalendarSelect from '@/components/ui/CalendarSelect';
 import { patchFloidTransaction } from '@/services/budget/transactions/patch-floid-transaction';
 import { getFloidTransaction, type FloidTransaction } from '@/services/budget/transactions/get-floid-transactions';
@@ -263,7 +263,7 @@ export default function EditTransactionScreen() {
       <Container variant="secondaryPage">
         <Header title={t('budget.transaction_edit', 'Editar transacción')} showBackButton />
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <ActivityIndicator size="large" color={Colors.primary[500]} />
+          <LoadingSpinner />
         </View>
       </Container>
     );
@@ -299,7 +299,7 @@ export default function EditTransactionScreen() {
 
               {categoriesLoading ? (
                 <View style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: 40 }}>
-                  <ActivityIndicator size="large" color={Colors.primary[500]} />
+                  <LoadingSpinner />
                 </View>
               ) : (
                 <View style={{ gap: 20 }}>

@@ -1,8 +1,8 @@
-import { View, ActivityIndicator, Alert } from 'react-native';
+import { View, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import WithoutAccountScreen from './without-account';
-import { LockedTabOverlay } from '@/components/ui';
+import { LockedTabOverlay, LoadingSpinner } from '@/components/ui';
 import { useSubscriptionStatus } from '@/hooks/common/useSubscriptionStatus';
 import { useHasInvestmentAccount } from '@/hooks/investment/usePortfolioDetails';
 import { getContactInformation } from '@/services/investment/create-account/contact-information/get-contact-information';
@@ -89,7 +89,7 @@ export default function InvestmentIndex() {
     if (!subscriptionLoading && !investmentLoading && !isLoadingFormData && !hasInvestmentAccount && hasAnyFormData) {
       const timer = setTimeout(() => {
         try {
-          router.replace('/(tabs)/investment/create-account/summary')
+          router.replace('/(tabs)/investment/create-account/complete-profile')
         } catch (error) {
           Alert.alert('Error', 'No se pudo navegar a la pantalla solicitada')
         }
@@ -102,7 +102,7 @@ export default function InvestmentIndex() {
   if (subscriptionLoading || investmentLoading || isLoadingFormData) {
     return (
       <View className="flex-1 bg-white justify-center items-center">
-        <ActivityIndicator size="large" color={Colors.secondary[500]} />
+        <LoadingSpinner />
       </View>
     );
   }

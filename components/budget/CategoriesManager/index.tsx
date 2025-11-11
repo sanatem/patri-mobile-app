@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { View, ActivityIndicator } from 'react-native';
-import { Container, Tabs, FloatingActionButton, Button, type FloatingAction } from '@/components/ui';
+import { View } from 'react-native';
+import { Container, Tabs, FloatingActionButton, Button, LoadingSpinner, type FloatingAction } from '@/components/ui';
 import { FolderPlus, Sparkles } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import { BudgetTab } from './BudgetTab';
@@ -184,7 +184,7 @@ export function CategoriesManager({ userCategories, onResetOnboarding }: Categor
     return (
       <Container variant="secondaryPage">
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <ActivityIndicator size="large" color={Colors.secondary[500]} />
+          <LoadingSpinner />
         </View>
       </Container>
     );

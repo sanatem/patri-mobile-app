@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, StyleSheet, Alert } from 'react-native';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { Button } from '@/components/ui/Button';
+import { Button, LoadingSpinner } from '@/components/ui';
 import Colors from '@/constants/Colors';
 import { getRiskProfile, type RiskProfile } from '@/services/investment/create-account/investment-survey/get-risk-profile';
 import { useAuth } from '@/providers/AuthProvider';
@@ -87,13 +87,13 @@ export default function ProfileResult() {
   };
 
   const handleContinue = () => {
-    router.push('/(tabs)/investment/create-account/summary');
+    router.push('/(tabs)/investment/create-account/complete-profile');
   };
 
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={Colors.secondary[500]} />
+        <LoadingSpinner />
       </View>
     );
   }

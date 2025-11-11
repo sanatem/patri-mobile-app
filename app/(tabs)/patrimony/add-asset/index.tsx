@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ActivityIndicator } from 'react-native';
+import { View, Text } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import {
   FormLayout,
   Input,
   Select,
+  LoadingSpinner,
 } from '@/components/ui';
 import Colors from '@/constants/Colors';
 import { createAsset } from '@/services/patrimony/create-asset';
@@ -884,7 +885,7 @@ export default function AddAssetScreen() {
     >
       {loadingInitialData ? (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', minHeight: 300 }}>
-          <ActivityIndicator size="large" color={Colors.secondary[500]} />
+          <LoadingSpinner />
         </View>
       ) : (
         <>

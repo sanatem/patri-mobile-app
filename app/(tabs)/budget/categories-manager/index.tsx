@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { ActivityIndicator, View, Alert } from 'react-native';
+import { View, Alert } from 'react-native';
+import { LoadingSpinner, Container } from '@/components/ui';
 import { CategoriesManager } from '@/components/budget/CategoriesManager';
 import { CategoriesOnboarding } from '@/components/budget/CategoriesManager/CategoriesOnboarding';
 import { useUserCategories } from '@/hooks/budget/useUserCategories';
@@ -76,14 +77,6 @@ export default function CategoriesManagerScreen() {
     }
   };
 
-  if (loading || creatingCategories) {
-    return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#fff' }}>
-        <ActivityIndicator size="large" color={Colors.primary[500]} />
-      </View>
-    );
-  }
-
   const handleResetOnboarding = async () => {
     Alert.alert(
       'Reiniciar Categorías',
@@ -112,6 +105,14 @@ export default function CategoriesManagerScreen() {
       ]
     );
   };
+
+  if (loading || creatingCategories) {
+    return (
+      <View style={{ flex: 1, position: 'relative' }}>
+        <LoadingSpinner overlay />
+      </View>
+    );
+  }
 
   if (!onboardingCompleted) {
     return <CategoriesOnboarding onComplete={handleOnboardingComplete} />;

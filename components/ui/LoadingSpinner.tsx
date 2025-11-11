@@ -25,7 +25,7 @@ export function LoadingSpinner({
           left: 0,
           right: 0,
           bottom: 0,
-          backgroundColor: 'rgba(255, 255, 255, 0.8)',
+          backgroundColor: '#fff',
           justifyContent: 'center',
           alignItems: 'center',
           zIndex: 1000,
@@ -37,7 +37,7 @@ export function LoadingSpinner({
   }
 
   return (
-    <View className={cn('items-center justify-center p-4', className)}>
+    <View className={cn('items-center justify-center', className)}>
       <ActivityIndicator size={size} color={color} />
     </View>
   );

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, ActivityIndicator } from 'react-native';
+import { View } from 'react-native';
 import { router } from 'expo-router';
-import { FormLayout, Input } from '@/components/ui';
+import { FormLayout, Input, LoadingSpinner } from '@/components/ui';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/providers/AuthProvider';
 import { getEmploymentInformation } from '@/services/investment/create-account/employment-information/get-employment-information';
@@ -143,7 +143,7 @@ export default function EmploymentInformationStepper() {
       }
 
       if (response.success) {
-        router.push('/(tabs)/investment/create-account/summary');
+        router.push('/(tabs)/investment/create-account/complete-profile');
       } else {
         console.error('Error submitting employment information:', response.message);
         // TODO: Show error to user
@@ -201,7 +201,7 @@ export default function EmploymentInformationStepper() {
   };
 
   const handleCancel = () => {
-    router.push('/(tabs)/investment/create-account/summary');
+    router.push('/(tabs)/investment/create-account/complete-profile');
   };
 
   const renderQuestion = () => {
@@ -240,8 +240,8 @@ export default function EmploymentInformationStepper() {
       {renderQuestion()}
 
       {isSubmitting && (
-        <View className="mt-4 items-center">
-          <ActivityIndicator size="large" color={Colors.secondary[500]} />
+        <View className="mt-4">
+          <LoadingSpinner />
         </View>
       )}
     </FormLayout>

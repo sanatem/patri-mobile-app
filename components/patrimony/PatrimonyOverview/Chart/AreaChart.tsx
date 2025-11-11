@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { SkeletonBase } from '@/components/ui/SkeletonBase';
-import { View, ActivityIndicator, Text } from 'react-native';
+import { View, Text } from 'react-native';
 import { useChartRangeStore } from '@/store/chartRangeStore';
 import { InteractiveChart } from '@/components/ui/InteractiveChart';
 import { useNetworthHistoric } from '@/hooks/patrimony/useNetworthHistoric';

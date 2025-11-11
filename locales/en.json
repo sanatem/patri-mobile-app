@@ -425,23 +425,26 @@
       }
     }
   },
-  "summary": {
-    "title": "Account Opening",
+  "completeProfile": {
+    "title": "Investment Account",
     "titleCompleted": "You can almost start investing",
-    "description": "Complete the following forms to create your investment account 📋",
+    "description": "Complete the following forms to create your investment account 📈",
     "descriptionCompleted": "We just need to validate some data to activate your account",
     "returnHome": "Return to home",
     "steps": {
       "identity": {
         "title": "Identity verification",
+        "description": "Upload your ID images to start validating your account",
         "validated": "Document successfully validated"
       },
       "basic": {
         "title": "Basic information",
+        "description": "Tell us a bit about yourself",
         "completed": "Profile successfully completed"
       },
       "contract": {
         "title": "Contract and email verification",
+        "description": "Sign your contract and verify your account",
         "inProgress": "Validation in progress..."
       },
       "start": {

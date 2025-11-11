@@ -433,23 +433,26 @@
       }
     }
   },
-  "summary": {
-    "title": "Apertura de cuenta",
+  "completeProfile": {
+    "title": "Cuenta de inversión",
     "titleCompleted": "Ya casi puedes invertir",
-    "description": "Completa los siguientes formularios para crear tu cuenta de inversión 📋",
+    "description": "Completa los siguientes formularios para crear tu cuenta de inversión 📈",
     "descriptionCompleted": "Solo necesitamos validar algunos datos para activar tu cuenta",
     "returnHome": "Volver al inicio",
     "steps": {
       "identity": {
         "title": "Verificación de identidad",
+        "description": "Carga las imágenes de tu cédula para comenzar a validar tu cuenta",
         "validated": "Documento validado correctamente"
       },
       "basic": {
         "title": "Información básica",
+        "description": "Compártenos un poco sobre ti",
         "completed": "Perfil completado exitosamente"
       },
       "contract": {
         "title": "Contrato y validación de correo",
+        "description": "Firma tu contrato y verifica tu cuenta",
         "inProgress": "En proceso de validación..."
       },
       "start": {

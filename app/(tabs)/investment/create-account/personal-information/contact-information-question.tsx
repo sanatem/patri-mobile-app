@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ActivityIndicator } from 'react-native';
+import { View, Text } from 'react-native';
 import { router } from 'expo-router';
-import { FormLayout, Input, Select, RadioButton } from '@/components/ui';
+import { FormLayout, Input, Select, RadioButton, LoadingSpinner } from '@/components/ui';
 import { useTranslation } from 'react-i18next';
 import { REGIONS_AND_COMMUNES } from '@/constants/AppConstants';
 import { useAuth } from '@/providers/AuthProvider';
@@ -251,9 +251,8 @@ export default function ContactInformationStepper() {
               disabled={isSubmitting}
             />
             {isSubmitting && (
-              <View className="mt-4 items-center">
-                <ActivityIndicator size="large" color={Colors.secondary[500]} />
-                <Text className="mt-2 text-gray-600">{t('common.loading')}</Text>
+              <View className="mt-4">
+                <LoadingSpinner />
               </View>
             )}
           </View>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ActivityIndicator } from 'react-native';
+import { View, Text } from 'react-native';
 import { router } from 'expo-router';
-import { FormLayout, Button, Input, Select, RadioButton } from '@/components/ui';
+import { FormLayout, Button, Input, Select, RadioButton, LoadingSpinner } from '@/components/ui';
 import { useTranslation } from 'react-i18next';
 import { REGIONS_AND_COMMUNES } from '@/constants/AppConstants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -142,7 +142,7 @@ export default function PersonalInformationStepper() {
       const response = await updatePersonalInformation(accessToken, personalInfoData);
 
       if (response.success) {
-        router.push('/(tabs)/investment/create-account/summary');
+        router.push('/(tabs)/investment/create-account/complete-profile');
       } else {
         console.error('Error updating personal information:', response.message);
       }
@@ -234,8 +234,8 @@ export default function PersonalInformationStepper() {
               disabled={isSubmitting}
             />
             {isSubmitting && (
-              <View className="mt-4 items-center">
-                <ActivityIndicator size="large" color={Colors.secondary[500]} />
+              <View className="mt-4">
+                <LoadingSpinner />
               </View>
             )}
           </View>

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Alert } from 'react-native';
+import { View, Alert, Text } from 'react-native';
 import { router } from 'expo-router';
 import { FormLayout, RadioButton } from '@/components/ui';
+import Colors from '@/constants/Colors';
 import { useTranslation } from 'react-i18next';
 import { mapSurveyAnswersToRiskProfile } from '@/constants/RiskProfileMapping';
 import { createRiskProfile } from '@/services/investment/create-account/investment-survey/create-risk-profile';
@@ -136,7 +137,7 @@ export default function ProfileQuestion() {
   };
 
   const handleCancel = () => {
-    router.push('/(tabs)/investment/create-account/summary');
+    router.push('/(tabs)/investment/create-account/complete-profile');
   };
 
   const currentQuestionKey = questionKeys[step];
@@ -155,7 +156,7 @@ export default function ProfileQuestion() {
 
   return (
     <FormLayout
-      title={currentQuestion?.title}
+      title="Perfil de Riesgo 📊"
       subtitle=""
       currentStep={step + 1}
       totalSteps={totalSteps}
@@ -171,6 +172,9 @@ export default function ProfileQuestion() {
       showLogo={false}
     >
       <View className="py-4">
+        <Text className="text-base font-medium mb-6" style={{ color: Colors.primary[700] }}>
+          {currentQuestion?.title}
+        </Text>
         <RadioButton
           options={radioOptions}
           selectedValue={selectedValue}

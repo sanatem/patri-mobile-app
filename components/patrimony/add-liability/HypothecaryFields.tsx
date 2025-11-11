@@ -1,6 +1,6 @@
 import React from 'react';
-import { View, Text, ActivityIndicator } from 'react-native';
-import { Input, RadioButton, Select } from '@/components/ui';
+import { View, Text } from 'react-native';
+import { Input, RadioButton, Select, LoadingSpinner } from '@/components/ui';
 import Colors from '@/constants/Colors';
 import { ApiProperty } from '@/types/api';
 import { useTranslation } from 'react-i18next';
@@ -66,7 +66,7 @@ export default function HypothecaryFields({
         <View>
           {loadingProperties ? (
             <View style={{ padding: 16, alignItems: 'center' }}>
-              <ActivityIndicator size="small" color={Colors.secondary[500]} />
+              <LoadingSpinner size="small" />
               <Text style={{ marginTop: 8, color: Colors.gray[500] }}>
                 {t('hypothecaryFields.loadingProperties')}
               </Text>

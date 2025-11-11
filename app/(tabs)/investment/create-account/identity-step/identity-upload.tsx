@@ -24,7 +24,7 @@ export default function IdentityUpload() {
   };
 
   const handleCancel = () => {
-    router.push('/(tabs)/investment/create-account/summary');
+    router.push('/(tabs)/investment/create-account/complete-profile');
   };
 
   return (

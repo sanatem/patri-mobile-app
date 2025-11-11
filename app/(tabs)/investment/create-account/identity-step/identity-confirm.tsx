@@ -1,6 +1,6 @@
-import { View, Text, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, Alert } from 'react-native';
 import { router } from 'expo-router';
-import { FormLayout, Input, Select, Button } from '@/components/ui';
+import { FormLayout, Input, Select, Button, LoadingSpinner } from '@/components/ui';
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useIdVerification } from '@/hooks/useIdVerification';
@@ -129,7 +129,7 @@ export default function IdentityConfirm() {
         await AsyncStorage.setItem('extracted_personal_data', JSON.stringify(extractedDataFormat));
         
 
-        router.push('/(tabs)/investment/create-account/summary');
+        router.push('/(tabs)/investment/create-account/complete-profile');
       } else {
         throw new Error(t('identityConfirm.serverError'));
       }
@@ -161,7 +161,7 @@ export default function IdentityConfirm() {
         showLogo={false}
       >
         <View className="flex-1 justify-center items-center py-12">
-          <ActivityIndicator size="large" color="#FF6501" />
+          <LoadingSpinner />
           <Text className="text-lg font-regular mt-4 text-center">
             {t('identityConfirm.verifying')}
           </Text>
