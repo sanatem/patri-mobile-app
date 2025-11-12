@@ -810,7 +810,7 @@ export default function PatrimonyScreen() {
 
             )}
           </Container>
-          {/* <AreaChart /> */}
+          <AreaChart />
           <Container variant="content" className="mb-4">
             {showSkeletons ? (
               <Animated.View style={{ opacity: skeletonFadeAnim }}>
