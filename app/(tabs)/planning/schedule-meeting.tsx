@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { View, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { Header, Container } from '@/components/ui';
-import { useAuth0 } from 'react-native-auth0';
+import { useAuth } from '@/providers/AuthProvider';
 import { useConsultingHours } from '@/hooks/consulting/useConsultingHours';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -11,7 +11,7 @@ import Colors from '@/constants/Colors';
 
 export default function ScheduleMeeting() {
   const { t } = useTranslation();
-  const { user } = useAuth0();
+  const { user } = useAuth();
   const router = useRouter();
   const webViewRef = useRef<WebView>(null);
   const { scheduleSession, lastScheduledDate, refresh } = useConsultingHours();

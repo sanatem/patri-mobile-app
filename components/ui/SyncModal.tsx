@@ -90,6 +90,7 @@ export const SyncModal: React.FC<SyncModalProps> = ({ visible, onClose, onSyncCo
             
             <Text className='font-regular' style={styles.modalSubtitle}>
               Se están sincronizando sus datos con Floid. Esto podría tardar unos minutos.
+              Las transacciones bancarias podrían tardar hasta 24 horas en aparecer después de la sincronización.
             </Text>
             
             <Text className='font-regular' style={styles.timerText}>

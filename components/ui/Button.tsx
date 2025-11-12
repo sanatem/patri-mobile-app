@@ -68,13 +68,13 @@ export function Button({
       if (variant === 'primary') {
         return 'bg-gray-200 text-gray-300 border border-gray-200';
       }
-      return 'border border-gray-200 text-gray-300 bg-gray-100';
-    }
-    if (disabled) {
+      if (variant === 'ghost') {
+        return 'bg-transparent';
+      }
       if (variant === 'outline') {
         return 'border border-gray-200 text-gray-300';
       }
-      return 'text-gray-500 border border-gray-300';
+      return 'border border-gray-200 text-gray-300 bg-gray-100';
     }
     
     if (saved) {
@@ -84,7 +84,7 @@ export function Button({
     const variants: Record<typeof variant, string> = {
       primary: 'bg-primary-500 text-white',
       outline: 'border border-primary-500 text-primary-500 bg-white',
-      ghost: 'bg-transparent text-primary-500 underline',
+      ghost: 'bg-transparent text-primary-500',
       disabled: 'border border-gray-300 text-gray-400 bg-white',
       success: 'text-white'
     };
@@ -99,6 +99,9 @@ export function Button({
       if (variant === 'outline') {
         return 'text-gray-300';
       }
+      if (variant === 'ghost') {
+        return '';
+      }
     }
     return variant === 'primary' ? 'text-white' : 'text-primary-500';
   };
@@ -109,6 +112,10 @@ export function Button({
     }
 
     if (!disabled) return {};
+
+    if (variant === 'ghost') {
+      return {};
+    }
 
     if (variant === 'primary') {
       return buttonStyles.disabledPrimary;
@@ -122,6 +129,10 @@ export function Button({
 
   const getDisabledTextStyle = () => {
     if (!disabled) return {};
+    
+    if (variant === 'ghost') {
+      return { color: Colors.gray[300] };
+    }
     
     if (variant === 'primary') {
       return buttonStyles.disabledPrimaryText;
@@ -160,7 +171,9 @@ export function Button({
               {React.isValidElement(icon) && (icon as any).props && 'color' in (icon as any).props
                 ? React.cloneElement(icon as React.ReactElement<any>, {
                     color: disabled
-                      ? Colors.gray[300]
+                      ? variant === 'ghost'
+                        ? Colors.gray[300]
+                        : Colors.gray[300]
                       : variant === 'primary'
                       ? '#fff'
                       : Colors.secondary[500],
