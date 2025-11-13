@@ -457,6 +457,23 @@
             }
         }
     },
+    "contractSignature": {
+        "title": "Contratos de Servicio",
+        "subtitle": "Estás a un paso de abrir tu Cuenta del Inversor 💪",
+        "sectionTitle": "Contratos de Servicio",
+        "contracts": {
+            "vectorCapital": "He leído y acepto el contrato de prestación de servicios con Vector Capital Corredora de Bolsa SpA.",
+            "patrimoreMandate": "He leído y acepto el contrato de mandato mercantil e inversión con Patrimore S.A.",
+            "patrimoreConduct": "He leído y acepto el código de conducta de Patrimore S.A."
+        },
+        "viewDocument": "Ver documento",
+        "signButton": "Firmar",
+        "signingButton": "Firmando...",
+        "backButton": "Volver",
+        "warning": "Debes aceptar todos los contratos para continuar",
+        "error": "Hubo un error al firmar los contratos. Por favor, intenta de nuevo.",
+        "success": "Contratos firmados exitosamente"
+    },
     "createGoal": {
         "title": "Crear meta",
         "goalNameLabel": "Nombre de la meta",

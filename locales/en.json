@@ -458,6 +458,23 @@
       }
     }
   },
+  "contractSignature": {
+    "title": "Service Contracts",
+    "subtitle": "You're one step away from opening your Investor Account 💪",
+    "sectionTitle": "Service Contracts",
+    "contracts": {
+      "vectorCapital": "I have read and accept the service agreement with Vector Capital Corredora de Bolsa SpA.",
+      "patrimoreMandate": "I have read and accept the commercial mandate and investment agreement with Patrimore S.A.",
+      "patrimoreConduct": "I have read and accept the code of conduct of Patrimore S.A."
+    },
+    "viewDocument": "View document",
+    "signButton": "Sign",
+    "signingButton": "Signing...",
+    "backButton": "Back",
+    "warning": "You must accept all contracts to continue",
+    "error": "There was an error signing the contracts. Please try again.",
+    "success": "Contracts signed successfully"
+  },
   "createGoal": {
     "title": "Create goal",
     "goalNameLabel": "Goal name",
