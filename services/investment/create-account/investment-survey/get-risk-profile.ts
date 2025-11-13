@@ -48,8 +48,6 @@ export async function getRiskProfile(token: string): Promise<GetRiskProfileRespo
 
     if (response.ok) {
       const data = await response.json();
-      
-      console.log('GET risk_profile - Full response:', JSON.stringify(data, null, 2));
 
       return {
         risk_profile: data.data?.risk_profile || data.risk_profile || null,
