@@ -1,20 +1,56 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Linking } from 'react-native';
 import { router } from 'expo-router';
-import { FormLayout, SuccessMessage } from '@/components/ui';
+import { FormLayout, SuccessMessage, LoadingSpinner } from '@/components/ui';
 import { useTranslation } from 'react-i18next';
 import Colors from '@/constants/Colors';
 import { useAuth } from '@/providers/AuthProvider';
 import { FileText, AlertCircle, Check } from 'lucide-react-native';
+import { checkRequirements, signContracts } from '@/services/investment/create-account/broker-documentation';
 
 export default function ContractSignature() {
   const { t } = useTranslation();
   const { accessToken } = useAuth();
-  
+
   const [acceptedContracts, setAcceptedContracts] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isCheckingRequirements, setIsCheckingRequirements] = useState(true);
+  const [canSign, setCanSign] = useState(false);
+
+  useEffect(() => {
+    checkContractRequirements();
+  }, [accessToken]);
+
+  const checkContractRequirements = async () => {
+    if (!accessToken) {
+      setIsCheckingRequirements(false);
+      return;
+    }
+
+    try {
+      const response = await checkRequirements(accessToken);
+
+      if (response.success && response.data) {
+        setCanSign(response.data.requirements_met);
+
+        if (!response.data.requirements_met) {
+          const errorMessages = response.data.missing_requirements
+            .map(req => req.message)
+            .join(', ');
+          setError(`Requisitos pendientes: ${errorMessages}`);
+        }
+      } else {
+        setError(response.message || 'Error al verificar requisitos');
+      }
+    } catch (err) {
+      console.error('Error checking requirements:', err);
+      setError('Error al verificar requisitos de firma');
+    } finally {
+      setIsCheckingRequirements(false);
+    }
+  };
 
   // Opciones de contratos a firmar con texto destacado
   const contractOptions = [
@@ -60,21 +96,31 @@ export default function ContractSignature() {
       return;
     }
 
+    if (!canSign) {
+      setError('Debes completar todos los requisitos antes de firmar los contratos');
+      return;
+    }
+
+    if (!accessToken) {
+      setError('No se encontró token de autenticación');
+      return;
+    }
+
     setError(null);
     setIsSubmitting(true);
 
     try {
-      // Aquí iría la lógica para enviar la firma de contratos al backend
-      // await signContracts(accessToken, acceptedContracts);
-      
-      // Simulación de delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      setShowSuccess(true);
-      
-      setTimeout(() => {
-        router.back();
-      }, 2000);
+      const response = await signContracts(accessToken);
+
+      if (response.success) {
+        setShowSuccess(true);
+
+        setTimeout(() => {
+          router.push('/(tabs)/investment/create-account/complete-profile' as any);
+        }, 2000);
+      } else {
+        setError(response.message || t('contractSignature.error'));
+      }
     } catch (err) {
       console.error('Error signing contracts:', err);
       setError(t('contractSignature.error'));
@@ -83,26 +129,30 @@ export default function ContractSignature() {
     }
   };
 
-  const handlePrevious = () => {
-    router.back();
+  const handleCancel = () => {
+    router.push('/(tabs)/investment/create-account/complete-profile' as any);
   };
 
   const allContractsAccepted = acceptedContracts.length === contractOptions.length;
 
+  if (isCheckingRequirements) {
+    return <LoadingSpinner overlay />;
+  }
+
   return (
     <>
-      <SuccessMessage visible={showSuccess} message={t('contractSignature.success')} />
+      <SuccessMessage visible={showSuccess} message="Los contratos se firmaron correctamente" />
       <FormLayout
         title={t('contractSignature.title')}
         subtitle={t('contractSignature.subtitle')}
         currentStep={1}
         totalSteps={1}
         onNext={handleSubmit}
-        onPrevious={handlePrevious}
-        nextButtonTitle={isSubmitting ? t('contractSignature.signingButton') : t('contractSignature.signButton')}
-        previousButtonTitle={t('contractSignature.backButton')}
+        onCancel={handleCancel}
+        nextButtonTitle={isSubmitting ? 'Firmando...' : 'Finalizar'}
+        cancelButtonTitle="Cancelar"
         isLoading={isSubmitting}
-        isNextDisabled={!allContractsAccepted || isSubmitting}
+        isNextDisabled={!allContractsAccepted || isSubmitting || !canSign}
         error={error}
         showLogo={false}
       >

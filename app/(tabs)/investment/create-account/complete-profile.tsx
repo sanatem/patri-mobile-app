@@ -13,6 +13,7 @@ import { getPersonalInformation } from '@/services/investment/create-account/per
 import { getRiskProfile } from '@/services/investment/create-account/investment-survey/get-risk-profile';
 import { getEmploymentInformation } from '@/services/investment/create-account/employment-information/get-employment-information';
 import { getIdentityCard } from '@/services/investment/create-account/identity-verification/get-identity-verification';
+import { checkRequirements } from '@/services/investment/create-account/broker-documentation';
 
 export default function SummaryStep() {
   const { t } = useTranslation();
@@ -24,6 +25,7 @@ export default function SummaryStep() {
     personalInfo: false,
     contactInfo: false,
     workInfo: false,
+    contractSignature: false,
   });
   const [isLoadingStatuses, setIsLoadingStatuses] = useState(true);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -50,12 +52,13 @@ export default function SummaryStep() {
     }
 
     try {
-      const [contactResponse, personalResponse, riskResponse, employmentResponse, identityResponse] = await Promise.all([
+      const [contactResponse, personalResponse, riskResponse, employmentResponse, identityResponse, requirementsResponse] = await Promise.all([
         getContactInformation(accessToken),
         getPersonalInformation(accessToken),
         getRiskProfile(accessToken),
         getEmploymentInformation(accessToken),
         getIdentityCard(accessToken),
+        checkRequirements(accessToken),
       ]);
 
       const hasContactData = !!(
@@ -97,7 +100,6 @@ export default function SummaryStep() {
         identityResponse.identity_card &&
         identityResponse.identity_card.front_url &&
         identityResponse.identity_card.back_url &&
-        // Si verified es false, significa que fue rechazado, no mostrar check
         identityResponse.identity_card.verified !== false
       );
 
@@ -111,12 +113,19 @@ export default function SummaryStep() {
           employmentResponse.employment_information.commercial_activity)
       );
 
+      // Verificar si se pueden firmar los contratos según el backend
+      const canSignContracts = !!(
+        requirementsResponse.success &&
+        requirementsResponse.data?.requirements_met
+      );
+
       setFormStatuses({
         riskProfile: hasRiskData,
         identity: hasIdentityData,
         personalInfo: hasPersonalData,
         contactInfo: hasContactData,
         workInfo: hasWorkData,
+        contractSignature: canSignContracts,
       });
     } catch (error) {
       console.error('Error checking form statuses:', error);
@@ -133,13 +142,19 @@ export default function SummaryStep() {
     }, 300);
   };
 
-  // Verificar si todos los formularios están completados
-  const allFormsCompleted = !isLoadingStatuses && 
-    formStatuses.riskProfile && 
-    formStatuses.identity && 
-    formStatuses.personalInfo && 
-    formStatuses.contactInfo && 
+  // Verificar si todos los formularios base están completados (sin incluir contractSignature)
+  const allBaseFormsCompleted = !isLoadingStatuses &&
+    formStatuses.riskProfile &&
+    formStatuses.identity &&
+    formStatuses.personalInfo &&
+    formStatuses.contactInfo &&
     formStatuses.workInfo;
+
+  // La firma de contrato se habilita cuando todos los formularios base están completos
+  const canAccessContractSignature = allBaseFormsCompleted;
+
+  // TODO ESTÁ COMPLETADO cuando todos los formularios base + firma de contrato están listos
+  const allFormsCompleted = allBaseFormsCompleted && formStatuses.contractSignature;
 
   // Determinar qué título y descripción mostrar
   const title = allFormsCompleted ? t('investmentAccount.titleCompleted') : t('investmentAccount.title');
@@ -330,20 +345,24 @@ export default function SummaryStep() {
         </TouchableOpacity>
 
         <TouchableOpacity
-          onPress={() => allFormsCompleted && handleCardPress('/(tabs)/investment/create-account/contract-signature')}
-          activeOpacity={allFormsCompleted ? 0.7 : 1}
-          disabled={!allFormsCompleted}
+          onPress={() => canAccessContractSignature && handleCardPress('/(tabs)/investment/create-account/broker-documents')}
+          activeOpacity={canAccessContractSignature ? 0.7 : 1}
+          disabled={!canAccessContractSignature}
         >
-          <Card variant="elevated" className="mb-4" style={{ opacity: allFormsCompleted ? 1 : 0.5 }}>
+          <Card variant="elevated" className="mb-4" style={{ opacity: canAccessContractSignature ? 1 : 0.5 }}>
             <View className="flex-row justify-between items-center">
               <View className="flex-1">
                 <View className="flex-row items-center mb-1" style={{ alignItems: 'center' }}>
                   <Text className="text-base font-medium" style={{ color: Colors.primary[500], lineHeight: 20 }}>
                     Firma del contrato
                   </Text>
-                  {!isLoadingStatuses && allFormsCompleted && (
+                  {!isLoadingStatuses && canAccessContractSignature && (
                     <View style={{ marginLeft: 8, marginTop: -1 }}>
-                      <Clock size={16} color={Colors.warning[500]} />
+                      {formStatuses.contractSignature ? (
+                        <Check size={16} color={Colors.success[500]} />
+                      ) : (
+                        <Clock size={16} color={Colors.warning[500]} />
+                      )}
                     </View>
                   )}
                 </View>
@@ -351,7 +370,7 @@ export default function SummaryStep() {
                   Lee y acepta los términos y condiciones para abrir tu cuenta de inversión
                 </Text>
               </View>
-              {allFormsCompleted && <ChevronRight size={20} color={Colors.gray[500]} />}
+              {canAccessContractSignature && <ChevronRight size={20} color={Colors.gray[500]} />}
             </View>
           </Card>
         </TouchableOpacity>
