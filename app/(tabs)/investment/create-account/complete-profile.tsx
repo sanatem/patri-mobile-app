@@ -66,16 +66,23 @@ export default function SummaryStep() {
           contactResponse.contact_information.floor_number)
       );
 
+      // Verificar que todos los campos obligatorios del formulario de información personal estén llenos
+      const personalInfo = personalResponse.personal_information;
       const hasPersonalData = !!(
         personalResponse.success &&
-        personalResponse.personal_information &&
-        (personalResponse.personal_information.gender ||
-          personalResponse.personal_information.sex ||
-          personalResponse.personal_information.employment_situation ||
-          personalResponse.personal_information.marital_status ||
-          personalResponse.personal_information.conjugal_regime ||
-          personalResponse.personal_information.us_person !== undefined ||
-          personalResponse.personal_information.pep !== undefined)
+        personalInfo &&
+        personalInfo.sex &&
+        personalInfo.gender &&
+        personalInfo.employment_situation &&
+        personalInfo.marital_status &&
+        // conjugal_regime es obligatorio solo si está casado
+        (personalInfo.marital_status !== 'married' || personalInfo.conjugal_regime) &&
+        personalInfo.us_person !== undefined &&
+        personalInfo.pep !== undefined &&
+        personalInfo.has_broker_relationship_with_vector !== undefined &&
+        // broker_relationship_type es obligatorio solo si tiene relación con Vector
+        (!personalInfo.has_broker_relationship_with_vector || personalInfo.broker_relationship_type) &&
+        personalInfo.has_a_broker_relationship !== undefined
       );
 
       const hasRiskData = !!(

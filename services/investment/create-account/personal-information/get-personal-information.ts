@@ -40,7 +40,7 @@ export async function getPersonalInformation(token: string): Promise<GetPersonal
       const data = await response.json();
 
       return {
-        personal_information: data.personal_information || null,
+        personal_information: data.data?.personal_information || data.personal_information || null,
         success: true,
       };
     }
