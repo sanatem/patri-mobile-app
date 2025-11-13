@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, Animated, Dimensions } from 'react-native';
 import {
   PiggyBank,
   LineChart,
@@ -11,6 +11,18 @@ import {
   ArrowUp,
   TrendingUp,
   Wallet,
+  Plus,
+  Target,
+  CreditCard,
+  TrendingUpIcon,
+  Building2,
+  Umbrella,
+  Banknote,
+  GraduationCap,
+  Plane,
+  Car,
+  Star,
+  Sparkles,
 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { Header } from '@/components/ui/Header';
@@ -40,7 +52,11 @@ export default function InvestmentPortfolioScreen() {
   const { totalWalletValue, investmentWalletValue, savingsWalletValue, loading: walletLoading, error: walletError } = useTotalWalletValue();
   const { accessToken } = useAuth();
   const [cashData, setCashData] = useState<any>(null);
-  const [selectedAccountType, setSelectedAccountType] = useState<string>('investment')
+  const [selectedAccountType, setSelectedAccountType] = useState<string>('investment');
+  const [showPlusMenu, setShowPlusMenu] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const overlayAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(0)).current;
   
   useEffect(() => {
     const loadCashData = async () => {
@@ -134,6 +150,64 @@ export default function InvestmentPortfolioScreen() {
   const handleInvestPress = () => router.push('/(tabs)/investment/portfolio/movements/investment')
   const handleWithdrawPress = () => router.push('/(tabs)/investment/portfolio/movements/sales')
 
+  const getGoalIcon = (kind: string) => {
+    const iconMap: { [key: string]: React.ReactElement } = {
+      debt_payment: <CreditCard size={24} color={Colors.secondary[500]} />,
+      investment_fund: <TrendingUp size={24} color={Colors.secondary[500]} />,
+      real_estate: <Building2 size={24} color={Colors.secondary[500]} />,
+      retirement: <Umbrella size={24} color={Colors.secondary[500]} />,
+      savings_fund: <PiggyBank size={24} color={Colors.secondary[500]} />,
+      study: <GraduationCap size={24} color={Colors.secondary[500]} />,
+      travel: <Plane size={24} color={Colors.secondary[500]} />,
+      vehicle: <Car size={24} color={Colors.secondary[500]} />,
+      personalized: <Sparkles size={24} color={Colors.secondary[500]} />,
+    };
+
+    return iconMap[kind] || <Banknote size={24} color={Colors.secondary[500]} />;
+  };
+
+  const openPlusMenu = () => {
+    setModalVisible(true);
+    setShowPlusMenu(true);
+    Animated.parallel([
+      Animated.timing(overlayAnim, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: false,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
+  const closePlusMenu = () => {
+    Animated.parallel([
+      Animated.timing(overlayAnim, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: false,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      setShowPlusMenu(false);
+      setModalVisible(false);
+    });
+  };
+
+  const handleCreateGoal = () => {
+    closePlusMenu();
+    setTimeout(() => {
+      router.push('/(tabs)/investment/portfolio/goals/create-goals');
+    }, 300);
+  };
+
   const renderGoalsSection = () => {
     if (goalsLoading) {
       return (
@@ -224,7 +298,7 @@ export default function InvestmentPortfolioScreen() {
       subtitle: `${t('portfolio.goalPrefix')} ${formatValue(goal.targetAmount.toString())} - ${goal.targetDate}`,
       value: formatValue(goal.currentAmount.toString()),
       icon: {
-        component: <PiggyBank size={24} color={Colors.secondary[500]} />,
+        component: getGoalIcon(goal.kind || 'personalized'),
         backgroundColor: Colors.secondary[50],
         color: Colors.secondary[500],
         text: goal.name.charAt(0)
@@ -247,10 +321,22 @@ export default function InvestmentPortfolioScreen() {
     );
   };
 
+  const SCREEN_HEIGHT = Dimensions.get('window').height;
+
   return (
     <Container variant="secondaryPage">
       <Header
         title={t('portfolio.title')}
+        rightAction={
+          <View className="flex-row items-center">
+            <TouchableOpacity
+              onPress={openPlusMenu}
+              className="mr-3"
+            >
+              <Plus size={24} color={Colors.primary[500]} />
+            </TouchableOpacity>
+          </View>
+        }
       />
       <View className="flex-1">
         <ScrollView className="flex-1 px-5 mt-16" showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
@@ -300,6 +386,79 @@ export default function InvestmentPortfolioScreen() {
           />
         </View>
       </View>
+
+      {modalVisible && (
+        <View
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            justifyContent: 'flex-end',
+            zIndex: 1000
+          }}
+        >
+          <Animated.View
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'black',
+              opacity: overlayAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0, 0.45],
+              }),
+            }}
+          >
+            <TouchableOpacity
+              style={{ flex: 1 }}
+              onPress={closePlusMenu}
+              activeOpacity={1}
+            />
+          </Animated.View>
+          <Animated.View
+            style={{
+              backgroundColor: '#fff',
+              borderTopLeftRadius: 20,
+              borderTopRightRadius: 20,
+              paddingHorizontal: 20,
+              paddingTop: 8,
+              paddingBottom: 32,
+              transform: [
+                {
+                  translateY: slideAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [SCREEN_HEIGHT, 0],
+                  }),
+                },
+              ],
+            }}
+          >
+            <View style={{ alignItems: 'center', paddingVertical: 8 }}>
+              <View style={{ width: 40, height: 4, backgroundColor: '#D1D5DB', borderRadius: 2 }} />
+            </View>
+            <TouchableOpacity
+              style={{
+                paddingVertical: 16,
+                flexDirection: 'row',
+                alignItems: 'center',
+              }}
+              onPress={handleCreateGoal}
+              activeOpacity={0.7}
+            >
+              <View style={{ marginRight: 12 }}>
+                <Plus size={20} color={Colors.gray[700]} />
+              </View>
+              <Text className="text-base font-regular" style={{ color: Colors.gray[700] }}>
+                Crear meta
+              </Text>
+            </TouchableOpacity>
+          </Animated.View>
+        </View>
+      )}
     </Container>
   );
 }
