@@ -5,6 +5,8 @@
         "menu": {
             "preferences": "Preferencias de usuario",
             "preferencesSubtitle": "Idioma y otras preferencias",
+            "biometricAuth": "Autenticación biométrica",
+            "biometricAuthSubtitle": "Acceso rápido con Face ID o huella digital",
             "terms": "Términos y condiciones",
             "termsSubtitle": "Políticas de uso",
             "privacy": "Privacidad y seguridad",

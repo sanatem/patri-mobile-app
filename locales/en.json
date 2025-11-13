@@ -5,6 +5,8 @@
     "menu": {
       "preferences": "User Preferences",
       "preferencesSubtitle": "Language and other settings",
+      "biometricAuth": "Biometric Authentication",
+      "biometricAuthSubtitle": "Quick access with Face ID or fingerprint",
       "terms": "Terms and Conditions",
       "termsSubtitle": "Usage policies",
       "privacy": "Privacy and Security",

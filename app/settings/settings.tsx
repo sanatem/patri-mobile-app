@@ -129,8 +129,8 @@ export default function MoreScreen() {
     },
     {
       id: '0.5',
-      title: 'Autenticación biométrica',
-      subtitle: 'Acceso rápido con Face ID o huella digital',
+      title: t('settings.menu.biometricAuth'),
+      subtitle: t('settings.menu.biometricAuthSubtitle'),
       customRender: () => <BiometricSetup />,
     },
     {
