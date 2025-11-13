@@ -102,7 +102,14 @@ class RealValidator implements IValidator {
 
       const payload = {
         document: frontBase64,
-        documentback: backBase64,
+        documentBack: backBase64,
+        profile: "security_medium",
+        profileOverride: {
+          restrictCountry: "CL",
+          restrictType: "I",
+        },
+        region: 'CL',
+        type: 'DI',
         dualsidecheck: true,
         verify_expiry: true,
         return_confidence: true,
@@ -111,9 +118,6 @@ class RealValidator implements IValidator {
         ocr: true,
         aml: false,
         biometric: false,
-        // Configuración adicional para mejorar la detección de documentos chilenos nuevos
-        region: 'CL', // Especificar región Chile
-        type: 'DI', // Driver License / Identity Document
       };
 
       const response = await fetch(`${this.baseUrl}/scan`, {
