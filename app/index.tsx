@@ -12,7 +12,12 @@ import { BiometricPrompt } from '@/components/auth/BiometricPrompt';
 
 export default function Index() {
   const { user, loading, isAuthenticated, accessToken, loginWithBiometric } = useAuth();
-  const { biometricState, getRemainingLockoutTime } = useBiometricAuth();
+  const {
+    biometricState,
+    getRemainingLockoutTime,
+    disableBiometric,
+    checkBiometricCapability,
+  } = useBiometricAuth();
   const { hasSeenOnboarding, isLoading: onboardingLoading } = useOnboarding();
   const { shouldShowOnboarding, userDataLoading, userData } = useOnboardingValidation();
   const [isReady, setIsReady] = useState(false);
@@ -137,8 +142,11 @@ export default function Index() {
     await AsyncStorage.removeItem('auth_token');
     await AsyncStorage.removeItem('backend_user_data');
 
+    await disableBiometric();
+    await checkBiometricCapability();
+
     router.replace('/auth/webview');
-  }, []);
+  }, [disableBiometric, checkBiometricCapability]);
 
   if (loading || !isReady || onboardingLoading || userDataLoading || biometricState.isLoading) {
     return (
