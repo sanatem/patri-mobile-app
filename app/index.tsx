@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { View, ActivityIndicator, Alert } from 'react-native';
 import { Redirect, router } from 'expo-router';
 import { useAuth } from '@/providers/AuthProvider';
@@ -55,7 +55,7 @@ export default function Index() {
     }
   }, [biometricState.isLoading, isAuthenticated, canUseBiometric]);
 
-  const handleBiometricLogin = async () => {
+  const handleBiometricLogin = useCallback(async () => {
     const remainingTime = getRemainingLockoutTime();
     if (remainingTime > 0) {
       const minutes = Math.floor(remainingTime / 60);
@@ -65,7 +65,6 @@ export default function Index() {
         `Por favor, intenta nuevamente en ${minutes}:${seconds.toString().padStart(2, '0')}`,
         [{ text: 'OK' }]
       );
-      setShowBiometricPrompt(false);
       return;
     }
 
@@ -75,28 +74,34 @@ export default function Index() {
       if (success) {
         router.replace('/(tabs)/patrimony');
       } else {
-        setShowBiometricPrompt(false);
+        // Authentication failed or was cancelled - keep showing the prompt
+        // User must authenticate or use password option
       }
     } catch (error: any) {
       console.error('Biometric login error:', error);
-      setShowBiometricPrompt(false);
 
       // Show expiration alert if token expired
       if (error.message?.includes('sesión ha expirado')) {
         Alert.alert(
           'Sesión expirada',
           error.message,
-          [{ text: 'OK' }]
+          [{
+            text: 'OK', onPress: () => {
+              // Clear biometric and redirect to login
+              setShowBiometricPrompt(false);
+            }
+          }]
         );
       }
     } finally {
       setBiometricLoading(false);
     }
-  };
+  }, [getRemainingLockoutTime, loginWithBiometric]);
 
-  const handlePasswordAuth = () => {
+  const handlePasswordAuth = useCallback(() => {
+    // User chose to use password instead - redirect to auth flow
     setShowBiometricPrompt(false);
-  };
+  }, []);
 
   if (loading || !isReady || onboardingLoading || userDataLoading || biometricState.isLoading) {
     return (
@@ -109,6 +114,7 @@ export default function Index() {
   if (showBiometricPrompt) {
     return (
       <BiometricPrompt
+        key="biometric-prompt"
         onBiometricAuth={handleBiometricLogin}
         onPasswordAuth={handlePasswordAuth}
         biometricType={biometricState.biometricType}
