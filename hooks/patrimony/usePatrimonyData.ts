@@ -1,7 +1,5 @@
 import { useMemo } from 'react';
 import { useAssets, useDebts } from '@/hooks/patrimony';
-import assetsHistory from '@/data/static/assets-history.json';
-import React from 'react';
 
 export function usePatrimonyData(searchQuery: string) {
   const { assets: apiAssets, loading: assetsLoading, error: assetsError, refetch: refetchAssets } = useAssets({
@@ -14,7 +12,6 @@ export function usePatrimonyData(searchQuery: string) {
     per_page: 100
   }, true);
 
-  // Helper functions
   const mapSavingInstrumentType = (type: string): string => {
     const typeMapping: Record<string, string> = {
       'SavingInstruments::Crowdfunding': 'Crowdfunding',
