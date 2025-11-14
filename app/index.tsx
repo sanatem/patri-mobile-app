@@ -128,9 +128,16 @@ export default function Index() {
     }
   }, [lockoutTime, loginWithBiometric]);
 
-  const handlePasswordAuth = useCallback(() => {
-    // User chose to use password instead - redirect to auth flow
+  const handlePasswordAuth = useCallback(async () => {
+    setBiometricRequired(false);
     setShowBiometricPrompt(false);
+
+    await SecureStorageService.clearFailedAttempts();
+    await SecureStorageService.clearAll();
+    await AsyncStorage.removeItem('auth_token');
+    await AsyncStorage.removeItem('backend_user_data');
+
+    router.replace('/auth/webview');
   }, []);
 
   if (loading || !isReady || onboardingLoading || userDataLoading || biometricState.isLoading) {
