@@ -71,6 +71,7 @@ interface AuthContextType {
   error: string | null;
   accessToken: string | null;
   isAuthenticated: boolean;
+  isAuthRequestReady: boolean;
   login: () => Promise<boolean>;
   logout: () => Promise<void>;
   forceLogout: () => Promise<void>;
@@ -174,6 +175,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [authPromiseResolve, setAuthPromiseResolve] = useState<((value: boolean) => void) | null>(null);
   const [isAuthenticating, setIsAuthenticating] = useState<boolean>(false);
+  const [isAuthRequestReady, setIsAuthRequestReady] = useState<boolean>(false);
 
   const [request, response, promptAsync] = AuthSession.useAuthRequest(
     {
@@ -197,6 +199,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
   }, []);
+
+  useEffect(() => {
+    setIsAuthRequestReady(!!request);
+  }, [request]);
 
   useEffect(() => {
     const checkSession = async () => {
@@ -251,6 +257,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         authPromiseResolve(false);
         setAuthPromiseResolve(null);
       }
+    } else if (response?.type === 'cancel' || response?.type === 'dismiss') {
+      setLoading(false);
+      setIsAuthenticating(false);
+      if (authPromiseResolve) {
+        authPromiseResolve(false);
+        setAuthPromiseResolve(null);
+      }
     }
   }, [response, authPromiseResolve]);
 
@@ -299,9 +312,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         await initializeRevenueCat(backendUser.user_id, userInfo.email);
 
-        try {
-          await AsyncStorage.setItem('splash_seen', 'true');
-        } catch { }
         return true;
       } catch (error) {
         await AsyncStorage.removeItem('auth_token');
@@ -348,6 +358,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (): Promise<boolean> => {
     if (isAuthenticating) {
       console.warn('Authentication already in progress, ignoring duplicate call');
+      return false;
+    }
+
+    if (!request) {
+      console.error('Auth request not ready');
       return false;
     }
 
@@ -724,6 +739,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         error,
         accessToken,
         isAuthenticated: !!user,
+        isAuthRequestReady,
         login,
         logout,
         forceLogout,

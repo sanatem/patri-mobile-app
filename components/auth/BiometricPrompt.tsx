@@ -1,10 +1,10 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
-import { Fingerprint, Scan } from 'lucide-react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import Colors from '@/constants/Colors';
 import { Button } from '@/components/ui';
 import { useTranslation } from 'react-i18next';
 import type { BiometricType } from '@/types/biometric';
+import { getBiometricIcon } from './biometricUtils';
 
 interface BiometricPromptProps {
   onBiometricAuth: () => void;
@@ -21,18 +21,10 @@ export const BiometricPrompt: React.FC<BiometricPromptProps> = ({
 }) => {
   const { t } = useTranslation();
 
-  const getBiometricIcon = () => {
-    // Show face icon for facial recognition on iOS, fingerprint for everything else
-    if (biometricType === 'facial' && Platform.OS === 'ios') {
-      return <Scan size={64} color={Colors.primary[500]} />;
-    }
-    return <Fingerprint size={64} color={Colors.primary[500]} />;
-  };
-
   return (
     <View style={styles.container}>
       <View style={styles.iconContainer}>
-        {getBiometricIcon()}
+        {getBiometricIcon({ biometricType, size: 64, color: Colors.primary[500] })}
       </View>
 
       <Text style={styles.title}>{t('biometric.prompt.title')}</Text>
@@ -46,15 +38,16 @@ export const BiometricPrompt: React.FC<BiometricPromptProps> = ({
           onPress={onBiometricAuth}
           disabled={loading}
           fullWidth
+          size="large"
         />
 
-        <TouchableOpacity
+        <Button
+          title={t('auth.usePassword')}
           onPress={onPasswordAuth}
+          variant="ghost"
           disabled={loading}
-          style={styles.passwordButton}
-        >
-          <Text style={styles.passwordButtonText}>{t('auth.usePassword')}</Text>
-        </TouchableOpacity>
+          fullWidth
+        />
       </View>
     </View>
   );
@@ -79,14 +72,15 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 28,
-    fontWeight: 'bold',
-    color: Colors.gray[900],
+    fontFamily: 'Poppins-Medium',
+    color: Colors.primary[500],
     marginBottom: 12,
     textAlign: 'center',
   },
   subtitle: {
     fontSize: 16,
-    color: Colors.gray[600],
+    fontFamily: 'Poppins-Regular',
+    color: Colors.primary[500],
     textAlign: 'center',
     marginBottom: 48,
     paddingHorizontal: 32,
@@ -94,15 +88,6 @@ const styles = StyleSheet.create({
   buttonsContainer: {
     width: '100%',
     gap: 16,
-  },
-  passwordButton: {
-    padding: 16,
-    alignItems: 'center',
-  },
-  passwordButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: Colors.primary[500],
   },
 });
 

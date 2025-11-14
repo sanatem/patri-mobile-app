@@ -5,12 +5,12 @@ import {
   Switch,
   StyleSheet,
   Alert,
-  Platform,
 } from 'react-native';
-import { Fingerprint, AlertCircle } from 'lucide-react-native';
+import { AlertCircle } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import { useBiometricAuth } from '@/providers/BiometricAuthProvider';
 import { useTranslation } from 'react-i18next';
+import { getBiometricIcon } from './biometricUtils';
 
 export const BiometricSetup: React.FC = () => {
   const { t } = useTranslation();
@@ -71,7 +71,11 @@ export const BiometricSetup: React.FC = () => {
   return (
     <View style={styles.container}>
       <View style={styles.iconContainer}>
-        <Fingerprint size={24} color={Colors.primary[500]} />
+        {getBiometricIcon({
+          biometricType: biometricState.biometricType,
+          size: 24,
+          color: Colors.primary[500]
+        })}
       </View>
       <View style={styles.textContainer}>
         <Text style={styles.title}>{t('biometric.title')}</Text>
