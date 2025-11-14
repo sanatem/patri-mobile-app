@@ -12,12 +12,7 @@ import { BiometricPrompt } from '@/components/auth/BiometricPrompt';
 
 export default function Index() {
   const { user, loading, isAuthenticated, accessToken, loginWithBiometric } = useAuth();
-  const {
-    biometricState,
-    getRemainingLockoutTime,
-    disableBiometric,
-    checkBiometricCapability,
-  } = useBiometricAuth();
+  const { biometricState } = useBiometricAuth();
   const { hasSeenOnboarding, isLoading: onboardingLoading } = useOnboarding();
   const { shouldShowOnboarding, userDataLoading, userData } = useOnboardingValidation();
   const [isReady, setIsReady] = useState(false);
@@ -133,21 +128,6 @@ export default function Index() {
     }
   }, [lockoutTime, loginWithBiometric]);
 
-  const handlePasswordAuth = useCallback(async () => {
-    setBiometricRequired(false);
-    setShowBiometricPrompt(false);
-
-    await SecureStorageService.clearFailedAttempts();
-    await SecureStorageService.clearAll();
-    await AsyncStorage.removeItem('auth_token');
-    await AsyncStorage.removeItem('backend_user_data');
-
-    await disableBiometric();
-    await checkBiometricCapability();
-
-    router.replace('/auth/webview');
-  }, [disableBiometric, checkBiometricCapability]);
-
   if (loading || !isReady || onboardingLoading || userDataLoading || biometricState.isLoading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
@@ -161,9 +141,9 @@ export default function Index() {
       <BiometricPrompt
         key="biometric-prompt"
         onBiometricAuth={handleBiometricLogin}
-        onPasswordAuth={handlePasswordAuth}
         biometricType={biometricState.biometricType}
         loading={biometricLoading}
+        remainingLockoutTime={lockoutTime}
       />
     );
   }

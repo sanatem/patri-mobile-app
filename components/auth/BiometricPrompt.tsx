@@ -8,7 +8,6 @@ import { getBiometricIcon } from './biometricUtils';
 
 interface BiometricPromptProps {
   onBiometricAuth: () => void;
-  onPasswordAuth: () => void;
   biometricType: BiometricType;
   loading?: boolean;
   remainingLockoutTime?: number;
@@ -16,7 +15,6 @@ interface BiometricPromptProps {
 
 export const BiometricPrompt: React.FC<BiometricPromptProps> = ({
   onBiometricAuth,
-  onPasswordAuth,
   biometricType,
   loading = false,
   remainingLockoutTime = 0,
@@ -52,20 +50,13 @@ export const BiometricPrompt: React.FC<BiometricPromptProps> = ({
           </View>
         )}
         <Button
-          title={t('biometric.prompt.authenticate')}
+          title={isLockedOut ? t('biometric.prompt.authenticateWhenReady', 'Intentar cuando finalice el bloqueo') : t('biometric.prompt.authenticate')}
           onPress={onBiometricAuth}
           disabled={loading || isLockedOut}
           fullWidth
           size="large"
         />
 
-        <Button
-          title={t('auth.usePassword')}
-          onPress={onPasswordAuth}
-          variant="ghost"
-          disabled={loading}
-          fullWidth
-        />
       </View>
     </View>
   );
@@ -131,6 +122,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: 'Poppins-Regular',
     color: '#B91C1C',
+    textAlign: 'center',
+  },
+  fallbackHint: {
+    fontSize: 14,
+    fontFamily: 'Poppins-Regular',
+    color: Colors.gray[600],
     textAlign: 'center',
   },
 });
