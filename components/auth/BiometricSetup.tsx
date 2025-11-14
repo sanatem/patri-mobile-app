@@ -11,6 +11,7 @@ import Colors from '@/constants/Colors';
 import { useBiometricAuth } from '@/providers/BiometricAuthProvider';
 import { useTranslation } from 'react-i18next';
 import { getBiometricIcon } from './biometricUtils';
+import { BiometricAuthService } from '@/services/auth/biometric-auth.service';
 
 export const BiometricSetup: React.FC = () => {
   const { t } = useTranslation();
@@ -32,20 +33,20 @@ export const BiometricSetup: React.FC = () => {
           );
         }
       } else {
-        Alert.alert(
-          t('biometric.title'),
-          t('biometric.setup.confirm', { type: t('biometric.titleLowercase') }),
-          [
-            { text: t('common.cancel'), style: 'cancel' },
-            {
-              text: t('biometric.disable', { type: '' }),
-              style: 'destructive',
-              onPress: async () => {
-                await disableBiometric();
-              },
-            },
-          ]
+        // Require biometric authentication to disable the setting
+        const authResult = await BiometricAuthService.authenticate(
+          t('biometric.setup.confirm', { type: t('biometric.titleLowercase') })
         );
+
+        if (authResult.success) {
+          await disableBiometric();
+        } else {
+          // Authentication failed or was cancelled
+          Alert.alert(
+            t('common.error'),
+            authResult.error || t('biometric.errors.failed')
+          );
+        }
       }
     } catch (error) {
       Alert.alert(
