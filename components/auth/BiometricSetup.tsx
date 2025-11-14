@@ -17,13 +17,6 @@ export const BiometricSetup: React.FC = () => {
   const { biometricState, enableBiometric, disableBiometric } = useBiometricAuth();
   const [isToggling, setIsToggling] = useState(false);
 
-  const getBiometricName = () => {
-    if (biometricState.biometricType === 'facial') {
-      return Platform.OS === 'ios' ? 'Face ID' : 'reconocimiento facial';
-    }
-    return Platform.OS === 'ios' ? 'Touch ID' : 'huella digital';
-  };
-
   const handleToggle = async (value: boolean) => {
     if (isToggling) return;
 
@@ -34,18 +27,18 @@ export const BiometricSetup: React.FC = () => {
         const success = await enableBiometric();
         if (!success) {
           Alert.alert(
-            'Error',
-            'No se pudo habilitar la autenticación biométrica. Por favor, intenta nuevamente.'
+            t('common.error'),
+            t('biometric.errors.failed')
           );
         }
       } else {
         Alert.alert(
-          'Deshabilitar autenticación biométrica',
-          `¿Estás seguro de que deseas deshabilitar ${getBiometricName()}?`,
+          t('biometric.title'),
+          t('biometric.setup.confirm', { type: t('biometric.titleLowercase') }),
           [
-            { text: 'Cancelar', style: 'cancel' },
+            { text: t('common.cancel'), style: 'cancel' },
             {
-              text: 'Deshabilitar',
+              text: t('biometric.disable', { type: '' }),
               style: 'destructive',
               onPress: async () => {
                 await disableBiometric();
@@ -56,8 +49,8 @@ export const BiometricSetup: React.FC = () => {
       }
     } catch (error) {
       Alert.alert(
-        'Error',
-        error instanceof Error ? error.message : 'Error al procesar la solicitud'
+        t('common.error'),
+        error instanceof Error ? error.message : t('biometric.errors.failed')
       );
     } finally {
       setIsToggling(false);
@@ -69,7 +62,7 @@ export const BiometricSetup: React.FC = () => {
       <View style={styles.unsupportedContainer}>
         <AlertCircle size={20} color={Colors.gray[400]} />
         <Text style={styles.unsupportedText}>
-          Tu dispositivo no soporta autenticación biométrica
+          {t('biometric.errors.notSupported')}
         </Text>
       </View>
     );
@@ -81,9 +74,9 @@ export const BiometricSetup: React.FC = () => {
         <Fingerprint size={24} color={Colors.primary[500]} />
       </View>
       <View style={styles.textContainer}>
-        <Text style={styles.title}>Acceso rápido con {getBiometricName()}</Text>
+        <Text style={styles.title}>{t('biometric.title')}</Text>
         <Text style={styles.subtitle}>
-          Inicia sesión rápidamente usando tu {getBiometricName()} en lugar de tu contraseña
+          {t('biometric.subtitle')}
         </Text>
       </View>
       <Switch

@@ -61,7 +61,8 @@
     }
   },
   "biometric": {
-    "title": "Biometric Authentication",
+    "title": "Biometric authentication",
+    "titleLowercase": "biometric authentication",
     "subtitle": "Quick and secure access",
     "enable": "Enable {{type}}",
     "disable": "Disable {{type}}",
@@ -1415,7 +1416,8 @@
     "cancelledTitle": "Authentication Cancelled",
     "cancelledMessage": "Authentication process could not be completed.",
     "errorTitle": "Authentication Error",
-    "errorMessage": "An error occurred during authentication. Please try again."
+    "errorMessage": "An error occurred during authentication. Please try again.",
+    "usePassword": "Use password"
   },
   "login": {
     "subtitle": "Sign in to manage your finances intelligently",

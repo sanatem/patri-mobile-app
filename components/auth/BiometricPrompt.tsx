@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native
 import { Fingerprint, Scan } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import { Button } from '@/components/ui';
+import { useTranslation } from 'react-i18next';
 import type { BiometricType } from '@/types/biometric';
 
 interface BiometricPromptProps {
@@ -18,18 +19,14 @@ export const BiometricPrompt: React.FC<BiometricPromptProps> = ({
   biometricType,
   loading = false,
 }) => {
+  const { t } = useTranslation();
+
   const getBiometricIcon = () => {
-    if (biometricType === 'facial') {
+    // Show face icon for facial recognition on iOS, fingerprint for everything else
+    if (biometricType === 'facial' && Platform.OS === 'ios') {
       return <Scan size={64} color={Colors.primary[500]} />;
     }
     return <Fingerprint size={64} color={Colors.primary[500]} />;
-  };
-
-  const getBiometricText = () => {
-    if (biometricType === 'facial') {
-      return Platform.OS === 'ios' ? 'Face ID' : 'Reconocimiento facial';
-    }
-    return Platform.OS === 'ios' ? 'Touch ID' : 'Huella digital';
   };
 
   return (
@@ -38,14 +35,14 @@ export const BiometricPrompt: React.FC<BiometricPromptProps> = ({
         {getBiometricIcon()}
       </View>
 
-      <Text style={styles.title}>Bienvenido de vuelta</Text>
+      <Text style={styles.title}>{t('biometric.prompt.title')}</Text>
       <Text style={styles.subtitle}>
-        Usa {getBiometricText()} para acceder rápidamente
+        {t('biometric.prompt.subtitle', { type: t('biometric.titleLowercase') })}
       </Text>
 
       <View style={styles.buttonsContainer}>
         <Button
-          title={`Usar ${getBiometricText()}`}
+          title={t('biometric.prompt.authenticate')}
           onPress={onBiometricAuth}
           disabled={loading}
           fullWidth
@@ -56,7 +53,7 @@ export const BiometricPrompt: React.FC<BiometricPromptProps> = ({
           disabled={loading}
           style={styles.passwordButton}
         >
-          <Text style={styles.passwordButtonText}>Usar contraseña</Text>
+          <Text style={styles.passwordButtonText}>{t('auth.usePassword')}</Text>
         </TouchableOpacity>
       </View>
     </View>

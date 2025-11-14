@@ -41,18 +41,6 @@ export class BiometricAuthService {
     }
   }
 
-  static getBiometricName(type: BiometricType): string {
-    switch (type) {
-      case 'facial':
-        return Platform.OS === 'ios' ? 'Face ID' : 'Reconocimiento facial';
-      case 'fingerprint':
-        return Platform.OS === 'ios' ? 'Touch ID' : 'Huella digital';
-      case 'iris':
-        return 'Reconocimiento de iris';
-      default:
-        return 'Biometría';
-    }
-  }
 
   static async authenticate(reason?: string): Promise<{
     success: boolean;
