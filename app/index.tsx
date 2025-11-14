@@ -12,13 +12,15 @@ import { BiometricPrompt } from '@/components/auth/BiometricPrompt';
 
 export default function Index() {
   const { user, loading, isAuthenticated, accessToken, loginWithBiometric } = useAuth();
-  const { biometricState, canUseBiometric, getRemainingLockoutTime } = useBiometricAuth();
+  const { biometricState, getRemainingLockoutTime } = useBiometricAuth();
   const { hasSeenOnboarding, isLoading: onboardingLoading } = useOnboarding();
   const { shouldShowOnboarding, userDataLoading, userData } = useOnboardingValidation();
   const [isReady, setIsReady] = useState(false);
   const [hasSeenSplash, setHasSeenSplash] = useState<boolean | null>(null);
   const [showBiometricPrompt, setShowBiometricPrompt] = useState(false);
   const [biometricLoading, setBiometricLoading] = useState(false);
+  const [lockoutTime, setLockoutTime] = useState(0);
+  const [biometricRequired, setBiometricRequired] = useState(true);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -34,16 +36,18 @@ export default function Index() {
         const seen = await AsyncStorage.getItem('splash_seen');
         setHasSeenSplash(seen === 'true');
 
-        // Check if biometric should be shown
-        const canUse = await canUseBiometric();
+        const lockoutEnd = await SecureStorageService.getLockoutEndTime();
+        const lockoutActive = !!(lockoutEnd && Date.now() < lockoutEnd);
+        const biometricEnabled = await SecureStorageService.isBiometricEnabled();
+        const storedToken = await SecureStorageService.getAuthToken();
 
-        // Show biometric prompt if:
-        // - Biometric is enabled
-        // - There's a stored token in SecureStorage
-        // - Biometric is supported
-        // - User is not already authenticated
-        if (canUse && !isAuthenticated) {
+        const shouldShowPrompt =
+          lockoutActive || (biometricRequired && biometricEnabled && !!storedToken);
+
+        if (shouldShowPrompt) {
           setShowBiometricPrompt(true);
+        } else {
+          setShowBiometricPrompt(false);
         }
       } catch (e) {
         setHasSeenSplash(false);
@@ -53,13 +57,37 @@ export default function Index() {
     if (!biometricState.isLoading) {
       checkBiometricAndSplash();
     }
-  }, [biometricState.isLoading, isAuthenticated, canUseBiometric]);
+  }, [biometricState.isLoading, biometricRequired]);
+
+  useEffect(() => {
+    if (!showBiometricPrompt) {
+      setLockoutTime(0);
+      return;
+    }
+
+    let interval: ReturnType<typeof setInterval>;
+
+    const updateLockoutTime = async () => {
+      const lockoutEnd = await SecureStorageService.getLockoutEndTime();
+      if (!lockoutEnd) {
+        setLockoutTime(0);
+        return;
+      }
+
+      const remaining = Math.max(0, Math.ceil((lockoutEnd - Date.now()) / 1000));
+      setLockoutTime(remaining);
+    };
+
+    updateLockoutTime();
+    interval = setInterval(updateLockoutTime, 1000);
+
+    return () => clearInterval(interval);
+  }, [showBiometricPrompt]);
 
   const handleBiometricLogin = useCallback(async () => {
-    const remainingTime = getRemainingLockoutTime();
-    if (remainingTime > 0) {
-      const minutes = Math.floor(remainingTime / 60);
-      const seconds = remainingTime % 60;
+    if (lockoutTime > 0) {
+      const minutes = Math.floor(lockoutTime / 60);
+      const seconds = lockoutTime % 60;
       Alert.alert(
         'Demasiados intentos',
         `Por favor, intenta nuevamente en ${minutes}:${seconds.toString().padStart(2, '0')}`,
@@ -72,6 +100,8 @@ export default function Index() {
     try {
       const success = await loginWithBiometric();
       if (success) {
+        setBiometricRequired(false);
+        setShowBiometricPrompt(false);
         router.replace('/(tabs)/patrimony');
       } else {
         // Authentication failed or was cancelled - keep showing the prompt
@@ -96,7 +126,7 @@ export default function Index() {
     } finally {
       setBiometricLoading(false);
     }
-  }, [getRemainingLockoutTime, loginWithBiometric]);
+  }, [lockoutTime, loginWithBiometric]);
 
   const handlePasswordAuth = useCallback(() => {
     // User chose to use password instead - redirect to auth flow

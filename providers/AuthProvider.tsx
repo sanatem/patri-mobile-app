@@ -613,6 +613,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setLoading(true);
     setError(null);
 
+    const MAX_FAILED_ATTEMPTS = 3;
+    const LOCKOUT_DURATION_MS = 5 * 60 * 1000; // 5 minutes
+
     try {
       // 1. Verificar que biometría esté habilitada
       const isBiometricEnabled = await SecureStorageService.isBiometricEnabled();
@@ -620,14 +623,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error('Biometría no habilitada');
       }
 
-      // 2. Autenticar con biometría
+      // 2. Revisar si hay bloqueo activo
+      const lockoutEndTime = await SecureStorageService.getLockoutEndTime();
+      if (lockoutEndTime && Date.now() < lockoutEndTime) {
+        const remainingSeconds = Math.ceil((lockoutEndTime - Date.now()) / 1000);
+        throw new Error(
+          `Demasiados intentos fallidos. Intenta nuevamente en ${Math.floor(remainingSeconds / 60)}:${(remainingSeconds % 60)
+            .toString()
+            .padStart(2, '0')}`
+        );
+      }
+
+      // 3. Autenticar con biometría
       const authResult = await BiometricAuthService.authenticate(
         'Autentícate para acceder a Patrimore'
       );
 
       if (!authResult.success) {
+        const currentAttempts = await SecureStorageService.getFailedAttempts();
+        const newAttempts = currentAttempts + 1;
+        await SecureStorageService.setFailedAttempts(newAttempts);
+
+        if (newAttempts >= MAX_FAILED_ATTEMPTS) {
+          const lockoutUntil = Date.now() + LOCKOUT_DURATION_MS;
+          await SecureStorageService.setLockoutEndTime(lockoutUntil);
+        }
+
         throw new Error(authResult.error || 'Autenticación biométrica fallida');
       }
+
+      // Autenticación exitosa: limpiar intentos
+      await SecureStorageService.clearFailedAttempts();
 
       // 3. Recuperar token seguro
       const token = await SecureStorageService.getAuthToken();
