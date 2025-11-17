@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { View, Text } from 'react-native';
 import FormLayout from '@/components/ui/FormLayout';
 import { Select } from '@/components/ui/Select';
-import { BankTransfer, CheckDeposit, FintocTransfer } from '@/components/investment/movements/investment/source-funds';
+import { BankTransfer, CheckDeposit, FintocTransfer } from '@/components/investment/PortfolioOverview/Movements/MovementsForms/investment/source-funds';
 import { useTranslation } from 'react-i18next';
 import { useFormatValue } from '@/hooks/common/useFormatValue';
 import Colors from '@/constants/Colors';

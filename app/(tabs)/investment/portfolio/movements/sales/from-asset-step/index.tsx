@@ -2,7 +2,7 @@ import React, { useMemo, useEffect, useRef } from 'react';
 import { View } from 'react-native';
 import FormLayout from '@/components/ui/FormLayout';
 import { useTranslation } from 'react-i18next';
-import AssetSelectionList from '@/components/investment/portfolio/AssetSelectionList';
+import AssetSelectionList from '@/components/investment/PortfolioOverview/Goals/AssetSelectionList';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { usePortfolioDetails } from '@/hooks/investment/usePortfolioDetails';

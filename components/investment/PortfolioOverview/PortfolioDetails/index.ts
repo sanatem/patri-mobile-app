@@ -10,4 +10,4 @@ export { GoalProgressChart } from './charts/GoalProgressChart';
 export { default as PortfolioDetailsHeader } from './headers/PortfolioDetailsHeader';
 
 // Sections
-export { default as PortfolioOverviewSection } from './sections/PortfolioOverviewSection';
+export { default as PortfolioOverviewSection } from './sections/PortfolioDetailsCardSection';

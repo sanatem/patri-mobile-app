@@ -1,7 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 import { Button } from '@/components/ui/Button';
-import { portfolioActionsBarStyles } from '../../../styles/investment/PortfolioActionsBar.styles';
+import { portfolioActionsBarStyles } from '@/styles/investment/PortfolioActionsBar.styles';
 
 interface ActionButton {
   title: string;
@@ -12,12 +12,12 @@ interface ActionButton {
   fullWidth?: boolean;
 }
 
-interface PortfolioActionsBarProps {
+interface PortfolioMovementsBarProps {
   actions: ActionButton[];
   containerStyle?: any;
 }
 
-export function PortfolioActionsBar({ actions, containerStyle }: PortfolioActionsBarProps) {
+export function PortfolioActionsBar({ actions, containerStyle }: PortfolioMovementsBarProps) {
   if (actions.length === 1 && actions[0].fullWidth) {
     return (
       <View style={[portfolioActionsBarStyles.container, containerStyle]}>

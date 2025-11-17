@@ -1,3 +1,4 @@
+import React from 'react';
 import { View, Text } from 'react-native';
 import { useRouter } from 'expo-router';
 import { TrendingUp } from 'lucide-react-native';
@@ -5,11 +6,11 @@ import { Header, Button } from '@/components/ui';
 import Colors from '@/constants/Colors';
 import { useTranslation } from 'react-i18next';
 
-interface WithoutAccountScreenProps {
+interface WithoutAccountProps {
   hasAnyFormData?: boolean;
 }
 
-export default function WithoutAccountScreen({ hasAnyFormData = false }: WithoutAccountScreenProps) {
+export function WithoutAccount({ hasAnyFormData = false }: WithoutAccountProps) {
   const router = useRouter();
   const { t } = useTranslation();
 
@@ -33,7 +34,7 @@ export default function WithoutAccountScreen({ hasAnyFormData = false }: Without
         <Text className="text-base font-regular text-center mb-6 px-2" style={{ color: Colors.gray[600] }}>
           {t('investments.needAccount')}
         </Text>
-        
+
         <View className="w-full px-4">
           <Button
             title={t('investments.createAccount')}
@@ -45,4 +46,4 @@ export default function WithoutAccountScreen({ hasAnyFormData = false }: Without
       </View>
     </View>
   );
-} 
+}
