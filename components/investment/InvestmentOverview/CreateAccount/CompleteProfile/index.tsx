@@ -4,7 +4,7 @@ import { router, useFocusEffect } from 'expo-router';
 import { Container } from '@/components/ui/Container';
 import { Header } from '@/components/ui/Header';
 import { Card, LoadingSpinner } from '@/components/ui';
-import { Check, Clock, ChevronRight, ChevronLeft } from 'lucide-react-native';
+import { Check, Clock, ChevronRight, ChevronLeft, X } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import Colors from '@/constants/Colors';
 import { useAuth } from '@/providers/AuthProvider';
@@ -13,7 +13,7 @@ import { getPersonalInformation } from '@/services/investment/create-account/per
 import { getRiskProfile } from '@/services/investment/create-account/investment-survey/get-risk-profile';
 import { getEmploymentInformation } from '@/services/investment/create-account/employment-information/get-employment-information';
 import { getIdentityCard } from '@/services/investment/create-account/identity-verification/get-identity-verification';
-import { checkRequirements, generateBrokerDocumentations } from '@/services/investment/create-account/broker-documentation';
+import { checkRequirements, generateBrokerDocumentations, getBrokerDocumentations } from '@/services/investment/create-account/broker-documentation';
 import { getBankAccounts } from '@/services/investment/bank-accounts/get-bank-account';
 
 export default function SummaryStep() {
@@ -30,6 +30,7 @@ export default function SummaryStep() {
     contractSignature: false,
   });
   const [isLoadingStatuses, setIsLoadingStatuses] = useState(true);
+  const [accountStatus, setAccountStatus] = useState<'forms' | 'pending' | 'approved' | 'rejected'>('forms');
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useFocusEffect(
@@ -134,8 +135,8 @@ export default function SummaryStep() {
       // Verificar si todos los formularios base están completados
       const allBaseCompleted = hasRiskData && hasIdentityData && hasPersonalData && hasContactData && hasWorkData && hasDefaultBankAccount;
 
-      // Generar documentos del broker cuando todos los formularios base estén completos
-      if (allBaseCompleted) {
+      // Generar documentos del broker cuando todos los formularios base estén completos y los contratos NO estén firmados
+      if (allBaseCompleted && !areContractsSigned) {
         try {
           await generateBrokerDocumentations(accessToken);
         } catch (err) {
@@ -152,6 +153,31 @@ export default function SummaryStep() {
         bankData: hasDefaultBankAccount,
         contractSignature: areContractsSigned,
       });
+
+      // Si los contratos están firmados, verificar el estado de los documentos del broker
+      if (areContractsSigned) {
+        try {
+          const brokerDocsResponse = await getBrokerDocumentations(accessToken);
+
+          if (brokerDocsResponse.success && brokerDocsResponse.broker_documents.length > 0) {
+            // Verificar el estado del primer documento (o todos si es necesario)
+            const statuses = brokerDocsResponse.broker_documents.map(doc => doc.status);
+
+            if (statuses.every(status => status === 'approved')) {
+              setAccountStatus('approved');
+              // Redirigir al portfolio
+              router.replace('/(tabs)/investment' as any);
+              return;
+            } else if (statuses.some(status => status === 'rejected')) {
+              setAccountStatus('rejected');
+            } else {
+              setAccountStatus('pending');
+            }
+          }
+        } catch (err) {
+          console.error('Error checking broker documentations status:', err);
+        }
+      }
     } catch (error) {
       console.error('Error checking form statuses:', error);
     } finally {
@@ -190,10 +216,57 @@ export default function SummaryStep() {
     router.push('/(tabs)/investment' as any);
   };
 
+  // Vista de cuenta pendiente de aprobación
+  if (accountStatus === 'pending') {
+    return (
+      <Container variant="secondaryPage">
+        <Header
+          title="Cuenta de inversión"
+          showBackButton={false}
+        />
+        {isLoadingStatuses && <LoadingSpinner overlay />}
+        <View className="flex-1 justify-center items-center px-6 pb-6">
+          <View style={{ width: 64, height: 64, backgroundColor: Colors.primary[100], borderRadius: 32, justifyContent: 'center', alignItems: 'center', marginBottom: 16 }}>
+            <Clock size={32} color={Colors.primary[600]} />
+          </View>
+          <Text className="text-xl font-semibold text-center mb-2" style={{ color: Colors.primary[600] }}>
+            Ya casi puedes invertir
+          </Text>
+          <Text className="text-base font-regular text-center px-4" style={{ color: Colors.gray[600] }}>
+            Solo necesitamos validar algunos datos para activar tu cuenta. Si tienes dudas, contáctanos a <Text className="font-medium">operaciones@patrimore.com</Text>.
+          </Text>
+        </View>
+      </Container>
+    );
+  }
+
+  if (accountStatus === 'rejected') {
+    return (
+      <Container variant="secondaryPage">
+        <Header
+          title="Cuenta de inversión"
+          showBackButton={false}
+        />
+        {isLoadingStatuses && <LoadingSpinner overlay />}
+        <View className="flex-1 justify-center items-center px-6 pb-6">
+          <View style={{ width: 64, height: 64, backgroundColor: Colors.error[100], borderRadius: 32, justifyContent: 'center', alignItems: 'center', marginBottom: 16 }}>
+            <X size={32} color={Colors.error[500]} />
+          </View>
+          <Text className="text-xl font-semibold text-center mb-2" style={{ color: Colors.primary[600] }}>
+            Cuenta rechazada
+          </Text>
+          <Text className="text-base font-regular text-center px-4" style={{ color: Colors.gray[600] }}>
+            Tu solicitud de cuenta de inversión ha sido rechazada. Por favor, contáctanos a <Text style={{ color: Colors.secondary[500] }}>operaciones@patrimore.com</Text> para más información.
+          </Text>
+        </View>
+      </Container>
+    );
+  }
+
   return (
     <Container variant="secondaryPage">
-      <Header 
-        title={title} 
+      <Header
+        title={title}
         showBackButton={false}
         leftAction={
           <TouchableOpacity

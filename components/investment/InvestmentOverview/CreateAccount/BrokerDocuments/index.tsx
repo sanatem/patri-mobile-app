@@ -65,25 +65,34 @@ export default function ContractSignature() {
       highlight: 'contrato',
       textAfter: ' de prestación de servicios con Vector Capital Corredora de Bolsa SpA.',
       value: 'vector_capital',
-      broker_code: 'vector'
+      broker_code: 'vector',
+      isLocalPdf: false
     },
     {
       textBefore: 'He leído y acepto el ',
       highlight: 'mandato mercantil',
       textAfter: ' e inversión con Patrimore S.A.',
       value: 'patrimore_mandate',
-      broker_code: 'patrimore'
+      broker_code: 'patrimore',
+      isLocalPdf: false
     },
     {
-      textBefore: 'He leído y acepto el ',
-      highlight: 'código de conducta',
+      textBefore: 'He leído y acepto las ',
+      highlight: 'normas de conducta',
       textAfter: ' de Patrimore S.A.',
       value: 'patrimore_conduct',
-      broker_code: 'patrimore'
+      broker_code: 'patrimore',
+      isLocalPdf: true
     }
   ];
 
-  const handlePreviewDocument = async (brokerCode: string) => {
+  const handlePreviewDocument = async (brokerCode: string, isLocalPdf: boolean) => {
+    // Si es PDF local, navegar al visor de PDF
+    if (isLocalPdf) {
+      router.push('/(tabs)/investment/create-account/pdf-viewer' as any);
+      return;
+    }
+
     if (!accessToken) return;
 
     setIsLoadingPreview(true);
@@ -131,16 +140,15 @@ export default function ContractSignature() {
 
 
   const handleSubmit = async () => {
-    // TODO: Restore validations after testing
-    // if (acceptedContracts.length !== contractOptions.length) {
-    //   setError(t('contractSignature.warning'));
-    //   return;
-    // }
+    if (acceptedContracts.length !== contractOptions.length) {
+      setError(t('contractSignature.warning'));
+      return;
+    }
 
-    // if (!canSign) {
-    //   setError('Debes completar todos los requisitos antes de firmar los contratos');
-    //   return;
-    // }
+    if (!canSign) {
+      setError('Debes completar todos los requisitos antes de firmar los contratos');
+      return;
+    }
 
     if (!accessToken) {
       setError('No se encontró token de autenticación');
@@ -193,7 +201,7 @@ export default function ContractSignature() {
         nextButtonTitle={isSubmitting ? 'Firmando...' : 'Finalizar'}
         cancelButtonTitle="Cancelar"
         isLoading={isSubmitting}
-        isNextDisabled={isSubmitting} // TODO: Restore: !allContractsAccepted || isSubmitting || !canSign
+        isNextDisabled={!allContractsAccepted || isSubmitting || !canSign}
         error={error}
         showLogo={false}
       >
@@ -248,7 +256,7 @@ export default function ContractSignature() {
                       <Text
                         className="font-medium"
                         style={{ color: Colors.secondary[500], textDecorationLine: 'underline' }}
-                        onPress={() => handlePreviewDocument(contract.broker_code)}
+                        onPress={() => handlePreviewDocument(contract.broker_code, contract.isLocalPdf)}
                       >
                         {contract.highlight}
                       </Text>

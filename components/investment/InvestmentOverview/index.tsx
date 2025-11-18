@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View } from 'react-native';
+import { router } from 'expo-router';
 import { LockedTabOverlay, LoadingSpinner } from '@/components/ui';
 import { WithoutAccount } from '@/components/investment/InvestmentOverview/WithoutAccount';
 import Colors from '@/constants/Colors';
@@ -21,6 +22,13 @@ export function InvestmentOverview() {
     t,
   } = useInvestmentOverview();
 
+  useEffect(() => {
+    // Si tiene al menos un formulario completado, redirigir a complete-profile
+    if (!subscriptionLoading && !investmentLoading && !isLoadingFormData && !hasInvestmentAccount && hasAnyFormData) {
+      router.replace('/(tabs)/investment/create-account/complete-profile' as any);
+    }
+  }, [subscriptionLoading, investmentLoading, isLoadingFormData, hasInvestmentAccount, hasAnyFormData]);
+
   if (subscriptionLoading || investmentLoading || isLoadingFormData) {
     return (
       <View className="flex-1 bg-white justify-center items-center">
@@ -35,6 +43,15 @@ export function InvestmentOverview() {
 
   if (hasInvestmentAccount) {
     return null;
+  }
+
+  // Si tiene datos de formulario, mostrar loading mientras redirige
+  if (hasAnyFormData) {
+    return (
+      <View className="flex-1 bg-white justify-center items-center">
+        <LoadingSpinner />
+      </View>
+    );
   }
 
   return <WithoutAccount hasAnyFormData={hasAnyFormData} />;
