@@ -36,7 +36,7 @@ interface Movement {
   state: string;
 }
 
-interface PortfolioOverviewSectionProps {
+interface PortfolioDetailsCardSectionProps {
   summary: SummaryItem[];
   assets: Asset[];
   movements: Movement[];
@@ -44,7 +44,7 @@ interface PortfolioOverviewSectionProps {
   goalId?: string;
 }
 
-export default function PortfolioOverviewSection({ summary, assets, movements, goalName, goalId }: PortfolioOverviewSectionProps) {
+export default function PortfolioDetailsCardSection({ summary, assets, movements, goalName, goalId }: PortfolioDetailsCardSectionProps) {
   const { t } = useTranslation();
   return (
     <View>

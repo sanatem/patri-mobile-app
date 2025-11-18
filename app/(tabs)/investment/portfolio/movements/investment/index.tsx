@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { Container } from '@/components/ui/Container';
 import GoalSelectionStep from './goal-step';
 import SourceFundsStep from './source-funds-step';
-import { FintocTransfer } from '@/components/investment/movements/investment/source-funds';
+import { FintocTransfer } from '@/components/investment/PortfolioOverview/Movements/MovementsForms/investment/source-funds';
 import { useCash } from '@/hooks/cash/useCash';
 import { useCreatePurchase } from '@/hooks/investment/useCreatePurchase';
 import { useGoals } from '@/hooks/investment/useGoals';

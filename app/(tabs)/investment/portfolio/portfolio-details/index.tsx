@@ -8,11 +8,11 @@ import {
   PortfolioDetailsHeader,
   PortfolioOverviewSection,
   GoalProgressChart
-} from '@/components/investment/portfolio/portfolio-details';
+} from '@/components/investment/PortfolioOverview/PortfolioDetails';
 import { getMovementsByGoal, Movement } from '@/services/investment/portfolio/movements/get-movements';
 import { getPortfolioDetails, MetaDetails } from '@/services/investment/portfolio/portfolio-details/get-portfolio-details';
 import Colors from '@/constants/Colors';
-import { PortfolioActionsBar } from '@/components/investment/portfolio/PortfolioActionsBar';
+import { PortfolioActionsBar } from '@/components/investment/PortfolioOverview/Movements/PortfolioActionsBar';
 import { useAuth } from '@/providers/AuthProvider';
 import { useTranslation } from 'react-i18next';
 

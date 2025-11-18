@@ -6,7 +6,7 @@ import Colors from '@/constants/Colors';
 import FromGoalStep from './from-goal-step';
 import FromAssetStep from './from-asset-step';
 import ConfirmationStep from './confirmation-step';
-import CashSaleForm from '@/components/investment/movements/sales/CashSaleForm';
+import CashSaleForm from '@/components/investment/PortfolioOverview/Movements/MovementsForms/sales/CashSaleForm';
 import { useTranslation } from 'react-i18next';
 import { useGoals } from '@/hooks/investment/useGoals';
 import { useFormatValue } from '@/hooks/common/useFormatValue';
