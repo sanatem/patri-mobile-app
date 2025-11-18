@@ -20,11 +20,11 @@ export default function FloidScreen() {
       return (
         <iframe
           src={FLOID_URL}
-          style={{ 
-            flex: 1, 
-            border: 'none', 
-            width: '100%', 
-            height: '100%' 
+          style={{
+            flex: 1,
+            border: 'none',
+            width: '100%',
+            height: '100%'
           }}
           allow="camera; microphone; geolocation"
         />
@@ -44,16 +44,16 @@ export default function FloidScreen() {
           onNavigationStateChange={(navState: { url: string }) => {
              if (navState.url && navState.url.includes('patrimore.com')) {
                startSync();
-               router.replace('/(tabs)/budget');
+               router.replace('/(tabs)/budget/transactions');
              }
            }}
            onShouldStartLoadWithRequest={(request: { url: string }) => {
              if (request.url.includes('patrimore.com')) {
                startSync();
-               router.replace('/(tabs)/budget');
-               return false; 
+               router.replace('/(tabs)/budget/transactions');
+               return false;
              }
-             return true; 
+             return true;
            }}
         />
       );
@@ -62,7 +62,7 @@ export default function FloidScreen() {
 
   return (
     <Container variant="secondaryPage">
-      <Header 
+      <Header
         title={t('budget.integrate_data')}
         leftAction={
           <TouchableOpacity
@@ -73,8 +73,8 @@ export default function FloidScreen() {
           </TouchableOpacity>
         }
       />
-      
+
              {renderContent()}
     </Container>
   );
-} 
+}

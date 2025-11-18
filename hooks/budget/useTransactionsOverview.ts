@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
-export function useBudgetOverview() {
+export function useTransactionsOverview() {
   const { shouldBlockTab, loading: subscriptionLoading } = useSubscriptionStatus();
   const { isSyncing, stopSync } = useFloidSync();
   const { accessToken } = useAuth();
@@ -228,11 +228,21 @@ export function useBudgetOverview() {
 
   const handleAddTransaction = () => router.push('/(tabs)/budget/transactions/add-transaction' as any);
 
+  const handleAddIncome = () => router.push({
+    pathname: '/(tabs)/budget/transactions/add-transaction' as any,
+    params: { type: 'income' }
+  });
+
+  const handleAddExpense = () => router.push({
+    pathname: '/(tabs)/budget/transactions/add-transaction' as any,
+    params: { type: 'expense' }
+  });
+
   const handleCategoriesManager = () => router.push('/(tabs)/budget/transactions/categories-manager' as any);
 
   const handleTransactionPress = (item: any) => {
     const transaction = item.rawData;
-    console.log('[useBudgetOverview] Transaction pressed:', transaction.id);
+    console.log('[useTransactionsOverview] Transaction pressed:', transaction.id);
     router.push({
       pathname: '/(tabs)/budget/transactions/edit-transaction' as any,
       params: {
@@ -318,7 +328,7 @@ export function useBudgetOverview() {
             refetchAllExpenses()
           ]);
         } catch (error) {
-          console.error('Error refreshing budget data:', error);
+          console.error('Error refreshing transactions data:', error);
         }
       };
 
@@ -360,14 +370,11 @@ export function useBudgetOverview() {
   }, [showAddModal]);
 
   // Computed values
-  const hasDataForChart = hasRealData && (totalIncome > 0 || totalExpenses > 0);
-
   const tabs = [
     { key: 'income', label: t('budget.income'), badge: incomeCount.toString() },
     { key: 'expenses', label: t('budget.expenses'), badge: expenseCount.toString() }
   ];
 
-  const shouldShowSkeletons = totalsLoading || isSyncing || showBudgetSkeletons;
   const shouldShowTransactionSkeletons = transactionsLoading || isSyncing || showBudgetSkeletons;
 
   return {
@@ -402,7 +409,6 @@ export function useBudgetOverview() {
     incomeCount,
     expenseCount,
     hasRealData,
-    hasDataForChart,
     tabs,
 
     // Loading states
@@ -410,7 +416,6 @@ export function useBudgetOverview() {
     accountsLoading,
     transactionsLoading,
     totalsLoading,
-    shouldShowSkeletons,
     shouldShowTransactionSkeletons,
     incomeLoading,
     expenseLoading,
@@ -439,6 +444,8 @@ export function useBudgetOverview() {
     handleMonthSelect,
     handleIntegrarDatos,
     handleAddTransaction,
+    handleAddIncome,
+    handleAddExpense,
     handleCategoriesManager,
     handleTransactionPress,
     handleTransactionDelete,

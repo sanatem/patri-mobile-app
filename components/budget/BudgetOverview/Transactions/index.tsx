@@ -75,7 +75,7 @@ export function TransactionsSection({
 }: TransactionsSectionProps) {
   return (
     <>
-      <Container variant="content" className="mt-4 mb-4">
+      <Container variant="content" className="mt-2 mb-4">
         <SearchSection
           searchQuery={searchQuery}
           onSearchChange={onSearchChange}
