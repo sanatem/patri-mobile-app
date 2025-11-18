@@ -13,7 +13,8 @@ import { getPersonalInformation } from '@/services/investment/create-account/per
 import { getRiskProfile } from '@/services/investment/create-account/investment-survey/get-risk-profile';
 import { getEmploymentInformation } from '@/services/investment/create-account/employment-information/get-employment-information';
 import { getIdentityCard } from '@/services/investment/create-account/identity-verification/get-identity-verification';
-import { checkRequirements } from '@/services/investment/create-account/broker-documentation';
+import { checkRequirements, generateBrokerDocumentations } from '@/services/investment/create-account/broker-documentation';
+import { getBankAccounts } from '@/services/investment/bank-accounts/get-bank-account';
 
 export default function SummaryStep() {
   const { t } = useTranslation();
@@ -25,6 +26,7 @@ export default function SummaryStep() {
     personalInfo: false,
     contactInfo: false,
     workInfo: false,
+    bankData: false,
     contractSignature: false,
   });
   const [isLoadingStatuses, setIsLoadingStatuses] = useState(true);
@@ -52,13 +54,14 @@ export default function SummaryStep() {
     }
 
     try {
-      const [contactResponse, personalResponse, riskResponse, employmentResponse, identityResponse, requirementsResponse] = await Promise.all([
+      const [contactResponse, personalResponse, riskResponse, employmentResponse, identityResponse, requirementsResponse, bankAccountsResponse] = await Promise.all([
         getContactInformation(accessToken),
         getPersonalInformation(accessToken),
         getRiskProfile(accessToken),
         getEmploymentInformation(accessToken),
         getIdentityCard(accessToken),
         checkRequirements(accessToken),
+        getBankAccounts(accessToken),
       ]);
 
       const hasContactData = !!(
@@ -113,11 +116,32 @@ export default function SummaryStep() {
           employmentResponse.employment_information.commercial_activity)
       );
 
-      // Verificar si se pueden firmar los contratos según el backend
-      const canSignContracts = !!(
+      // Verificar si los contratos están firmados
+      const areContractsSigned = !!(
         requirementsResponse.success &&
-        requirementsResponse.data?.requirements_met
+        requirementsResponse.data?.details?.forms_status?.broker_documents &&
+        requirementsResponse.data.details.forms_status.broker_documents.length > 0 &&
+        requirementsResponse.data.details.forms_status.broker_documents.every(doc => doc.signed)
       );
+
+      // Verificar si tiene cuenta bancaria predeterminada
+      const hasDefaultBankAccount = !!(
+        bankAccountsResponse.success &&
+        bankAccountsResponse.accounts &&
+        bankAccountsResponse.accounts.some(account => account.is_default)
+      );
+
+      // Verificar si todos los formularios base están completados
+      const allBaseCompleted = hasRiskData && hasIdentityData && hasPersonalData && hasContactData && hasWorkData && hasDefaultBankAccount;
+
+      // Generar documentos del broker cuando todos los formularios base estén completos
+      if (allBaseCompleted) {
+        try {
+          await generateBrokerDocumentations(accessToken);
+        } catch (err) {
+          console.error('Error generating broker documentations:', err);
+        }
+      }
 
       setFormStatuses({
         riskProfile: hasRiskData,
@@ -125,7 +149,8 @@ export default function SummaryStep() {
         personalInfo: hasPersonalData,
         contactInfo: hasContactData,
         workInfo: hasWorkData,
-        contractSignature: canSignContracts,
+        bankData: hasDefaultBankAccount,
+        contractSignature: areContractsSigned,
       });
     } catch (error) {
       console.error('Error checking form statuses:', error);
@@ -148,7 +173,8 @@ export default function SummaryStep() {
     formStatuses.identity &&
     formStatuses.personalInfo &&
     formStatuses.contactInfo &&
-    formStatuses.workInfo;
+    formStatuses.workInfo &&
+    formStatuses.bankData;
 
   // La firma de contrato se habilita cuando todos los formularios base están completos
   const canAccessContractSignature = allBaseFormsCompleted;
@@ -343,6 +369,32 @@ export default function SummaryStep() {
             </View>
           </Card>
         </TouchableOpacity>
+
+        {!formStatuses.bankData && !isLoadingStatuses && (
+          <TouchableOpacity
+            onPress={() => handleCardPress('/settings/bank-accounts/add-bank-account?from=complete-profile')}
+            activeOpacity={0.7}
+          >
+            <Card variant="elevated" className="mb-4">
+              <View className="flex-row justify-between items-center">
+                <View className="flex-1">
+                  <View className="flex-row items-center mb-1" style={{ alignItems: 'center' }}>
+                    <Text className="text-base font-medium" style={{ color: Colors.primary[500], lineHeight: 20 }}>
+                      Datos bancarios
+                    </Text>
+                    <View style={{ marginLeft: 8, marginTop: -1 }}>
+                      <Clock size={16} color={Colors.warning[500]} />
+                    </View>
+                  </View>
+                  <Text className="text-sm font-regular" style={{ color: Colors.gray[600] }}>
+                    Necesitamos que agregues o modifiques una cuenta bancaria predeterminada
+                  </Text>
+                </View>
+                <ChevronRight size={20} color={Colors.gray[500]} />
+              </View>
+            </Card>
+          </TouchableOpacity>
+        )}
 
         <TouchableOpacity
           onPress={() => canAccessContractSignature && handleCardPress('/(tabs)/investment/create-account/broker-documents')}

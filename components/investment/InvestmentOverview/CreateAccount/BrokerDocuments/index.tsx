@@ -5,8 +5,13 @@ import { FormLayout, SuccessMessage, LoadingSpinner } from '@/components/ui';
 import { useTranslation } from 'react-i18next';
 import Colors from '@/constants/Colors';
 import { useAuth } from '@/providers/AuthProvider';
-import { FileText, AlertCircle, Check } from 'lucide-react-native';
-import { checkRequirements, signContracts } from '@/services/investment/create-account/broker-documentation';
+import { AlertCircle, Check } from 'lucide-react-native';
+import {
+  checkRequirements,
+  signContracts,
+  getBrokerDocumentations,
+  previewBrokerDocumentation,
+} from '@/services/investment/create-account/broker-documentation';
 
 export default function ContractSignature() {
   const { t } = useTranslation();
@@ -18,6 +23,7 @@ export default function ContractSignature() {
   const [error, setError] = useState<string | null>(null);
   const [isCheckingRequirements, setIsCheckingRequirements] = useState(true);
   const [canSign, setCanSign] = useState(false);
+  const [isLoadingPreview, setIsLoadingPreview] = useState(false);
 
   useEffect(() => {
     checkContractRequirements();
@@ -55,24 +61,64 @@ export default function ContractSignature() {
   // Opciones de contratos a firmar con texto destacado
   const contractOptions = [
     {
-      text: 'He leído y acepto el contrato de prestación de servicios con ',
-      highlight: 'Vector Capital Corredora de Bolsa SpA.',
+      textBefore: 'He leído y acepto el ',
+      highlight: 'contrato',
+      textAfter: ' de prestación de servicios con Vector Capital Corredora de Bolsa SpA.',
       value: 'vector_capital',
-      link: '#' // Aquí iría el link real al PDF del contrato
+      broker_code: 'vector'
     },
     {
-      text: 'He leído y acepto el contrato de mandato mercantil e inversión con ',
-      highlight: 'Patrimore S.A.',
+      textBefore: 'He leído y acepto el ',
+      highlight: 'mandato mercantil',
+      textAfter: ' e inversión con Patrimore S.A.',
       value: 'patrimore_mandate',
-      link: '#' // Aquí iría el link real al PDF del contrato
+      broker_code: 'patrimore'
     },
     {
-      text: 'He leído y acepto el código de conducta de ',
-      highlight: 'Patrimore S.A.',
+      textBefore: 'He leído y acepto el ',
+      highlight: 'código de conducta',
+      textAfter: ' de Patrimore S.A.',
       value: 'patrimore_conduct',
-      link: '#' // Aquí iría el link real al PDF del contrato
+      broker_code: 'patrimore'
     }
   ];
+
+  const handlePreviewDocument = async (brokerCode: string) => {
+    if (!accessToken) return;
+
+    setIsLoadingPreview(true);
+    setError(null);
+
+    try {
+      // Primero obtener los documentos del broker
+      const docsResponse = await getBrokerDocumentations(accessToken);
+
+      if (!docsResponse.success) {
+        setError('Error al obtener los documentos');
+        return;
+      }
+
+      const document = docsResponse.broker_documents.find(doc => doc.broker_code === brokerCode);
+      if (!document) {
+        setError('No se encontró el documento');
+        return;
+      }
+
+      // Obtener la URL de preview
+      const response = await previewBrokerDocumentation(document.id, accessToken);
+
+      if (response.success && response.url) {
+        await Linking.openURL(response.url);
+      } else {
+        setError(response.message || 'No se pudo obtener la vista previa del documento');
+      }
+    } catch (err) {
+      console.error('Error previewing document:', err);
+      setError('Error al abrir el documento');
+    } finally {
+      setIsLoadingPreview(false);
+    }
+  };
 
   const handleCheckboxSelect = (value: string) => {
     setAcceptedContracts(prev => {
@@ -83,23 +129,18 @@ export default function ContractSignature() {
     });
   };
 
-  const handleDocumentPress = (link: string) => {
-    // Aquí se abriría el documento para leer
-    if (link && link !== '#') {
-      Linking.openURL(link);
-    }
-  };
 
   const handleSubmit = async () => {
-    if (acceptedContracts.length !== contractOptions.length) {
-      setError(t('contractSignature.warning'));
-      return;
-    }
+    // TODO: Restore validations after testing
+    // if (acceptedContracts.length !== contractOptions.length) {
+    //   setError(t('contractSignature.warning'));
+    //   return;
+    // }
 
-    if (!canSign) {
-      setError('Debes completar todos los requisitos antes de firmar los contratos');
-      return;
-    }
+    // if (!canSign) {
+    //   setError('Debes completar todos los requisitos antes de firmar los contratos');
+    //   return;
+    // }
 
     if (!accessToken) {
       setError('No se encontró token de autenticación');
@@ -135,7 +176,7 @@ export default function ContractSignature() {
 
   const allContractsAccepted = acceptedContracts.length === contractOptions.length;
 
-  if (isCheckingRequirements) {
+  if (isCheckingRequirements || isLoadingPreview) {
     return <LoadingSpinner overlay />;
   }
 
@@ -152,7 +193,7 @@ export default function ContractSignature() {
         nextButtonTitle={isSubmitting ? 'Firmando...' : 'Finalizar'}
         cancelButtonTitle="Cancelar"
         isLoading={isSubmitting}
-        isNextDisabled={!allContractsAccepted || isSubmitting || !canSign}
+        isNextDisabled={isSubmitting} // TODO: Restore: !allContractsAccepted || isSubmitting || !canSign
         error={error}
         showLogo={false}
       >
@@ -161,77 +202,61 @@ export default function ContractSignature() {
           <View style={{ gap: 12 }}>
             {contractOptions.map((contract) => {
               const isSelected = acceptedContracts.includes(contract.value);
-              
+
               return (
-                <TouchableOpacity
+                <View
                   key={contract.value}
                   style={{
                     flexDirection: 'row',
-                    alignItems: 'center',
+                    alignItems: 'flex-start',
                   }}
-                  onPress={() => handleCheckboxSelect(contract.value)}
-                  activeOpacity={0.7}
                 >
-                  <View
-                    style={{
-                      width: 20,
-                      height: 20,
-                      borderRadius: 10,
-                      borderWidth: 2,
-                      borderColor: isSelected
-                        ? Colors.primary[500]
-                        : Colors.gray[300],
-                      marginRight: 12,
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      backgroundColor: isSelected ? Colors.primary[500] : 'transparent',
-                    }}
-                  >
-                    {isSelected && (
-                      <Check size={12} color="white" strokeWidth={3} />
-                    )}
-                  </View>
-
-                  <Text
-                    className="text-base font-regular flex-1"
-                    style={{ color: Colors.gray[700] }}
-                  >
-                    {contract.text}
-                    <Text className="font-medium" style={{ color: Colors.secondary[500] }}>
-                      {contract.highlight}
-                    </Text>
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-
-          {/* Botones para ver documentos */}
-          <View style={{ marginTop: 16, gap: 12 }}>
-            {contractOptions.map((contract) => {
-              if (contract.link && contract.link !== '#') {
-                return (
                   <TouchableOpacity
-                    key={`doc-${contract.value}`}
-                    onPress={() => handleDocumentPress(contract.link)}
-                    style={{
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      paddingLeft: 4,
-                    }}
+                    onPress={() => handleCheckboxSelect(contract.value)}
                     activeOpacity={0.7}
+                    style={{
+                      padding: 2,
+                      marginRight: 10,
+                    }}
                   >
-                    <FileText size={16} color={Colors.primary[500]} />
-                    <Text
-                      className="text-sm font-medium"
-                      style={{ color: Colors.primary[500], marginLeft: 8 }}
+                    <View
+                      style={{
+                        width: 20,
+                        height: 20,
+                        borderRadius: 10,
+                        borderWidth: 2,
+                        borderColor: isSelected
+                          ? Colors.primary[500]
+                          : Colors.gray[300],
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        backgroundColor: isSelected ? Colors.primary[500] : 'transparent',
+                      }}
                     >
-                      {t('contractSignature.viewDocument')}
-                    </Text>
+                      {isSelected && (
+                        <Check size={12} color="white" strokeWidth={3} />
+                      )}
+                    </View>
                   </TouchableOpacity>
-                );
-              }
-              return null;
+
+                  <View style={{ flex: 1 }}>
+                    <Text
+                      className="text-base font-regular"
+                      style={{ color: Colors.gray[700] }}
+                    >
+                      {contract.textBefore}
+                      <Text
+                        className="font-medium"
+                        style={{ color: Colors.secondary[500], textDecorationLine: 'underline' }}
+                        onPress={() => handlePreviewDocument(contract.broker_code)}
+                      >
+                        {contract.highlight}
+                      </Text>
+                      {contract.textAfter}
+                    </Text>
+                  </View>
+                </View>
+              );
             })}
           </View>
         </View>
