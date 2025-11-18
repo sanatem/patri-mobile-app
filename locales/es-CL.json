@@ -5,6 +5,8 @@
         "menu": {
             "preferences": "Preferencias de usuario",
             "preferencesSubtitle": "Idioma y otras preferencias",
+            "biometricAuth": "Autenticación biométrica",
+            "biometricAuthSubtitle": "Acceso rápido con Face ID o huella digital",
             "terms": "Términos y condiciones",
             "termsSubtitle": "Políticas de uso",
             "privacy": "Privacidad y seguridad",
@@ -1382,11 +1384,41 @@
             }
         }
     },
+    "biometric": {
+        "title": "Autenticación biométrica",
+        "titleLowercase": "autenticación biométrica",
+        "subtitle": "Acceso rápido y seguro",
+        "enable": "Habilitar {{type}}",
+        "disable": "Deshabilitar {{type}}",
+        "faceId": "Face ID",
+        "touchId": "Touch ID",
+        "fingerprint": "Huella digital",
+        "prompt": {
+            "title": "Bienvenido de vuelta",
+            "subtitle": "Usa {{type}} para acceder rápidamente",
+            "authenticate": "Autentícate para continuar",
+            "enable": "Confirma tu identidad para habilitar el acceso biométrico"
+        },
+        "errors": {
+            "notSupported": "Tu dispositivo no soporta autenticación biométrica",
+            "notEnrolled": "No tienes biometría configurada en tu dispositivo",
+            "failed": "Autenticación fallida. Intenta nuevamente.",
+            "canceled": "Autenticación cancelada",
+            "lockout": "Demasiados intentos fallidos. Intenta nuevamente en {{seconds}} segundos.",
+            "sessionExpired": "Sesión expirada. Por favor, inicia sesión nuevamente."
+        },
+        "setup": {
+            "title": "Acceso rápido con {{type}}",
+            "description": "Inicia sesión rápidamente usando tu {{type}} en lugar de tu contraseña",
+            "confirm": "¿Estás seguro de que deseas deshabilitar {{type}}?"
+        }
+    },
     "auth": {
         "cancelledTitle": "Autenticación cancelada",
         "cancelledMessage": "No se pudo completar el proceso de autenticación.",
         "errorTitle": "Error de autenticación",
-        "errorMessage": "Ocurrió un error durante el proceso de autenticación. Por favor intenta de nuevo."
+        "errorMessage": "Ocurrió un error durante el proceso de autenticación. Por favor intenta de nuevo.",
+        "usePassword": "Usar contraseña"
     },
     "login": {
         "subtitle": "Accede a tu cuenta para gestionar tus finanzas de manera inteligente",
