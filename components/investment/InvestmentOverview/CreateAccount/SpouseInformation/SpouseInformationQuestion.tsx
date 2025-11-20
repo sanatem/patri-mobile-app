@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView } from 'react-native';
+import { View, ScrollView } from 'react-native';
 import { router } from 'expo-router';
 import { FormLayout, Input, Select, RadioButton, LoadingSpinner, SuccessMessage } from '@/components/ui';
 import CalendarSelect from '@/components/ui/CalendarSelect';
@@ -7,7 +7,6 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/providers/AuthProvider';
 import { getSpouseInformation, createSpouseInformation, updateSpouseInformation } from '@/services/investment/create-account/spouse-information';
 import { REGIONS_AND_COMMUNES } from '@/constants/AppConstants';
-import Colors from '@/constants/Colors';
 
 interface SpouseQuestion {
   id: string;
@@ -248,16 +247,19 @@ export default function SpouseInformationStepper() {
           value: option.value,
         })) || [];
 
+        const isHorizontal = question.id === 'sex' || question.id === 'same_address';
+
+        const marginBottom = question.id === 'sex' || question.id === 'same_address' ? 32 : 16;
+
         return (
-          <View key={question.id} style={{ marginBottom: 16 }}>
-            <Text style={{ fontSize: 14, fontWeight: '500', color: Colors.gray[700], marginBottom: 12 }}>
-              {question.text}
-            </Text>
+          <View key={question.id} style={{ marginBottom }}>
             <RadioButton
+              label={question.label || question.text}
               options={radioOptions}
               selectedValue={answers[question.id] || ''}
               onSelect={(value) => handleChoiceSelect(question.id, value)}
               disabled={isSubmitting}
+              horizontal={isHorizontal}
             />
           </View>
         );
@@ -265,7 +267,6 @@ export default function SpouseInformationStepper() {
       case 'select':
         let selectOptions: Array<{ label: string; value: string }> = [];
 
-        // Determinar opciones según el tipo de select
         if (question.id === 'nationality') {
           selectOptions = nationalities.map((nationality) => ({
             label: nationality,

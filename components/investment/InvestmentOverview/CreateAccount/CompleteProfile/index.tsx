@@ -15,7 +15,7 @@ import { getEmploymentInformation } from '@/services/investment/create-account/e
 import { getIdentityCard } from '@/services/investment/create-account/identity-verification/get-identity-verification';
 import { checkRequirements, generateBrokerDocumentations, getBrokerDocumentations } from '@/services/investment/create-account/broker-documentation';
 import { getBankAccounts } from '@/services/investment/bank-accounts/get-bank-account';
-import { getSpouseInformation, requiresSpouse } from '@/services/investment/create-account/spouse-information';
+import { getSpouseInformation } from '@/services/investment/create-account/spouse-information';
 
 export default function SummaryStep() {
   const { t } = useTranslation();
@@ -58,7 +58,7 @@ export default function SummaryStep() {
     }
 
     try {
-      const [contactResponse, personalResponse, riskResponse, employmentResponse, identityResponse, requirementsResponse, bankAccountsResponse, spouseResponse, requiresSpouseResponse] = await Promise.all([
+      const [contactResponse, personalResponse, riskResponse, employmentResponse, identityResponse, requirementsResponse, bankAccountsResponse, spouseResponse] = await Promise.all([
         getContactInformation(accessToken),
         getPersonalInformation(accessToken),
         getRiskProfile(accessToken),
@@ -67,7 +67,6 @@ export default function SummaryStep() {
         checkRequirements(accessToken),
         getBankAccounts(accessToken),
         getSpouseInformation(accessToken),
-        requiresSpouse(accessToken),
       ]);
 
       const hasContactData = !!(
@@ -97,8 +96,11 @@ export default function SummaryStep() {
         personalInfo.has_a_broker_relationship !== undefined
       );
 
-      // Verificar si requiere datos del cónyuge
-      const userRequiresSpouse = requiresSpouseResponse.success && requiresSpouseResponse.requires_spouse;
+      // Verificar si requiere datos del cónyuge basándose en el estado civil
+      const userRequiresSpouse = !!(
+        personalInfo &&
+        (personalInfo.marital_status === 'married' || personalInfo.marital_status === 'civil_union')
+      );
       setIsMarried(userRequiresSpouse);
 
       // Verificar datos del cónyuge (solo requerido si requires_spouse es true)
