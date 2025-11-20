@@ -4,7 +4,7 @@ import { router, useFocusEffect } from 'expo-router';
 import { Container } from '@/components/ui/Container';
 import { Header } from '@/components/ui/Header';
 import { Card, LoadingSpinner } from '@/components/ui';
-import { Check, Clock, ChevronRight, ChevronLeft } from 'lucide-react-native';
+import { Check, Clock, ChevronRight, ChevronLeft, X } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import Colors from '@/constants/Colors';
 import { useAuth } from '@/providers/AuthProvider';
@@ -13,7 +13,9 @@ import { getPersonalInformation } from '@/services/investment/create-account/per
 import { getRiskProfile } from '@/services/investment/create-account/investment-survey/get-risk-profile';
 import { getEmploymentInformation } from '@/services/investment/create-account/employment-information/get-employment-information';
 import { getIdentityCard } from '@/services/investment/create-account/identity-verification/get-identity-verification';
-import { checkRequirements } from '@/services/investment/create-account/broker-documentation';
+import { checkRequirements, generateBrokerDocumentations, getBrokerDocumentations } from '@/services/investment/create-account/broker-documentation';
+import { getBankAccounts } from '@/services/investment/bank-accounts/get-bank-account';
+import { getSpouseInformation } from '@/services/investment/create-account/spouse-information';
 
 export default function SummaryStep() {
   const { t } = useTranslation();
@@ -25,9 +27,13 @@ export default function SummaryStep() {
     personalInfo: false,
     contactInfo: false,
     workInfo: false,
+    bankData: false,
+    spouseInfo: false,
     contractSignature: false,
   });
+  const [isMarried, setIsMarried] = useState(false);
   const [isLoadingStatuses, setIsLoadingStatuses] = useState(true);
+  const [accountStatus, setAccountStatus] = useState<'forms' | 'pending' | 'approved' | 'rejected'>('forms');
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useFocusEffect(
@@ -52,13 +58,15 @@ export default function SummaryStep() {
     }
 
     try {
-      const [contactResponse, personalResponse, riskResponse, employmentResponse, identityResponse, requirementsResponse] = await Promise.all([
+      const [contactResponse, personalResponse, riskResponse, employmentResponse, identityResponse, requirementsResponse, bankAccountsResponse, spouseResponse] = await Promise.all([
         getContactInformation(accessToken),
         getPersonalInformation(accessToken),
         getRiskProfile(accessToken),
         getEmploymentInformation(accessToken),
         getIdentityCard(accessToken),
         checkRequirements(accessToken),
+        getBankAccounts(accessToken),
+        getSpouseInformation(accessToken),
       ]);
 
       const hasContactData = !!(
@@ -88,13 +96,38 @@ export default function SummaryStep() {
         personalInfo.has_a_broker_relationship !== undefined
       );
 
+      // Verificar si requiere datos del cónyuge basándose en el estado civil
+      const userRequiresSpouse = !!(
+        personalInfo &&
+        (personalInfo.marital_status === 'married' || personalInfo.marital_status === 'civil_union')
+      );
+      setIsMarried(userRequiresSpouse);
+
+      const spouseInfo = spouseResponse.spouse;
+
+      const hasLocationData = !spouseInfo || spouseInfo.same_address || !!(
+        spouseInfo.location_data?.region && spouseInfo.location_data?.commune
+      );
+
+      const hasSpouseData = !userRequiresSpouse || !!(
+        spouseResponse.success &&
+        spouseInfo &&
+        spouseInfo.first_name &&
+        spouseInfo.last_name &&
+        spouseInfo.rut &&
+        spouseInfo.birth_date &&
+        spouseInfo.nationality &&
+        spouseInfo.same_address !== undefined &&
+        spouseInfo.broker_relationship &&
+        hasLocationData
+      );
+
       const hasRiskData = !!(
         riskResponse.success &&
         riskResponse.risk_profile &&
         riskResponse.investor_questionnaire?.investor_category
       );
 
-      // Verificar si el identity card existe y tiene imágenes
       const hasIdentityData = !!(
         identityResponse.success &&
         identityResponse.identity_card &&
@@ -113,11 +146,28 @@ export default function SummaryStep() {
           employmentResponse.employment_information.commercial_activity)
       );
 
-      // Verificar si se pueden firmar los contratos según el backend
-      const canSignContracts = !!(
+      const areContractsSigned = !!(
         requirementsResponse.success &&
-        requirementsResponse.data?.requirements_met
+        requirementsResponse.data?.details?.forms_status?.broker_documents &&
+        requirementsResponse.data.details.forms_status.broker_documents.length > 0 &&
+        requirementsResponse.data.details.forms_status.broker_documents.every(doc => doc.signed)
       );
+
+      const hasDefaultBankAccount = !!(
+        bankAccountsResponse.success &&
+        bankAccountsResponse.accounts &&
+        bankAccountsResponse.accounts.some(account => account.is_default)
+      );
+
+      const allBaseCompleted = hasRiskData && hasIdentityData && hasPersonalData && hasContactData && hasWorkData && hasDefaultBankAccount && hasSpouseData;
+
+      if (allBaseCompleted && !areContractsSigned) {
+        try {
+          await generateBrokerDocumentations(accessToken);
+        } catch (err) {
+          console.error('Error generating broker documentations:', err);
+        }
+      }
 
       setFormStatuses({
         riskProfile: hasRiskData,
@@ -125,8 +175,35 @@ export default function SummaryStep() {
         personalInfo: hasPersonalData,
         contactInfo: hasContactData,
         workInfo: hasWorkData,
-        contractSignature: canSignContracts,
+        bankData: hasDefaultBankAccount,
+        spouseInfo: hasSpouseData,
+        contractSignature: areContractsSigned,
       });
+
+      // Si los contratos están firmados, verificar el estado de los documentos del broker
+      if (areContractsSigned) {
+        try {
+          const brokerDocsResponse = await getBrokerDocumentations(accessToken);
+
+          if (brokerDocsResponse.success && brokerDocsResponse.broker_documents.length > 0) {
+            // Verificar el estado del primer documento (o todos si es necesario)
+            const statuses = brokerDocsResponse.broker_documents.map(doc => doc.status);
+
+            if (statuses.every(status => status === 'approved')) {
+              setAccountStatus('approved');
+              // Redirigir al portfolio
+              router.replace('/(tabs)/investment' as any);
+              return;
+            } else if (statuses.some(status => status === 'rejected')) {
+              setAccountStatus('rejected');
+            } else {
+              setAccountStatus('pending');
+            }
+          }
+        } catch (err) {
+          console.error('Error checking broker documentations status:', err);
+        }
+      }
     } catch (error) {
       console.error('Error checking form statuses:', error);
     } finally {
@@ -148,7 +225,9 @@ export default function SummaryStep() {
     formStatuses.identity &&
     formStatuses.personalInfo &&
     formStatuses.contactInfo &&
-    formStatuses.workInfo;
+    formStatuses.workInfo &&
+    formStatuses.bankData &&
+    formStatuses.spouseInfo;
 
   // La firma de contrato se habilita cuando todos los formularios base están completos
   const canAccessContractSignature = allBaseFormsCompleted;
@@ -164,10 +243,57 @@ export default function SummaryStep() {
     router.push('/(tabs)/investment' as any);
   };
 
+  // Vista de cuenta pendiente de aprobación
+  if (accountStatus === 'pending') {
+    return (
+      <Container variant="secondaryPage">
+        <Header
+          title="Cuenta de inversión"
+          showBackButton={false}
+        />
+        {isLoadingStatuses && <LoadingSpinner overlay />}
+        <View className="flex-1 justify-center items-center px-6 pb-6">
+          <View style={{ width: 64, height: 64, backgroundColor: Colors.primary[100], borderRadius: 32, justifyContent: 'center', alignItems: 'center', marginBottom: 16 }}>
+            <Clock size={32} color={Colors.primary[600]} />
+          </View>
+          <Text className="text-xl font-semibold text-center mb-2" style={{ color: Colors.primary[600] }}>
+            Ya casi puedes invertir
+          </Text>
+          <Text className="text-base font-regular text-center px-4" style={{ color: Colors.gray[600] }}>
+            Solo necesitamos validar algunos datos para activar tu cuenta. Si tienes dudas, contáctanos a <Text className="font-medium">operaciones@patrimore.com</Text>.
+          </Text>
+        </View>
+      </Container>
+    );
+  }
+
+  if (accountStatus === 'rejected') {
+    return (
+      <Container variant="secondaryPage">
+        <Header
+          title="Cuenta de inversión"
+          showBackButton={false}
+        />
+        {isLoadingStatuses && <LoadingSpinner overlay />}
+        <View className="flex-1 justify-center items-center px-6 pb-6">
+          <View style={{ width: 64, height: 64, backgroundColor: Colors.error[100], borderRadius: 32, justifyContent: 'center', alignItems: 'center', marginBottom: 16 }}>
+            <X size={32} color={Colors.error[500]} />
+          </View>
+          <Text className="text-xl font-semibold text-center mb-2" style={{ color: Colors.primary[600] }}>
+            Cuenta rechazada
+          </Text>
+          <Text className="text-base font-regular text-center px-4" style={{ color: Colors.gray[600] }}>
+            Tu solicitud de cuenta de inversión ha sido rechazada. Por favor, contáctanos a <Text style={{ color: Colors.secondary[500] }}>operaciones@patrimore.com</Text> para más información.
+          </Text>
+        </View>
+      </Container>
+    );
+  }
+
   return (
     <Container variant="secondaryPage">
-      <Header 
-        title={title} 
+      <Header
+        title={title}
         showBackButton={false}
         leftAction={
           <TouchableOpacity
@@ -254,7 +380,7 @@ export default function SummaryStep() {
           </Card>
         </TouchableOpacity>
 
-        <TouchableOpacity 
+        <TouchableOpacity
           onPress={() => handleCardPress('/(tabs)/investment/create-account/personal-information/personal-information-question')}
           activeOpacity={0.7}
         >
@@ -284,7 +410,39 @@ export default function SummaryStep() {
           </Card>
         </TouchableOpacity>
 
-        <TouchableOpacity 
+        {isMarried && (
+          <TouchableOpacity
+            onPress={() => handleCardPress('/(tabs)/investment/create-account/spouse-information/spouse-information-question')}
+            activeOpacity={0.7}
+          >
+            <Card variant="elevated" className="mb-4">
+              <View className="flex-row justify-between items-center">
+                <View className="flex-1">
+                  <View className="flex-row items-center mb-1" style={{ alignItems: 'center' }}>
+                    <Text className="text-base font-medium" style={{ color: Colors.primary[500], lineHeight: 20 }}>
+                      Datos del Cónyuge
+                    </Text>
+                    {!isLoadingStatuses && (
+                      <View style={{ marginLeft: 8, marginTop: -1 }}>
+                        {formStatuses.spouseInfo ? (
+                          <Check size={16} color={Colors.success[500]} />
+                        ) : (
+                          <Clock size={16} color={Colors.warning[500]} />
+                        )}
+                      </View>
+                    )}
+                  </View>
+                  <Text className="text-sm font-regular" style={{ color: Colors.gray[600] }}>
+                    Por ley necesitamos los datos de tu cónyuge para abrir tu cuenta de inversión
+                  </Text>
+                </View>
+                <ChevronRight size={20} color={Colors.gray[500]} />
+              </View>
+            </Card>
+          </TouchableOpacity>
+        )}
+
+        <TouchableOpacity
           onPress={() => handleCardPress('/(tabs)/investment/create-account/personal-information/contact-information-question')}
           activeOpacity={0.7}
         >
@@ -343,6 +501,32 @@ export default function SummaryStep() {
             </View>
           </Card>
         </TouchableOpacity>
+
+        {!formStatuses.bankData && !isLoadingStatuses && (
+          <TouchableOpacity
+            onPress={() => handleCardPress('/settings/bank-accounts/add-bank-account?from=complete-profile')}
+            activeOpacity={0.7}
+          >
+            <Card variant="elevated" className="mb-4">
+              <View className="flex-row justify-between items-center">
+                <View className="flex-1">
+                  <View className="flex-row items-center mb-1" style={{ alignItems: 'center' }}>
+                    <Text className="text-base font-medium" style={{ color: Colors.primary[500], lineHeight: 20 }}>
+                      Datos bancarios
+                    </Text>
+                    <View style={{ marginLeft: 8, marginTop: -1 }}>
+                      <Clock size={16} color={Colors.warning[500]} />
+                    </View>
+                  </View>
+                  <Text className="text-sm font-regular" style={{ color: Colors.gray[600] }}>
+                    Necesitamos que agregues o modifiques una cuenta bancaria predeterminada
+                  </Text>
+                </View>
+                <ChevronRight size={20} color={Colors.gray[500]} />
+              </View>
+            </Card>
+          </TouchableOpacity>
+        )}
 
         <TouchableOpacity
           onPress={() => canAccessContractSignature && handleCardPress('/(tabs)/investment/create-account/broker-documents')}

@@ -1,13 +1,5 @@
 import config from '@/config/constants';
-
-export interface BrokerDocument {
-  id: number;
-  broker_name: string;
-  broker_code: string;
-  signed: boolean;
-  status: string;
-  signed_at: string;
-}
+import type { BrokerDocument } from './get-broker-documentations';
 
 export interface SignContractsData {
   broker_documents: BrokerDocument[];

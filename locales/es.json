@@ -468,7 +468,7 @@
   },
   "contractSignature": {
     "title": "Contratos de Servicio",
-    "subtitle": "Estás a un paso de abrir tu Cuenta del Inversor 💪",
+    "subtitle": "Estás a un paso de abrir tu Cuenta de Inversión 💪",
     "sectionTitle": "Contratos de Servicio",
     "contracts": {
       "vectorCapital": "He leído y acepto el contrato de prestación de servicios con Vector Capital Corredora de Bolsa SpA.",
@@ -1462,6 +1462,178 @@
     },
     "regionLabel": "Región",
     "communeLabel": "Comuna"
+  },
+  "spouseInfo": {
+    "title": "Datos del Cónyuge",
+    "description": "Por ley necesitamos los datos de tu cónyuge para abrir tu cuenta de inversión",
+    "step1Title": "Información básica",
+    "step2Title": "Información adicional",
+    "questions": {
+      "step1": [
+        {
+          "id": "first_name",
+          "type": "input",
+          "text": "¿Cuál es su nombre?",
+          "placeholder": "Ingresa su nombre",
+          "label": "Nombre"
+        },
+        {
+          "id": "paternal_last_name",
+          "type": "input",
+          "text": "¿Cuál es su apellido paterno?",
+          "placeholder": "Ingresa su apellido paterno",
+          "label": "Apellido paterno"
+        },
+        {
+          "id": "maternal_last_name",
+          "type": "input",
+          "text": "¿Cuál es su apellido materno?",
+          "placeholder": "Ingresa su apellido materno",
+          "label": "Apellido materno"
+        },
+        {
+          "id": "rut",
+          "type": "input",
+          "text": "¿Cuál es su RUT?",
+          "placeholder": "Ejemplo: 30686957-4",
+          "label": "RUT"
+        },
+        {
+          "id": "birth_date",
+          "type": "date",
+          "text": "¿Cuál es su fecha de nacimiento?",
+          "placeholder": "dd-mm-aaaa",
+          "label": "Fecha de nacimiento"
+        }
+      ],
+      "step2": [
+        {
+          "id": "sex",
+          "type": "choice",
+          "text": "¿Cuál es su sexo legal?",
+          "options": [
+            {
+              "label": "Femenino",
+              "value": "female"
+            },
+            {
+              "label": "Masculino",
+              "value": "male"
+            }
+          ]
+        },
+        {
+          "id": "email",
+          "type": "input",
+          "text": "¿Cuál es su correo electrónico?",
+          "placeholder": "nombre@mail.com",
+          "label": "E-mail"
+        },
+        {
+          "id": "nationality",
+          "type": "select",
+          "text": "¿Cuál es su nacionalidad?",
+          "placeholder": "Selecciona su nacionalidad",
+          "label": "Nacionalidad"
+        },
+        {
+          "id": "phone",
+          "type": "input",
+          "text": "¿Cuál es su número de teléfono?",
+          "placeholder": "Ejemplo: +56 2 2 456 7896",
+          "label": "Número de Teléfono"
+        },
+        {
+          "id": "same_address",
+          "type": "choice",
+          "text": "¿Comparten el mismo domicilio?",
+          "options": [
+            {
+              "label": "Sí",
+              "value": "si"
+            },
+            {
+              "label": "No",
+              "value": "no"
+            }
+          ]
+        },
+        {
+          "id": "spouse_address",
+          "type": "input",
+          "text": "¿Cuál es su domicilio?",
+          "placeholder": "Ingresa la ubicación completa",
+          "label": "Domicilio"
+        },
+        {
+          "id": "spouse_address_number",
+          "type": "input",
+          "text": "¿Cuál es el número de su dirección?",
+          "placeholder": "Ejemplo: 1234",
+          "label": "Número"
+        },
+        {
+          "id": "spouse_region",
+          "type": "select",
+          "text": "¿En qué región reside actualmente?",
+          "placeholder": "Selecciona la región",
+          "label": "Región"
+        },
+        {
+          "id": "spouse_commune",
+          "type": "select",
+          "text": "¿En qué comuna reside actualmente?",
+          "placeholder": "Selecciona la comuna",
+          "label": "Comuna"
+        },
+        {
+          "id": "broker_relationship_type",
+          "type": "choice",
+          "text": "¿Cuál es su relación con Vector Capital Corredores de Bolsa?",
+          "options": [
+            {
+              "label": "Ninguna",
+              "value": "unrelated"
+            },
+            {
+              "label": "Es parte de la asociación de la empresa",
+              "value": "shareholder"
+            },
+            {
+              "label": "Es parte de la dirección de la empresa",
+              "value": "director"
+            },
+            {
+              "label": "Trabaja en la empresa",
+              "value": "employee"
+            },
+            {
+              "label": "Es parte del grupo empresarial",
+              "value": "business_group"
+            },
+            {
+              "label": "Otra",
+              "value": "other"
+            }
+          ]
+        }
+      ]
+    },
+    "nationalities": [
+      "Chilena",
+      "Argentina",
+      "Boliviana",
+      "Brasileña",
+      "Colombiana",
+      "Ecuatoriana",
+      "Paraguaya",
+      "Peruana",
+      "Uruguaya",
+      "Venezolana",
+      "Estadounidense",
+      "Española",
+      "Otra"
+    ]
   },
   "employmentInfo": {
     "questions": [
