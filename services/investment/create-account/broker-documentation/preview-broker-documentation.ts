@@ -8,6 +8,7 @@ export interface PreviewBrokerDocumentationResponse {
 
 export interface PreviewBrokerDocumentationParams {
   signed?: boolean;
+  document_type?: string;
 }
 
 export async function previewBrokerDocumentation(
@@ -19,6 +20,9 @@ export async function previewBrokerDocumentation(
     const queryParams = new URLSearchParams();
     if (params?.signed !== undefined) {
       queryParams.append('signed', params.signed.toString());
+    }
+    if (params?.document_type) {
+      queryParams.append('document_type', params.document_type);
     }
 
     const queryString = queryParams.toString();

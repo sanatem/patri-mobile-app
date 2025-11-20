@@ -10,7 +10,6 @@ import {
   checkRequirements,
   signContracts,
   getBrokerDocumentations,
-  previewBrokerDocumentation,
 } from '@/services/investment/create-account/broker-documentation';
 
 export default function ContractSignature() {
@@ -66,15 +65,17 @@ export default function ContractSignature() {
       textAfter: ' de prestación de servicios con Vector Capital Corredora de Bolsa SpA.',
       value: 'vector_capital',
       broker_code: 'vector',
-      isLocalPdf: false
+      isLocalPdf: false,
+      document_type: undefined
     },
     {
       textBefore: 'He leído y acepto el ',
       highlight: 'mandato mercantil',
       textAfter: ' e inversión con Patrimore S.A.',
       value: 'patrimore_mandate',
-      broker_code: 'patrimore',
-      isLocalPdf: false
+      broker_code: 'vector',
+      isLocalPdf: false,
+      document_type: 'commercial_mandate'
     },
     {
       textBefore: 'He leído y acepto las ',
@@ -82,11 +83,12 @@ export default function ContractSignature() {
       textAfter: ' de Patrimore S.A.',
       value: 'patrimore_conduct',
       broker_code: 'patrimore',
-      isLocalPdf: true
+      isLocalPdf: true,
+      document_type: undefined
     }
   ];
 
-  const handlePreviewDocument = async (brokerCode: string, isLocalPdf: boolean) => {
+  const handlePreviewDocument = async (brokerCode: string, isLocalPdf: boolean, documentType?: string) => {
     // Si es PDF local, navegar al visor de PDF
     if (isLocalPdf) {
       router.push('/(tabs)/investment/create-account/pdf-viewer' as any);
@@ -99,7 +101,7 @@ export default function ContractSignature() {
     setError(null);
 
     try {
-      // Primero obtener los documentos del broker
+      // Obtener los documentos del broker
       const docsResponse = await getBrokerDocumentations(accessToken);
 
       if (!docsResponse.success) {
@@ -113,13 +115,18 @@ export default function ContractSignature() {
         return;
       }
 
-      // Obtener la URL de preview
-      const response = await previewBrokerDocumentation(document.id, accessToken);
-
-      if (response.success && response.url) {
-        await Linking.openURL(response.url);
+      // Usar la URL correspondiente según el tipo de documento
+      let url: string | undefined;
+      if (documentType === 'commercial_mandate') {
+        url = document.commercial_mandate_url;
       } else {
-        setError(response.message || 'No se pudo obtener la vista previa del documento');
+        url = document.file_url;
+      }
+
+      if (url) {
+        await Linking.openURL(url);
+      } else {
+        setError('No se encontró la URL del documento');
       }
     } catch (err) {
       console.error('Error previewing document:', err);
@@ -256,7 +263,7 @@ export default function ContractSignature() {
                       <Text
                         className="font-medium"
                         style={{ color: Colors.secondary[500], textDecorationLine: 'underline' }}
-                        onPress={() => handlePreviewDocument(contract.broker_code, contract.isLocalPdf)}
+                        onPress={() => handlePreviewDocument(contract.broker_code, contract.isLocalPdf, contract.document_type)}
                       >
                         {contract.highlight}
                       </Text>

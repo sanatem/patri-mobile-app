@@ -15,6 +15,7 @@ import { getEmploymentInformation } from '@/services/investment/create-account/e
 import { getIdentityCard } from '@/services/investment/create-account/identity-verification/get-identity-verification';
 import { checkRequirements, generateBrokerDocumentations, getBrokerDocumentations } from '@/services/investment/create-account/broker-documentation';
 import { getBankAccounts } from '@/services/investment/bank-accounts/get-bank-account';
+import { getSpouseInformation, requiresSpouse } from '@/services/investment/create-account/spouse-information';
 
 export default function SummaryStep() {
   const { t } = useTranslation();
@@ -27,8 +28,10 @@ export default function SummaryStep() {
     contactInfo: false,
     workInfo: false,
     bankData: false,
+    spouseInfo: false,
     contractSignature: false,
   });
+  const [isMarried, setIsMarried] = useState(false);
   const [isLoadingStatuses, setIsLoadingStatuses] = useState(true);
   const [accountStatus, setAccountStatus] = useState<'forms' | 'pending' | 'approved' | 'rejected'>('forms');
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -55,7 +58,7 @@ export default function SummaryStep() {
     }
 
     try {
-      const [contactResponse, personalResponse, riskResponse, employmentResponse, identityResponse, requirementsResponse, bankAccountsResponse] = await Promise.all([
+      const [contactResponse, personalResponse, riskResponse, employmentResponse, identityResponse, requirementsResponse, bankAccountsResponse, spouseResponse, requiresSpouseResponse] = await Promise.all([
         getContactInformation(accessToken),
         getPersonalInformation(accessToken),
         getRiskProfile(accessToken),
@@ -63,6 +66,8 @@ export default function SummaryStep() {
         getIdentityCard(accessToken),
         checkRequirements(accessToken),
         getBankAccounts(accessToken),
+        getSpouseInformation(accessToken),
+        requiresSpouse(accessToken),
       ]);
 
       const hasContactData = !!(
@@ -90,6 +95,25 @@ export default function SummaryStep() {
         // broker_relationship_type es obligatorio solo si tiene relación con Vector
         (!personalInfo.has_broker_relationship_with_vector || personalInfo.broker_relationship_type) &&
         personalInfo.has_a_broker_relationship !== undefined
+      );
+
+      // Verificar si requiere datos del cónyuge
+      const userRequiresSpouse = requiresSpouseResponse.success && requiresSpouseResponse.requires_spouse;
+      setIsMarried(userRequiresSpouse);
+
+      // Verificar datos del cónyuge (solo requerido si requires_spouse es true)
+      const spouseInfo = spouseResponse.spouse;
+      const hasSpouseData = !userRequiresSpouse || !!(
+        spouseResponse.success &&
+        spouseInfo &&
+        spouseInfo.first_name &&
+        spouseInfo.father_last_name &&
+        spouseInfo.mother_last_name &&
+        spouseInfo.rut &&
+        spouseInfo.birth_date &&
+        spouseInfo.nationality &&
+        spouseInfo.same_address !== undefined &&
+        spouseInfo.broker_relationship
       );
 
       const hasRiskData = !!(
@@ -133,7 +157,7 @@ export default function SummaryStep() {
       );
 
       // Verificar si todos los formularios base están completados
-      const allBaseCompleted = hasRiskData && hasIdentityData && hasPersonalData && hasContactData && hasWorkData && hasDefaultBankAccount;
+      const allBaseCompleted = hasRiskData && hasIdentityData && hasPersonalData && hasContactData && hasWorkData && hasDefaultBankAccount && hasSpouseData;
 
       // Generar documentos del broker cuando todos los formularios base estén completos y los contratos NO estén firmados
       if (allBaseCompleted && !areContractsSigned) {
@@ -151,6 +175,7 @@ export default function SummaryStep() {
         contactInfo: hasContactData,
         workInfo: hasWorkData,
         bankData: hasDefaultBankAccount,
+        spouseInfo: hasSpouseData,
         contractSignature: areContractsSigned,
       });
 
@@ -200,7 +225,8 @@ export default function SummaryStep() {
     formStatuses.personalInfo &&
     formStatuses.contactInfo &&
     formStatuses.workInfo &&
-    formStatuses.bankData;
+    formStatuses.bankData &&
+    formStatuses.spouseInfo;
 
   // La firma de contrato se habilita cuando todos los formularios base están completos
   const canAccessContractSignature = allBaseFormsCompleted;
@@ -353,7 +379,7 @@ export default function SummaryStep() {
           </Card>
         </TouchableOpacity>
 
-        <TouchableOpacity 
+        <TouchableOpacity
           onPress={() => handleCardPress('/(tabs)/investment/create-account/personal-information/personal-information-question')}
           activeOpacity={0.7}
         >
@@ -383,7 +409,39 @@ export default function SummaryStep() {
           </Card>
         </TouchableOpacity>
 
-        <TouchableOpacity 
+        {isMarried && (
+          <TouchableOpacity
+            onPress={() => handleCardPress('/(tabs)/investment/create-account/spouse-information/spouse-information-question')}
+            activeOpacity={0.7}
+          >
+            <Card variant="elevated" className="mb-4">
+              <View className="flex-row justify-between items-center">
+                <View className="flex-1">
+                  <View className="flex-row items-center mb-1" style={{ alignItems: 'center' }}>
+                    <Text className="text-base font-medium" style={{ color: Colors.primary[500], lineHeight: 20 }}>
+                      Datos del Cónyuge
+                    </Text>
+                    {!isLoadingStatuses && (
+                      <View style={{ marginLeft: 8, marginTop: -1 }}>
+                        {formStatuses.spouseInfo ? (
+                          <Check size={16} color={Colors.success[500]} />
+                        ) : (
+                          <Clock size={16} color={Colors.warning[500]} />
+                        )}
+                      </View>
+                    )}
+                  </View>
+                  <Text className="text-sm font-regular" style={{ color: Colors.gray[600] }}>
+                    Por ley necesitamos los datos de tu cónyuge para abrir tu cuenta de inversión
+                  </Text>
+                </View>
+                <ChevronRight size={20} color={Colors.gray[500]} />
+              </View>
+            </Card>
+          </TouchableOpacity>
+        )}
+
+        <TouchableOpacity
           onPress={() => handleCardPress('/(tabs)/investment/create-account/personal-information/contact-information-question')}
           activeOpacity={0.7}
         >

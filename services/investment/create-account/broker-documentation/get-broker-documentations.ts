@@ -9,6 +9,8 @@ export interface BrokerDocument {
   status: 'pending' | 'approved' | 'rejected';
   file_attached: boolean;
   file_url: string;
+  commercial_mandate_attached?: boolean;
+  commercial_mandate_url?: string;
   signed_at: string;
   created_at: string;
   updated_at: string;
