@@ -107,7 +107,7 @@ export default function CreateGoalsScreen() {
       <SuccessMessage visible={showSuccess} message="La meta se creó correctamente" />
       <FormLayout
         title="Crear meta 🎯"
-        subtitle="Completa la información para crear tu nueva meta"
+        subtitle="Define tu objetivo financiero y el plazo para alcanzarlo"
         currentStep={1}
         totalSteps={1}
         onNext={handleCreate}
@@ -144,7 +144,7 @@ export default function CreateGoalsScreen() {
 
           <View>
             <Text
-              className="text-sm font-medium mb-3"
+              className="text-base font-medium mb-4"
               style={{ color: Colors.gray[700] }}
             >
               ¿Cuánto necesitas ahorrar?

@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Container } from '@/components/ui/Container';
 import FormLayout from '@/components/ui/FormLayout';
 import Colors from '@/constants/Colors';
@@ -22,6 +22,7 @@ export default function SalesFlow() {
   const { goals: goalsData, loading: goalsLoading } = useGoals();
   const { formatValue } = useFormatValue();
   const { accessToken } = useAuth();
+  const { goalId } = useLocalSearchParams<{ goalId?: string }>();
   const [cashData, setCashData] = useState<Cash | null>(null);
   const [bankAccounts, setBankAccounts] = useState<{ label: string; value: string }[]>([]);
   const [loadingBankAccounts, setLoadingBankAccounts] = useState(false);
@@ -29,7 +30,7 @@ export default function SalesFlow() {
 
   const router = useRouter();
   const [step, setStep] = useState(1);
-  const [goal, setGoal] = useState<string | undefined>();
+  const [goal, setGoal] = useState<string | undefined>(goalId);
   const [destino, setDestino] = useState<string | undefined>();
   const [activo, setActivo] = useState<string | undefined>();
   const [cuenta, setCuenta] = useState<string | undefined>();
@@ -37,6 +38,19 @@ export default function SalesFlow() {
   const [cashBankAccount, setCashBankAccount] = useState<string | undefined>();
   const [assetAmount, setAssetAmount] = useState<string>('');
   const [assetBankAccount, setAssetBankAccount] = useState<string | undefined>();
+
+  // Actualizar goal cuando cambie goalId en los parámetros
+  useEffect(() => {
+    if (goalId) {
+      console.log('SalesFlow: Setting goal from goalId param:', goalId);
+      setGoal(goalId);
+    }
+  }, [goalId]);
+
+  // Debug: Log current goal state
+  useEffect(() => {
+    console.log('SalesFlow: Current goal state:', goal);
+  }, [goal]);
 
   useEffect(() => {
     const loadData = async () => {

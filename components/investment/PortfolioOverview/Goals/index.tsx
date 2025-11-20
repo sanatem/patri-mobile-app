@@ -16,6 +16,7 @@ interface GoalsSectionProps {
   currentGoals: Goal[];
   onGoalPress: (goal: Goal) => void;
   onRetry: () => void;
+  onCreateGoal?: () => void;
   t: (key: string) => string;
 }
 
@@ -26,6 +27,7 @@ export function GoalsSection({
   currentGoals,
   onGoalPress,
   onRetry,
+  onCreateGoal,
   t,
 }: GoalsSectionProps) {
   const { formatValue } = useFormatValue();
@@ -107,9 +109,16 @@ export function GoalsSection({
             <Wallet size={32} color={Colors.gray[400]} />
           )}
         </View>
-        <Text className="text-center font-medium" style={{ color: Colors.gray[400] }}>
+        <Text className="text-center font-medium mb-4" style={{ color: Colors.gray[400] }}>
           {selectedAccountType === 'investment' ? t('portfolio.noGoals') : t('portfolio.noSavingInstruments')}
         </Text>
+        {selectedAccountType === 'investment' && onCreateGoal && (
+          <Button
+            title="Crear meta"
+            onPress={onCreateGoal}
+            variant="primary"
+          />
+        )}
       </View>
     );
   }

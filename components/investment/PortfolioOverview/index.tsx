@@ -1,14 +1,18 @@
 import React from 'react';
 import { View, ScrollView } from 'react-native';
+import { useRouter } from 'expo-router';
 import { Container } from '@/components/ui/Container';
 import { Header } from '@/components/ui/Header';
 import { Select } from '@/components/ui/Select';
+import { FloatingActionButton, type FloatingAction } from '@/components/ui/FloatingActionButton';
+import { Target, ArrowDown, ArrowUp } from 'lucide-react-native';
+import Colors from '@/constants/Colors';
 import { usePortfolioOverview } from '@/hooks/investment/usePortfolioOverview';
 import { PortfolioHeader } from './Header';
-import { PortfolioMovements } from './Movements';
 import { GoalsSection } from './Goals';
 
 export function PortfolioOverview() {
+  const router = useRouter();
   const {
     // Data
     patrimonyValue,
@@ -34,6 +38,28 @@ export function PortfolioOverview() {
     // Translation
     t,
   } = usePortfolioOverview();
+
+  const handleNewGoalPress = () => {
+    router.push('/(tabs)/investment/portfolio/goals/create-goals' as any);
+  };
+
+  const floatingActions: FloatingAction[] = [
+    {
+      label: 'Nueva Meta',
+      icon: <Target size={20} color={Colors.primary[500]} />,
+      onPress: handleNewGoalPress,
+    },
+    {
+      label: 'Nuevo Depósito',
+      icon: <ArrowDown size={20} color={Colors.primary[500]} />,
+      onPress: handleInvestPress,
+    },
+    {
+      label: 'Nuevo Retiro',
+      icon: <ArrowUp size={20} color={Colors.secondary[500]} />,
+      onPress: handleWithdrawPress,
+    },
+  ];
 
   return (
     <Container variant="secondaryPage">
@@ -68,15 +94,12 @@ export function PortfolioOverview() {
             currentGoals={currentGoals}
             onGoalPress={handleGoalPress}
             onRetry={refetch}
+            onCreateGoal={handleNewGoalPress}
             t={t}
           />
         </ScrollView>
 
-        <PortfolioMovements
-          onInvestPress={handleInvestPress}
-          onWithdrawPress={handleWithdrawPress}
-          t={t}
-        />
+        <FloatingActionButton actions={floatingActions} />
       </View>
     </Container>
   );
