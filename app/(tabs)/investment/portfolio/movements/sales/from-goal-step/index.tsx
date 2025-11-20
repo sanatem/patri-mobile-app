@@ -32,12 +32,6 @@ export default function FromGoalStep({
 }: FromGoalStepProps) {
   const { t } = useTranslation();
 
-  // Debug: Log received goal value
-  React.useEffect(() => {
-    console.log('FromGoalStep: Received goal:', goal);
-    console.log('FromGoalStep: Available goals:', goals);
-  }, [goal, goals]);
-
   const cannotWithdraw = !hasGoalsWithBalance && cashBalance === 0;
   const isNextDisabled = !goal || (goal !== 'cash-balance' && !destino) || cannotWithdraw;
 

@@ -1,6 +1,16 @@
 import React from 'react';
 import { View, Text } from 'react-native';
-import { PiggyBank, TrendingUp, Wallet } from 'lucide-react-native';
+import {
+  PiggyBank,
+  TrendingUp,
+  Wallet,
+  CreditCard,
+  Plane,
+  Home,
+  Car,
+  GraduationCap,
+  Sparkles
+} from 'lucide-react-native';
 import { ListItem } from '@/components/ui/ListItem';
 import { SkeletonBase } from '@/components/ui/SkeletonBase';
 import { Button } from '@/components/ui/Button';
@@ -9,6 +19,31 @@ import { listItemStyles } from '@/styles/ui/ListItem.styles';
 import { useFormatValue } from '@/hooks/common/useFormatValue';
 import type { Goal } from '@/types/api';
 
+const getGoalIcon = (kind: string) => {
+  switch (kind) {
+    case 'debt_payment':
+      return <CreditCard size={24} color={Colors.secondary[500]} />;
+    case 'investment_fund':
+      return <TrendingUp size={24} color={Colors.secondary[500]} />;
+    case 'real_estate':
+      return <Home size={24} color={Colors.secondary[500]} />;
+    case 'retirement':
+      return <PiggyBank size={24} color={Colors.secondary[500]} />;
+    case 'savings_fund':
+      return <Wallet size={24} color={Colors.secondary[500]} />;
+    case 'study':
+      return <GraduationCap size={24} color={Colors.secondary[500]} />;
+    case 'travel':
+      return <Plane size={24} color={Colors.secondary[500]} />;
+    case 'vehicle':
+      return <Car size={24} color={Colors.secondary[500]} />;
+    case 'personalized':
+      return <Sparkles size={24} color={Colors.secondary[500]} />;
+    default:
+      return <PiggyBank size={24} color={Colors.secondary[500]} />;
+  }
+};
+
 interface GoalsSectionProps {
   selectedAccountType: string;
   goalsLoading: boolean;
@@ -16,7 +51,6 @@ interface GoalsSectionProps {
   currentGoals: Goal[];
   onGoalPress: (goal: Goal) => void;
   onRetry: () => void;
-  onCreateGoal?: () => void;
   t: (key: string) => string;
 }
 
@@ -27,7 +61,6 @@ export function GoalsSection({
   currentGoals,
   onGoalPress,
   onRetry,
-  onCreateGoal,
   t,
 }: GoalsSectionProps) {
   const { formatValue } = useFormatValue();
@@ -109,16 +142,9 @@ export function GoalsSection({
             <Wallet size={32} color={Colors.gray[400]} />
           )}
         </View>
-        <Text className="text-center font-medium mb-4" style={{ color: Colors.gray[400] }}>
+        <Text className="text-center font-medium" style={{ color: Colors.gray[400] }}>
           {selectedAccountType === 'investment' ? t('portfolio.noGoals') : t('portfolio.noSavingInstruments')}
         </Text>
-        {selectedAccountType === 'investment' && onCreateGoal && (
-          <Button
-            title="Crear meta"
-            onPress={onCreateGoal}
-            variant="primary"
-          />
-        )}
       </View>
     );
   }
@@ -139,7 +165,7 @@ export function GoalsSection({
             subtitle: `${t('portfolio.goalPrefix')} ${formatValue(goal.targetAmount.toString())} - ${goal.targetDate}`,
             value: formatValue(goal.currentAmount.toString()),
             icon: {
-              component: <PiggyBank size={24} color={Colors.secondary[500]} />,
+              component: getGoalIcon(goal.kind),
               backgroundColor: Colors.secondary[50],
               color: Colors.secondary[500],
               text: goal.name.charAt(0)

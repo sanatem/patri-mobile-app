@@ -6,7 +6,7 @@ interface ApiGoalHistoryResponse {
     x: string;
     y: number;
   }>;
-  pagination: {
+  pagination?: {
     current_page: number;
     per_page: number;
     total_count: number;
@@ -43,19 +43,23 @@ export interface GoalHistoryData {
 }
 
 const transformApiGoalHistoryResponse = (apiData: ApiGoalHistoryResponse): GoalHistoryData => {
+  const historicValues = Array.isArray(apiData.historic_goal_value)
+    ? apiData.historic_goal_value.map(point => ({
+        date: point.x,
+        value: point.y
+      }))
+    : [];
+
   return {
     goalId: apiData.goal_id,
-    historicValues: apiData.historic_goal_value.map(point => ({
-      date: point.x,
-      value: point.y
-    })),
+    historicValues,
     pagination: {
-      currentPage: apiData.pagination.current_page,
-      perPage: apiData.pagination.per_page,
-      totalCount: apiData.pagination.total_count,
-      totalPages: apiData.pagination.total_pages,
-      hasNextPage: apiData.pagination.has_next_page,
-      hasPrevPage: apiData.pagination.has_prev_page
+      currentPage: apiData.pagination?.current_page || 1,
+      perPage: apiData.pagination?.per_page || 30,
+      totalCount: apiData.pagination?.total_count || historicValues.length,
+      totalPages: apiData.pagination?.total_pages || 1,
+      hasNextPage: apiData.pagination?.has_next_page || false,
+      hasPrevPage: apiData.pagination?.has_prev_page || false
     }
   };
 };
@@ -103,20 +107,30 @@ export const goalHistoryService = {
           status: response.status,
           errorText
         });
-        
+
         if (response.status === 404) {
           throw new Error('Meta no encontrada');
         }
-        
+
         if (response.status === 401) {
           throw new Error('Token de autenticación inválido o expirado');
         }
-        
+
         throw new Error(`API Error ${response.status}: ${errorText}`);
       }
 
-      const data: ApiGoalHistoryResponse = await response.json();
-      
+      const responseData = await response.json();
+
+      // La respuesta tiene la estructura: { success: true, data: { goal_id: ..., historic_goal_value: [...], pagination: {...} } }
+      const data: ApiGoalHistoryResponse = responseData.data || responseData;
+
+      console.log('goalHistoryService - Response data:', JSON.stringify(data, null, 2));
+
+      if (!data.goal_id || !data.historic_goal_value) {
+        console.error('goalHistoryService - Invalid data structure:', data);
+        throw new Error('Estructura de datos inválida en la respuesta');
+      }
+
       const transformedData = transformApiGoalHistoryResponse(data);
 
       return transformedData;

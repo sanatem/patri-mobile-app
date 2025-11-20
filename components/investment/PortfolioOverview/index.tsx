@@ -94,7 +94,6 @@ export function PortfolioOverview() {
             currentGoals={currentGoals}
             onGoalPress={handleGoalPress}
             onRetry={refetch}
-            onCreateGoal={handleNewGoalPress}
             t={t}
           />
         </ScrollView>

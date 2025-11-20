@@ -107,15 +107,18 @@ export const goalsService = {
       if (!response.ok) {
         const errorText = await response.text();
         console.error('Goals Service: Error en respuesta:', response.status, errorText);
-        
+
         if (response.status === 401) {
           throw new Error('Token de autenticación inválido o expirado');
         }
-        
+
         throw new Error(`API Error ${response.status}: ${errorText}`);
       }
 
-      const data: GoalsApiResponse = await response.json();
+      const responseData = await response.json();
+
+      // La respuesta tiene la estructura: { success: true, data: { investment: {...}, savings: {...} } }
+      const data: GoalsApiResponse = responseData.data || responseData;
 
       const investmentGoals = data.investment?.goals?.map(transformApiGoalToAppGoal) || [];
       const categorizedInvestmentGoals = categorizeGoalsByTimeframe(investmentGoals);

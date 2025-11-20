@@ -39,17 +39,22 @@ interface ApiGoalDetails {
     name: string;
     kind: string;
     kind_name: string;
+    kind_icon_id: string;
     target_amount: number;
+    target_amount_as_clp: number;
     target_date: string;
     unit: string;
+    default: boolean;
     created_at: string;
-    goal_wallet: number;
+    initial_date: string;
+    end_date: string;
     investment_account_id: number;
-  };
-  presenter_data?: {
-    deposit_sum: number;
-    retirement_sum: number;
-    variation?: number;
+    wallet_value: string | number;
+    invested_amount_percentage: number;
+    term: string;
+    deposit_sum: string | number;
+    retirement_sum: string | number;
+    variation: string | number;
     goal_last_portfolio_kind: string;
     goal_last_portfolio_risk_profile: string;
     wallet_containers: Array<{
@@ -58,20 +63,20 @@ interface ApiGoalDetails {
       broker_product_code: string;
       broker_product_name: string;
       quotas: number;
+      quota_value: string | number;
+      current_value: string | number;
       available_quotas_for_retirement: number;
-      current_value: number;
-      available_value_for_retirement: number;
-      quota_value: number;
-      percentage: number;
+      available_value_for_retirement: string | number;
+      percentage: string | number;
     }>;
     broker_portfolio: {
       id: number;
       kind: string;
-      risk_profile: string;
+      risk_profile: string | null;
       name: string;
       composition: Array<{
         product_code: string;
-        percentage: number;
+        percentage: string | number;
       }>;
     };
   };
@@ -128,21 +133,22 @@ const formatPercentage = (value: any): string => {
 };
 
 const transformApiGoalToMetaDetails = (apiData: ApiGoalDetails): MetaDetails => {
-  const { goal, presenter_data } = apiData;
-  
+  const { goal } = apiData;
+
   const targetAmount = getSafeNumber(goal.target_amount, 0);
-  const currentAmount = getSafeNumber(goal.goal_wallet, 0);
-  
-  const progress = targetAmount > 0 
-    ? currentAmount / targetAmount 
+  const currentAmount = getSafeNumber(goal.wallet_value, 0);
+
+  const progress = targetAmount > 0
+    ? currentAmount / targetAmount
     : 0;
 
   const createdAt = formatSafeDate(goal.created_at);
   const goalDate = formatSafeDate(goal.target_date);
-  
+
   const yearsRange = goal.target_date || 'No especificado';
 
-  const getRiskLabel = (riskProfile?: string): string => {
+  const getRiskLabel = (riskProfile?: string | null): string => {
+    if (!riskProfile || riskProfile === '-') return 'Moderado';
     switch (riskProfile) {
       case 'very_low': return 'Muy Conservador';
       case 'low': return 'Conservador';
@@ -153,19 +159,19 @@ const transformApiGoalToMetaDetails = (apiData: ApiGoalDetails): MetaDetails => 
   };
 
   const calculateVariation = () => {
-    return formatPercentage(presenter_data?.variation || 0);
+    return formatPercentage(goal.variation || 0);
   };
 
   const summary = {
-    estrategia: 'Recomendación de Algoritmo',
-    riesgo: getRiskLabel(presenter_data?.broker_portfolio?.risk_profile || presenter_data?.goal_last_portfolio_risk_profile),
-    aportes: getSafeNumber(presenter_data?.deposit_sum, 0),
-    rescates: getSafeNumber(presenter_data?.retirement_sum, 0),
+    estrategia: goal.goal_last_portfolio_kind || 'Recomendación de Algoritmo',
+    riesgo: getRiskLabel(goal.broker_portfolio?.risk_profile || goal.goal_last_portfolio_risk_profile),
+    aportes: getSafeNumber(goal.deposit_sum, 0),
+    rescates: getSafeNumber(goal.retirement_sum, 0),
     variacion: calculateVariation(),
-    variacionPesos: getSafeNumber(presenter_data?.variation, 0),
+    variacionPesos: getSafeNumber(goal.variation, 0),
   };
 
-  const assets = (presenter_data?.wallet_containers || []).map((container, index) => ({
+  const assets = (goal.wallet_containers || []).map((container, index) => ({
     id: getSafeNumber(container.wallet_container_id, index + 1).toString(),
     title: container.broker_product_name || 'Producto',
     subtitle: container.broker_product_code || 'Código',
@@ -173,8 +179,8 @@ const transformApiGoalToMetaDetails = (apiData: ApiGoalDetails): MetaDetails => 
     availableQuotas: getSafeNumber(container.available_quotas_for_retirement, 0),
     quotaValue: getSafeNumber(container.quota_value, 0),
     badge: {
-      text: formatPercentage(presenter_data?.variation),
-      variant: getSafeNumber(presenter_data?.variation, 0) >= 0 ? 'positive' as const : 'negative' as const
+      text: formatPercentage(container.percentage),
+      variant: getSafeNumber(container.percentage, 0) >= 0 ? 'positive' as const : 'negative' as const
     }
   }));
 
@@ -224,20 +230,23 @@ export async function getPortfolioDetails(goalId: string, token: string): Promis
 
     if (!response.ok) {
       const errorText = await response.text();
-      
+
       if (response.status === 404) {
         return null;
       }
-      
+
       if (response.status === 401) {
         throw new Error('Token de autenticación inválido o expirado');
       }
-      
+
       throw new Error(`API Error ${response.status}: ${errorText}`);
     }
 
-    const data: ApiGoalDetails = await response.json();
-    
+    const responseData = await response.json();
+
+    // La respuesta tiene la estructura: { success: true, data: { goal: {...} } }
+    const data: ApiGoalDetails = responseData.data || responseData;
+
     try {
       return transformApiGoalToMetaDetails(data);
     } catch (transformError) {

@@ -23,8 +23,12 @@ export function InvestmentOverview() {
   } = useInvestmentOverview();
 
   useEffect(() => {
-    // Si tiene al menos un formulario completado, redirigir a complete-profile
-    if (!subscriptionLoading && !investmentLoading && !isLoadingFormData && !hasInvestmentAccount && hasAnyFormData) {
+    // Si tiene cuenta de inversión, redirigir a portfolio
+    if (!subscriptionLoading && !investmentLoading && !isLoadingFormData && hasInvestmentAccount) {
+      router.replace('/(tabs)/investment/portfolio' as any);
+    }
+    // Si tiene al menos un formulario completado (pero no cuenta), redirigir a complete-profile
+    else if (!subscriptionLoading && !investmentLoading && !isLoadingFormData && !hasInvestmentAccount && hasAnyFormData) {
       router.replace('/(tabs)/investment/create-account/complete-profile' as any);
     }
   }, [subscriptionLoading, investmentLoading, isLoadingFormData, hasInvestmentAccount, hasAnyFormData]);
@@ -42,7 +46,11 @@ export function InvestmentOverview() {
   }
 
   if (hasInvestmentAccount) {
-    return null;
+    return (
+      <View className="flex-1 bg-white justify-center items-center">
+        <LoadingSpinner />
+      </View>
+    );
   }
 
   // Si tiene datos de formulario, mostrar loading mientras redirige

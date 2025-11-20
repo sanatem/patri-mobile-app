@@ -3,9 +3,11 @@ import config from '@/config/constants';
 export interface CreateGoalParams {
   name: string;
   kind: string;
-  target_amount: number;
-  target_date: string;
+  target_amount: string;
+  term: string;
+  unit: string;
   investment_account_id: number;
+  default: boolean;
 }
 
 export interface CreateGoalResponse {

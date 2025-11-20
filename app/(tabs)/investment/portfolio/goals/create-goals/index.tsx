@@ -1,13 +1,18 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { View, Text } from 'react-native';
 import { useRouter } from 'expo-router';
 import { FormLayout, Select, Input, RadioButton, SuccessMessage } from '@/components/ui';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '@/providers/AuthProvider';
+import { createGoal } from '@/services/investment/portfolio/goals/create-goal';
 import Colors from '@/constants/Colors';
+import config from '@/config/constants';
 
 export default function CreateGoalsScreen() {
   const router = useRouter();
   const { t } = useTranslation();
+  const { accessToken } = useAuth();
+  const [investmentAccountId, setInvestmentAccountId] = useState<number | null>(null);
 
   const [goalType, setGoalType] = useState('');
   const [goalName, setGoalName] = useState('');
@@ -18,6 +23,39 @@ export default function CreateGoalsScreen() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchAccountId = async () => {
+      if (!accessToken) return;
+
+      try {
+        const url = `${config.apiBaseUrl}/api/v2/goals`;
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (response.ok) {
+          const responseData = await response.json();
+          // La respuesta tiene la estructura: { success: true, data: { investment: {...} } }
+          const data = responseData.data || responseData;
+          const accountId = data.investment?.account_id;
+          if (accountId) {
+            setInvestmentAccountId(accountId);
+          } else {
+            console.error('No se encontró account_id en la respuesta:', responseData);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching investment account ID:', error);
+      }
+    };
+
+    fetchAccountId();
+  }, [accessToken]);
 
   const goalTypeOptions = [
     { label: 'Pago de deuda', value: 'debt_payment' },
@@ -63,26 +101,39 @@ export default function CreateGoalsScreen() {
       return;
     }
 
+    if (!investmentAccountId) {
+      setError('No se pudo obtener el ID de la cuenta de inversión');
+      return;
+    }
+
+    if (!accessToken) {
+      setError('No hay sesión activa');
+      return;
+    }
+
     setError(null);
     setIsSubmitting(true);
 
     try {
-      // TODO: Implementar llamada al API para crear la meta
-      // const response = await createGoal(accessToken, {
-      //   type: goalType,
-      //   name: goalName,
-      //   timeframe: timeframe,
-      //   targetAmount: parseFloat(amount),
-      //   currency: currency
-      // });
+      const response = await createGoal(accessToken, {
+        name: goalName,
+        kind: goalType,
+        target_amount: amount,
+        term: timeframe,
+        unit: currency.toLowerCase(),
+        investment_account_id: investmentAccountId,
+        default: false,
+      });
 
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      if (response.success) {
+        setShowSuccess(true);
 
-      setShowSuccess(true);
-
-      setTimeout(() => {
-        router.push('/(tabs)/investment/portfolio' as any);
-      }, 2000);
+        setTimeout(() => {
+          router.push('/(tabs)/investment/portfolio' as any);
+        }, 2000);
+      } else {
+        setError(response.message || 'Error al crear la meta. Por favor, intenta nuevamente.');
+      }
     } catch (err) {
       console.error('Error creating goal:', err);
       setError('Error al crear la meta. Por favor, intenta nuevamente.');

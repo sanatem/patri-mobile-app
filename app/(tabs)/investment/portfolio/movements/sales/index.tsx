@@ -42,15 +42,9 @@ export default function SalesFlow() {
   // Actualizar goal cuando cambie goalId en los parámetros
   useEffect(() => {
     if (goalId) {
-      console.log('SalesFlow: Setting goal from goalId param:', goalId);
       setGoal(goalId);
     }
   }, [goalId]);
-
-  // Debug: Log current goal state
-  useEffect(() => {
-    console.log('SalesFlow: Current goal state:', goal);
-  }, [goal]);
 
   useEffect(() => {
     const loadData = async () => {
