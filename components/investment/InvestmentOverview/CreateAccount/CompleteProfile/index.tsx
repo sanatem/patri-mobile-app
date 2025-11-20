@@ -103,19 +103,23 @@ export default function SummaryStep() {
       );
       setIsMarried(userRequiresSpouse);
 
-      // Verificar datos del cónyuge (solo requerido si requires_spouse es true)
       const spouseInfo = spouseResponse.spouse;
+
+      const hasLocationData = !spouseInfo || spouseInfo.same_address || !!(
+        spouseInfo.location_data?.region && spouseInfo.location_data?.commune
+      );
+
       const hasSpouseData = !userRequiresSpouse || !!(
         spouseResponse.success &&
         spouseInfo &&
         spouseInfo.first_name &&
-        spouseInfo.father_last_name &&
-        spouseInfo.mother_last_name &&
+        spouseInfo.last_name &&
         spouseInfo.rut &&
         spouseInfo.birth_date &&
         spouseInfo.nationality &&
         spouseInfo.same_address !== undefined &&
-        spouseInfo.broker_relationship
+        spouseInfo.broker_relationship &&
+        hasLocationData
       );
 
       const hasRiskData = !!(
@@ -124,7 +128,6 @@ export default function SummaryStep() {
         riskResponse.investor_questionnaire?.investor_category
       );
 
-      // Verificar si el identity card existe y tiene imágenes
       const hasIdentityData = !!(
         identityResponse.success &&
         identityResponse.identity_card &&
@@ -143,7 +146,6 @@ export default function SummaryStep() {
           employmentResponse.employment_information.commercial_activity)
       );
 
-      // Verificar si los contratos están firmados
       const areContractsSigned = !!(
         requirementsResponse.success &&
         requirementsResponse.data?.details?.forms_status?.broker_documents &&
@@ -151,17 +153,14 @@ export default function SummaryStep() {
         requirementsResponse.data.details.forms_status.broker_documents.every(doc => doc.signed)
       );
 
-      // Verificar si tiene cuenta bancaria predeterminada
       const hasDefaultBankAccount = !!(
         bankAccountsResponse.success &&
         bankAccountsResponse.accounts &&
         bankAccountsResponse.accounts.some(account => account.is_default)
       );
 
-      // Verificar si todos los formularios base están completados
       const allBaseCompleted = hasRiskData && hasIdentityData && hasPersonalData && hasContactData && hasWorkData && hasDefaultBankAccount && hasSpouseData;
 
-      // Generar documentos del broker cuando todos los formularios base estén completos y los contratos NO estén firmados
       if (allBaseCompleted && !areContractsSigned) {
         try {
           await generateBrokerDocumentations(accessToken);

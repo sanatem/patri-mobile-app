@@ -37,11 +37,9 @@ export default function SpouseInformationStepper() {
 
   const totalSteps = 2;
 
-  // Filtrar preguntas del step2 basándose en same_address
   const getFilteredStep2Questions = () => {
     const addressFields = ['spouse_address', 'spouse_address_number', 'spouse_region', 'spouse_commune'];
     return step2Questions.filter((question) => {
-      // Mostrar campos de dirección solo si same_address es 'no'
       if (addressFields.includes(question.id)) {
         return answers.same_address === 'no';
       }
@@ -51,7 +49,6 @@ export default function SpouseInformationStepper() {
 
   const currentQuestions = currentStep === 0 ? step1Questions : getFilteredStep2Questions();
 
-  // Convertir fecha de dd/mm/yyyy a yyyy-mm-dd
   const convertDateFormat = (dateStr: string): string => {
     if (!dateStr) return '';
     const parts = dateStr.split('/');
@@ -61,7 +58,6 @@ export default function SpouseInformationStepper() {
     return dateStr;
   };
 
-  // Convertir fecha de yyyy-mm-dd a dd/mm/yyyy para mostrar
   const convertDateForDisplay = (dateStr: string): string => {
     if (!dateStr) return '';
     const parts = dateStr.split('-');
@@ -71,7 +67,6 @@ export default function SpouseInformationStepper() {
     return dateStr;
   };
 
-  // Cargar datos existentes del cónyuge
   useEffect(() => {
     const loadSpouseData = async () => {
       if (!accessToken) {
@@ -86,12 +81,15 @@ export default function SpouseInformationStepper() {
           setSpouseExists(true);
           const spouse = response.spouse;
 
-          // Mapear datos existentes al formulario
+          const lastNameParts = (spouse.last_name || '').split(' ');
+
+          const paternalLastName = lastNameParts[0] || '';
+          const maternalLastName = lastNameParts.length > 1 ? lastNameParts.slice(1).join(' ') : '';
+
           setAnswers({
             first_name: spouse.first_name || '',
-            paternal_last_name: spouse.father_last_name || '',
-            maternal_last_name: spouse.mother_last_name || '',
-            last_name: spouse.last_name || '',
+            paternal_last_name: paternalLastName,
+            maternal_last_name: maternalLastName,
             rut: spouse.rut || '',
             birth_date: spouse.birth_date ? convertDateForDisplay(spouse.birth_date) : '',
             sex: spouse.sex || '',
@@ -102,8 +100,8 @@ export default function SpouseInformationStepper() {
             broker_relationship_type: spouse.broker_relationship || '',
             spouse_address: spouse.address || '',
             spouse_address_number: spouse.address_number || '',
-            spouse_region: spouse.region || '',
-            spouse_commune: spouse.commune || '',
+            spouse_region: spouse.location_data?.region || spouse.region || '',
+            spouse_commune: spouse.location_data?.commune || spouse.commune || '',
           });
         }
       } catch (error) {
@@ -124,26 +122,35 @@ export default function SpouseInformationStepper() {
 
     setIsSubmitting(true);
     try {
-      const spouseData = {
-        first_name: finalAnswers.first_name || undefined,
-        father_last_name: finalAnswers.paternal_last_name || undefined,
-        mother_last_name: finalAnswers.maternal_last_name || undefined,
-        last_name: finalAnswers.last_name || undefined,
-        rut: finalAnswers.rut || undefined,
-        birth_date: finalAnswers.birth_date ? convertDateFormat(finalAnswers.birth_date) : undefined,
-        sex: finalAnswers.sex || undefined,
-        email: finalAnswers.email || undefined,
-        nationality: finalAnswers.nationality || undefined,
-        phone: finalAnswers.phone || undefined,
-        same_address: finalAnswers.same_address === 'si',
-        broker_relationship: finalAnswers.broker_relationship_type || undefined,
-        address: finalAnswers.spouse_address || undefined,
-        address_number: finalAnswers.spouse_address_number || undefined,
-        region: finalAnswers.spouse_region || undefined,
-        commune: finalAnswers.spouse_commune || undefined,
+      const sharesSameAddress = finalAnswers.same_address === 'si';
+
+      const paternalLastName = finalAnswers.paternal_last_name || '';
+      const maternalLastName = finalAnswers.maternal_last_name || '';
+
+      const fullLastName = `${paternalLastName} ${maternalLastName}`.trim();
+
+      const spouseData: any = {
+        first_name: finalAnswers.first_name || '',
+        last_name: fullLastName,
+        rut: finalAnswers.rut || '',
+        birth_date: finalAnswers.birth_date ? convertDateFormat(finalAnswers.birth_date) : '',
+        sex: finalAnswers.sex || '',
+        email: finalAnswers.email || '',
+        nationality: finalAnswers.nationality || '',
+        phone: finalAnswers.phone || '',
+        same_address: sharesSameAddress,
+        broker_relationship: finalAnswers.broker_relationship_type || '',
       };
 
-      // Usar POST si no existe, PUT si ya existe
+      if (!sharesSameAddress) {
+        spouseData.address = finalAnswers.spouse_address || '';
+        spouseData.address_number = finalAnswers.spouse_address_number || '';
+        spouseData.location_data = {
+          region: finalAnswers.spouse_region || '',
+          commune: finalAnswers.spouse_commune || '',
+        };
+      }
+
       const response = spouseExists
         ? await updateSpouseInformation(accessToken, spouseData)
         : await createSpouseInformation(accessToken, spouseData);
@@ -167,12 +174,10 @@ export default function SpouseInformationStepper() {
   const handleInputChange = (questionId: string, value: string) => {
     const newAnswers = { ...answers, [questionId]: value };
 
-    // Limpiar comuna si cambia la región
     if (questionId === 'spouse_region') {
       newAnswers.spouse_commune = '';
     }
 
-    // Limpiar campos de dirección si cambia a "sí" en same_address
     if (questionId === 'same_address' && value === 'si') {
       newAnswers.spouse_address = '';
       newAnswers.spouse_address_number = '';

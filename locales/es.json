@@ -1478,13 +1478,6 @@
           "label": "Nombre"
         },
         {
-          "id": "last_name",
-          "type": "input",
-          "text": "¿Cuál es su segundo nombre?",
-          "placeholder": "Ingresa su segundo nombre",
-          "label": "Segundo nombre"
-        },
-        {
           "id": "paternal_last_name",
           "type": "input",
           "text": "¿Cuál es su apellido paterno?",
@@ -1600,11 +1593,11 @@
           "options": [
             {
               "label": "Ninguna",
-              "value": "none"
+              "value": "unrelated"
             },
             {
               "label": "Es parte de la asociación de la empresa",
-              "value": "association"
+              "value": "shareholder"
             },
             {
               "label": "Es parte de la dirección de la empresa",

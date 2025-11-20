@@ -37,7 +37,14 @@ export async function createSpouseInformation(
     }
 
     const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`);
+    console.error('Error response from backend:', errorData);
+
+    const errorMessage = errorData.message
+      || errorData.error
+      || (errorData.errors ? JSON.stringify(errorData.errors) : null)
+      || `HTTP ${response.status}: ${response.statusText}`;
+
+    throw new Error(errorMessage);
 
   } catch (error) {
     console.error('Error creating spouse information:', error);
@@ -79,7 +86,14 @@ export async function updateSpouseInformation(
     }
 
     const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`);
+    console.error('Error response from backend:', errorData);
+
+    const errorMessage = errorData.message
+      || errorData.error
+      || (errorData.errors ? JSON.stringify(errorData.errors) : null)
+      || `HTTP ${response.status}: ${response.statusText}`;
+
+    throw new Error(errorMessage);
 
   } catch (error) {
     console.error('Error updating spouse information:', error);

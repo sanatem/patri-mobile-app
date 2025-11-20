@@ -3,8 +3,6 @@ import config from '@/config/constants';
 export interface SpouseInformation {
   first_name?: string;
   last_name?: string;
-  father_last_name?: string;
-  mother_last_name?: string;
   rut?: string;
   birth_date?: string;
   sex?: string;
@@ -15,6 +13,12 @@ export interface SpouseInformation {
   broker_relationship?: string;
   address?: string;
   address_number?: string;
+  location_data?: {
+    region?: string;
+    commune?: string;
+  };
+  father_last_name?: string;
+  mother_last_name?: string;
   region?: string;
   commune?: string;
 }
