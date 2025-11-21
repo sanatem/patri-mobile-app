@@ -146,7 +146,7 @@ export default function PersonalInformationStepper() {
         setShowSuccess(true);
         setTimeout(() => {
           setShowSuccess(false);
-          router.push('/(tabs)/investment/create-account/complete-profile');
+          router.push('/(tabs)/investment/create-account/personal-information/contact-information-question');
         }, 2000);
       } else {
         console.error('Error updating personal information:', response.message);

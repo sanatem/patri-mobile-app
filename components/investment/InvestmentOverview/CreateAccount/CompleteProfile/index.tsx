@@ -164,8 +164,7 @@ export default function SummaryStep() {
       if (allBaseCompleted && !areContractsSigned) {
         try {
           await generateBrokerDocumentations(accessToken);
-        } catch (err) {
-          console.error('Error generating broker documentations:', err);
+        } catch {
         }
       }
 
@@ -200,12 +199,12 @@ export default function SummaryStep() {
               setAccountStatus('pending');
             }
           }
-        } catch (err) {
-          console.error('Error checking broker documentations status:', err);
+        } catch {
+          // Error silenciado
         }
       }
-    } catch (error) {
-      console.error('Error checking form statuses:', error);
+    } catch {
+      // Error silenciado
     } finally {
       setIsLoadingStatuses(false);
     }

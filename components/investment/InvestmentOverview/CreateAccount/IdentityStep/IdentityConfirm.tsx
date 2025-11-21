@@ -383,7 +383,7 @@ export default function IdentityConfirm() {
         setShowSuccess(true);
         setTimeout(() => {
           setShowSuccess(false);
-          router.push('/(tabs)/investment/create-account/complete-profile');
+          router.push('/(tabs)/investment/create-account/personal-information/personal-information-question');
         }, 2000);
       } else {
         throw new Error(t('identityConfirm.serverError'));
