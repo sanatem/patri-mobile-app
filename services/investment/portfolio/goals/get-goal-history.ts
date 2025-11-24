@@ -1,7 +1,7 @@
 import config from '@/config/constants';
 
 interface ApiGoalHistoryResponse {
-  goal_id: number;
+  goal_id?: number;
   historic_goal_value: Array<{
     x: string;
     y: number;
@@ -42,7 +42,7 @@ export interface GoalHistoryData {
   };
 }
 
-const transformApiGoalHistoryResponse = (apiData: ApiGoalHistoryResponse): GoalHistoryData => {
+const transformApiGoalHistoryResponse = (apiData: ApiGoalHistoryResponse & { goal_id: number }): GoalHistoryData => {
   const historicValues = Array.isArray(apiData.historic_goal_value)
     ? apiData.historic_goal_value.map(point => ({
         date: point.x,
@@ -51,7 +51,7 @@ const transformApiGoalHistoryResponse = (apiData: ApiGoalHistoryResponse): GoalH
     : [];
 
   return {
-    goalId: apiData.goal_id,
+    goalId: apiData.goal_id || 0,
     historicValues,
     pagination: {
       currentPage: apiData.pagination?.current_page || 1,
@@ -126,12 +126,14 @@ export const goalHistoryService = {
 
       console.log('goalHistoryService - Response data:', JSON.stringify(data, null, 2));
 
-      if (!data.goal_id || !data.historic_goal_value) {
+      if (!data.historic_goal_value) {
         console.error('goalHistoryService - Invalid data structure:', data);
         throw new Error('Estructura de datos inválida en la respuesta');
       }
 
-      const transformedData = transformApiGoalHistoryResponse(data);
+      // Usar goal_id de la respuesta o del parámetro
+      const goalIdNumber = data.goal_id || parseInt(params.goalId, 10);
+      const transformedData = transformApiGoalHistoryResponse({ ...data, goal_id: goalIdNumber });
 
       return transformedData;
 
