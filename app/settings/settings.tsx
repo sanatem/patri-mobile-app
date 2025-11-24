@@ -30,6 +30,7 @@ import { useAuth } from '@/providers/AuthProvider';
 import { deleteUserAccount } from '@/services/user/delete-user';
 import Constants from 'expo-constants';
 import { useTranslation } from 'react-i18next';
+import { BiometricSetup } from '@/components/auth/BiometricSetup';
 
 export default function MoreScreen() {
   const router = useRouter();
@@ -40,9 +41,7 @@ export default function MoreScreen() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
 
-  const redirectToLogin = () => {
-    router.replace('/auth/webview');
-  };
+  // Navigation is handled by the logout function itself
 
   const handleLogout = async () => {
     const logoutMessage = Platform.OS === 'ios'
@@ -61,19 +60,15 @@ export default function MoreScreen() {
             setIsLoggingOut(true);
             try {
               await logout();
-              setTimeout(() => {
-                redirectToLogin();
-              }, 500);
+              // Navigation is handled by logout function
             } catch (error) {
               console.error('Error durante logout:', error);
               try {
                 await forceLogout();
-                setTimeout(() => {
-                  redirectToLogin();
-                }, 500);
+                // Navigation is handled by forceLogout function
               } catch (forceError) {
                 console.error('Error durante logout forzado:', forceError);
-                redirectToLogin();
+                // Navigation is handled by logout functions
               }
             } finally {
               setIsLoggingOut(false);
@@ -111,7 +106,7 @@ export default function MoreScreen() {
       console.error('Error durante logout después de eliminar:', err);
       await forceLogout();
     }
-    redirectToLogin();
+    // Navigation is handled by logout functions
   };
 
   const handleOpenLink = async (url: string, title: string) => {
@@ -126,42 +121,48 @@ export default function MoreScreen() {
 
   const menuItems = [
     {
-      id: '0',
+      id: 'preferences',
       title: t('settings.menu.preferences'),
       subtitle: t('settings.menu.preferencesSubtitle'),
       icon: Settings,
       onPress: () => router.push('/settings/preferences'),
     },
     {
-      id: '1',
+      id: 'biometric-auth',
+      title: t('settings.menu.biometricAuth'),
+      subtitle: t('settings.menu.biometricAuthSubtitle'),
+      customRender: () => <BiometricSetup />,
+    },
+    {
+      id: 'bank-accounts',
       title: t('settings.menu.bankAccounts'),
       subtitle: t('settings.menu.bankAccountsSubtitle'),
       icon: CreditCard,
       onPress: () => router.push('/settings/bank-accounts'),
     },
     {
-      id: '5',
+      id: 'terms',
       title: t('settings.menu.terms'),
       subtitle: t('settings.menu.termsSubtitle'),
       icon: FileText,
       onPress: () => handleOpenLink('https://patrimore.com/terminos-y-condiciones', t('settings.menu.terms')),
     },
     {
-      id: '6',
+      id: 'privacy',
       title: t('settings.menu.privacy'),
       subtitle: t('settings.menu.privacySubtitle'),
       icon: Shield,
       onPress: () => handleOpenLink('https://patrimore.com/politica-de-privacidad', t('settings.menu.privacy')),
     },
     {
-      id: '7',
+      id: 'help',
       title: t('settings.menu.help'),
       subtitle: t('settings.menu.helpSubtitle'),
       icon: HelpCircle,
       onPress: () => handleOpenLink('https://patrimore.com/contacto', t('settings.menu.help')),
     },
     {
-      id: '8',
+      id: 'logout',
       title: t('settings.menu.logout'),
       subtitle: user?.email || t('settings.menu.logoutSubtitle'),
       icon: LogOut,
@@ -170,28 +171,34 @@ export default function MoreScreen() {
     },
   ];
 
-  const renderMenuItem = (item: any) => (
-    <TouchableOpacity key={item.id} style={styles.menuItem} onPress={item.onPress}>
-      <View style={styles.menuItemLeft}>
-        <View style={[
-          styles.iconContainer,
-          item.isDestructive && styles.destructiveIconContainer
-        ]}>
-          <item.icon size={22} color={item.isDestructive ? Colors.secondary[500] : Colors.primary[500]} />
-        </View>
-        <View style={styles.textContainer}>
-          <Text style={[
-            styles.menuTitle,
-            item.isDestructive && styles.destructiveTitle
+  const renderMenuItem = (item: any) => {
+    if (item.customRender) {
+      return <View key={item.id}>{item.customRender()}</View>;
+    }
+
+    return (
+      <TouchableOpacity key={item.id} style={styles.menuItem} onPress={item.onPress}>
+        <View style={styles.menuItemLeft}>
+          <View style={[
+            styles.iconContainer,
+            item.isDestructive && styles.destructiveIconContainer
           ]}>
-            {item.title}
-          </Text>
-          <Text style={styles.menuSubtitle}>{item.subtitle}</Text>
+            <item.icon size={22} color={item.isDestructive ? Colors.secondary[500] : Colors.primary[500]} />
+          </View>
+          <View style={styles.textContainer}>
+            <Text style={[
+              styles.menuTitle,
+              item.isDestructive && styles.destructiveTitle
+            ]}>
+              {item.title}
+            </Text>
+            <Text style={styles.menuSubtitle}>{item.subtitle}</Text>
+          </View>
         </View>
-      </View>
-      <ChevronRight size={20} color={Colors.gray[400]} />
-    </TouchableOpacity>
-  );
+        <ChevronRight size={20} color={Colors.gray[400]} />
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <ScrollView style={styles.container}>
@@ -245,15 +252,15 @@ export default function MoreScreen() {
       <Modal visible={showConfirmationModal} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.confirmationModalContainer}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.closeButton}
               onPress={handleCloseConfirmationModal}
             >
               <X size={24} color={Colors.gray[500]} />
             </TouchableOpacity>
-            
+
             <View style={styles.confirmationContent}>
-              <View style={[styles.modalIconContainer, { backgroundColor: Colors.success[100] }]}> 
+              <View style={[styles.modalIconContainer, { backgroundColor: Colors.success[100] }]}>
                 <Text style={[styles.checkmarkIcon, { color: Colors.success[500] }]}>✓</Text>
               </View>
               <Text style={styles.confirmationTitle}>{t('settings.confirmation.title')}</Text>

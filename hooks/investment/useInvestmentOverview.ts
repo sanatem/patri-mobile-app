@@ -7,6 +7,7 @@ import { useHasInvestmentAccount } from '@/hooks/investment/usePortfolioDetails'
 import { getContactInformation } from '@/services/investment/create-account/contact-information/get-contact-information';
 import { getPersonalInformation } from '@/services/investment/create-account/personal-information/get-personal-information';
 import { getRiskProfile } from '@/services/investment/create-account/investment-survey/get-risk-profile';
+import { checkRequirements } from '@/services/investment/create-account/broker-documentation';
 import { useTranslation } from 'react-i18next';
 import { useEffect } from 'react';
 
@@ -24,19 +25,42 @@ export function useInvestmentOverview() {
   const { shouldBlockTab, loading: subscriptionLoading } = useSubscriptionStatus();
   const { hasInvestmentAccount, loading: investmentLoading } = useHasInvestmentAccount();
 
+  // Solo verificar datos de formulario si el usuario NO tiene cuenta de inversión
+  // Esto evita llamadas innecesarias a los endpoints de create-account
   useFocusEffect(
     useCallback(() => {
-      checkForExistingFormData();
-    }, [accessToken])
+      if (!investmentLoading && !hasInvestmentAccount) {
+        checkAccountStatusAndFormData();
+      } else if (hasInvestmentAccount) {
+        // Si ya tiene cuenta, no necesitamos verificar datos de formulario
+        setIsLoadingFormData(false);
+      }
+    }, [accessToken, investmentLoading, hasInvestmentAccount])
   );
 
-  const checkForExistingFormData = async () => {
+  const checkAccountStatusAndFormData = async () => {
     if (!accessToken) {
       setIsLoadingFormData(false);
       return;
     }
 
     try {
+      // Primero verificar si los documentos del broker están aprobados
+      const requirementsResponse = await checkRequirements(accessToken);
+
+      if (requirementsResponse.success) {
+        const brokerDocs = requirementsResponse.data?.details?.forms_status?.broker_documents;
+        const isApproved = brokerDocs?.some(doc => doc.status === 'approved');
+
+        if (isApproved) {
+          // Si está aprobado, redirigir directamente al portfolio
+          setIsLoadingFormData(false);
+          router.replace('/(tabs)/investment/portfolio');
+          return;
+        }
+      }
+
+      // Solo si no está aprobado, verificar los datos del formulario
       const [contactResponse, personalResponse, riskResponse] = await Promise.all([
         getContactInformation(accessToken),
         getPersonalInformation(accessToken),
@@ -68,7 +92,7 @@ export function useInvestmentOverview() {
 
       setHasAnyFormData(hasContactData || hasPersonalData || hasRiskData);
     } catch (error) {
-      console.error('Error checking for existing form data:', error);
+      console.error('Error checking account status:', error);
     } finally {
       setIsLoadingFormData(false);
     }

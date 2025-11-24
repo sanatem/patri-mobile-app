@@ -4,7 +4,7 @@ import { router, useFocusEffect } from 'expo-router';
 import { Container } from '@/components/ui/Container';
 import { Header } from '@/components/ui/Header';
 import { Card, LoadingSpinner } from '@/components/ui';
-import { Check, Clock, ChevronRight, ChevronLeft, X } from 'lucide-react-native';
+import { Check, Clock, ChevronRight, X } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import Colors from '@/constants/Colors';
 import { useAuth } from '@/providers/AuthProvider';
@@ -58,13 +58,28 @@ export default function SummaryStep() {
     }
 
     try {
-      const [contactResponse, personalResponse, riskResponse, employmentResponse, identityResponse, requirementsResponse, bankAccountsResponse, spouseResponse] = await Promise.all([
+      // Primero verificar si los documentos del broker están aprobados
+      const requirementsResponse = await checkRequirements(accessToken);
+
+      if (requirementsResponse.success) {
+        const brokerDocs = requirementsResponse.data?.details?.forms_status?.broker_documents;
+        const isApproved = brokerDocs?.some(doc => doc.status === 'approved');
+
+        if (isApproved) {
+          // Si está aprobado, redirigir directamente al portfolio sin hacer más llamadas
+          setIsLoadingStatuses(false);
+          router.replace('/(tabs)/investment/portfolio');
+          return;
+        }
+      }
+
+      // Solo si no está aprobado, verificar el resto de los formularios
+      const [contactResponse, personalResponse, riskResponse, employmentResponse, identityResponse, bankAccountsResponse, spouseResponse] = await Promise.all([
         getContactInformation(accessToken),
         getPersonalInformation(accessToken),
         getRiskProfile(accessToken),
         getEmploymentInformation(accessToken),
         getIdentityCard(accessToken),
-        checkRequirements(accessToken),
         getBankAccounts(accessToken),
         getSpouseInformation(accessToken),
       ]);
@@ -164,8 +179,7 @@ export default function SummaryStep() {
       if (allBaseCompleted && !areContractsSigned) {
         try {
           await generateBrokerDocumentations(accessToken);
-        } catch (err) {
-          console.error('Error generating broker documentations:', err);
+        } catch {
         }
       }
 
@@ -200,12 +214,12 @@ export default function SummaryStep() {
               setAccountStatus('pending');
             }
           }
-        } catch (err) {
-          console.error('Error checking broker documentations status:', err);
+        } catch {
+          // Error silenciado
         }
       }
-    } catch (error) {
-      console.error('Error checking form statuses:', error);
+    } catch {
+      // Error silenciado
     } finally {
       setIsLoadingStatuses(false);
     }
@@ -238,10 +252,6 @@ export default function SummaryStep() {
   // Determinar qué título y descripción mostrar
   const title = allFormsCompleted ? t('investmentAccount.titleCompleted') : t('investmentAccount.title');
   const description = allFormsCompleted ? t('investmentAccount.descriptionCompleted') : t('investmentAccount.description');
-
-  const handleBackPress = () => {
-    router.push('/(tabs)/investment' as any);
-  };
 
   // Vista de cuenta pendiente de aprobación
   if (accountStatus === 'pending') {
@@ -295,14 +305,6 @@ export default function SummaryStep() {
       <Header
         title={title}
         showBackButton={false}
-        leftAction={
-          <TouchableOpacity
-            onPress={handleBackPress}
-            className="p-1 mr-3"
-          >
-            <ChevronLeft size={24} color={Colors.primary[600]} />
-          </TouchableOpacity>
-        }
       />
       {(isLoading || isLoadingStatuses) && <LoadingSpinner overlay />}
       <ScrollView
