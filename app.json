@@ -2,7 +2,7 @@
   "expo": {
     "name": "Patrimore",
     "slug": "patrimore",
-    "version": "1.3.0",
+    "version": "1.4.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "com.patrimore.patrimore",
@@ -17,14 +17,17 @@
         ],
         "ITSAppUsesNonExemptEncryption": false,
         "NSCameraUsageDescription": "Esta app necesita acceso a la cámara para que los usuarios puedan escanear documentos o tomar fotografías.",
-        "NSUserTrackingUsageDescription": "Usamos esta información para ofrecerte anuncios personalizados y mejorar tu experiencia en la app."
+        "NSUserTrackingUsageDescription": "Usamos esta información para ofrecerte anuncios personalizados y mejorar tu experiencia en la app.",
+        "NSLocationWhenInUseUsageDescription": "Esta app necesita acceso a tu ubicación para mostrarte información financiera relevante a tu zona y mejorar tu experiencia.",
+        "NSFaceIDUsageDescription": "Patrimore utiliza Face ID para permitirte acceder de forma rápida y segura a tu información financiera."
       },
       "entitlements": {
         "aps-environment": "production",
         "com.apple.security.application-groups": [
           "group.com.patrimore.patrimore.onesignal"
         ]
-      }
+      },
+      "appleTeamId": "JJ55Y59DRG"
     },
     "android": {
       "adaptiveIcon": {
@@ -32,7 +35,14 @@
         "backgroundColor": "#ff6501"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.patrimore.patrimore"
+      "package": "com.patrimore.patrimore",
+      "permissions": [
+        "USE_BIOMETRIC",
+        "USE_FINGERPRINT",
+        "android.permission.USE_BIOMETRIC",
+        "android.permission.USE_FINGERPRINT",
+        "com.google.android.gms.permission.AD_ID"
+      ]
     },
     "assetBundlePatterns": [
       "**/*"
@@ -43,6 +53,28 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "deploymentTarget": "15.1"
+          }
+        }
+      ],
+      [
+        "onesignal-expo-plugin",
+        {
+          "mode": "production",
+          "devTeam": "JJ55Y59DRG",
+          "iPhoneDeploymentTarget": "15.1"
+        }
+      ],
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Patrimore utiliza Face ID para permitirte acceder de forma rápida y segura a tu información financiera."
+        }
+      ],
       "expo-router",
       [
         "expo-splash-screen",
@@ -62,6 +94,8 @@
       "expo-font",
       "expo-web-browser",
       "expo-localization",
+      "expo-asset",
+      "expo-secure-store",
       [
         "react-native-auth0",
         {

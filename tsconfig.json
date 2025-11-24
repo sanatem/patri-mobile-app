@@ -19,6 +19,7 @@
     "noImplicitAny": false,
     "jsx": "react-jsx",
     "allowSyntheticDefaultImports": true,
+    "types": [],
     "paths": {
       "@/*": [
         "./*"

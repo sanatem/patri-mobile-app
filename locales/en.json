@@ -5,6 +5,8 @@
     "menu": {
       "preferences": "User Preferences",
       "preferencesSubtitle": "Language and other settings",
+      "biometricAuth": "Biometric Authentication",
+      "biometricAuthSubtitle": "Quick access with Face ID or fingerprint",
       "terms": "Terms and Conditions",
       "termsSubtitle": "Usage policies",
       "privacy": "Privacy and Security",
@@ -58,12 +60,42 @@
       }
     }
   },
+  "biometric": {
+    "title": "Biometric authentication",
+    "titleLowercase": "biometric authentication",
+    "subtitle": "Quick and secure access",
+    "enable": "Enable {{type}}",
+    "disable": "Disable {{type}}",
+    "faceId": "Face ID",
+    "touchId": "Touch ID",
+    "fingerprint": "Fingerprint",
+    "prompt": {
+      "title": "Welcome back",
+      "subtitle": "Use {{type}} to access quickly",
+      "authenticate": "Authenticate to continue",
+      "enable": "Confirm your identity to enable biometric access"
+    },
+    "errors": {
+      "notSupported": "Your device doesn't support biometric authentication",
+      "notEnrolled": "You don't have biometrics configured on your device",
+      "failed": "Authentication failed. Please try again.",
+      "canceled": "Authentication canceled",
+      "lockout": "Too many failed attempts. Try again in {{seconds}} seconds.",
+      "sessionExpired": "Session expired. Please log in again."
+    },
+    "setup": {
+      "title": "Quick access with {{type}}",
+      "description": "Log in quickly using your {{type}} instead of your password",
+      "confirm": "Are you sure you want to disable {{type}}?"
+    }
+  },
   "common": {
     "language_code": "en",
     "cancel": "Cancel",
     "error": "Error",
     "continue": "Continue",
     "permissionsRequired": "Permissions required",
+    "understood": "Understood",
     "understoodAndContinue": "Understood, let's continue",
     "start": "Let's get started",
     "back": "Back",
@@ -224,13 +256,35 @@
   },
   "identityConfirm": {
     "title": "Confirm your information",
-    "description": "Edit if there’s a mistake or something is missing.",
+    "description": "Edit if there's a mistake or something is missing.",
     "firstName": "First name",
     "lastName1": "Last name",
-    "lastName2": "Second last name",
     "gender": "Gender",
     "birthDate": "Date of birth",
-    "idExpiryDate": "ID expiration date"
+    "dateOfBirth": "Date of birth",
+    "nationality": "Nationality",
+    "selectNationality": "Select nationality",
+    "documentNumber": "Document number",
+    "idExpiryDate": "ID expiration date",
+    "verifyingDescription": "Verifying your identity document",
+    "verifying": "Verifying document...",
+    "verificationSuccess": "Document verified successfully",
+    "documentVerified": "Document verified successfully",
+    "verificationFailed": "Verification failed",
+    "verificationWarning": "Document verified with observations",
+    "confidence": "Confidence",
+    "manualReviewRequired": "Manual review required",
+    "extractedData": "Extracted data",
+    "dataIsCorrect": "Data is correct",
+    "retakePhoto": "Retake or upload photo again",
+    "documentRejected": "The document did not pass authenticity verification. Please try with another document.",
+    "enterManually": "Please enter the data manually.",
+    "dataWillBePrefilled": "This data will be pre-filled in the next step",
+    "noDataFound": "Could not extract data from document",
+    "errorLoadingImages": "Could not load document images",
+    "submitError": "Error sending data to server",
+    "serverError": "Server response error",
+    "continueAnyway": "Continue anyway"
   },
   "identityMethod": {
     "title": "Identity verification",
@@ -287,96 +341,94 @@
   },
   "investmentSurvey": {
     "loadingMessage": "Assessing your investor profile...",
-    "questions": [
-      {
-        "text": "What is your main investment goal?",
-        "options": [
-          "Save for my children’s education",
-          "Secure my retirement",
-          "Grow my wealth",
-          "Save for a trip"
-        ]
-      },
-      {
-        "text": "Which of the following best describes your investment time horizon?",
-        "options": [
-          "I might need the money at any moment",
-          "I’ll need part of the money this year",
-          "I might withdraw occasionally, but most will stay long term",
-          "I won’t use this money for at least 3 years"
-        ]
-      },
-      {
-        "text": "What is your level of financial knowledge?",
-        "options": [
-          "None",
-          "I understand the difference between stocks and fixed income",
-          "I’m familiar with different investment options and their risks",
-          "I have deep knowledge of investment products and strategies"
-        ]
-      },
-      {
-        "text": "What have you invested in before?",
-        "options": [
-          "Savings account, time deposits and/or fixed income instruments",
-          "Mutual funds",
-          "Stocks",
-          "Derivatives"
-        ]
-      },
-      {
-        "text": "Which of the following statements best represents you?",
-        "options": [
-          "I prefer stable growth and avoid losses",
-          "I accept short-term losses under 1 year",
-          "I care about long-term returns without big losses",
-          "I accept high volatility in exchange for long-term gains"
-        ]
-      },
-      {
-        "text": "If your investment gains 30% and then drops 20%, leaving a 10% profit, what would you do?",
-        "options": [
-          "Move to risk-free assets",
-          "Shift part of it to lower-risk investments",
-          "Feel worried but take no action",
-          "Invest more if fundamentals support it"
-        ]
-      },
-      {
-        "text": "What is your approximate monthly net income?",
-        "options": [
-          "Less than 1 million CLP",
-          "Between 1 and 3 million CLP",
-          "Between 3 and 5 million CLP",
-          "More than 5 million CLP"
-        ]
-      },
-      {
-        "text": "How much of your savings are you willing to invest?",
-        "options": [
-          "Less than 30%",
-          "Between 30% and 60%",
-          "More than 60%"
-        ]
-      },
-      {
-        "text": "Is your profession related to finance?",
-        "options": [
-          "Strongly related",
-          "Somewhat related",
-          "Slightly related",
-          "Not related"
-        ]
-      },
-      {
-        "text": "What is your estimated investable networth?",
-        "options": [
-          "Over CLP 200 million",
-          "Between CLP 50 and 200 million",
-          "Less than CLP 50 million"
-        ]
-      }
-    ]
+    "question1": {
+      "title": "What is your main investment goal?",
+      "options": [
+        "Save for my children's education",
+        "Secure my retirement",
+        "Grow my wealth",
+        "Save for a trip"
+      ]
+    },
+    "question2": {
+      "title": "Which of the following best describes your investment time horizon?",
+      "options": [
+        "I might need the money at any moment",
+        "I'll need part of the money this year",
+        "I might withdraw occasionally, but most will stay long term",
+        "I won't use this money for at least 3 years"
+      ]
+    },
+    "question3": {
+      "title": "What is your level of financial knowledge?",
+      "options": [
+        "None",
+        "I understand the difference between stocks and fixed income",
+        "I'm familiar with different investment options and their risks",
+        "I have deep knowledge of investment products and strategies"
+      ]
+    },
+    "question4": {
+      "title": "What have you invested in before?",
+      "options": [
+        "Savings account, time deposits and/or fixed income instruments",
+        "Mutual funds",
+        "Stocks",
+        "Derivatives"
+      ]
+    },
+    "question5": {
+      "title": "Which of the following statements best represents you?",
+      "options": [
+        "I prefer stable growth and avoid losses",
+        "I accept short-term losses under 1 year",
+        "I care about long-term returns without big losses",
+        "I accept high volatility in exchange for long-term gains"
+      ]
+    },
+    "question6": {
+      "title": "If your investment gains 30% and then drops 20%, leaving a 10% profit, what would you do?",
+      "options": [
+        "Move to risk-free assets",
+        "Shift part of it to lower-risk investments",
+        "Feel worried but take no action",
+        "Invest more if fundamentals support it"
+      ]
+    },
+    "question7": {
+      "title": "What is your approximate monthly net income?",
+      "options": [
+        "Less than 1 million CLP",
+        "Between 1 and 3 million CLP",
+        "Between 3 and 5 million CLP",
+        "More than 5 million CLP"
+      ]
+    },
+    "question8": {
+      "title": "How much of your savings are you willing to invest?",
+      "options": [
+        "Less than 30%",
+        "Between 30% and 60%",
+        "More than 60%"
+      ]
+    },
+    "question9": {
+      "title": "Is your profession related to finance?",
+      "options": [
+        "Strongly related",
+        "Somewhat related",
+        "Slightly related",
+        "Not related"
+      ]
+    },
+    "question10": {
+      "title": "What is your estimated investable networth?",
+      "options": [
+        "Over CLP 200 million",
+        "Between CLP 50 and 200 million",
+        "Less than CLP 50 million"
+      ]
+    }
   },
   "profileResult": {
     "title": "Your profile is conservative",
@@ -409,21 +461,26 @@
       }
     }
   },
-  "summary": {
-    "title": "Your profile is almost ready",
-    "description": "We’re validating your information. Once it’s approved, you’ll be able to start investing 🚀",
+  "investmentAccount": {
+    "title": "Investment Account",
+    "titleCompleted": "You can almost start investing",
+    "description": "Complete the following forms to create your investment account 📈",
+    "descriptionCompleted": "We just need to validate some data to activate your account",
     "returnHome": "Return to home",
     "steps": {
       "identity": {
         "title": "Identity verification",
+        "description": "Upload your ID images to start validating your account",
         "validated": "Document successfully validated"
       },
       "basic": {
         "title": "Basic information",
+        "description": "Tell us a bit about yourself",
         "completed": "Profile successfully completed"
       },
       "contract": {
         "title": "Contract and email verification",
+        "description": "Sign your contract and verify your account",
         "inProgress": "Validation in progress..."
       },
       "start": {
@@ -431,6 +488,23 @@
         "description": "Choose what you want to do with your money"
       }
     }
+  },
+  "contractSignature": {
+    "title": "Service Contracts",
+    "subtitle": "You're one step away from opening your Investor Account 💪",
+    "sectionTitle": "Service Contracts",
+    "contracts": {
+      "vectorCapital": "I have read and accept the service agreement with Vector Capital Corredora de Bolsa SpA.",
+      "patrimoreMandate": "I have read and accept the commercial mandate and investment agreement with Patrimore S.A.",
+      "patrimoreConduct": "I have read and accept the code of conduct of Patrimore S.A."
+    },
+    "viewDocument": "View document",
+    "signButton": "Sign",
+    "signingButton": "Signing...",
+    "backButton": "Back",
+    "warning": "You must accept all contracts to continue",
+    "error": "There was an error signing the contracts. Please try again.",
+    "success": "Contracts signed successfully"
   },
   "createGoal": {
     "title": "Create goal",
@@ -686,7 +760,8 @@
   },
   "investments": {
     "title": "Investment",
-    "needAccount": "You need an active investment account to access this section."
+    "needAccount": "You need an active investment account to access this section.",
+    "createAccount": "Create Account"
   },
   "floid": {
     "title": "Sync bank data"
@@ -1123,54 +1198,134 @@
   "personalInfo": {
     "questions": [
       {
-        "id": "gender",
+        "id": "sex",
         "type": "choice",
-        "text": "How should we address you?",
+        "text": "What is your legal sex?",
         "options": [
           {
-            "label": "Feminine",
-            "value": "femenino"
+            "label": "Female",
+            "value": "female"
           },
           {
-            "label": "Masculine",
-            "value": "masculino"
+            "label": "Male",
+            "value": "male"
           }
         ]
       },
       {
-        "id": "nationality",
+        "id": "gender",
         "type": "choice",
-        "text": "Is your nationality Chilean?",
+        "text": "What pronoun do you prefer we use to address you?",
         "options": [
           {
-            "label": "Yes",
-            "value": "si"
+            "label": "She/Her",
+            "value": "feminine"
           },
           {
-            "label": "No",
-            "value": "no"
+            "label": "He/Him",
+            "value": "masculine"
+          },
+          {
+            "label": "They/Them",
+            "value": "no_binary"
+          }
+        ]
+      },
+      {
+        "id": "employment_situation",
+        "type": "choice",
+        "text": "What is your employment situation?",
+        "options": [
+          {
+            "label": "I have dependent employment",
+            "value": "dependent"
+          },
+          {
+            "label": "I have independent employment",
+            "value": "independent"
+          },
+          {
+            "label": "Student",
+            "value": "student"
+          },
+          {
+            "label": "I am in commerce",
+            "value": "commerce"
+          },
+          {
+            "label": "I am a company director",
+            "value": "associate"
+          },
+          {
+            "label": "I am a capital rentier",
+            "value": "capital_rentier"
+          },
+          {
+            "label": "Retired",
+            "value": "pensioner"
+          },
+          {
+            "label": "Unemployed",
+            "value": "unemployed"
+          }
+        ]
+      },
+      {
+        "id": "marital_status",
+        "type": "choice",
+        "text": "What is your marital status?",
+        "options": [
+          {
+            "label": "Single",
+            "value": "single"
+          },
+          {
+            "label": "Married",
+            "value": "married"
+          },
+          {
+            "label": "Divorced",
+            "value": "divorced"
+          },
+          {
+            "label": "Widowed",
+            "value": "widower"
+          },
+          {
+            "label": "Civil Union",
+            "value": "civil_union"
+          },
+          {
+            "label": "Separated",
+            "value": "separated"
+          }
+        ]
+      },
+      {
+        "id": "conjugal_regime",
+        "type": "choice",
+        "text": "Under which conjugal regime are you married?",
+        "dependsOn": "marital_status",
+        "showWhen": "married",
+        "options": [
+          {
+            "label": "Conjugal society",
+            "value": "conjugal_society"
+          },
+          {
+            "label": "Profit sharing",
+            "value": "profit_sharing"
+          },
+          {
+            "label": "Separation of property",
+            "value": "separation_of_property"
           }
         ]
       },
       {
         "id": "us_person",
         "type": "choice",
-        "text": "Are you a US Person?",
-        "options": [
-          {
-            "label": "Yes",
-            "value": "si"
-          },
-          {
-            "label": "No",
-            "value": "no"
-          }
-        ]
-      },
-      {
-        "id": "foreign_tax",
-        "type": "choice",
-        "text": "Do you have tax residency in another country?",
+        "text": "Do you have tax residency in the United States (US Person)?",
         "options": [
           {
             "label": "Yes",
@@ -1197,6 +1352,69 @@
           }
         ]
       },
+      {
+        "id": "has_broker_relationship_with_vector",
+        "type": "choice",
+        "text": "Are you an employee, director, or attorney-in-fact of Vector Capital Corredores de Bolsa?",
+        "options": [
+          {
+            "label": "Yes",
+            "value": "si"
+          },
+          {
+            "label": "No",
+            "value": "no"
+          }
+        ]
+      },
+      {
+        "id": "broker_relationship_type",
+        "type": "choice",
+        "text": "What type of relationship do you have with the brokerage firm?",
+        "dependsOn": "has_broker_relationship_with_vector",
+        "showWhen": "si",
+        "options": [
+          {
+            "label": "Partner",
+            "value": "partner"
+          },
+          {
+            "label": "Director",
+            "value": "director"
+          },
+          {
+            "label": "Employee",
+            "value": "employee"
+          },
+          {
+            "label": "Business Group Member",
+            "value": "business_group"
+          },
+          {
+            "label": "Other Relationship",
+            "value": "other"
+          }
+        ]
+      },
+      {
+        "id": "has_a_broker_relationship",
+        "type": "choice",
+        "text": "Are you an employee, director, or attorney-in-fact of another brokerage firm?",
+        "options": [
+          {
+            "label": "Yes",
+            "value": "si"
+          },
+          {
+            "label": "No",
+            "value": "no"
+          }
+        ]
+      }
+    ]
+  },
+  "contactInfo": {
+    "questions": [
       {
         "id": "address",
         "type": "form",
@@ -1227,78 +1445,6 @@
         "text": "What is your phone number?",
         "subtitle": "We ask for regulatory reasons",
         "placeholder": "9 1234 5678"
-      },
-      {
-        "id": "income_source",
-        "type": "choice",
-        "text": "What is the source of the money you want to invest?",
-        "options": [
-          {
-            "label": "Salary/Freelance",
-            "value": "sueldo"
-          },
-          {
-            "label": "Investments",
-            "value": "inversiones"
-          },
-          {
-            "label": "Business income",
-            "value": "negocio"
-          },
-          {
-            "label": "Real estate",
-            "value": "bienes_raices"
-          },
-          {
-            "label": "Inheritance",
-            "value": "herencia"
-          },
-          {
-            "label": "Savings",
-            "value": "ahorros"
-          }
-        ]
-      },
-      {
-        "id": "occupation",
-        "type": "form",
-        "text": "What do you do?",
-        "fields": [
-          {
-            "name": "employment",
-            "type": "text",
-            "placeholder": "Employment status"
-          },
-          {
-            "name": "occupation",
-            "type": "text",
-            "placeholder": "Occupation or profession"
-          }
-        ]
-      },
-      {
-        "id": "monthly_income",
-        "type": "choice",
-        "text": "What is your monthly income?",
-        "subtitle": "An estimate is fine",
-        "options": [
-          {
-            "label": "Less than $500,000",
-            "value": "menos_500"
-          },
-          {
-            "label": "$500,000–$1,000,000",
-            "value": "500_1000"
-          },
-          {
-            "label": "$1,000,000–$2,000,000",
-            "value": "1000_2000"
-          },
-          {
-            "label": "More than $2,000,000",
-            "value": "mas_2000"
-          }
-        ]
       }
     ],
     "placeholders": {
@@ -1310,6 +1456,86 @@
     },
     "regionLabel": "Region",
     "communeLabel": "Commune"
+  },
+  "employmentInfo": {
+    "questions": [
+      {
+        "id": "company_name",
+        "type": "input",
+        "text": "What company do you work for?",
+        "subtitle": "Enter the company name",
+        "placeholder": "Company name"
+      },
+      {
+        "id": "company_rut",
+        "type": "input",
+        "text": "What is the company's RUT?",
+        "subtitle": "Example: 30686957-4",
+        "placeholder": "30686957-4",
+        "validation": "rut"
+      },
+      {
+        "id": "charge",
+        "type": "input",
+        "text": "What is your position?",
+        "subtitle": "Example: Director",
+        "placeholder": "Director"
+      },
+      {
+        "id": "profession",
+        "type": "input",
+        "text": "What is your profession?",
+        "subtitle": "Example: Accountant",
+        "placeholder": "Accountant"
+      },
+      {
+        "id": "commercial_activity",
+        "type": "select",
+        "text": "What is the company's line of business?",
+        "subtitle": "Select the main activity of the company",
+        "placeholder": "Select line of business"
+      }
+    ],
+    "errors": {
+      "required": "This field is required",
+      "invalidRut": "Invalid RUT"
+    },
+    "commercialActivities": {
+      "advertising": "Advertising and Marketing",
+      "agriculture": "Agriculture",
+      "agriculture_livestock": "Agriculture and Livestock",
+      "automotive": "Automotive",
+      "construction": "Construction",
+      "consulting": "Consulting",
+      "education": "Education",
+      "energy": "Energy",
+      "entertainment": "Entertainment",
+      "environmental": "Environmental Services",
+      "fashion": "Fashion and Textiles",
+      "financial_services": "Financial Services",
+      "fishing": "Fishing",
+      "food_and_beverage": "Food and Beverage",
+      "forestry": "Forestry",
+      "government": "Government",
+      "healthcare": "Healthcare",
+      "insurance": "Insurance",
+      "legal_services": "Legal Services",
+      "logistics": "Logistics",
+      "manufacturing": "Manufacturing",
+      "media": "Media",
+      "mining": "Mining",
+      "other": "Other",
+      "professional_services": "Professional Services",
+      "real_estate": "Real Estate",
+      "research": "Research and Development",
+      "retail": "Retail",
+      "sports": "Sports",
+      "technology": "Technology",
+      "telecommunications": "Telecommunications",
+      "tourism": "Tourism",
+      "transportation": "Transportation",
+      "wholesale": "Wholesale"
+    }
   },
   "investmentPortfolio": {
     "reserva": {
@@ -1385,7 +1611,8 @@
     "cancelledTitle": "Authentication Cancelled",
     "cancelledMessage": "Authentication process could not be completed.",
     "errorTitle": "Authentication Error",
-    "errorMessage": "An error occurred during authentication. Please try again."
+    "errorMessage": "An error occurred during authentication. Please try again.",
+    "usePassword": "Use password"
   },
   "login": {
     "subtitle": "Sign in to manage your finances intelligently",

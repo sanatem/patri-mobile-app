@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { Keyboard, Alert } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Container } from '@/components/ui/Container';
 import GoalSelectionStep from './goal-step';
 import SourceFundsStep from './source-funds-step';
-import { FintocTransfer } from '@/components/investment/movements/investment/source-funds';
+import { FintocTransfer } from '@/components/investment/PortfolioOverview/Movements/MovementsForms/investment/source-funds';
 import { useCash } from '@/hooks/cash/useCash';
 import { useCreatePurchase } from '@/hooks/investment/useCreatePurchase';
 import { useGoals } from '@/hooks/investment/useGoals';
@@ -17,8 +17,9 @@ type Step = 'goal-step' | 'source-funds-step';
 export default function InvestmentMovementFlow() {
   const { t } = useTranslation();
   const router = useRouter();
+  const { goalId } = useLocalSearchParams<{ goalId?: string }>();
   const [currentStep, setCurrentStep] = useState<Step>('goal-step')
-  const [selectedGoal, setSelectedGoal] = useState('')
+  const [selectedGoal, setSelectedGoal] = useState(goalId || '')
   const [amount, setAmount] = useState('')
   const [selectedSource, setSelectedSource] = useState('')
   const [fintocConfig, setFintocConfig] = useState<{

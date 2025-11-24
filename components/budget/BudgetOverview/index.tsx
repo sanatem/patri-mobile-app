@@ -1,6 +1,6 @@
 import React from 'react';
-import { View, ScrollView, ActivityIndicator } from 'react-native';
-import { Container, KeyboardAwareContainer, LockedTabOverlay, SyncModal } from '@/components/ui';
+import { View, ScrollView } from 'react-native';
+import { Container, KeyboardAwareContainer, LockedTabOverlay, SyncModal, LoadingSpinner } from '@/components/ui';
 import { BudgetHeader } from './Header';
 import { Filters } from './Filters';
 import { BudgetChartSection } from './Chart';
@@ -87,7 +87,7 @@ export function BudgetOverview() {
   if (subscriptionLoading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
-        <ActivityIndicator size="large" color={Colors.secondary[500]} />
+        <LoadingSpinner />
       </View>
     );
   }

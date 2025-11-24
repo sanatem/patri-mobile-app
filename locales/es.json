@@ -5,6 +5,8 @@
     "menu": {
       "preferences": "Preferencias de usuario",
       "preferencesSubtitle": "Idioma y otras preferencias",
+      "biometricAuth": "Autenticación biométrica",
+      "biometricAuthSubtitle": "Acceso rápido con Face ID o huella digital",
       "terms": "Términos y condiciones",
       "termsSubtitle": "Políticas de uso",
       "privacy": "Privacidad y seguridad",
@@ -58,12 +60,42 @@
       }
     }
   },
+  "biometric": {
+    "title": "Autenticación biométrica",
+    "titleLowercase": "autenticación biométrica",
+    "subtitle": "Acceso rápido y seguro",
+    "enable": "Habilitar {{type}}",
+    "disable": "Deshabilitar {{type}}",
+    "faceId": "Face ID",
+    "touchId": "Touch ID",
+    "fingerprint": "Huella digital",
+    "prompt": {
+      "title": "Bienvenido de vuelta",
+      "subtitle": "Usa {{type}} para acceder rápidamente",
+      "authenticate": "Autentícate para continuar",
+      "enable": "Confirma tu identidad para habilitar el acceso biométrico"
+    },
+    "errors": {
+      "notSupported": "Tu dispositivo no soporta autenticación biométrica",
+      "notEnrolled": "No tienes biometría configurada en tu dispositivo",
+      "failed": "Autenticación fallida. Intenta nuevamente.",
+      "canceled": "Autenticación cancelada",
+      "lockout": "Demasiados intentos fallidos. Intenta nuevamente en {{seconds}} segundos.",
+      "sessionExpired": "Sesión expirada. Por favor, inicia sesión nuevamente."
+    },
+    "setup": {
+      "title": "Acceso rápido con {{type}}",
+      "description": "Inicia sesión rápidamente usando tu {{type}} en lugar de tu contraseña",
+      "confirm": "¿Estás seguro de que deseas deshabilitar {{type}}?"
+    }
+  },
   "common": {
     "language_code": "es",
     "cancel": "Cancelar",
     "error": "Error",
     "continue": "Continuar",
     "permissionsRequired": "Permisos requeridos",
+    "understood": "Entendido",
     "understoodAndContinue": "Entendido, continuemos",
     "start": "Empecemos",
     "back": "Volver",
@@ -232,13 +264,35 @@
   },
   "identityConfirm": {
     "title": "Confirma tus datos",
-    "description": "Edítala si encuentras un error o falta algo.",
-    "firstName": "Nombre",
-    "lastName1": "Primer apellido",
-    "lastName2": "Segundo apellido",
+    "description": "Edita si hay algún error o falta información.",
+    "firstName": "Nombres",
+    "lastName1": "Apellidos",
     "gender": "Género",
     "birthDate": "Fecha de nacimiento",
-    "idExpiryDate": "Fecha de vencimiento del documento"
+    "dateOfBirth": "Fecha de nacimiento",
+    "nationality": "Nacionalidad",
+    "selectNationality": "Selecciona nacionalidad",
+    "documentNumber": "Número de documento",
+    "idExpiryDate": "Fecha de vencimiento del documento",
+    "verifyingDescription": "Verificando tu documento de identidad",
+    "verifying": "Verificando documento...",
+    "verificationSuccess": "Documento verificado correctamente",
+    "documentVerified": "Documento verificado correctamente",
+    "verificationFailed": "Error de verificación",
+    "verificationWarning": "Documento verificado con observaciones",
+    "confidence": "Confianza",
+    "manualReviewRequired": "Se requiere revisión manual",
+    "extractedData": "Datos extraídos",
+    "dataIsCorrect": "Los datos son correctos",
+    "retakePhoto": "Tomar o subir foto nuevamente",
+    "documentRejected": "El documento no pasó la verificación de autenticidad. Por favor, intenta con otro documento.",
+    "enterManually": "Por favor, ingresa los datos manualmente.",
+    "dataWillBePrefilled": "Estos datos serán pre-llenados en el siguiente paso",
+    "noDataFound": "No se pudieron extraer datos del documento",
+    "errorLoadingImages": "No se pudieron cargar las imágenes del documento",
+    "submitError": "Error al enviar los datos al servidor",
+    "serverError": "Error en la respuesta del servidor",
+    "continueAnyway": "Continuar de todos modos"
   },
   "identityMethod": {
     "title": "Verificación de identidad",
@@ -295,96 +349,94 @@
   },
   "investmentSurvey": {
     "loadingMessage": "Definiendo tu perfil de inversor...",
-    "questions": [
-      {
-        "text": "¿Cuál es el principal objetivo de tu inversión?",
-        "options": [
-          "Ahorrar para la educación de mis hijos",
-          "Asegurar mi jubilación",
-          "Incrementar mi patrimonio",
-          "Planificar un viaje"
-        ]
-      },
-      {
-        "text": "¿Cuál de estas alternativas representa mejor tu horizonte de inversión?",
-        "options": [
-          "Podría necesitar el dinero en cualquier momento",
-          "Necesitaré parte del dinero este año",
-          "Quizás haga retiros esporádicos, pero la mayor parte de la inversión será a largo plazo",
-          "No usaré este dinero en los próximos 3 años"
-        ]
-      },
-      {
-        "text": "¿Qué grado de conocimiento financiero posees?",
-        "options": [
-          "Nulo",
-          "Entiendo la diferencia entre acciones y renta fija",
-          "Conozco distintas opciones de inversión y sus niveles de riesgo",
-          "Tengo un amplio conocimiento sobre productos y estrategias de inversión"
-        ]
-      },
-      {
-        "text": "¿En qué productos has invertido anteriormente?",
-        "options": [
-          "Cuenta de ahorro, depósitos a plazo y/o instrumentos de renta fija",
-          "Fondos mutuos",
-          "Acciones",
-          "Productos derivados"
-        ]
-      },
-      {
-        "text": "¿Con cuál de las siguientes afirmaciones te identificas mejor?",
-        "options": [
-          "Lo más importante es que mi inversión crezca de manera estable, no acepto fluctuaciones negativas del mercado",
-          "Acepto oscilaciones negativas en el valor de mi patrimonio durante períodos de tiempo inferiores a un año",
-          "Me importa la rentabilidad a mediano y largo plazo, sin sufrir fluctuaciones negativas importantes en el valor de mi patrimonio",
-          "Puedo asumir fluctuaciones de mercado importantes en mis inversiones a cambio de mayores rentabilidades en el largo plazo"
-        ]
-      },
-      {
-        "text": "Si tienes una inversión con una rentabilidad del 30% y tiene una baja de 20% obteniendo un 10% a favor, ¿qué harías?",
-        "options": [
-          "Me cambiaría a instrumentos sin riesgo",
-          "Transferiría parte de los fondos a inversiones de menor riesgo",
-          "Me preocuparía, pero no tomaría ninguna acción",
-          "Invertiría más si hay fundamentos para ello"
-        ]
-      },
-      {
-        "text": "¿Cuál es tu nivel de ingreso mensual neto considerando todas tus fuentes de ingresos?",
-        "options": [
-          "Menos de 1 millón de pesos",
-          "Entre 1 y 3 millones de pesos",
-          "Entre 3 y 5 millones de pesos",
-          "Más de 5 millones de pesos"
-        ]
-      },
-      {
-        "text": "¿Cuánto de tus ahorros estás dispuesto a invertir?",
-        "options": [
-          "Menos del 30%",
-          "Entre el 30% y el 60%",
-          "Más del 60%"
-        ]
-      },
-      {
-        "text": "¿Qué relación tiene tu profesión con temas financieros?",
-        "options": [
-          "Está muy relacionada",
-          "Tiene cierta relación",
-          "Tiene poca relación",
-          "No tiene relación"
-        ]
-      },
-      {
-        "text": "¿Cuál es el valor aproximado de tu patrimonio disponible para invertir?",
-        "options": [
-          "Más de $200 millones",
-          "Entre $50 y $200 millones",
-          "Menos de $50 millones"
-        ]
-      }
-    ]
+    "question1": {
+      "title": "¿Cuál es el principal objetivo de tu inversión?",
+      "options": [
+        "Ahorrar para la educación de mis hijos",
+        "Asegurar mi jubilación",
+        "Incrementar mi patrimonio",
+        "Planificar un viaje"
+      ]
+    },
+    "question2": {
+      "title": "¿Cuál de estas alternativas representa mejor tu horizonte de inversión?",
+      "options": [
+        "Podría necesitar el dinero en cualquier momento",
+        "Necesitaré parte del dinero este año",
+        "Quizás haga retiros esporádicos, pero la mayor parte de la inversión será a largo plazo",
+        "No usaré este dinero en los próximos 3 años"
+      ]
+    },
+    "question3": {
+      "title": "¿Qué grado de conocimiento financiero posees?",
+      "options": [
+        "Nulo",
+        "Entiendo la diferencia entre acciones y renta fija",
+        "Conozco distintas opciones de inversión y sus niveles de riesgo",
+        "Tengo un amplio conocimiento sobre productos y estrategias de inversión"
+      ]
+    },
+    "question4": {
+      "title": "¿En qué productos has invertido anteriormente?",
+      "options": [
+        "Cuenta de ahorro, depósitos a plazo y/o instrumentos de renta fija",
+        "Fondos mutuos",
+        "Acciones",
+        "Productos derivados"
+      ]
+    },
+    "question5": {
+      "title": "¿Con cuál de las siguientes afirmaciones te identificas mejor?",
+      "options": [
+        "Lo más importante es que mi inversión crezca de manera estable, no acepto fluctuaciones negativas del mercado",
+        "Acepto oscilaciones negativas en el valor de mi patrimonio durante períodos de tiempo inferiores a un año",
+        "Me importa la rentabilidad a mediano y largo plazo, sin sufrir fluctuaciones negativas importantes en el valor de mi patrimonio",
+        "Puedo asumir fluctuaciones de mercado importantes en mis inversiones a cambio de mayores rentabilidades en el largo plazo"
+      ]
+    },
+    "question6": {
+      "title": "Si tienes una inversión con una rentabilidad del 30% y tiene una baja de 20% obteniendo un 10% a favor, ¿qué harías?",
+      "options": [
+        "Me cambiaría a instrumentos sin riesgo",
+        "Transferiría parte de los fondos a inversiones de menor riesgo",
+        "Me preocuparía, pero no tomaría ninguna acción",
+        "Invertiría más si hay fundamentos para ello"
+      ]
+    },
+    "question7": {
+      "title": "¿Cuál es tu nivel de ingreso mensual neto considerando todas tus fuentes de ingresos?",
+      "options": [
+        "Menos de 1 millón de pesos",
+        "Entre 1 y 3 millones de pesos",
+        "Entre 3 y 5 millones de pesos",
+        "Más de 5 millones de pesos"
+      ]
+    },
+    "question8": {
+      "title": "¿Cuánto de tus ahorros estás dispuesto a invertir?",
+      "options": [
+        "Menos del 30%",
+        "Entre el 30% y el 60%",
+        "Más del 60%"
+      ]
+    },
+    "question9": {
+      "title": "¿Qué relación tiene tu profesión con temas financieros?",
+      "options": [
+        "Está muy relacionada",
+        "Tiene cierta relación",
+        "Tiene poca relación",
+        "No tiene relación"
+      ]
+    },
+    "question10": {
+      "title": "¿Cuál es el valor aproximado de tu patrimonio disponible para invertir?",
+      "options": [
+        "Más de $200 millones",
+        "Entre $50 y $200 millones",
+        "Menos de $50 millones"
+      ]
+    }
   },
   "profileResult": {
     "title": "Tu perfil es conservador",
@@ -392,7 +444,7 @@
     "description2": "Puedes cambiarlo más adelante si lo deseas."
   },
   "startProfile": {
-    "title": "Veamos qué tipo de inversionista eres",
+    "title": "Qué tipo de inversionista eres",
     "description": "Te haremos algunas preguntas para determinar tu perfil de inversionista. Puedes cambiarlo más adelante si lo necesitas.",
     "timeEstimate": "⏱ aprox. 4 minutos"
   },
@@ -417,21 +469,26 @@
       }
     }
   },
-  "summary": {
-    "title": "Tu perfil está casi listo",
-    "description": "Estamos validando tu información. Una vez aprobado, podrás comenzar a invertir 🚀",
+  "investmentAccount": {
+    "title": "Cuenta de inversión",
+    "titleCompleted": "Ya casi puedes invertir",
+    "description": "Completa los siguientes formularios para crear tu cuenta de inversión 📈",
+    "descriptionCompleted": "Solo necesitamos validar algunos datos para activar tu cuenta",
     "returnHome": "Volver al inicio",
     "steps": {
       "identity": {
         "title": "Verificación de identidad",
+        "description": "Carga las imágenes de tu cédula para comenzar a validar tu cuenta",
         "validated": "Documento validado correctamente"
       },
       "basic": {
         "title": "Información básica",
+        "description": "Compártenos un poco sobre ti",
         "completed": "Perfil completado exitosamente"
       },
       "contract": {
         "title": "Contrato y validación de correo",
+        "description": "Firma tu contrato y verifica tu cuenta",
         "inProgress": "En proceso de validación..."
       },
       "start": {
@@ -439,6 +496,23 @@
         "description": "Elige qué deseas hacer con tu dinero"
       }
     }
+  },
+  "contractSignature": {
+    "title": "Contratos de Servicio",
+    "subtitle": "Estás a un paso de abrir tu Cuenta de Inversión 💪",
+    "sectionTitle": "Contratos de Servicio",
+    "contracts": {
+      "vectorCapital": "He leído y acepto el contrato de prestación de servicios con Vector Capital Corredora de Bolsa SpA.",
+      "patrimoreMandate": "He leído y acepto el contrato de mandato mercantil e inversión con Patrimore S.A.",
+      "patrimoreConduct": "He leído y acepto el código de conducta de Patrimore S.A."
+    },
+    "viewDocument": "Ver documento",
+    "signButton": "Firmar",
+    "signingButton": "Firmando...",
+    "backButton": "Volver",
+    "warning": "Debes aceptar todos los contratos para continuar",
+    "error": "Hubo un error al firmar los contratos. Por favor, intenta de nuevo.",
+    "success": "Contratos firmados exitosamente"
   },
   "createGoal": {
     "title": "Crear meta",
@@ -695,7 +769,8 @@
   },
   "investments": {
     "title": "Inversión",
-    "needAccount": "Para acceder a esta sección necesitas tener una cuenta de inversión activa."
+    "needAccount": "Para acceder a esta sección necesitas tener una cuenta de inversión activa.",
+    "createAccount": "Crear Cuenta"
   },
   "floid": {
     "title": "Sincronizar datos bancarios"
@@ -1133,54 +1208,158 @@
   "personalInfo": {
     "questions": [
       {
-        "id": "gender",
+        "id": "sex",
         "type": "choice",
-        "text": "¿Cómo debemos dirigirnos a ti?",
+        "text": "¿Cuál es tu sexo legal?",
         "options": [
           {
-            "label": "En femenino",
-            "value": "femenino"
+            "label": "Femenino",
+            "value": "female"
           },
           {
-            "label": "En masculino",
-            "value": "masculino"
+            "label": "Masculino",
+            "value": "male"
           }
         ]
       },
       {
-        "id": "nationality",
+        "id": "gender",
         "type": "choice",
-        "text": "¿Tu nacionalidad es chilena?",
+        "text": "¿Con qué pronombre prefieres que nos dirijamos a ti?",
         "options": [
           {
-            "label": "Sí",
-            "value": "si"
+            "label": "Ella",
+            "value": "feminine"
           },
           {
-            "label": "No",
-            "value": "no"
+            "label": "Él",
+            "value": "masculine"
+          },
+          {
+            "label": "Elle",
+            "value": "no_binary"
+          }
+        ]
+      },
+      {
+        "id": "employment_situation",
+        "type": "choice",
+        "text": "¿Cuál es tu situación laboral?",
+        "options": [
+          {
+            "label": "Tengo un trabajo dependiente",
+            "value": "dependent"
+          },
+          {
+            "label": "Tengo un trabajo independiente",
+            "value": "independent"
+          },
+          {
+            "label": "Estudio",
+            "value": "student"
+          },
+          {
+            "label": "Me dedico al comercio",
+            "value": "commerce"
+          },
+          {
+            "label": "Soy director de empresas",
+            "labelFeminine": "Soy directora de empresas",
+            "labelMasculine": "Soy director de empresas",
+            "labelNoBinary": "Soy directore de empresas",
+            "value": "associate"
+          },
+          {
+            "label": "Soy rentista de capital",
+            "value": "capital_rentier"
+          },
+          {
+            "label": "Pensionado",
+            "labelFeminine": "Pensionada",
+            "labelMasculine": "Pensionado",
+            "labelNoBinary": "Pensionade",
+            "value": "pensioner"
+          },
+          {
+            "label": "No tengo empleo",
+            "value": "unemployed"
+          }
+        ]
+      },
+      {
+        "id": "marital_status",
+        "type": "choice",
+        "text": "¿Cuál es tu estado civil?",
+        "options": [
+          {
+            "label": "Soltero",
+            "labelFeminine": "Soltera",
+            "labelMasculine": "Soltero",
+            "labelNoBinary": "Soltere",
+            "value": "single"
+          },
+          {
+            "label": "Casado",
+            "labelFeminine": "Casada",
+            "labelMasculine": "Casado",
+            "labelNoBinary": "Casade",
+            "value": "married"
+          },
+          {
+            "label": "Divorciado",
+            "labelFeminine": "Divorciada",
+            "labelMasculine": "Divorciado",
+            "labelNoBinary": "Divorciade",
+            "value": "divorced"
+          },
+          {
+            "label": "Viudo",
+            "labelFeminine": "Viuda",
+            "labelMasculine": "Viudo",
+            "labelNoBinary": "Viude",
+            "value": "widower"
+          },
+          {
+            "label": "Conviviente Civil",
+            "value": "civil_union"
+          },
+          {
+            "label": "Separado",
+            "labelFeminine": "Separada",
+            "labelMasculine": "Separado",
+            "labelNoBinary": "Separade",
+            "value": "separated"
+          }
+        ]
+      },
+      {
+        "id": "conjugal_regime",
+        "type": "choice",
+        "text": "¿Bajo cuál régimen conyugal te encuentras casado?",
+        "textFeminine": "¿Bajo cuál régimen conyugal te encuentras casada?",
+        "textMasculine": "¿Bajo cuál régimen conyugal te encuentras casado?",
+        "textNoBinary": "¿Bajo cuál régimen conyugal te encuentras casade?",
+        "dependsOn": "marital_status",
+        "showWhen": "married",
+        "options": [
+          {
+            "label": "Sociedad conyugal",
+            "value": "conjugal_society"
+          },
+          {
+            "label": "Participación en los gananciales",
+            "value": "profit_sharing"
+          },
+          {
+            "label": "Separación total de bienes",
+            "value": "separation_of_property"
           }
         ]
       },
       {
         "id": "us_person",
         "type": "choice",
-        "text": "¿Eres una US Person?",
-        "options": [
-          {
-            "label": "Sí",
-            "value": "si"
-          },
-          {
-            "label": "No",
-            "value": "no"
-          }
-        ]
-      },
-      {
-        "id": "foreign_tax",
-        "type": "choice",
-        "text": "¿Tienes residencia fiscal en otro país?",
+        "text": "¿Tienes residencia tributaria en Estados Unidos (US Person)?",
         "options": [
           {
             "label": "Sí",
@@ -1208,107 +1387,101 @@
         ]
       },
       {
-        "id": "address",
-        "type": "form",
-        "text": "¿Cuál es tu dirección?",
-        "fields": [
+        "id": "has_broker_relationship_with_vector",
+        "type": "choice",
+        "text": "¿Eres empleado, director o apoderado de Vector Capital Corredores de Bolsa?",
+        "options": [
           {
-            "name": "address",
-            "type": "text",
-            "placeholder": "Dirección"
+            "label": "Sí",
+            "value": "si"
           },
           {
-            "name": "region",
-            "type": "select",
-            "placeholder": "Selecciona una región",
-            "options": []
-          },
-          {
-            "name": "commune",
-            "type": "select",
-            "placeholder": "Selecciona una comuna",
-            "dependsOn": "region"
+            "label": "No",
+            "value": "no"
           }
         ]
       },
+      {
+        "id": "broker_relationship_type",
+        "type": "choice",
+        "text": "¿Qué tipo de relación tiene con la corredora?",
+        "dependsOn": "has_broker_relationship_with_vector",
+        "showWhen": "si",
+        "options": [
+          {
+            "label": "Socio",
+            "value": "partner"
+          },
+          {
+            "label": "Director",
+            "value": "director"
+          },
+          {
+            "label": "Trabajador",
+            "value": "employee"
+          },
+          {
+            "label": "Miembro del Grupo Empresarial",
+            "value": "business_group"
+          },
+          {
+            "label": "Otra Relación",
+            "value": "other"
+          }
+        ]
+      },
+      {
+        "id": "has_a_broker_relationship",
+        "type": "choice",
+        "text": "¿Eres empleado, director o apoderado de otra corredora de bolsa?",
+        "options": [
+          {
+            "label": "Sí",
+            "value": "si"
+          },
+          {
+            "label": "No",
+            "value": "no"
+          }
+        ]
+      }
+    ]
+  },
+  "contactInfo": {
+    "questions": [
       {
         "id": "phone",
         "type": "input",
         "text": "¿Cuál es tu número de teléfono?",
-        "subtitle": "Lo solicitamos por razones regulatorias",
-        "placeholder": "9 1234 5678"
+        "subtitle": "Ejemplo: +56 2 2 456 7896",
+        "placeholder": "+56 2 2 456 7896"
       },
       {
-        "id": "income_source",
-        "type": "choice",
-        "text": "¿De dónde proviene el dinero que deseas invertir?",
-        "options": [
-          {
-            "label": "Sueldo/Honorarios",
-            "value": "sueldo"
-          },
-          {
-            "label": "Inversiones",
-            "value": "inversiones"
-          },
-          {
-            "label": "Ingresos de negocio",
-            "value": "negocio"
-          },
-          {
-            "label": "Bienes raíces",
-            "value": "bienes_raices"
-          },
-          {
-            "label": "Herencia",
-            "value": "herencia"
-          },
-          {
-            "label": "Ahorros",
-            "value": "ahorros"
-          }
-        ]
+        "id": "address",
+        "type": "input",
+        "text": "¿Cuál es tu dirección actual?",
+        "subtitle": "Ingresa la ubicación completa",
+        "placeholder": "Calle, avenida, pasaje..."
       },
       {
-        "id": "occupation",
-        "type": "form",
-        "text": "¿A qué te dedicas?",
-        "fields": [
-          {
-            "name": "employment",
-            "type": "text",
-            "placeholder": "Situación laboral"
-          },
-          {
-            "name": "occupation",
-            "type": "text",
-            "placeholder": "Ocupación o profesión"
-          }
-        ]
+        "id": "address_number",
+        "type": "input",
+        "text": "¿Cuál es el número de tu dirección?",
+        "subtitle": "Ingrese el número de su dirección. Ejemplo: 1234",
+        "placeholder": "1234"
       },
       {
-        "id": "monthly_income",
-        "type": "choice",
-        "text": "¿Cuál es tu ingreso mensual?",
-        "subtitle": "Una estimación es suficiente",
-        "options": [
-          {
-            "label": "Menos de $500.000",
-            "value": "menos_500"
-          },
-          {
-            "label": "Entre $500.000 y $1.000.000",
-            "value": "500_1000"
-          },
-          {
-            "label": "Entre $1.000.000 y $2.000.000",
-            "value": "1000_2000"
-          },
-          {
-            "label": "Más de $2.000.000",
-            "value": "mas_2000"
-          }
-        ]
+        "id": "region",
+        "type": "select",
+        "text": "¿En qué región resides actualmente?",
+        "placeholder": "Selecciona una región"
+      },
+      {
+        "id": "commune",
+        "type": "select",
+        "text": "¿En qué comuna resides actualmente?",
+        "placeholder": "Selecciona una comuna",
+        "dependsOn": "region"
       }
     ],
     "placeholders": {
@@ -1320,6 +1493,258 @@
     },
     "regionLabel": "Región",
     "communeLabel": "Comuna"
+  },
+  "spouseInfo": {
+    "title": "Datos del Cónyuge",
+    "description": "Por ley necesitamos los datos de tu cónyuge para abrir tu cuenta de inversión",
+    "step1Title": "Información básica",
+    "step2Title": "Información adicional",
+    "questions": {
+      "step1": [
+        {
+          "id": "first_name",
+          "type": "input",
+          "text": "¿Cuál es su nombre?",
+          "placeholder": "Ingresa su nombre",
+          "label": "Nombre"
+        },
+        {
+          "id": "paternal_last_name",
+          "type": "input",
+          "text": "¿Cuál es su apellido paterno?",
+          "placeholder": "Ingresa su apellido paterno",
+          "label": "Apellido paterno"
+        },
+        {
+          "id": "maternal_last_name",
+          "type": "input",
+          "text": "¿Cuál es su apellido materno?",
+          "placeholder": "Ingresa su apellido materno",
+          "label": "Apellido materno"
+        },
+        {
+          "id": "rut",
+          "type": "input",
+          "text": "¿Cuál es su RUT?",
+          "placeholder": "Ejemplo: 30686957-4",
+          "label": "RUT"
+        },
+        {
+          "id": "birth_date",
+          "type": "date",
+          "text": "¿Cuál es su fecha de nacimiento?",
+          "placeholder": "dd-mm-aaaa",
+          "label": "Fecha de nacimiento"
+        }
+      ],
+      "step2": [
+        {
+          "id": "sex",
+          "type": "choice",
+          "text": "¿Cuál es su sexo legal?",
+          "options": [
+            {
+              "label": "Femenino",
+              "value": "female"
+            },
+            {
+              "label": "Masculino",
+              "value": "male"
+            }
+          ]
+        },
+        {
+          "id": "email",
+          "type": "input",
+          "text": "¿Cuál es su correo electrónico?",
+          "placeholder": "nombre@mail.com",
+          "label": "E-mail"
+        },
+        {
+          "id": "nationality",
+          "type": "select",
+          "text": "¿Cuál es su nacionalidad?",
+          "placeholder": "Selecciona su nacionalidad",
+          "label": "Nacionalidad"
+        },
+        {
+          "id": "phone",
+          "type": "input",
+          "text": "¿Cuál es su número de teléfono?",
+          "placeholder": "Ejemplo: +56 2 2 456 7896",
+          "label": "Número de Teléfono"
+        },
+        {
+          "id": "same_address",
+          "type": "choice",
+          "text": "¿Comparten el mismo domicilio?",
+          "options": [
+            {
+              "label": "Sí",
+              "value": "si"
+            },
+            {
+              "label": "No",
+              "value": "no"
+            }
+          ]
+        },
+        {
+          "id": "spouse_address",
+          "type": "input",
+          "text": "¿Cuál es su domicilio?",
+          "placeholder": "Ingresa la ubicación completa",
+          "label": "Domicilio"
+        },
+        {
+          "id": "spouse_address_number",
+          "type": "input",
+          "text": "¿Cuál es el número de su dirección?",
+          "placeholder": "Ejemplo: 1234",
+          "label": "Número"
+        },
+        {
+          "id": "spouse_region",
+          "type": "select",
+          "text": "¿En qué región reside actualmente?",
+          "placeholder": "Selecciona la región",
+          "label": "Región"
+        },
+        {
+          "id": "spouse_commune",
+          "type": "select",
+          "text": "¿En qué comuna reside actualmente?",
+          "placeholder": "Selecciona la comuna",
+          "label": "Comuna"
+        },
+        {
+          "id": "broker_relationship_type",
+          "type": "choice",
+          "text": "¿Cuál es su relación con Vector Capital Corredores de Bolsa?",
+          "options": [
+            {
+              "label": "Ninguna",
+              "value": "unrelated"
+            },
+            {
+              "label": "Es parte de la asociación de la empresa",
+              "value": "shareholder"
+            },
+            {
+              "label": "Es parte de la dirección de la empresa",
+              "value": "director"
+            },
+            {
+              "label": "Trabaja en la empresa",
+              "value": "employee"
+            },
+            {
+              "label": "Es parte del grupo empresarial",
+              "value": "business_group"
+            },
+            {
+              "label": "Otra",
+              "value": "other"
+            }
+          ]
+        }
+      ]
+    },
+    "nationalities": [
+      "Chilena",
+      "Argentina",
+      "Boliviana",
+      "Brasileña",
+      "Colombiana",
+      "Ecuatoriana",
+      "Paraguaya",
+      "Peruana",
+      "Uruguaya",
+      "Venezolana",
+      "Estadounidense",
+      "Española",
+      "Otra"
+    ]
+  },
+  "employmentInfo": {
+    "questions": [
+      {
+        "id": "company_name",
+        "type": "input",
+        "text": "¿En qué empresa trabajas?",
+        "subtitle": "Ingresa el nombre de la empresa",
+        "placeholder": "Nombre de la empresa"
+      },
+      {
+        "id": "company_rut",
+        "type": "input",
+        "text": "¿Cuál es el RUT de la empresa?",
+        "subtitle": "Ejemplo: 30686957-4",
+        "placeholder": "30686957-4",
+        "validation": "rut"
+      },
+      {
+        "id": "charge",
+        "type": "input",
+        "text": "¿Cuál es tu cargo?",
+        "subtitle": "Ejemplo: Director",
+        "placeholder": "Director"
+      },
+      {
+        "id": "profession",
+        "type": "input",
+        "text": "¿Cuál es tu profesión?",
+        "subtitle": "Ejemplo: Contador",
+        "placeholder": "Contador"
+      },
+      {
+        "id": "commercial_activity",
+        "type": "select",
+        "text": "¿Cuál es el giro de la empresa?",
+        "subtitle": "Selecciona la actividad principal de la empresa",
+        "placeholder": "Selecciona el giro"
+      }
+    ],
+    "errors": {
+      "required": "Este campo es obligatorio",
+      "invalidRut": "RUT inválido"
+    },
+    "commercialActivities": {
+      "advertising": "Publicidad y Marketing",
+      "agriculture": "Agricultura",
+      "agriculture_livestock": "Agricultura y Ganadería",
+      "automotive": "Automotriz",
+      "construction": "Construcción",
+      "consulting": "Consultoría",
+      "education": "Educación",
+      "energy": "Energía",
+      "entertainment": "Entretenimiento",
+      "environmental": "Servicios Ambientales",
+      "fashion": "Moda y Textil",
+      "financial_services": "Servicios Financieros",
+      "fishing": "Pesca",
+      "food_and_beverage": "Alimentos y Bebidas",
+      "forestry": "Forestal",
+      "government": "Gobierno",
+      "healthcare": "Salud",
+      "insurance": "Seguros",
+      "legal_services": "Servicios Legales",
+      "logistics": "Logística",
+      "manufacturing": "Manufactura",
+      "media": "Medios de Comunicación",
+      "mining": "Minería",
+      "other": "Otros",
+      "professional_services": "Servicios Profesionales",
+      "real_estate": "Bienes Raíces",
+      "research": "Investigación y Desarrollo",
+      "retail": "Comercio Minorista",
+      "sports": "Deportes",
+      "technology": "Tecnología",
+      "telecommunications": "Telecomunicaciones",
+      "tourism": "Turismo",
+      "transportation": "Transporte",
+      "wholesale": "Comercio Mayorista"
+    }
   },
   "investmentPortfolio": {
     "reserva": {
@@ -1395,7 +1820,8 @@
     "cancelledTitle": "Autenticación cancelada",
     "cancelledMessage": "No se pudo completar el proceso de autenticación.",
     "errorTitle": "Error de autenticación",
-    "errorMessage": "Ocurrió un error durante el proceso de autenticación. Por favor intenta de nuevo."
+    "errorMessage": "Ocurrió un error durante el proceso de autenticación. Por favor intenta de nuevo.",
+    "usePassword": "Usar contraseña"
   },
   "login": {
     "subtitle": "Accede a tu cuenta para gestionar tus finanzas de manera inteligente",
