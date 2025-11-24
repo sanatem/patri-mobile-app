@@ -90,6 +90,10 @@ export default function ProfileResult() {
     router.push('/(tabs)/investment/create-account/complete-profile');
   };
 
+  const handleRetakeQuestionnaire = () => {
+    router.push('/(tabs)/investment/create-account/investment-survey/start-profile');
+  };
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -125,6 +129,12 @@ export default function ProfileResult() {
           onPress={handleContinue}
           title={t('common.understood')}
           className="w-full"
+        />
+        <Button
+          onPress={handleRetakeQuestionnaire}
+          title="Realizar el cuestionario nuevamente"
+          variant="ghost"
+          className="w-full mt-3"
         />
       </View>
     </View>

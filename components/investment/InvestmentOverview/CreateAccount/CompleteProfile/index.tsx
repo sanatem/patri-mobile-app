@@ -322,8 +322,12 @@ export default function SummaryStep() {
           </Text>
         )}
 
-        <TouchableOpacity 
-          onPress={() => handleCardPress('/(tabs)/investment/create-account/investment-survey/start-profile')}
+        <TouchableOpacity
+          onPress={() => handleCardPress(
+            formStatuses.riskProfile
+              ? '/(tabs)/investment/create-account/investment-survey/profile-result'
+              : '/(tabs)/investment/create-account/investment-survey/start-profile'
+          )}
           activeOpacity={0.7}
         >
           <Card variant="elevated" className="mb-4">
