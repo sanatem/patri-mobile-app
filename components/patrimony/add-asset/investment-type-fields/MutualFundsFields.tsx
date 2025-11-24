@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { View, Text, ActivityIndicator } from 'react-native';
-import { Input, Select, SearchableSelect } from '@/components/ui';
+import { View, Text } from 'react-native';
+import { Input, Select, SearchableSelect, LoadingSpinner } from '@/components/ui';
 import Colors from '@/constants/Colors';
 import { getSavingInstrumentsFunds } from '@/services/investment/saving-instruments/get-saving-instruments-funds';
 import { useAuth } from '@/providers/AuthProvider';
@@ -268,7 +268,7 @@ export default function MutualFundsFields({
         </Text>
         {loadingFunds ? (
           <View style={{ padding: 16, alignItems: 'center' }}>
-            <ActivityIndicator size="small" color={Colors.primary[500]} />
+            <LoadingSpinner size="small" />
           </View>
         ) : fundsError ? (
           <View style={{ padding: 16, alignItems: 'center' }}>

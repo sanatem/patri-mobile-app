@@ -1,6 +1,7 @@
-import { View, ScrollView, ActivityIndicator } from 'react-native';
+import { View, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import FormLayout from '@/components/ui/FormLayout';
+import { LoadingSpinner } from '@/components/ui';
 import { useCategoriesOnboarding } from '@/hooks/budget/useCategoriesOnboarding';
 import { CategoryCard } from './CategoryCard';
 import { ErrorMessage } from './ErrorMessage';
@@ -73,7 +74,7 @@ export function CategoriesOnboarding({ onComplete }: CategoriesOnboardingProps) 
   if (loading) {
     return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#fff' }}>
-        <ActivityIndicator size="large" color={Colors.secondary[500]} />
+        <LoadingSpinner />
       </View>
     );
   }

@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ActivityIndicator } from 'react-native';
+import { View, Text } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import {
   FormLayout,
   Input,
   Select,
+  LoadingSpinner,
 } from '@/components/ui';
 import { HypothecaryFields } from '@/components/patrimony/add-liability';
 import Colors from '@/constants/Colors';
@@ -415,10 +416,11 @@ export default function AddLiabilityScreen() {
       savedText={isEditMode ? t('common.saved') : t('common.created')}
       isNextDisabled={errors.length > 0}
       error={serverError || (errors.length > 0 ? errors[0] : null)}
+      showLogo={false}
     >
       {loadingInitialData ? (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', minHeight: 300 }}>
-          <ActivityIndicator size="large" color={Colors.secondary[500]} />
+          <LoadingSpinner />
         </View>
       ) : (
         <>

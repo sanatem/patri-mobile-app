@@ -106,7 +106,7 @@ export default function FormLayout({
             <ScrollView
               style={{ flex: 1 }}
               showsVerticalScrollIndicator={false}
-              contentContainerStyle={{ paddingBottom: 120 }}
+              contentContainerStyle={{ paddingBottom: 10 }}
               keyboardShouldPersistTaps="handled"
             >
               <View style={{ flex: 1, paddingHorizontal: 24, paddingTop: height * 0.1 }}>

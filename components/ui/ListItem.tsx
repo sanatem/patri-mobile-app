@@ -1,6 +1,27 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TouchableOpacity, FlatList, Animated, PanResponder } from 'react-native';
-import { ChevronRight, Trash2 } from 'lucide-react-native';
+import {
+  ChevronRight,
+  Trash2,
+  Home,
+  Building2,
+  Wallet,
+  PiggyBank,
+  TrendingUp,
+  Banknote,
+  Landmark,
+  Bitcoin,
+  CreditCard,
+  DollarSign,
+  LineChart,
+  Car,
+  Bike,
+  GraduationCap,
+  Users,
+  Package,
+  Trees,
+  HandCoins,
+} from 'lucide-react-native';
 import { cn } from '@/lib/utils';
 import { listItemStyles } from '@/styles/ui/ListItem.styles';
 import Colors from '@/constants/Colors';
@@ -17,9 +38,11 @@ interface ListItem {
   };
   icon?: {
     component?: React.ReactNode;
+    iconType?: string;
     backgroundColor?: string;
     text?: string;
     color?: string;
+    colorVariant?: 'success' | 'error' | 'secondary';
     borderColor?: string;
     borderWidth?: number;
     onPress?: () => void;
@@ -30,6 +53,41 @@ interface ListItem {
   mediumSubtitleIndex?: number;
   additionalContent?: React.ReactNode;
 }
+
+const getIconComponent = (iconType?: string, colorVariant?: 'success' | 'error' | 'secondary') => {
+  if (!iconType) return null;
+
+  const iconMap: Record<string, React.ComponentType<any>> = {
+    Home,
+    Building2,
+    Wallet,
+    PiggyBank,
+    TrendingUp,
+    Banknote,
+    Landmark,
+    Bitcoin,
+    CreditCard,
+    DollarSign,
+    LineChart,
+    Car,
+    Bike,
+    GraduationCap,
+    Users,
+    Package,
+    Trees,
+    HandCoins,
+  };
+
+  const colorMap = {
+    success: Colors.success[500],
+    error: Colors.error[500],
+    secondary: Colors.secondary[500],
+  };
+
+  const iconColor = colorVariant ? colorMap[colorVariant] : Colors.secondary[500];
+  const IconComponent = iconMap[iconType];
+  return IconComponent ? <IconComponent size={24} color={iconColor} /> : null;
+};
 
 interface ListProps {
   data: ListItem[];
@@ -183,12 +241,25 @@ const SwipeableItem = ({
               disabled={!item.onPress && !onPress}
               activeOpacity={item.onPress || onPress ? 0.85 : 1}
             >
-              {item.icon && (
-                item.icon.onPress ? (
+              {item.icon && (() => {
+                const bgColorMap = {
+                  success: Colors.success[50],
+                  error: Colors.error[50],
+                  secondary: Colors.secondary[50],
+                };
+                const textColorMap = {
+                  success: Colors.success[500],
+                  error: Colors.error[500],
+                  secondary: Colors.secondary[500],
+                };
+                const bgColor = item.icon.colorVariant ? bgColorMap[item.icon.colorVariant] : item.icon.backgroundColor || Colors.secondary[50];
+                const textColor = item.icon.colorVariant ? textColorMap[item.icon.colorVariant] : item.icon.color || Colors.secondary[500];
+
+                return item.icon.onPress ? (
                   <TouchableOpacity
                     style={[
                       listItemStyles.icon,
-                      item.icon.backgroundColor ? { backgroundColor: item.icon.backgroundColor } : {},
+                      { backgroundColor: bgColor },
                       item.icon.borderColor ? { borderColor: item.icon.borderColor } : {},
                       item.icon.borderWidth ? { borderWidth: item.icon.borderWidth } : {}
                     ]}
@@ -197,10 +268,12 @@ const SwipeableItem = ({
                   >
                     {item.icon.component ? (
                       item.icon.component
+                    ) : item.icon.iconType ? (
+                      getIconComponent(item.icon.iconType, item.icon.colorVariant)
                     ) : (
                       <Text className="text-base font-medium" style={[
                         listItemStyles.iconText,
-                        item.icon.color ? { color: item.icon.color } : {}
+                        { color: textColor }
                       ]}>
                         {item.icon.text || item.title.charAt(0)}
                       </Text>
@@ -209,23 +282,25 @@ const SwipeableItem = ({
                 ) : (
                   <View style={[
                     listItemStyles.icon,
-                    item.icon.backgroundColor ? { backgroundColor: item.icon.backgroundColor } : {},
+                    { backgroundColor: bgColor },
                     item.icon.borderColor ? { borderColor: item.icon.borderColor } : {},
                     item.icon.borderWidth ? { borderWidth: item.icon.borderWidth } : {}
                   ]}>
                     {item.icon.component ? (
                       item.icon.component
+                    ) : item.icon.iconType ? (
+                      getIconComponent(item.icon.iconType, item.icon.colorVariant)
                     ) : (
                       <Text className="text-base font-medium" style={[
                         listItemStyles.iconText,
-                        item.icon.color ? { color: item.icon.color } : {}
+                        { color: textColor }
                       ]}>
                         {item.icon.text || item.title.charAt(0)}
                       </Text>
                     )}
                   </View>
-                )
-              )}
+                );
+              })()}
 
               {item.customLayout ? (
                 <View style={listItemStyles.info}>

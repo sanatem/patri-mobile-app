@@ -94,6 +94,7 @@
       "expo-font",
       "expo-web-browser",
       "expo-localization",
+      "expo-asset",
       "expo-secure-store",
       [
         "react-native-auth0",

@@ -6,6 +6,7 @@ import { useUserData } from '@/hooks/user/useUserData';
 import { useOnboarding } from '@/hooks/user/useOnboarding';
 import { submitOnboarding } from '@/services/user/onboarding';
 import { validateRut, cleanRutForBackend, formatRutWhileTyping } from '@/utils/rut-validation';
+import { getCountries, getCountryCode } from '@/utils/countries';
 import {
   Container,
   Input,
@@ -27,7 +28,7 @@ const { height } = Dimensions.get('window');
 
 
 export default function OnboardingScreen() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
  const MONTHLY_INCOME_OPTIONS = [
     { value: 'less_than_1_millon', label: t('onboarding.incomeOptions.lessThan1M') },
@@ -37,18 +38,11 @@ export default function OnboardingScreen() {
     { value: 'greater_than_25_millons', label: t('onboarding.incomeOptions.greaterThan25M') },
   ];
 
-  const COUNTRY_OPTIONS = [
-    { value: 'Chile', label: t('countries.chile') },
-    { value: 'Argentina', label: t('countries.argentina') },
-    { value: 'Brasil', label: t('countries.brazil') },
-    { value: 'Colombia', label: t('countries.colombia') },
-    { value: 'México', label: t('countries.mexico') },
-    { value: 'Perú', label: t('countries.peru') },
-    { value: 'Uruguay', label: t('countries.uruguay') },
-    { value: 'Estados Unidos', label: t('countries.usa') },
-    { value: 'España', label: t('countries.spain') },
-    { value: 'Otro', label: t('countries.other') }
-  ];
+  const countries = getCountries(i18n.language);
+  const COUNTRY_OPTIONS = countries.map((country) => ({
+    value: country.name,
+    label: country.name
+  }));
   const { accessToken } = useAuth();
   const { userData, loading: isLoadingUserData } = useUserData();
   const { submitOnboardingData, loading: isSubmitting, error: serviceError, success } = useOnboarding();
@@ -65,7 +59,7 @@ export default function OnboardingScreen() {
   const [isRutLocked, setIsRutLocked] = useState(false);
   const isLoading = loading || isSubmitting;
   const [errors, setErrors] = useState<string[]>([]);
-  const allErrors = [...errors, ...(serviceError ? [serviceError] : [])];
+  const allErrors: string[] = [...errors, ...(serviceError ? [serviceError] : [])];
 
   useEffect(() => {
     loadUserData();
@@ -192,8 +186,8 @@ export default function OnboardingScreen() {
   };
 
   const validateFormWithData = (data: typeof formData) => {
-    const newErrors = [];
-    
+    const newErrors: string[] = [];
+
     if (!data.rut.trim()) {
       newErrors.push(t('onboarding.errors.rutRequired'));
     } else {
@@ -202,19 +196,19 @@ export default function OnboardingScreen() {
         newErrors.push(rutValidation.error || t('onboarding.errors.rutInvalid'));
       }
     }
-    
+
     if (!data.residence_country_name.trim()) {
       newErrors.push(t('onboarding.errors.countryRequired'));
     }
-    
+
     if (!data.birth_date.trim()) {
       newErrors.push(t('onboarding.errors.birthRequired'));
     }
-    
+
     if (!data.monthly_incomes.trim()) {
       newErrors.push(t('onboarding.errors.incomeRequired'));
     }
-    
+
     setErrors(newErrors);
     return newErrors;
   };
@@ -241,12 +235,15 @@ export default function OnboardingScreen() {
         throw new Error(formErrors.join(', '));
       }
 
+      const countryCode = getCountryCode(formData.residence_country_name, i18n.language);
+
       const onboardingData = {
         personal_information: {
           rut: formatRUTForBackend(formData.rut),
           birth_date: convertDateFormat(formData.birth_date),
           monthly_incomes: formData.monthly_incomes,
           residence_country_name: formData.residence_country_name,
+          residence_country: countryCode || '',
         }
       };
 

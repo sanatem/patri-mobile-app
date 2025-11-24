@@ -1,4 +1,5 @@
-import { View, Text, ActivityIndicator } from 'react-native';
+import { View, Text } from 'react-native';
+import { LoadingSpinner } from '@/components/ui';
 import Colors from '@/constants/Colors';
 
 interface LoadingStateProps {
@@ -8,7 +9,7 @@ interface LoadingStateProps {
 export function LoadingState({ loadingText }: LoadingStateProps) {
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#fff' }}>
-      <ActivityIndicator size="large" color={Colors.secondary[500]} />
+      <LoadingSpinner />
       <Text
         className="font-regular"
         style={{

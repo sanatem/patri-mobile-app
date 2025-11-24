@@ -8,7 +8,7 @@ export const investmentService = {
   },
 
   async hasInvestmentAccount(token?: string): Promise<boolean> {
-    try {  
+    try {
       if (!token) {
         return false;
       }
@@ -24,21 +24,24 @@ export const investmentService = {
       });
 
       if (response.ok) {
-        const data = await response.json();
-        
+        const responseData = await response.json();
+
+        // La respuesta tiene la estructura: { success: true, data: { investment: {...}, savings: {...} } }
+        const data = responseData.data || responseData;
+
         return Boolean(data?.investment?.account_id);
       }
-      
+
       if (response.status === 401) {
         return false;
       }
-      
+
       if (response.status === 404) {
         return false;
       }
-      
+
       return false;
-      
+
     } catch (error) {
       console.error('Error checking investment account:', error);
       return false;
@@ -46,7 +49,7 @@ export const investmentService = {
   },
 
   async hasAnyInvestmentOrSavingsAccount(token?: string): Promise<boolean> {
-    try {  
+    try {
       if (!token) {
         return false;
       }
@@ -62,16 +65,19 @@ export const investmentService = {
       });
 
       if (response.ok) {
-        const data = await response.json();
-        
+        const responseData = await response.json();
+
+        // La respuesta tiene la estructura: { success: true, data: { investment: {...}, savings: {...} } }
+        const data = responseData.data || responseData;
+
         const hasInvestmentAccount = data.investment && data.investment.account_id;
         const hasSavingsAccount = data.savings && data.savings.account_id;
 
         return hasInvestmentAccount || hasSavingsAccount;
       }
-      
+
       return false;
-      
+
     } catch (error) {
       console.error('Error checking investment or savings accounts:', error);
       return false;

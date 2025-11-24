@@ -32,3 +32,6 @@ export { ConfirmModal } from './ConfirmModal';
 export { Pagination } from './Pagination';
 export { FloatingActionButton } from './FloatingActionButton';
 export type { FloatingAction } from './FloatingActionButton';
+export { ImageDropbox } from './ImageDropbox';
+export { SuccessMessage } from './SuccessMessage';
+export { AuthenticatedImage } from './AuthenticatedImage';

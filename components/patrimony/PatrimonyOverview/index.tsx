@@ -1,6 +1,6 @@
 import React from 'react';
-import { View, ScrollView, ActivityIndicator, RefreshControl } from 'react-native';
-import { Container, KeyboardAwareContainer, LockedTabOverlay } from '@/components/ui';
+import { View, ScrollView, RefreshControl } from 'react-native';
+import { Container, KeyboardAwareContainer, LockedTabOverlay, LoadingSpinner } from '@/components/ui';
 import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
 import { usePatrimonyOverview } from '@/hooks/patrimony/usePatrimonyOverview';
@@ -84,7 +84,7 @@ export function PatrimonyOverview() {
   if (subscriptionLoading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
-        <ActivityIndicator size="large" color={Colors.secondary[500]} />
+        <LoadingSpinner />
       </View>
     );
   }
@@ -108,7 +108,7 @@ export function PatrimonyOverview() {
           userSelectorEnabled={false}
         />
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#007AFF" />
+          <LoadingSpinner />
         </View>
       </Container>
     );
@@ -255,7 +255,7 @@ export function PatrimonyOverview() {
             padding: 24,
             alignItems: 'center'
           }}>
-            <ActivityIndicator size="large" color={Colors.primary[500]} />
+            <LoadingSpinner overlay />
           </View>
         </View>
       )}
