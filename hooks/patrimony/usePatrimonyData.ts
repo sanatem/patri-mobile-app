@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
 import { useAssets, useDebts } from '@/hooks/patrimony';
-import assetsHistory from '@/data/static/assets-history.json';
 
 export function usePatrimonyData(searchQuery: string) {
   const { assets: apiAssets, loading: assetsLoading, error: assetsError, refetch: refetchAssets } = useAssets({
@@ -13,7 +12,6 @@ export function usePatrimonyData(searchQuery: string) {
     per_page: 100
   }, true);
 
-  // Helper functions
   const mapSavingInstrumentType = (type: string): string => {
     const typeMapping: Record<string, string> = {
       'SavingInstruments::Crowdfunding': 'Crowdfunding',
@@ -36,28 +34,90 @@ export function usePatrimonyData(searchQuery: string) {
   };
 
   const getSavingInstrumentIcon = (type: string, name: string) => {
-    const iconMapping: Record<string, { backgroundColor: string; text: string }> = {
-      'SavingInstruments::CashAccount': { backgroundColor: '#10B981', text: '$' },
-      'SavingInstruments::FixedTermDeposit': { backgroundColor: '#3B82F6', text: 'D' },
-      'SavingInstruments::SavingsAccount': { backgroundColor: '#8B5CF6', text: 'A' },
-      'SavingInstruments::CheckingAccount': { backgroundColor: '#F59E0B', text: 'C' },
-      'SavingInstruments::MutualFund': { backgroundColor: '#EF4444', text: 'F' },
-      'SavingInstruments::Stock': { backgroundColor: '#06B6D4', text: 'S' },
-      'SavingInstruments::InvestmentFund': { backgroundColor: '#06B6D4', text: 'I' },
-      'SavingInstruments::Crowdfunding': { backgroundColor: '#F97316', text: 'C' },
-      'SavingInstruments::MutualFundInstrument': { backgroundColor: '#EF4444', text: 'M' },
-      'SavingInstruments::Cryptocurrency': { backgroundColor: '#FBBF24', text: '₿' },
-      'SavingInstruments::AfpAccountTwo': { backgroundColor: '#6366F1', text: '2' },
-      'SavingInstruments::ApvAccount': { backgroundColor: '#8B5CF6', text: 'A' },
-      'SavingInstruments::SavingAccount': { backgroundColor: '#10B981', text: 'S' },
-      'SavingInstruments::Shares': { backgroundColor: '#06B6D4', text: '$' },
-      'SavingInstruments::Other': { backgroundColor: '#6B7280', text: '?' },
+    const iconMapping: Record<string, { iconType: string }> = {
+      'SavingInstruments::CashAccount': { iconType: 'Wallet' },
+      'SavingInstruments::FixedTermDeposit': { iconType: 'Landmark' },
+      'SavingInstruments::SavingsAccount': { iconType: 'PiggyBank' },
+      'SavingInstruments::CheckingAccount': { iconType: 'Wallet' },
+      'SavingInstruments::MutualFund': { iconType: 'LineChart' },
+      'SavingInstruments::Stock': { iconType: 'TrendingUp' },
+      'SavingInstruments::InvestmentFund': { iconType: 'TrendingUp' },
+      'SavingInstruments::Crowdfunding': { iconType: 'Users' },
+      'SavingInstruments::MutualFundInstrument': { iconType: 'LineChart' },
+      'SavingInstruments::Cryptocurrency': { iconType: 'Bitcoin' },
+      'SavingInstruments::AfpAccountTwo': { iconType: 'PiggyBank' },
+      'SavingInstruments::ApvAccount': { iconType: 'PiggyBank' },
+      'SavingInstruments::SavingAccount': { iconType: 'PiggyBank' },
+      'SavingInstruments::Shares': { iconType: 'TrendingUp' },
+      'SavingInstruments::Other': { iconType: 'Banknote' },
     };
 
-    return iconMapping[type] || {
-      backgroundColor: '#EA4335',
-      text: name.charAt(0)
-    };
+    return iconMapping[type] || { iconType: 'Banknote' };
+  };
+
+  const getFixedAssetIcon = (category: string) => {
+    const categoryLower = category?.toLowerCase() || '';
+
+    if (categoryLower.includes('vehículo') || categoryLower.includes('auto') || categoryLower.includes('moto') || categoryLower.includes('coche') || categoryLower.includes('camioneta')) {
+      return { iconType: 'Car' };
+    }
+
+    if (categoryLower.includes('terreno') || categoryLower.includes('tierra') || categoryLower.includes('parcela')) {
+      return { iconType: 'Trees' };
+    }
+
+    return { iconType: 'Package' };
+  };
+
+  const getDebtIcon = (debtCategory: string) => {
+    const categoryLower = debtCategory?.toLowerCase() || '';
+
+    // Tarjeta de crédito y línea de crédito
+    if (categoryLower.includes('tarjeta') || categoryLower.includes('línea de crédito')) {
+      return { iconType: 'CreditCard' };
+    }
+
+    // Préstamos familiares
+    if (categoryLower.includes('familiar') || categoryLower.includes('amigo')) {
+      return { iconType: 'Users' };
+    }
+
+    // Automotriz
+    if (categoryLower.includes('automotriz') || categoryLower.includes('auto')) {
+      return { iconType: 'Car' };
+    }
+
+    // Consumo
+    if (categoryLower.includes('consumo')) {
+      return { iconType: 'HandCoins' };
+    }
+
+    // Crédito universitario
+    if (categoryLower.includes('universitario') || categoryLower.includes('estudios')) {
+      return { iconType: 'GraduationCap' };
+    }
+
+    // Hipotecario de uso (casa)
+    if (categoryLower.includes('hipotecario de uso')) {
+      return { iconType: 'Home' };
+    }
+
+    // Hipotecario de inversión (edificios)
+    if (categoryLower.includes('hipotecario de inversión') || categoryLower.includes('hipotecario') && categoryLower.includes('inversión')) {
+      return { iconType: 'Building2' };
+    }
+
+    // Hipotecario genérico (casa por defecto)
+    if (categoryLower.includes('hipotecario') || categoryLower.includes('mortgage')) {
+      return { iconType: 'Home' };
+    }
+
+    // Caja de compensación
+    if (categoryLower.includes('caja de compensación')) {
+      return { iconType: 'DollarSign' };
+    }
+
+    return { iconType: 'DollarSign' };
   };
 
   const getDebtTypeFromCategory = (categoryName: string): string => {
@@ -94,32 +154,40 @@ export function usePatrimonyData(searchQuery: string) {
     if (!apiAssets) return [];
 
     const allAssets = [
-      ...apiAssets.assets.fixed_assets.map(asset => ({
-        id: asset.id.toString(),
-        title: asset.name,
-        subtitle: asset.category,
-        value: Math.round(asset.commercial_value),
-        icon: {
-          backgroundColor: '#4285F4',
-          text: asset.name.charAt(0)
-        },
-        badge: {
-          text: '0.00%',
-          variant: 'positive' as const
-        },
-        type: 'fixed_asset',
-        rawData: asset
-      })),
+      ...apiAssets.assets.fixed_assets.map(asset => {
+        const { iconType } = getFixedAssetIcon(asset.category);
+        return {
+          id: asset.id.toString(),
+          title: asset.name,
+          subtitle: asset.category,
+          value: Math.round(asset.commercial_value),
+          icon: {
+            iconType,
+            text: asset.name.charAt(0),
+            colorVariant: 'success' as const
+          },
+          badge: {
+            text: '0.00%',
+            variant: 'positive' as const
+          },
+          type: 'fixed_asset',
+          rawData: asset
+        };
+      }),
 
       ...apiAssets.assets.saving_instruments.map(asset => {
-        const icon = getSavingInstrumentIcon(asset.type, asset.name);
+        const { iconType } = getSavingInstrumentIcon(asset.type, asset.name);
 
         return {
           id: asset.id.toString(),
           title: asset.name,
           subtitle: mapSavingInstrumentType(asset.type),
           value: Math.round(asset.total_amount),
-          icon,
+          icon: {
+            iconType,
+            text: asset.name.charAt(0),
+            colorVariant: 'success' as const
+          },
           badge: {
             text: '0.00%',
             variant: 'positive' as const
@@ -137,8 +205,9 @@ export function usePatrimonyData(searchQuery: string) {
           : 'Propiedad de inversión',
         value: Math.round(asset.commercial_value),
         icon: {
-          backgroundColor: '#FBBC05',
-          text: 'P'
+          iconType: 'Building2',
+          text: 'P',
+          colorVariant: 'success' as const
         },
         badge: {
           text: '0.00%',
@@ -156,8 +225,9 @@ export function usePatrimonyData(searchQuery: string) {
           : asset.kind === 'leased' ? 'Casa arrendada' : 'Casa propia',
         value: Math.round(asset.commercial_value),
         icon: {
-          backgroundColor: '#6366F1',
-          text: 'C'
+          iconType: 'Home',
+          text: 'C',
+          colorVariant: 'success' as const
         },
         badge: {
           text: '0.00%',
@@ -177,22 +247,26 @@ export function usePatrimonyData(searchQuery: string) {
   const transformApiDebts = useMemo(() => {
     if (!apiDebts) return [];
 
-    return apiDebts.debts.map(debt => ({
-      id: debt.id.toString(),
-      title: debt.name,
-      subtitle: debt.debt_category,
-      value: -Math.round(debt.amount),
-      icon: {
-        backgroundColor: '#DC2626',
-        text: debt.name.charAt(0)
-      },
-      badge: {
-        text: `${debt.cae_percentage}% CAE`,
-        variant: 'negative' as const
-      },
-      type: getDebtTypeFromCategory(debt.debt_category),
-      rawData: debt
-    })).filter(debt =>
+    return apiDebts.debts.map(debt => {
+      const { iconType } = getDebtIcon(debt.debt_category);
+      return {
+        id: debt.id.toString(),
+        title: debt.name,
+        subtitle: debt.debt_category,
+        value: -Math.round(debt.amount),
+        icon: {
+          iconType,
+          text: debt.name.charAt(0),
+          colorVariant: 'error' as const
+        },
+        badge: {
+          text: `${debt.cae_percentage}% CAE`,
+          variant: 'negative' as const
+        },
+        type: getDebtTypeFromCategory(debt.debt_category),
+        rawData: debt
+      };
+    }).filter(debt =>
       debt.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       debt.subtitle.toLowerCase().includes(searchQuery.toLowerCase())
     );
