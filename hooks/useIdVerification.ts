@@ -50,21 +50,19 @@ export function useIdVerification(): UseIdVerificationReturn {
       const result = await currentAnalyzer.verifyDocument(frontImage, backImage);
       setVerificationResult(result);
 
-      const isMock = result.result?.firstName === 'Juan Carlos' && 
+      const isMock = result.result?.firstName === 'Juan Carlos' &&
                     result.result?.lastName === 'Pérez González' &&
                     result.result?.documentNumber === '12.345.678-9';
-      
+
       setIsUsingMockData(isMock);
 
       if (result.success) {
         const personalData = currentAnalyzer.extractPersonalData(result);
         const decision = result.result.authenticity.decision;
-        
+
         if (decision === 'reject') {
-          // Solo rechazar si la decisión es "reject"
           setError('El documento no pasó la verificación de autenticidad. Por favor, intenta con otro documento.');
         } else {
-          // Para "accept" y "review", prellenar los datos
           setExtractedData(personalData);
         }
       } else {
@@ -73,13 +71,19 @@ export function useIdVerification(): UseIdVerificationReturn {
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Error desconocido';
-      
-      if (errorMessage.includes('non-JSON response')) {
+
+      if (errorMessage.includes('Timeout')) {
+        setError('La verificación tardó demasiado. Por favor intenta de nuevo.');
+      } else if (errorMessage.includes('API Key')) {
+        setError(errorMessage);
+      } else if (errorMessage.includes('non-JSON') || errorMessage.includes('Non-JSON')) {
         setError('Error del servidor: Respuesta inválida. Por favor, intenta nuevamente.');
-      } else if (errorMessage.includes('network')) {
+      } else if (errorMessage.includes('network') || errorMessage.includes('conexión')) {
         setError('Error de conexión. Verifica tu conexión a internet e intenta nuevamente.');
+      } else if (errorMessage.includes('401') || errorMessage.includes('403')) {
+        setError('Error de autenticación con ID Analyzer. Contacta soporte.');
       } else {
-        setError(`Error al verificar el documento: ${errorMessage}`);
+        setError(`Error al verificar: ${errorMessage}`);
       }
     } finally {
       setIsVerifying(false);

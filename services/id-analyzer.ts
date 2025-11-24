@@ -54,16 +54,17 @@ class RealValidator implements IValidator {
     if (process.env.NODE_ENV === 'development') {
       return 'http://localhost:3001/api/id-analyzer';
     }
-    
+
+    // ID Analyzer API v2 endpoints
     switch (region) {
       case 'US':
-        return 'https://api.idanalyzer.com';
+        return 'https://api2.idanalyzer.com';
       case 'EU':
-        return 'https://api-eu.idanalyzer.com';
+        return 'https://api2-eu.idanalyzer.com';
       case 'AS':
-        return 'https://api-as.idanalyzer.com';
+        return 'https://api2-as.idanalyzer.com';
       default:
-        return 'https://api.idanalyzer.com';
+        return 'https://api2.idanalyzer.com';
     }
   }
 
@@ -95,7 +96,7 @@ class RealValidator implements IValidator {
     try {
       const frontBase64 = await this.convertImageToBase64(frontImage);
       let backBase64: string | undefined;
-      
+
       if (backImage) {
         backBase64 = await this.convertImageToBase64(backImage);
       }
@@ -120,6 +121,10 @@ class RealValidator implements IValidator {
         biometric: false,
       };
 
+      // Add timeout to prevent infinite loading
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
+
       const response = await fetch(`${this.baseUrl}/scan`, {
         method: 'POST',
         headers: {
@@ -127,26 +132,37 @@ class RealValidator implements IValidator {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(payload),
+        signal: controller.signal,
       });
+
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
         const errorText = await response.text();
-        
+
         if (response.status === 0 || response.statusText === 'Failed to fetch') {
           throw new Error('CORS Error: No se puede conectar a la API. Verifica que tu localhost esté configurado en el dashboard de ID Analyzer.');
         }
-        
-        if (response.status === 403) {
-          throw new Error('API Key Error: Verifica tu API key de ID Analyzer.');
+
+        if (response.status === 401) {
+          throw new Error('API Key inválida: La API key no es válida o ha expirado. Usa la Server API Key, no la Restricted.');
         }
-        
-        throw new Error(`API error: ${response.status} ${response.statusText}`);
+
+        if (response.status === 403) {
+          throw new Error('API Key Error: Acceso denegado. Verifica que estés usando la Server API Key (no Restricted) de ID Analyzer.');
+        }
+
+        if (response.status === 429) {
+          throw new Error('Límite de requests excedido: Has alcanzado el límite de la API. Intenta más tarde.');
+        }
+
+        throw new Error(`API error: ${response.status} ${response.statusText} - ${errorText}`);
       }
 
       const contentType = response.headers.get('content-type');
+
       if (!contentType || !contentType.includes('application/json')) {
-        const errorText = await response.text();
-        throw new Error('Non-JSON response');
+        throw new Error('Non-JSON response: El servidor no devolvió JSON válido');
       }
 
       const result = await response.json();
@@ -176,10 +192,16 @@ class RealValidator implements IValidator {
 
       return transformedResult;
     } catch (error) {
-      if (error instanceof TypeError && error.message.includes('fetch')) {
-        throw new Error('CORS Error: No se puede conectar a la API de ID Analyzer. Verifica que tu localhost esté configurado en el dashboard.');
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          throw new Error('Timeout: La verificación tardó demasiado. Por favor intenta de nuevo.');
+        }
+
+        if (error.message.includes('fetch')) {
+          throw new Error('Error de conexión: No se puede conectar a la API de ID Analyzer. Verifica tu conexión a internet.');
+        }
       }
-      
+
       throw error;
     }
   }
