@@ -1,7 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { View, Dimensions, ScrollView, StyleSheet, Platform, AppState, InteractionManager } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useAuth } from '@/providers/AuthProvider';
 import { useOnboarding } from '@/hooks/common';
 import { Button, Container } from '@/components/ui';
 import Colors from '@/constants/Colors';
@@ -16,7 +15,6 @@ import SplashScreen3 from './splash-3';
 
 export default function SplashScreens() {
   const { t } = useTranslation();
-  const { login } = useAuth();
   const router = useRouter();
   const { hasSeenOnboarding } = useOnboarding();
 
@@ -107,11 +105,10 @@ export default function SplashScreens() {
 
         if (!attSeen && Platform.OS === 'ios') {
           await requestATT();
-        } else {
-          await AsyncStorage.setItem('splash_seen', 'true');
-          const success = await login();
-          if (success) router.replace('/');
         }
+
+        await AsyncStorage.setItem('splash_seen', 'true');
+        router.replace('/auth/webview');
       } finally {
         setPending(false);
       }
@@ -127,11 +124,10 @@ export default function SplashScreens() {
 
       if (!attSeen && Platform.OS === 'ios') {
         await requestATT();
-      } else {
-        await AsyncStorage.setItem('splash_seen', 'true');
-        const success = await login();
-        if (success) router.replace('/');
       }
+
+      await AsyncStorage.setItem('splash_seen', 'true');
+      router.replace('/auth/webview');
     } finally {
       setPending(false);
     }
@@ -250,4 +246,4 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
     gap: 12,
   },
-}); 
+});
