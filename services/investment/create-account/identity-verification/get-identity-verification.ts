@@ -3,8 +3,8 @@ import config from '@/config/constants';
 export interface IdentityCard {
   id: number;
   user_id: number;
-  front_url?: string; // URL de la imagen del frente
-  back_url?: string;  // URL de la imagen del reverso
+  front_url?: string;
+  back_url?: string;
   verified?: boolean | null;
   created_at?: string;
   updated_at?: string;

@@ -5,7 +5,7 @@ import { FormLayout, Button, Input, Select, RadioButton, LoadingSpinner, Success
 import { useTranslation } from 'react-i18next';
 import { REGIONS_AND_COMMUNES } from '@/constants/AppConstants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import type { ExtractedPersonalData } from '@/services/id-analyzer';
+import type { ExtractedPersonalData } from '@/services/investment/create-account/identity-verification/verify-identity-card';
 import { useAuth } from '@/providers/AuthProvider';
 import { updatePersonalInformation } from '@/services/investment/create-account/personal-information/update-personal-information';
 import Colors from '@/constants/Colors';
@@ -216,7 +216,7 @@ export default function PersonalInformationStepper() {
   };
 
   const handleCancel = () => {
-    router.back();
+    router.push('/(tabs)/investment/create-account/complete-profile');
   };
 
   const renderQuestion = () => {

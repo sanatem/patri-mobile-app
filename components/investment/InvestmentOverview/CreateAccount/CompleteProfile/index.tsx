@@ -32,6 +32,7 @@ export default function SummaryStep() {
     contractSignature: false,
   });
   const [isMarried, setIsMarried] = useState(false);
+  const [isDependentWorker, setIsDependentWorker] = useState(false);
   const [isLoadingStatuses, setIsLoadingStatuses] = useState(true);
   const [accountStatus, setAccountStatus] = useState<'forms' | 'pending' | 'approved' | 'rejected'>('forms');
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -118,6 +119,10 @@ export default function SummaryStep() {
       );
       setIsMarried(userRequiresSpouse);
 
+      // Verificar si el usuario tiene trabajo dependiente
+      const userIsDependentWorker = personalInfo?.employment_situation === 'dependent';
+      setIsDependentWorker(userIsDependentWorker);
+
       const spouseInfo = spouseResponse.spouse;
 
       const hasLocationData = !spouseInfo || spouseInfo.same_address || !!(
@@ -151,7 +156,8 @@ export default function SummaryStep() {
         identityResponse.identity_card.verified !== false
       );
 
-      const hasWorkData = !!(
+      // Solo requerir información laboral si tiene trabajo dependiente
+      const hasWorkData = !userIsDependentWorker || !!(
         employmentResponse.success &&
         employmentResponse.employment_information &&
         (employmentResponse.employment_information.company_name ||
@@ -478,35 +484,37 @@ export default function SummaryStep() {
           </Card>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          onPress={() => handleCardPress('/(tabs)/investment/create-account/personal-information/employment-information-question')}
-          activeOpacity={0.7}
-        >
-          <Card variant="elevated" className="mb-4">
-            <View className="flex-row justify-between items-center">
-              <View className="flex-1">
-                <View className="flex-row items-center mb-1" style={{ alignItems: 'center' }}>
-                  <Text className="text-base font-medium" style={{ color: Colors.primary[500], lineHeight: 20 }}>
-                    Información laboral
+        {isDependentWorker && (
+          <TouchableOpacity
+            onPress={() => handleCardPress('/(tabs)/investment/create-account/personal-information/employment-information-question')}
+            activeOpacity={0.7}
+          >
+            <Card variant="elevated" className="mb-4">
+              <View className="flex-row justify-between items-center">
+                <View className="flex-1">
+                  <View className="flex-row items-center mb-1" style={{ alignItems: 'center' }}>
+                    <Text className="text-base font-medium" style={{ color: Colors.primary[500], lineHeight: 20 }}>
+                      Información laboral
+                    </Text>
+                    {!isLoadingStatuses && (
+                      <View style={{ marginLeft: 8, marginTop: -1 }}>
+                        {formStatuses.workInfo ? (
+                          <Check size={16} color={Colors.success[500]} />
+                        ) : (
+                          <Clock size={16} color={Colors.warning[500]} />
+                        )}
+                      </View>
+                    )}
+                  </View>
+                  <Text className="text-sm font-regular" style={{ color: Colors.gray[600] }}>
+                    Cuéntanos un poco más de tu empleador y su rol en la empresa
                   </Text>
-                  {!isLoadingStatuses && (
-                    <View style={{ marginLeft: 8, marginTop: -1 }}>
-                      {formStatuses.workInfo ? (
-                        <Check size={16} color={Colors.success[500]} />
-                      ) : (
-                        <Clock size={16} color={Colors.warning[500]} />
-                      )}
-                    </View>
-                  )}
                 </View>
-                <Text className="text-sm font-regular" style={{ color: Colors.gray[600] }}>
-                  Cuéntanos un poco más de tu empleador y su rol en la empresa
-                </Text>
+                <ChevronRight size={20} color={Colors.gray[500]} />
               </View>
-              <ChevronRight size={20} color={Colors.gray[500]} />
-            </View>
-          </Card>
-        </TouchableOpacity>
+            </Card>
+          </TouchableOpacity>
+        )}
 
         {!formStatuses.bankData && !isLoadingStatuses && (
           <TouchableOpacity

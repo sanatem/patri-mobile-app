@@ -19,10 +19,8 @@ export async function updateIdentityCard(
   try {
     const url = `${config.apiBaseUrl}/api/v2/user/identity_card`;
 
-    // Crear FormData para enviar las imágenes
     const formData = new FormData();
 
-    // Solo agregar las imágenes que fueron proporcionadas
     if (payload.frontImage) {
       const frontBlob = await (await fetch(payload.frontImage)).blob();
       formData.append('identity_card[front]', frontBlob, 'front.jpg');
@@ -33,12 +31,10 @@ export async function updateIdentityCard(
       formData.append('identity_card[back]', backBlob, 'back.jpg');
     }
     
-    // Agregar el estado de verificación si está disponible
     if (payload.verified !== undefined) {
       formData.append('identity_card[verified]', payload.verified.toString());
     }
 
-    console.log('Updating identity card with verified status:', payload.verified);
 
     const response = await fetch(url, {
       method: 'PUT',
@@ -51,7 +47,6 @@ export async function updateIdentityCard(
     const data = await response.json();
 
     if (response.ok) {
-      console.log('Identity card updated successfully:', data);
       return {
         success: true,
         message: data.message || 'Identity card updated successfully',
