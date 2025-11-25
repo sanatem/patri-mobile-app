@@ -18,7 +18,6 @@ export async function createIdentityCard(
 ): Promise<CreateIdentityCardResponse> {
   try {
     const url = `${config.apiBaseUrl}/api/v2/user/identity_card`;
-
     const formData = new FormData();
 
     const frontBlob = await (await fetch(payload.frontImage)).blob();
@@ -26,7 +25,7 @@ export async function createIdentityCard(
 
     formData.append('identity_card[front]', frontBlob, 'front.jpg');
     formData.append('identity_card[back]', backBlob, 'back.jpg');
-
+    
     if (payload.verified !== undefined) {
       formData.append('identity_card[verified]', payload.verified.toString());
     }
