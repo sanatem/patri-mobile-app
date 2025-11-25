@@ -3,7 +3,6 @@ import { View } from 'react-native';
 import { router } from 'expo-router';
 import { LockedTabOverlay, LoadingSpinner } from '@/components/ui';
 import { WithoutAccount } from '@/components/investment/InvestmentOverview/WithoutAccount';
-import Colors from '@/constants/Colors';
 import { useInvestmentOverview } from '@/hooks/investment/useInvestmentOverview';
 
 export function InvestmentOverview() {
@@ -17,23 +16,29 @@ export function InvestmentOverview() {
     hasInvestmentAccount,
     hasAnyFormData,
     shouldBlockTab,
+    hasSeenIntro,
+
+    // Actions
+    markIntroAsSeen,
 
     // Translation
     t,
   } = useInvestmentOverview();
 
+  const isLoading = subscriptionLoading || investmentLoading || isLoadingFormData || hasSeenIntro === null;
+
   useEffect(() => {
     // Si tiene cuenta de inversión, redirigir a portfolio
-    if (!subscriptionLoading && !investmentLoading && !isLoadingFormData && hasInvestmentAccount) {
+    if (!isLoading && hasInvestmentAccount) {
       router.replace('/(tabs)/investment/portfolio' as any);
     }
-    // Si tiene al menos un formulario completado (pero no cuenta), redirigir a complete-profile
-    else if (!subscriptionLoading && !investmentLoading && !isLoadingFormData && !hasInvestmentAccount && hasAnyFormData) {
+    // Si ya vio la intro Y tiene formularios con datos, redirigir a complete-profile
+    else if (!isLoading && !hasInvestmentAccount && hasSeenIntro && hasAnyFormData) {
       router.replace('/(tabs)/investment/create-account/complete-profile' as any);
     }
-  }, [subscriptionLoading, investmentLoading, isLoadingFormData, hasInvestmentAccount, hasAnyFormData]);
+  }, [isLoading, hasInvestmentAccount, hasAnyFormData, hasSeenIntro]);
 
-  if (subscriptionLoading || investmentLoading || isLoadingFormData) {
+  if (isLoading) {
     return (
       <View className="flex-1 bg-white justify-center items-center">
         <LoadingSpinner />
@@ -53,8 +58,8 @@ export function InvestmentOverview() {
     );
   }
 
-  // Si tiene datos de formulario, mostrar loading mientras redirige
-  if (hasAnyFormData) {
+  // Si ya vio la intro y tiene datos, mostrar loading mientras redirige
+  if (hasSeenIntro && hasAnyFormData) {
     return (
       <View className="flex-1 bg-white justify-center items-center">
         <LoadingSpinner />
@@ -62,5 +67,6 @@ export function InvestmentOverview() {
     );
   }
 
-  return <WithoutAccount hasAnyFormData={hasAnyFormData} />;
+  // Mostrar pantalla de introducción (primera vez o sin datos de formulario)
+  return <WithoutAccount hasAnyFormData={hasAnyFormData} onStartCreateAccount={markIntroAsSeen} />;
 }

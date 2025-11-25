@@ -8,13 +8,17 @@ import { useTranslation } from 'react-i18next';
 
 interface WithoutAccountProps {
   hasAnyFormData?: boolean;
+  onStartCreateAccount?: () => void;
 }
 
-export function WithoutAccount({ hasAnyFormData = false }: WithoutAccountProps) {
+export function WithoutAccount({ hasAnyFormData = false, onStartCreateAccount }: WithoutAccountProps) {
   const router = useRouter();
   const { t } = useTranslation();
 
   const handleCreateAccount = () => {
+    // Marcar que el usuario ya vio la pantalla de introducción
+    onStartCreateAccount?.();
+
     if (hasAnyFormData) {
       router.push('/(tabs)/investment/create-account/complete-profile' as any);
     } else {

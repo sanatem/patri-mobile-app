@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Alert } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '@/providers/AuthProvider';
 import { useSubscriptionStatus } from '@/hooks/common/useSubscriptionStatus';
 import { useHasInvestmentAccount } from '@/hooks/investment/usePortfolioDetails';
@@ -10,6 +11,8 @@ import { getRiskProfile } from '@/services/investment/create-account/investment-
 import { checkRequirements } from '@/services/investment/create-account/broker-documentation';
 import { useTranslation } from 'react-i18next';
 import { useEffect } from 'react';
+
+const INVESTMENT_INTRO_SEEN_KEY = 'investment_intro_seen';
 
 /**
  * Main hook for Investment Overview screen
@@ -21,9 +24,33 @@ export function useInvestmentOverview() {
   const { accessToken } = useAuth();
   const [isLoadingFormData, setIsLoadingFormData] = useState(true);
   const [hasAnyFormData, setHasAnyFormData] = useState(false);
+  const [hasSeenIntro, setHasSeenIntro] = useState<boolean | null>(null);
 
   const { shouldBlockTab, loading: subscriptionLoading } = useSubscriptionStatus();
   const { hasInvestmentAccount, loading: investmentLoading } = useHasInvestmentAccount();
+
+  // Verificar si ya vio la pantalla de introducción
+  useEffect(() => {
+    const checkIntroSeen = async () => {
+      try {
+        const seen = await AsyncStorage.getItem(INVESTMENT_INTRO_SEEN_KEY);
+        setHasSeenIntro(seen === 'true');
+      } catch {
+        setHasSeenIntro(false);
+      }
+    };
+    checkIntroSeen();
+  }, []);
+
+  // Función para marcar la intro como vista
+  const markIntroAsSeen = async () => {
+    try {
+      await AsyncStorage.setItem(INVESTMENT_INTRO_SEEN_KEY, 'true');
+      setHasSeenIntro(true);
+    } catch {
+      // Error guardando el flag
+    }
+  };
 
   // Solo verificar datos de formulario si el usuario NO tiene cuenta de inversión
   // Esto evita llamadas innecesarias a los endpoints de create-account
@@ -122,6 +149,10 @@ export function useInvestmentOverview() {
     hasInvestmentAccount,
     hasAnyFormData,
     shouldBlockTab,
+    hasSeenIntro,
+
+    // Actions
+    markIntroAsSeen,
 
     // Translation
     t,
