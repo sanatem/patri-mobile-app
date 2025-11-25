@@ -62,24 +62,13 @@ export default function ContactInformationStepper() {
     try {
       const response = await getContactInformation(accessToken);
 
-      if (response.success && response.contact_information) {
-        const contactInfo = response.contact_information;
+      if (response.success) {
+        // Si success es true, el registro existe -> usar PATCH
+        setHasExistingData(true);
 
-        const hasAnyData = !!(
-          contactInfo.address ||
-          contactInfo.address_number ||
-          contactInfo.floor_number ||
-          (contactInfo.phones && contactInfo.phones.length > 0 && contactInfo.phones[0]) ||
-          contactInfo.location_data?.region ||
-          contactInfo.location_data?.commune ||
-          contactInfo.address_data?.country ||
-          contactInfo.address_data?.state ||
-          contactInfo.address_data?.city
-        );
-
-        setHasExistingData(hasAnyData);
-
-        if (hasAnyData) {
+        // Prellenar datos si existen
+        if (response.contact_information) {
+          const contactInfo = response.contact_information;
           const preFilledAnswers: Record<string, any> = {};
 
           // Los datos de dirección van anidados porque la pregunta "address" es tipo "form"
@@ -96,6 +85,7 @@ export default function ContactInformationStepper() {
           setAnswers(preFilledAnswers);
         }
       } else {
+        // Si success es false, no existe registro -> usar POST
         setHasExistingData(false);
       }
     } catch {

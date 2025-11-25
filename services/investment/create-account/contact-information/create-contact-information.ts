@@ -46,16 +46,16 @@ export async function createContactInformation(
       throw new Error('Unauthorized - Invalid token');
     }
 
-    if (response.status === 422) {
+    // Capturar errores 400 y 422 con el mensaje del servidor
+    if (response.status === 400 || response.status === 422) {
       const errorData = await response.json();
-      throw new Error(errorData.message || 'Validation error');
+      const errorMessage = errorData.message || errorData.error || errorData.errors || JSON.stringify(errorData);
+      throw new Error(typeof errorMessage === 'string' ? errorMessage : JSON.stringify(errorMessage));
     }
 
     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
 
   } catch (error) {
-    console.error('Error creating contact information:', error);
-
     return {
       contact_information: null,
       success: false,
