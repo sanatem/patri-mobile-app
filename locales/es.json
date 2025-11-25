@@ -1492,7 +1492,8 @@
       "occupation": "Ocupación o profesión"
     },
     "regionLabel": "Región",
-    "communeLabel": "Comuna"
+    "communeLabel": "Comuna",
+    "submitError": "Error al guardar la información de contacto"
   },
   "spouseInfo": {
     "title": "Datos del Cónyuge",

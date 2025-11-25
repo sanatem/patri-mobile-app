@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, Keyboard, Alert } from 'react-native';
 import { router } from 'expo-router';
 import { FormLayout, Input, Select, RadioButton, LoadingSpinner, SuccessMessage } from '@/components/ui';
 import { useTranslation } from 'react-i18next';
@@ -61,11 +61,9 @@ export default function ContactInformationStepper() {
 
     try {
       const response = await getContactInformation(accessToken);
-      console.log('GET contact information response:', response);
 
       if (response.success && response.contact_information) {
         const contactInfo = response.contact_information;
-        console.log('Contact info from API:', contactInfo);
 
         const hasAnyData = !!(
           contactInfo.address ||
@@ -79,64 +77,60 @@ export default function ContactInformationStepper() {
           contactInfo.address_data?.city
         );
 
-        console.log('Has any existing data:', hasAnyData);
         setHasExistingData(hasAnyData);
 
         if (hasAnyData) {
           const preFilledAnswers: Record<string, any> = {};
 
-          if (contactInfo.address) {
-            preFilledAnswers['address'] = contactInfo.address;
-          }
-          if (contactInfo.address_number) {
-            preFilledAnswers['address_number'] = contactInfo.address_number;
-          }
+          // Los datos de dirección van anidados porque la pregunta "address" es tipo "form"
+          preFilledAnswers['address'] = {
+            address: contactInfo.address || '',
+            region: contactInfo.location_data?.region || '',
+            commune: contactInfo.location_data?.commune || '',
+          };
+
           if (contactInfo.phones && contactInfo.phones.length > 0) {
             preFilledAnswers['phone'] = contactInfo.phones[0];
           }
-          if (contactInfo.location_data?.region) {
-            preFilledAnswers['region'] = contactInfo.location_data.region;
-          }
-          if (contactInfo.location_data?.commune) {
-            preFilledAnswers['commune'] = contactInfo.location_data.commune;
-          }
 
-          console.log('Pre-filled answers:', preFilledAnswers);
           setAnswers(preFilledAnswers);
         }
       } else {
-        console.log('No contact information found or request failed');
         setHasExistingData(false);
       }
-    } catch (error) {
-      console.error('Error loading contact information:', error);
+    } catch {
       setHasExistingData(false);
     }
   };
 
   const submitContactInformation = async (finalAnswers: Record<string, any>) => {
     if (!accessToken) {
-      console.error('No access token available');
       return;
     }
 
     setIsSubmitting(true);
     try {
+      // Extraer datos del formulario anidado "address"
+      const addressData = finalAnswers.address || {};
+      const addressStreet = addressData.address || '';
+      const region = addressData.region || '';
+      const commune = addressData.commune || '';
+
       const contactInfoPayload = {
         contact_information: {
-          address: finalAnswers.address || '',
-          address_number: finalAnswers.address_number || '',
+          address: addressStreet,
+          address_number: '',
           phones: [finalAnswers.phone || ''],
           address_data: {
             country: 'Chile',
-            state: finalAnswers.region || '',
-            city: finalAnswers.commune || '',
-            route: finalAnswers.address || '',
-            street_number: finalAnswers.address_number || '',
+            state: region,
+            city: commune,
+            route: addressStreet,
+            street_number: '',
           },
           location_data: {
-            region: finalAnswers.region || '',
-            commune: finalAnswers.commune || '',
+            region: region,
+            commune: commune,
           },
         },
       };
@@ -155,10 +149,16 @@ export default function ContactInformationStepper() {
           router.push('/(tabs)/investment/create-account/complete-profile');
         }, 2000);
       } else {
-        console.error('Error submitting contact information:', response.message);
+        Alert.alert(
+          t('common.error'),
+          response.message || t('contactInfo.submitError') || 'Error al guardar la información de contacto'
+        );
       }
-    } catch (error) {
-      console.error('Error submitting contact information:', error);
+    } catch {
+      Alert.alert(
+        t('common.error'),
+        t('contactInfo.submitError') || 'Error al guardar la información de contacto'
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -217,6 +217,9 @@ export default function ContactInformationStepper() {
   };
 
   const handleContinue = () => {
+    // Cerrar el teclado antes de cambiar de paso para evitar problemas de focus en Android
+    Keyboard.dismiss();
+
     if (currentStep < questions.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
@@ -225,6 +228,8 @@ export default function ContactInformationStepper() {
   };
 
   const goBack = () => {
+    Keyboard.dismiss();
+
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
     } else {
