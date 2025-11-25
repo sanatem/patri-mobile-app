@@ -55,7 +55,6 @@ class RealValidator implements IValidator {
       return 'http://localhost:3001/api/id-analyzer';
     }
 
-    // ID Analyzer API v2 endpoints
     switch (region) {
       case 'US':
         return 'https://api2.idanalyzer.com';
@@ -121,7 +120,6 @@ class RealValidator implements IValidator {
         biometric: false,
       };
 
-      // Add timeout to prevent infinite loading
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
 
@@ -167,28 +165,105 @@ class RealValidator implements IValidator {
 
       const result = await response.json();
 
-      const transformedResult: IdAnalyzerResponse = {
-        success: result.success || false,
-        result: {
-          documentType: result.result?.documentType || '',
-          firstName: result.result?.firstName || '',
-          lastName: result.result?.lastName || '',
-          fullName: result.result?.fullName || `${result.result?.firstName || ''} ${result.result?.lastName || ''}`.trim(),
-          dateOfBirth: result.result?.dob || '',
-          birthdate: result.result?.birthdate || result.result?.dob || '',
-          nationality: result.result?.nationality || '',
-          documentNumber: result.result?.documentNumber || '',
-          expiryDate: result.result?.expiry || '',
-          issueDate: result.result?.issueDate || '',
-          confidence: result.result?.confidence || 0,
-          authenticity: {
-            score: result.authentication?.score || 0,
-            decision: result.decision || 'review',
-            tampered: result.authentication?.tampered || false,
-          },
-        },
-        error: result.error,
+      const extractField = (field: unknown): string => {
+        if (Array.isArray(field) && field.length > 0) {
+          return field[0].value || '';
+        }
+        if (typeof field === 'string') {
+          return field;
+        }
+        return '';
       };
+
+      const toTitleCase = (str: string): string => {
+        if (!str) return '';
+        return str.toLowerCase()
+          .split(' ')
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(' ');
+      };
+
+      // Map country to nationality
+      const countryToNationality: Record<string, string> = {
+        'Chile': 'Chilena',
+        'Argentina': 'Argentina',
+        'Peru': 'Peruana',
+        'Bolivia': 'Boliviana',
+        'Brazil': 'Brasileña',
+        'Colombia': 'Colombiana',
+        'Ecuador': 'Ecuatoriana',
+        'Venezuela': 'Venezolana',
+        'Uruguay': 'Uruguaya',
+        'Paraguay': 'Paraguaya',
+        'United States': 'Estadounidense',
+        'Mexico': 'Mexicana',
+        'Spain': 'Española',
+      };
+
+      const getCountryNationality = (country: string): string => {
+        if (!country) return '';
+        return countryToNationality[country] || country;
+      };
+
+      const isProxyResponse = result.result && typeof result.result.firstName === 'string';
+
+      let transformedResult: IdAnalyzerResponse;
+
+      if (isProxyResponse) {
+        transformedResult = {
+          success: result.success || false,
+          result: {
+            documentType: result.result?.documentType || '',
+            firstName: result.result?.firstName || '',
+            lastName: result.result?.lastName || '',
+            fullName: result.result?.fullName || `${result.result?.firstName || ''} ${result.result?.lastName || ''}`.trim(),
+            dateOfBirth: result.result?.dob || result.result?.dateOfBirth || '',
+            birthdate: result.result?.birthdate || result.result?.dob || '',
+            nationality: result.result?.nationality || '',
+            documentNumber: result.result?.documentNumber || '',
+            expiryDate: result.result?.expiry || result.result?.expiryDate || '',
+            issueDate: result.result?.issueDate || '',
+            confidence: result.result?.confidence || result.confidence || 0,
+            authenticity: {
+              score: result.result?.authenticity?.score || 0,
+              decision: result.result?.authenticity?.decision || result.decision || 'review',
+              tampered: result.result?.authenticity?.tampered || false,
+            },
+          },
+          error: result.error,
+        };
+      } else {
+        const data = result.data || {};
+
+        const firstName = toTitleCase(extractField(data.firstName));
+        const lastName = toTitleCase(extractField(data.lastName));
+        const fullName = toTitleCase(extractField(data.fullName)) || `${firstName} ${lastName}`.trim();
+        const documentNumber = extractField(data.personalNumber) || extractField(data.documentNumber);
+        const countryFull = extractField(data.countryFull);
+
+        transformedResult = {
+          success: result.success || false,
+          result: {
+            documentType: extractField(data.documentName) || extractField(data.documentType) || '',
+            firstName,
+            lastName,
+            fullName,
+            dateOfBirth: extractField(data.dob) || '',
+            birthdate: extractField(data.dob) || '',
+            nationality: getCountryNationality(countryFull),
+            documentNumber,
+            expiryDate: extractField(data.expiry) || '',
+            issueDate: extractField(data.issued) || '',
+            confidence: result.reviewScore || 0,
+            authenticity: {
+              score: result.authentication?.score || 0,
+              decision: result.decision || 'review',
+              tampered: result.authentication?.tampered || false,
+            },
+          },
+          error: result.warning || result.error,
+        };
+      }
 
       return transformedResult;
     } catch (error) {

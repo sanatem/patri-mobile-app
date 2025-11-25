@@ -25,25 +25,18 @@ export default function IdentityUpload() {
     }
 
     try {
-      // Intentar cargar desde el servidor
       const response = await getIdentityCard(accessToken);
-      console.log('Loading existing identity card in upload screen:', response);
 
       if (response.success && response.identity_card?.front_url) {
-        console.log('Found existing front image:', response.identity_card.front_url);
-        // Guardar la URL en AsyncStorage y estado
         setFrontImage(response.identity_card.front_url);
         await AsyncStorage.setItem('identity_front_image', response.identity_card.front_url);
-        
-        // También guardar la imagen trasera si existe
+
         if (response.identity_card.back_url) {
           await AsyncStorage.setItem('identity_back_image', response.identity_card.back_url);
         }
-      } else {
-        console.log('No existing identity card found');
       }
     } catch (error) {
-      console.error('Error loading existing identity card:', error);
+      // Error loading existing identity card
     } finally {
       setIsLoading(false);
     }
@@ -52,16 +45,11 @@ export default function IdentityUpload() {
   const handleContinue = async () => {
     if (frontImage) {
       try {
-        // Si la imagen ya es una URL del servidor, solo navegar
-        if (frontImage.startsWith('http')) {
-          console.log('Using existing image from server');
-        } else {
-          // Si es una imagen nueva (base64), guardarla
+        if (!frontImage.startsWith('http')) {
           await AsyncStorage.setItem('identity_front_image', frontImage);
         }
         router.push('/investment/create-account/identity-step/identity-upload-back' as any);
       } catch (error) {
-        console.error('Error saving front image:', error);
         Alert.alert(t('common.error'), 'Error al guardar la imagen');
       }
     }
