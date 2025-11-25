@@ -216,7 +216,7 @@ export default function SpouseInformationStepper() {
   };
 
   const handleCancel = () => {
-    router.back();
+    router.push('/(tabs)/investment/create-account/complete-profile');
   };
 
   const renderQuestion = (question: SpouseQuestion) => {

@@ -45,13 +45,10 @@ export default function EmploymentInformationStepper() {
 
     try {
       const response = await getEmploymentInformation(accessToken);
-      console.log('GET employment information response:', response);
 
       if (response.success && response.employment_information) {
         const employmentInfo = response.employment_information;
-        console.log('Employment info from API:', employmentInfo);
 
-        // Check if at least one field has data
         const hasAnyData = !!(
           employmentInfo.company_name ||
           employmentInfo.company_rut ||
@@ -60,13 +57,11 @@ export default function EmploymentInformationStepper() {
           employmentInfo.commercial_activity
         );
 
-        console.log('Has any existing data:', hasAnyData);
         setHasExistingData(hasAnyData);
 
         if (hasAnyData) {
           const preFilledAnswers: Record<string, any> = {};
 
-          // Map employment information to question IDs
           if (employmentInfo.company_name) {
             preFilledAnswers['company_name'] = employmentInfo.company_name;
           }
@@ -83,15 +78,12 @@ export default function EmploymentInformationStepper() {
             preFilledAnswers['commercial_activity'] = employmentInfo.commercial_activity;
           }
 
-          console.log('Pre-filled answers:', preFilledAnswers);
           setAnswers(preFilledAnswers);
         }
       } else {
-        console.log('No employment information found or request failed');
         setHasExistingData(false);
       }
     } catch (error) {
-      console.error('Error loading employment information:', error);
       setHasExistingData(false);
     }
   };
@@ -114,16 +106,11 @@ export default function EmploymentInformationStepper() {
 
   const submitEmploymentInformation = async (finalAnswers: Record<string, any>) => {
     if (!accessToken) {
-      console.error('No access token available');
       return;
     }
 
     setIsSubmitting(true);
     try {
-      console.log('Submitting employment information...');
-      console.log('Has existing data:', hasExistingData);
-      console.log('Final answers:', finalAnswers);
-
       const employmentInfoPayload = {
         employment_information: {
           company_name: finalAnswers.company_name || '',
@@ -136,10 +123,8 @@ export default function EmploymentInformationStepper() {
 
       let response;
       if (hasExistingData) {
-        console.log('Using PATCH to update existing data');
         response = await updateEmploymentInformation(accessToken, employmentInfoPayload);
       } else {
-        console.log('Using POST to create new data');
         response = await createEmploymentInformation(accessToken, employmentInfoPayload);
       }
 
@@ -149,13 +134,9 @@ export default function EmploymentInformationStepper() {
           setShowSuccess(false);
           router.push('/(tabs)/investment/create-account/complete-profile');
         }, 2000);
-      } else {
-        console.error('Error submitting employment information:', response.message);
-        // TODO: Show error to user
       }
     } catch (error) {
-      console.error('Error submitting employment information:', error);
-      // TODO: Show error to user
+      // Error submitting employment information
     } finally {
       setIsSubmitting(false);
     }

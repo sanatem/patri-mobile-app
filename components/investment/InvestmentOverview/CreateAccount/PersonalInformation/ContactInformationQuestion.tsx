@@ -233,7 +233,7 @@ export default function ContactInformationStepper() {
   };
 
   const handleCancel = () => {
-    router.back();
+    router.push('/(tabs)/investment/create-account/complete-profile');
   };
 
   const renderQuestion = () => {
