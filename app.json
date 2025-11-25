@@ -18,14 +18,16 @@
         "ITSAppUsesNonExemptEncryption": false,
         "NSCameraUsageDescription": "Esta app necesita acceso a la cámara para que los usuarios puedan escanear documentos o tomar fotografías.",
         "NSUserTrackingUsageDescription": "Usamos esta información para ofrecerte anuncios personalizados y mejorar tu experiencia en la app.",
-        "NSLocationWhenInUseUsageDescription": "Esta app necesita acceso a tu ubicación para mostrarte información financiera relevante a tu zona y mejorar tu experiencia."
+        "NSLocationWhenInUseUsageDescription": "Esta app necesita acceso a tu ubicación para mostrarte información financiera relevante a tu zona y mejorar tu experiencia.",
+        "NSFaceIDUsageDescription": "Patrimore utiliza Face ID para permitirte acceder de forma rápida y segura a tu información financiera."
       },
       "entitlements": {
         "aps-environment": "production",
         "com.apple.security.application-groups": [
           "group.com.patrimore.patrimore.onesignal"
         ]
-      }
+      },
+      "appleTeamId": "JJ55Y59DRG"
     },
     "android": {
       "adaptiveIcon": {
@@ -35,9 +37,11 @@
       "edgeToEdgeEnabled": true,
       "package": "com.patrimore.patrimore",
       "permissions": [
-        "android.permission.CAMERA",
-        "android.permission.READ_EXTERNAL_STORAGE",
-        "android.permission.WRITE_EXTERNAL_STORAGE"
+        "USE_BIOMETRIC",
+        "USE_FINGERPRINT",
+        "android.permission.USE_BIOMETRIC",
+        "android.permission.USE_FINGERPRINT",
+        "com.google.android.gms.permission.AD_ID"
       ]
     },
     "assetBundlePatterns": [
@@ -65,6 +69,12 @@
           "iPhoneDeploymentTarget": "15.1"
         }
       ],
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Patrimore utiliza Face ID para permitirte acceder de forma rápida y segura a tu información financiera."
+        }
+      ],
       "expo-router",
       [
         "expo-splash-screen",
@@ -83,7 +93,15 @@
       ],
       "expo-font",
       "expo-web-browser",
-      "expo-localization"
+      "expo-localization",
+      "expo-asset",
+      "expo-secure-store",
+      [
+        "react-native-auth0",
+        {
+          "domain": "auth.patrimore.com"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

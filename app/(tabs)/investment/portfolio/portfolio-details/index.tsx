@@ -4,6 +4,7 @@ import { ChevronLeft, ArrowDown, ArrowUp } from 'lucide-react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Header } from '@/components/ui/Header';
 import { Container } from '@/components/ui/Container';
+import { FloatingActionButton, type FloatingAction } from '@/components/ui/FloatingActionButton';
 import {
   PortfolioDetailsHeader,
   PortfolioOverviewSection,
@@ -112,6 +113,27 @@ export default function PortfolioDetailsScreen() {
       allocation: asset.subtitle,
     }));
 
+  const handleInvestPress = () => {
+    router.push(`/(tabs)/investment/portfolio/movements/investment?goalId=${goalId}` as any);
+  };
+
+  const handleWithdrawPress = () => {
+    router.push(`/(tabs)/investment/portfolio/movements/sales?goalId=${goalId}` as any);
+  };
+
+  const floatingActions: FloatingAction[] = [
+    {
+      label: 'Nuevo Depósito',
+      icon: <ArrowDown size={20} color={Colors.primary[500]} />,
+      onPress: handleInvestPress,
+    },
+    {
+      label: 'Nuevo Retiro',
+      icon: <ArrowUp size={20} color={Colors.secondary[500]} />,
+      onPress: handleWithdrawPress,
+    },
+  ];
+
   return (
     <Container variant="secondaryPage" className="px-1">
       <View className="flex-1 bg-white">
@@ -134,7 +156,7 @@ export default function PortfolioDetailsScreen() {
             targetAmount={metaDetails.goal}
             targetDate={metaDetails.goalDate}
           />
-          <PortfolioOverviewSection 
+          <PortfolioOverviewSection
             summary={transformedSummary}
             assets={transformedAssets}
             movements={movements}
@@ -142,28 +164,8 @@ export default function PortfolioDetailsScreen() {
             goalId={goalId}
           />
         </ScrollView>
-        <View className="px-3">
-        {false && (
-          <PortfolioActionsBar
-            actions={[
-              {
-                title: t('portfolioDetails.actions.invest'),
-                onPress: () => router.push('/(tabs)/investment/portfolio/movements/investment'),
-                icon: <ArrowDown size={20} color="#fff" />,
-                variant: 'primary'
-              },
-              {
-                title: t('portfolioDetails.actions.withdraw'),
-                onPress: () => {
-                  router.push('/(tabs)/investment/portfolio/movements/sales')
-                },
-                icon: <ArrowUp size={20} color="#FF5603" />,
-                variant: 'outline'
-              }
-            ]}  
-          />
-        )}
-        </View>
+
+        <FloatingActionButton actions={floatingActions} />
       </View>
     </Container>
   );

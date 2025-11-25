@@ -519,9 +519,9 @@ export const useAppStore = create<AppState>()(
       (set, get) => ({
         user: null,
         preferences: DEFAULT_PREFERENCES,
-        
+
         setUser: (user) => set({ user }, false, 'setUser'),
-        updatePreferences: (prefs) => 
+        updatePreferences: (prefs) =>
           set(
             (state) => ({ preferences: { ...state.preferences, ...prefs } }),
             false,
@@ -612,11 +612,11 @@ const PlatformButton = Platform.select({
 ### Reanimated Best Practices
 ```typescript
 // ✅ BIEN - Animaciones performantes
-import Animated, { 
-  useSharedValue, 
-  useAnimatedStyle, 
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
   withSpring,
-  runOnJS 
+  runOnJS
 } from 'react-native-reanimated';
 
 export const AnimatedButton = ({ onPress, children }: Props) => {
@@ -655,7 +655,7 @@ export const AnimatedButton = ({ onPress, children }: Props) => {
 // utils/performance.ts
 export const measurePerformance = (name: string) => {
   const start = performance.now();
-  
+
   return {
     end: () => {
       const duration = performance.now() - start;
@@ -681,7 +681,7 @@ const MyComponent = () => {
 // ❌ MAL
 const MyComponent = () => {
   const [data] = useState(expensiveCalculation()); // Se ejecuta en cada render!
-  
+
   // ✅ BIEN
   const [data] = useState(() => expensiveCalculation()); // Solo una vez
 };
@@ -725,7 +725,7 @@ Antes de hacer commit, verifica:
 
 - [ ] ✅ **TypeScript**: Sin errores de tipos
 - [ ] 🧹 **Linter**: Sin warnings de ESLint
-- [ ] 🎨 **Formato**: Código formateado con Prettier  
+- [ ] 🎨 **Formato**: Código formateado con Prettier
 - [ ] ♿ **A11y**: Labels y hints implementados
 - [ ] 🔐 **Security**: No secrets hardcodeados
 - [ ] ⚡ **Performance**: useCallback/useMemo donde corresponde

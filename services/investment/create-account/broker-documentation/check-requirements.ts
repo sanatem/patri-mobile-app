@@ -8,8 +8,8 @@ export interface BrokerError {
 export interface BrokerDetail {
   name: string;
   code: string;
-  can_sign: boolean;
-  errors: BrokerError[];
+  broker_document_id: number;
+  status: string;
 }
 
 export interface MissingRequirement {
@@ -19,11 +19,44 @@ export interface MissingRequirement {
   message: string;
 }
 
+export interface IdentityCardStatus {
+  exists: boolean;
+  verified: boolean;
+  completed: boolean;
+  has_front: boolean;
+  has_back: boolean;
+}
+
+export interface FormStatus {
+  exists: boolean;
+  completed: boolean;
+  required?: boolean;
+}
+
+export interface BrokerDocumentStatus {
+  broker_code: string;
+  broker_name: string;
+  exists: boolean;
+  signed: boolean;
+  status: string;
+  has_questionnaire: boolean;
+}
+
+export interface FormsStatus {
+  identity_card: IdentityCardStatus;
+  personal_information: FormStatus;
+  contact_information: FormStatus;
+  employment_information: FormStatus & { required: boolean };
+  spouse: FormStatus & { required: boolean };
+  broker_documents: BrokerDocumentStatus[];
+}
+
 export interface CheckRequirementsData {
   requirements_met: boolean;
   missing_requirements: MissingRequirement[];
   details: {
     brokers: BrokerDetail[];
+    forms_status: FormsStatus;
   };
 }
 

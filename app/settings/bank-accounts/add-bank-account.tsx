@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, Alert } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Container } from '@/components/ui/Container';
 import FormLayout from '@/components/ui/FormLayout';
 import { Input } from '@/components/ui/Input';
@@ -57,6 +57,9 @@ export default function AddBankAccountPage() {
   const { t } = useTranslation();
   const router = useRouter();
   const { accessToken } = useAuth();
+  const { from } = useLocalSearchParams<{ from?: string }>();
+
+  const isFromCompleteProfile = from === 'complete-profile';
 
   const [formData, setFormData] = useState({
     bank_id: '',
@@ -130,7 +133,11 @@ export default function AddBankAccountPage() {
         setIsSaved(true);
 
         setTimeout(() => {
-          router.back();
+          if (isFromCompleteProfile) {
+            router.replace('/(tabs)/investment/create-account/complete-profile' as any);
+          } else {
+            router.back();
+          }
         }, 2000);
       } else {
         Alert.alert('Error', response.message || 'No se pudo agregar la cuenta');
@@ -144,7 +151,11 @@ export default function AddBankAccountPage() {
   };
 
   const handleCancel = () => {
-    router.back();
+    if (isFromCompleteProfile) {
+      router.replace('/(tabs)/investment/create-account/complete-profile' as any);
+    } else {
+      router.back();
+    }
   };
 
   const isFormValid = formData.bank_id && formData.kind && formData.account_number.trim().length >= 8;

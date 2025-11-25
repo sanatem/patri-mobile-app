@@ -1,12 +1,12 @@
 import config from '@/config/constants';
 
 interface ApiGoalHistoryResponse {
-  goal_id: number;
+  goal_id?: number;
   historic_goal_value: Array<{
     x: string;
     y: number;
   }>;
-  pagination: {
+  pagination?: {
     current_page: number;
     per_page: number;
     total_count: number;
@@ -42,20 +42,24 @@ export interface GoalHistoryData {
   };
 }
 
-const transformApiGoalHistoryResponse = (apiData: ApiGoalHistoryResponse): GoalHistoryData => {
+const transformApiGoalHistoryResponse = (apiData: ApiGoalHistoryResponse & { goal_id: number }): GoalHistoryData => {
+  const historicValues = Array.isArray(apiData.historic_goal_value)
+    ? apiData.historic_goal_value.map(point => ({
+        date: point.x,
+        value: point.y
+      }))
+    : [];
+
   return {
-    goalId: apiData.goal_id,
-    historicValues: apiData.historic_goal_value.map(point => ({
-      date: point.x,
-      value: point.y
-    })),
+    goalId: apiData.goal_id || 0,
+    historicValues,
     pagination: {
-      currentPage: apiData.pagination.current_page,
-      perPage: apiData.pagination.per_page,
-      totalCount: apiData.pagination.total_count,
-      totalPages: apiData.pagination.total_pages,
-      hasNextPage: apiData.pagination.has_next_page,
-      hasPrevPage: apiData.pagination.has_prev_page
+      currentPage: apiData.pagination?.current_page || 1,
+      perPage: apiData.pagination?.per_page || 30,
+      totalCount: apiData.pagination?.total_count || historicValues.length,
+      totalPages: apiData.pagination?.total_pages || 1,
+      hasNextPage: apiData.pagination?.has_next_page || false,
+      hasPrevPage: apiData.pagination?.has_prev_page || false
     }
   };
 };
@@ -103,21 +107,33 @@ export const goalHistoryService = {
           status: response.status,
           errorText
         });
-        
+
         if (response.status === 404) {
           throw new Error('Meta no encontrada');
         }
-        
+
         if (response.status === 401) {
           throw new Error('Token de autenticación inválido o expirado');
         }
-        
+
         throw new Error(`API Error ${response.status}: ${errorText}`);
       }
 
-      const data: ApiGoalHistoryResponse = await response.json();
-      
-      const transformedData = transformApiGoalHistoryResponse(data);
+      const responseData = await response.json();
+
+      // La respuesta tiene la estructura: { success: true, data: { goal_id: ..., historic_goal_value: [...], pagination: {...} } }
+      const data: ApiGoalHistoryResponse = responseData.data || responseData;
+
+      console.log('goalHistoryService - Response data:', JSON.stringify(data, null, 2));
+
+      if (!data.historic_goal_value) {
+        console.error('goalHistoryService - Invalid data structure:', data);
+        throw new Error('Estructura de datos inválida en la respuesta');
+      }
+
+      // Usar goal_id de la respuesta o del parámetro
+      const goalIdNumber = data.goal_id || parseInt(params.goalId, 10);
+      const transformedData = transformApiGoalHistoryResponse({ ...data, goal_id: goalIdNumber });
 
       return transformedData;
 
