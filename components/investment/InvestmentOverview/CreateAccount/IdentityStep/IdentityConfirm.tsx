@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { submitOnboarding, type OnboardingRequest } from '@/services/user/onboarding';
+import { getPersonalInformation } from '@/services/investment/create-account/personal-information/get-personal-information';
 import { useAuth } from '@/providers/AuthProvider';
 import { getNationalities, getNationalityCode } from '@/utils/countries';
 import Colors from '@/constants/Colors';
@@ -24,8 +25,10 @@ export default function IdentityConfirm() {
     lastName: '',
     dateOfBirth: '',
     nationality: '',
-    documentNumber: ''
+    documentNumber: '',
+    rut: ''
   });
+  const [isRutLocked, setIsRutLocked] = useState(false);
 
   const nationalities = getNationalities(i18n.language);
 
@@ -55,6 +58,8 @@ export default function IdentityConfirm() {
 
       // Cargar datos extraídos
       const savedData = await AsyncStorage.getItem('extracted_personal_data');
+      let extractedRut = '';
+
       if (savedData) {
         const parsedData = JSON.parse(savedData);
         setFormData({
@@ -62,8 +67,22 @@ export default function IdentityConfirm() {
           lastName: parsedData.lastName || '',
           dateOfBirth: parsedData.dateOfBirth || parsedData.birthdate || '',
           nationality: parsedData.nationality || '',
-          documentNumber: parsedData.documentNumber || ''
+          documentNumber: parsedData.documentNumber || '',
+          rut: parsedData.rut || ''
         });
+      }
+
+      // Cargar RUT desde personal_information si existe
+      if (accessToken) {
+        const personalInfoResponse = await getPersonalInformation(accessToken);
+        if (personalInfoResponse.success && personalInfoResponse.personal_information?.rut) {
+          extractedRut = personalInfoResponse.personal_information.rut;
+          setFormData(prev => ({
+            ...prev,
+            rut: extractedRut
+          }));
+          setIsRutLocked(true);
+        }
       }
     } catch (err) {
       // Error loading verification data
@@ -77,7 +96,7 @@ export default function IdentityConfirm() {
     }));
   };
 
-  const isFormComplete = formData.firstName && formData.lastName && formData.dateOfBirth && formData.nationality && formData.documentNumber;
+  const isFormComplete = formData.firstName && formData.lastName && formData.dateOfBirth && formData.nationality && formData.rut;
 
   const handleContinue = async () => {
     if (!isFormComplete) {
@@ -103,7 +122,7 @@ export default function IdentityConfirm() {
 
       const onboardingData: OnboardingRequest = {
         personal_information: {
-          rut: formData.documentNumber,
+          rut: formData.rut,
           birth_date: formData.dateOfBirth,
           monthly_incomes: '',
           nationality: nationalityCode || formData.nationality,
@@ -121,7 +140,8 @@ export default function IdentityConfirm() {
           dateOfBirth: formData.dateOfBirth,
           birthdate: formData.dateOfBirth,
           nationality: formData.nationality,
-          documentNumber: formData.documentNumber
+          documentNumber: formData.documentNumber,
+          rut: formData.rut
         };
         await AsyncStorage.setItem('extracted_personal_data', JSON.stringify(extractedDataFormat));
 
@@ -204,6 +224,14 @@ export default function IdentityConfirm() {
           {!isDocumentRejected && (
             <View className="space-y-4 mb-6">
               <Input
+                label="RUT"
+                value={formData.rut}
+                onChangeText={(value) => handleInputChange('rut', value)}
+                placeholder="12.345.678-9"
+                disabled={isRutLocked}
+              />
+
+              <Input
                 label={t('identityConfirm.firstName')}
                 value={formData.firstName}
                 onChangeText={(value) => handleInputChange('firstName', value)}
@@ -266,6 +294,14 @@ export default function IdentityConfirm() {
           showLogo={false}
         >
           <View className="space-y-4 mb-6">
+            <Input
+              label="RUT"
+              value={formData.rut}
+              onChangeText={(value) => handleInputChange('rut', value)}
+              placeholder="12.345.678-9"
+              disabled={isRutLocked}
+            />
+
             <Input
               label={t('identityConfirm.firstName')}
               value={formData.firstName}
