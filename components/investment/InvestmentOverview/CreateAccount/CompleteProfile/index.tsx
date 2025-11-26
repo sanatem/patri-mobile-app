@@ -182,7 +182,9 @@ export default function SummaryStep() {
 
       const allBaseCompleted = hasRiskData && hasIdentityData && hasPersonalData && hasContactData && hasWorkData && hasDefaultBankAccount && hasSpouseData;
 
-      if (allBaseCompleted && !areContractsSigned) {
+      const brokerDocsExist = requirementsResponse.data?.details?.forms_status?.broker_documents?.some(doc => doc.exists);
+
+      if (allBaseCompleted && !areContractsSigned && !brokerDocsExist) {
         try {
           await generateBrokerDocumentations(accessToken);
         } catch {

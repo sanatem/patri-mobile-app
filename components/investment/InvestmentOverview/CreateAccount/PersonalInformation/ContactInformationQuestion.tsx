@@ -6,7 +6,6 @@ import { useTranslation } from 'react-i18next';
 import { REGIONS_AND_COMMUNES } from '@/constants/AppConstants';
 import { useAuth } from '@/providers/AuthProvider';
 import { getContactInformation } from '@/services/investment/create-account/contact-information/get-contact-information';
-import { createContactInformation } from '@/services/investment/create-account/contact-information/create-contact-information';
 import { updateContactInformation } from '@/services/investment/create-account/contact-information/update-contact-information';
 import Colors from '@/constants/Colors';
 
@@ -35,7 +34,6 @@ export default function ContactInformationStepper() {
   const [answers, setAnswers] = useState<Record<string, any>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [hasExistingData, setHasExistingData] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
   const getFilteredQuestions = () => {
@@ -62,34 +60,23 @@ export default function ContactInformationStepper() {
     try {
       const response = await getContactInformation(accessToken);
 
-      if (response.success) {
-        // Si success es true, el registro existe -> usar PATCH
-        setHasExistingData(true);
+      if (response.success && response.contact_information) {
+        const contactInfo = response.contact_information;
+        const preFilledAnswers: Record<string, any> = {};
 
-        // Prellenar datos si existen
-        if (response.contact_information) {
-          const contactInfo = response.contact_information;
-          const preFilledAnswers: Record<string, any> = {};
+        // Campos separados (no anidados)
+        preFilledAnswers['address'] = contactInfo.address || '';
+        preFilledAnswers['address_number'] = contactInfo.address_number || '';
+        preFilledAnswers['region'] = contactInfo.location_data?.region || '';
+        preFilledAnswers['commune'] = contactInfo.location_data?.commune || '';
 
-          // Los datos de dirección van anidados porque la pregunta "address" es tipo "form"
-          preFilledAnswers['address'] = {
-            address: contactInfo.address || '',
-            region: contactInfo.location_data?.region || '',
-            commune: contactInfo.location_data?.commune || '',
-          };
-
-          if (contactInfo.phones && contactInfo.phones.length > 0) {
-            preFilledAnswers['phone'] = contactInfo.phones[0];
-          }
-
-          setAnswers(preFilledAnswers);
+        if (contactInfo.phones && contactInfo.phones.length > 0) {
+          preFilledAnswers['phone'] = contactInfo.phones[0];
         }
-      } else {
-        // Si success es false, no existe registro -> usar POST
-        setHasExistingData(false);
+
+        setAnswers(preFilledAnswers);
       }
     } catch {
-      setHasExistingData(false);
     }
   };
 
@@ -100,23 +87,23 @@ export default function ContactInformationStepper() {
 
     setIsSubmitting(true);
     try {
-      // Extraer datos del formulario anidado "address"
-      const addressData = finalAnswers.address || {};
-      const addressStreet = addressData.address || '';
-      const region = addressData.region || '';
-      const commune = addressData.commune || '';
+      const addressStreet = finalAnswers.address || '';
+      const addressNumber = finalAnswers.address_number || '';
+      const region = finalAnswers.region || '';
+      const commune = finalAnswers.commune || '';
+      const country = finalAnswers.country || '';
 
       const contactInfoPayload = {
         contact_information: {
           address: addressStreet,
-          address_number: '',
+          address_number: addressNumber,
           phones: [finalAnswers.phone || ''],
           address_data: {
-            country: 'Chile',
+            country: country,
             state: region,
             city: commune,
             route: addressStreet,
-            street_number: '',
+            street_number: addressNumber,
           },
           location_data: {
             region: region,
@@ -125,12 +112,7 @@ export default function ContactInformationStepper() {
         },
       };
 
-      let response;
-      if (hasExistingData) {
-        response = await updateContactInformation(accessToken, contactInfoPayload);
-      } else {
-        response = await createContactInformation(accessToken, contactInfoPayload);
-      }
+      const response = await updateContactInformation(accessToken, contactInfoPayload);
 
       if (response.success) {
         setShowSuccess(true);
@@ -195,7 +177,7 @@ export default function ContactInformationStepper() {
       case 'choice':
         return !!answer;
       case 'input':
-        return !!answer && answer.trim() !== '';
+        return !!answer && typeof answer === 'string' && answer.trim() !== '';
       case 'select':
         return !!answer;
       case 'form':
@@ -207,7 +189,6 @@ export default function ContactInformationStepper() {
   };
 
   const handleContinue = () => {
-    // Cerrar el teclado antes de cambiar de paso para evitar problemas de focus en Android
     Keyboard.dismiss();
 
     if (currentStep < questions.length - 1) {
