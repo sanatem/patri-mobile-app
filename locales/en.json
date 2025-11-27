@@ -1455,7 +1455,8 @@
       "occupation": "Occupation or profession"
     },
     "regionLabel": "Region",
-    "communeLabel": "Commune"
+    "communeLabel": "Commune",
+    "submitError": "Error saving contact information"
   },
   "employmentInfo": {
     "questions": [

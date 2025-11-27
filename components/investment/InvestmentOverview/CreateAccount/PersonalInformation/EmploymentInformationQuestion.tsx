@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View } from 'react-native';
+import { View, Keyboard } from 'react-native';
 import { router } from 'expo-router';
 import { FormLayout, Input, Select, LoadingSpinner, SuccessMessage } from '@/components/ui';
 import { useTranslation } from 'react-i18next';
@@ -163,6 +163,8 @@ export default function EmploymentInformationStepper() {
   };
 
   const handleContinue = () => {
+    Keyboard.dismiss();
+
     const answer = answers[currentQuestion.id];
     const error = validateCurrentAnswer(answer);
 
@@ -179,6 +181,8 @@ export default function EmploymentInformationStepper() {
   };
 
   const goBack = () => {
+    Keyboard.dismiss();
+
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
     } else {

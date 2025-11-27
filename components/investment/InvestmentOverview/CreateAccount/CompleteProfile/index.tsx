@@ -59,7 +59,6 @@ export default function SummaryStep() {
     }
 
     try {
-      // Primero verificar si los documentos del broker están aprobados
       const requirementsResponse = await checkRequirements(accessToken);
 
       if (requirementsResponse.success) {
@@ -67,14 +66,12 @@ export default function SummaryStep() {
         const isApproved = brokerDocs?.some(doc => doc.status === 'approved');
 
         if (isApproved) {
-          // Si está aprobado, redirigir directamente al portfolio sin hacer más llamadas
           setIsLoadingStatuses(false);
           router.replace('/(tabs)/investment/portfolio');
           return;
         }
       }
 
-      // Solo si no está aprobado, verificar el resto de los formularios
       const [contactResponse, personalResponse, riskResponse, employmentResponse, identityResponse, bankAccountsResponse, spouseResponse] = await Promise.all([
         getContactInformation(accessToken),
         getPersonalInformation(accessToken),
@@ -93,7 +90,6 @@ export default function SummaryStep() {
           contactResponse.contact_information.floor_number)
       );
 
-      // Verificar que todos los campos obligatorios del formulario de información personal estén llenos
       const personalInfo = personalResponse.personal_information;
       const hasPersonalData = !!(
         personalResponse.success &&
@@ -102,24 +98,20 @@ export default function SummaryStep() {
         personalInfo.gender &&
         personalInfo.employment_situation &&
         personalInfo.marital_status &&
-        // conjugal_regime es obligatorio solo si está casado
         (personalInfo.marital_status !== 'married' || personalInfo.conjugal_regime) &&
         personalInfo.us_person !== undefined &&
         personalInfo.pep !== undefined &&
         personalInfo.has_broker_relationship_with_vector !== undefined &&
-        // broker_relationship_type es obligatorio solo si tiene relación con Vector
         (!personalInfo.has_broker_relationship_with_vector || personalInfo.broker_relationship_type) &&
         personalInfo.has_a_broker_relationship !== undefined
       );
 
-      // Verificar si requiere datos del cónyuge basándose en el estado civil
       const userRequiresSpouse = !!(
         personalInfo &&
         (personalInfo.marital_status === 'married' || personalInfo.marital_status === 'civil_union')
       );
       setIsMarried(userRequiresSpouse);
 
-      // Verificar si el usuario tiene trabajo dependiente
       const userIsDependentWorker = personalInfo?.employment_situation === 'dependent';
       setIsDependentWorker(userIsDependentWorker);
 
@@ -156,7 +148,6 @@ export default function SummaryStep() {
         identityResponse.identity_card.verified !== false
       );
 
-      // Solo requerir información laboral si tiene trabajo dependiente
       const hasWorkData = !userIsDependentWorker || !!(
         employmentResponse.success &&
         employmentResponse.employment_information &&
@@ -182,7 +173,9 @@ export default function SummaryStep() {
 
       const allBaseCompleted = hasRiskData && hasIdentityData && hasPersonalData && hasContactData && hasWorkData && hasDefaultBankAccount && hasSpouseData;
 
-      if (allBaseCompleted && !areContractsSigned) {
+      const brokerDocsExist = requirementsResponse.data?.details?.forms_status?.broker_documents?.some(doc => doc.exists);
+
+      if (allBaseCompleted && !areContractsSigned && !brokerDocsExist) {
         try {
           await generateBrokerDocumentations(accessToken);
         } catch {
@@ -200,18 +193,15 @@ export default function SummaryStep() {
         contractSignature: areContractsSigned,
       });
 
-      // Si los contratos están firmados, verificar el estado de los documentos del broker
       if (areContractsSigned) {
         try {
           const brokerDocsResponse = await getBrokerDocumentations(accessToken);
 
           if (brokerDocsResponse.success && brokerDocsResponse.broker_documents.length > 0) {
-            // Verificar el estado del primer documento (o todos si es necesario)
             const statuses = brokerDocsResponse.broker_documents.map(doc => doc.status);
 
             if (statuses.every(status => status === 'approved')) {
               setAccountStatus('approved');
-              // Redirigir al portfolio
               router.replace('/(tabs)/investment' as any);
               return;
             } else if (statuses.some(status => status === 'rejected')) {
@@ -221,11 +211,9 @@ export default function SummaryStep() {
             }
           }
         } catch {
-          // Error silenciado
         }
       }
     } catch {
-      // Error silenciado
     } finally {
       setIsLoadingStatuses(false);
     }
@@ -239,7 +227,6 @@ export default function SummaryStep() {
     }, 300);
   };
 
-  // Verificar si todos los formularios base están completados (sin incluir contractSignature)
   const allBaseFormsCompleted = !isLoadingStatuses &&
     formStatuses.riskProfile &&
     formStatuses.identity &&
@@ -249,17 +236,13 @@ export default function SummaryStep() {
     formStatuses.bankData &&
     formStatuses.spouseInfo;
 
-  // La firma de contrato se habilita cuando todos los formularios base están completos
   const canAccessContractSignature = allBaseFormsCompleted;
 
-  // TODO ESTÁ COMPLETADO cuando todos los formularios base + firma de contrato están listos
   const allFormsCompleted = allBaseFormsCompleted && formStatuses.contractSignature;
 
-  // Determinar qué título y descripción mostrar
   const title = allFormsCompleted ? t('investmentAccount.titleCompleted') : t('investmentAccount.title');
   const description = allFormsCompleted ? t('investmentAccount.descriptionCompleted') : t('investmentAccount.description');
 
-  // Vista de cuenta pendiente de aprobación
   if (accountStatus === 'pending') {
     return (
       <Container variant="secondaryPage">

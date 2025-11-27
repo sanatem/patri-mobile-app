@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, Keyboard, Alert } from 'react-native';
 import { router } from 'expo-router';
 import { FormLayout, Input, Select, RadioButton, LoadingSpinner, SuccessMessage } from '@/components/ui';
 import { useTranslation } from 'react-i18next';
 import { REGIONS_AND_COMMUNES } from '@/constants/AppConstants';
 import { useAuth } from '@/providers/AuthProvider';
 import { getContactInformation } from '@/services/investment/create-account/contact-information/get-contact-information';
-import { createContactInformation } from '@/services/investment/create-account/contact-information/create-contact-information';
 import { updateContactInformation } from '@/services/investment/create-account/contact-information/update-contact-information';
 import Colors from '@/constants/Colors';
 
@@ -35,7 +34,6 @@ export default function ContactInformationStepper() {
   const [answers, setAnswers] = useState<Record<string, any>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [hasExistingData, setHasExistingData] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
   const getFilteredQuestions = () => {
@@ -61,92 +59,60 @@ export default function ContactInformationStepper() {
 
     try {
       const response = await getContactInformation(accessToken);
-      console.log('GET contact information response:', response);
 
       if (response.success && response.contact_information) {
         const contactInfo = response.contact_information;
-        console.log('Contact info from API:', contactInfo);
+        const preFilledAnswers: Record<string, any> = {};
 
-        const hasAnyData = !!(
-          contactInfo.address ||
-          contactInfo.address_number ||
-          contactInfo.floor_number ||
-          (contactInfo.phones && contactInfo.phones.length > 0 && contactInfo.phones[0]) ||
-          contactInfo.location_data?.region ||
-          contactInfo.location_data?.commune ||
-          contactInfo.address_data?.country ||
-          contactInfo.address_data?.state ||
-          contactInfo.address_data?.city
-        );
+        // Campos separados (no anidados)
+        preFilledAnswers['address'] = contactInfo.address || '';
+        preFilledAnswers['address_number'] = contactInfo.address_number || '';
+        preFilledAnswers['region'] = contactInfo.location_data?.region || '';
+        preFilledAnswers['commune'] = contactInfo.location_data?.commune || '';
 
-        console.log('Has any existing data:', hasAnyData);
-        setHasExistingData(hasAnyData);
-
-        if (hasAnyData) {
-          const preFilledAnswers: Record<string, any> = {};
-
-          if (contactInfo.address) {
-            preFilledAnswers['address'] = contactInfo.address;
-          }
-          if (contactInfo.address_number) {
-            preFilledAnswers['address_number'] = contactInfo.address_number;
-          }
-          if (contactInfo.phones && contactInfo.phones.length > 0) {
-            preFilledAnswers['phone'] = contactInfo.phones[0];
-          }
-          if (contactInfo.location_data?.region) {
-            preFilledAnswers['region'] = contactInfo.location_data.region;
-          }
-          if (contactInfo.location_data?.commune) {
-            preFilledAnswers['commune'] = contactInfo.location_data.commune;
-          }
-
-          console.log('Pre-filled answers:', preFilledAnswers);
-          setAnswers(preFilledAnswers);
+        if (contactInfo.phones && contactInfo.phones.length > 0) {
+          preFilledAnswers['phone'] = contactInfo.phones[0];
         }
-      } else {
-        console.log('No contact information found or request failed');
-        setHasExistingData(false);
+
+        setAnswers(preFilledAnswers);
       }
-    } catch (error) {
-      console.error('Error loading contact information:', error);
-      setHasExistingData(false);
+    } catch {
     }
   };
 
   const submitContactInformation = async (finalAnswers: Record<string, any>) => {
     if (!accessToken) {
-      console.error('No access token available');
       return;
     }
 
     setIsSubmitting(true);
     try {
+      const addressStreet = finalAnswers.address || '';
+      const addressNumber = finalAnswers.address_number || '';
+      const region = finalAnswers.region || '';
+      const commune = finalAnswers.commune || '';
+      const country = finalAnswers.country || '';
+
       const contactInfoPayload = {
         contact_information: {
-          address: finalAnswers.address || '',
-          address_number: finalAnswers.address_number || '',
+          address: addressStreet,
+          address_number: addressNumber,
           phones: [finalAnswers.phone || ''],
           address_data: {
-            country: 'Chile',
-            state: finalAnswers.region || '',
-            city: finalAnswers.commune || '',
-            route: finalAnswers.address || '',
-            street_number: finalAnswers.address_number || '',
+            country: country,
+            state: region,
+            city: commune,
+            route: addressStreet,
+            street_number: addressNumber,
           },
           location_data: {
-            region: finalAnswers.region || '',
-            commune: finalAnswers.commune || '',
+            region: region,
+            commune: commune,
           },
         },
       };
 
-      let response;
-      if (hasExistingData) {
-        response = await updateContactInformation(accessToken, contactInfoPayload);
-      } else {
-        response = await createContactInformation(accessToken, contactInfoPayload);
-      }
+      const response = await updateContactInformation(accessToken, contactInfoPayload);
 
       if (response.success) {
         setShowSuccess(true);
@@ -155,10 +121,16 @@ export default function ContactInformationStepper() {
           router.push('/(tabs)/investment/create-account/complete-profile');
         }, 2000);
       } else {
-        console.error('Error submitting contact information:', response.message);
+        Alert.alert(
+          t('common.error'),
+          response.message || t('contactInfo.submitError') || 'Error al guardar la información de contacto'
+        );
       }
-    } catch (error) {
-      console.error('Error submitting contact information:', error);
+    } catch {
+      Alert.alert(
+        t('common.error'),
+        t('contactInfo.submitError') || 'Error al guardar la información de contacto'
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -205,7 +177,7 @@ export default function ContactInformationStepper() {
       case 'choice':
         return !!answer;
       case 'input':
-        return !!answer && answer.trim() !== '';
+        return !!answer && typeof answer === 'string' && answer.trim() !== '';
       case 'select':
         return !!answer;
       case 'form':
@@ -217,6 +189,8 @@ export default function ContactInformationStepper() {
   };
 
   const handleContinue = () => {
+    Keyboard.dismiss();
+
     if (currentStep < questions.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
@@ -225,6 +199,8 @@ export default function ContactInformationStepper() {
   };
 
   const goBack = () => {
+    Keyboard.dismiss();
+
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
     } else {

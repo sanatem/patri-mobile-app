@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView } from 'react-native';
+import { View, ScrollView, Keyboard } from 'react-native';
 import { router } from 'expo-router';
 import { FormLayout, Input, Select, RadioButton, LoadingSpinner, SuccessMessage } from '@/components/ui';
 import CalendarSelect from '@/components/ui/CalendarSelect';
@@ -200,6 +200,8 @@ export default function SpouseInformationStepper() {
   };
 
   const handleContinue = () => {
+    Keyboard.dismiss();
+
     if (currentStep < totalSteps - 1) {
       setCurrentStep(currentStep + 1);
     } else {
@@ -208,6 +210,8 @@ export default function SpouseInformationStepper() {
   };
 
   const goBack = () => {
+    Keyboard.dismiss();
+
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
     } else {

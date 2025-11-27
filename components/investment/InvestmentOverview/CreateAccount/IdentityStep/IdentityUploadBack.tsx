@@ -7,8 +7,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Colors from '@/constants/Colors';
 import { useAuth } from '@/providers/AuthProvider';
 import { createIdentityCard } from '@/services/investment/create-account/identity-verification/create-identity-verification';
-import { getIdentityCard } from '@/services/investment/create-account/identity-verification/get-identity-verification';
 import { updateIdentityCard } from '@/services/investment/create-account/identity-verification/update-identity-verification';
+import { getIdentityCard } from '@/services/investment/create-account/identity-verification/get-identity-verification';
 import { verifyIdentityCard, extractPersonalDataFromResponse } from '@/services/investment/create-account/identity-verification/verify-identity-card';
 
 export default function IdentityUploadBack() {
@@ -39,14 +39,10 @@ export default function IdentityUploadBack() {
     setIsProcessing(true);
 
     try {
-      // Si la imagen ya es una URL del servidor, solo navegar
-      if (backImage.startsWith('http')) {
-        router.push('/investment/create-account/identity-step/identity-confirm' as any);
-        return;
-      }
-
       // Guardar imagen en AsyncStorage
-      await AsyncStorage.setItem('identity_back_image', backImage);
+      if (!backImage.startsWith('http')) {
+        await AsyncStorage.setItem('identity_back_image', backImage);
+      }
 
       // Obtener imagen frontal
       const frontImage = await AsyncStorage.getItem('identity_front_image');
@@ -55,30 +51,53 @@ export default function IdentityUploadBack() {
         return;
       }
 
-      // 1. Guardar imágenes en el servidor
-      setProcessingMessage('Guardando imágenes...');
+      // Verificar si hay imágenes nuevas para subir (no son URLs del servidor)
+      const hasFrontToUpload = !frontImage.startsWith('http');
+      const hasBackToUpload = !backImage.startsWith('http');
 
-      const existingCardCheck = await getIdentityCard(accessToken);
-      const cardExistsInServer = existingCardCheck.success && existingCardCheck.identity_card;
-
-      let saveResponse;
-      if (cardExistsInServer) {
-        saveResponse = await updateIdentityCard(accessToken, {
-          frontImage: frontImage,
-          backImage: backImage,
-          verified: false,
-        });
+      // Si ambas son URLs del servidor, solo navegar a verificación
+      if (!hasFrontToUpload && !hasBackToUpload) {
+        // Las imágenes ya están en el servidor, continuar con la verificación
+        setProcessingMessage('Verificando documento...');
       } else {
-        saveResponse = await createIdentityCard(accessToken, {
-          frontImage: frontImage,
-          backImage: backImage,
-          verified: false,
-        });
-      }
+        // Hay al menos una imagen nueva para subir
+        setProcessingMessage('Guardando imágenes...');
 
-      if (!saveResponse.success) {
-        Alert.alert(t('common.error'), 'Error al guardar las imágenes del documento');
-        return;
+        // Para subir, necesitamos ambas imágenes nuevas (no URLs HTTP)
+        if (!hasFrontToUpload || !hasBackToUpload) {
+          Alert.alert(
+            t('common.error'), 
+            'Por favor, vuelve a tomar ambas fotos del documento.'
+          );
+          return;
+        }
+
+        // Verificar si ya existe una tarjeta en el servidor
+        const existingCardCheck = await getIdentityCard(accessToken);
+        const cardExists = existingCardCheck.success && existingCardCheck.identity_card;
+
+        let saveResponse;
+        if (cardExists) {
+          // Si ya existe, usar PUT
+          saveResponse = await updateIdentityCard(accessToken, {
+            frontImage: frontImage,
+            backImage: backImage,
+          });
+        } else {
+          // Si no existe, usar POST
+          saveResponse = await createIdentityCard(accessToken, {
+            frontImage: frontImage,
+            backImage: backImage,
+          });
+        }
+
+        if (!saveResponse.success) {
+          Alert.alert(
+            t('common.error'), 
+            saveResponse.message || 'Error al guardar el documento'
+          );
+          return;
+        }
       }
 
       // 2. Verificar el documento

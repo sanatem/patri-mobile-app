@@ -36,7 +36,6 @@ export default function IdentityUpload() {
         }
       }
     } catch (error) {
-      // Error loading existing identity card
     } finally {
       setIsLoading(false);
     }

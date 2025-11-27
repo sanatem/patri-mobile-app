@@ -118,13 +118,22 @@ export function useSubscriptionStatus(): SubscriptionStatus {
   }, [checkSubscriptionStatus]);
 
   const userPlan = userData?.user?.plan;
-  const isFreePlan = Boolean(userPlan === 'Gratis' || userPlan === 'gratis' || userPlan === 'FREE' || userPlan === 'free');
-  const isPaidPlan = Boolean(!isFreePlan && userPlan && userPlan !== '');
+  const userPlanLower = userPlan?.toLowerCase() || '';
+
+  // Es plan pagado si tiene un plan válido que NO sea gratis
+  const isPaidPlan = Boolean(userPlan && userPlanLower !== '' && userPlanLower !== 'gratis' && userPlanLower !== 'free');
+
+  // Es plan gratis si explícitamente es "gratis" o "free"
+  const isFreePlan = Boolean(userPlanLower === 'gratis' || userPlanLower === 'free');
 
   const apiUrl = process.env.EXPO_PUBLIC_API_URL || '';
   const isStagingEnvironment = Boolean(apiUrl.includes('staging') || apiUrl.includes('dev'));
 
-  const shouldBlockTabs = isFreePlan && !isSubscribed && !isPremium && !isPaidPlan;
+  // Bloquear tabs si:
+  // - No tiene plan pagado Y
+  // - No tiene suscripción móvil (RevenueCat)
+  // Esto bloquea por defecto si no se puede determinar el plan
+  const shouldBlockTabs = !isPaidPlan && !isSubscribed && !isPremium;
 
   const shouldBlockTab = (tabName: string): boolean => {
     if (tabName.toLowerCase() === 'patrimonio' || tabName.toLowerCase() === 'patrimony') {
