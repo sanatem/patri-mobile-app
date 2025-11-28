@@ -12,9 +12,9 @@ const mockBudgetInstances = [
     start_date: '2024-11-01',
     end_date: '2024-11-30',
     amount: 500000,
-    spent_amount: 75000,         // 15% - Verde
-    remaining_amount: 425000,
-    percentage: 15,
+    spent_amount: 130000,
+    remaining_amount: 370000,
+    percentage: 26,
     over_budget: false,
     category: {
       id: 45,
@@ -30,10 +30,10 @@ const mockBudgetInstances = [
     start_date: '2024-11-01',
     end_date: '2024-11-30',
     amount: 400000,
-    spent_amount: 120000,        // 30% - Verde-amarillo
-    remaining_amount: 280000,
-    percentage: 30,
-    over_budget: false,
+    spent_amount: 450000,
+    remaining_amount: -50000,
+    percentage: 112.5,
+    over_budget: true,
     category: {
       id: 46,
       name: 'Transporte',
@@ -48,9 +48,9 @@ const mockBudgetInstances = [
     start_date: '2024-11-01',
     end_date: '2024-11-30',
     amount: 200000,
-    spent_amount: 100000,        // 50% - Amarillo
-    remaining_amount: 100000,
-    percentage: 50,
+    spent_amount: 80000,
+    remaining_amount: 120000,
+    percentage: 40,
     over_budget: false,
     category: {
       id: 47,
@@ -59,53 +59,17 @@ const mockBudgetInstances = [
       emoji_code: '🎮'
     },
     recurrence: 'monthly'
-  },
-  {
-    id: 4,
-    budget_template_id: 4,
-    start_date: '2024-11-01',
-    end_date: '2024-11-30',
-    amount: 300000,
-    spent_amount: 210000,        // 70% - Naranja
-    remaining_amount: 90000,
-    percentage: 70,
-    over_budget: false,
-    category: {
-      id: 48,
-      name: 'Servicios',
-      kind: 'outcome',
-      emoji_code: '💡'
-    },
-    recurrence: 'monthly'
-  },
-  {
-    id: 5,
-    budget_template_id: 5,
-    start_date: '2024-11-01',
-    end_date: '2024-11-30',
-    amount: 250000,
-    spent_amount: 300000,        // 120% - Rojo (Excedido)
-    remaining_amount: -50000,
-    percentage: 120,
-    over_budget: true,
-    category: {
-      id: 49,
-      name: 'Compras',
-      kind: 'outcome',
-      emoji_code: '🛍️'
-    },
-    recurrence: 'monthly'
   }
 ];
 
 const mockSummary = {
   total_budgeted: 1100000,
-  total_spent: 1200000,       // ~109% del presupuesto (rango 81%+ = rojo)
-  total_remaining: -100000,
+  total_spent: 660000,
+  total_remaining: 440000,
   categories_count: 3,
-  over_budget_count: 2,
-  warning_count: 1,
-  healthy_count: 0
+  over_budget_count: 1,
+  warning_count: 0,
+  healthy_count: 2
 };
 
 export function useBudgetSection() {
@@ -262,7 +226,6 @@ export function useBudgetSection() {
     handleNavigateToTransactions,
     handleNavigateToCreateBudget,
     handleNavigateToBudgetHistory,
-    handleNavigateToCategories,
     handleIntegrarDatos,
     handleMonthSelect,
     handleYearSelect,
