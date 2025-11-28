@@ -1,10 +1,12 @@
 import React from 'react';
 import { View, ScrollView, Text, TouchableOpacity } from 'react-native';
-import { Container, KeyboardAwareContainer, LoadingSpinner, Card, FloatingActionButton, type FloatingAction } from '@/components/ui';
+import { Container, KeyboardAwareContainer, LoadingSpinner, Card, FloatingActionButton, SyncModal, QuickAccessButton, type FloatingAction } from '@/components/ui';
 import { BudgetHeader } from '../BudgetOverview/Header';
 import { BudgetInstanceCard } from './BudgetInstanceCard';
+import { DateSelector } from '../BudgetOverview/Filters/DateSelector';
+import BudgetChart from '../BudgetOverview/Chart/BudgetChart';
 import { useBudgetSection } from '@/hooks/budget/useBudgetSection';
-import { Plus, Receipt, PiggyBank } from 'lucide-react-native';
+import { Plus, Receipt, PiggyBank, Tag } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 
 const formatCurrency = (amount: number): string => {
@@ -19,21 +21,36 @@ const formatCurrency = (amount: number): string => {
 export function BudgetSectionOverview() {
   const {
     // State
-    currentPeriod,
+    selectedMonth,
+    selectedYear,
 
     // Data
     budgetInstances,
     summary,
     hasBudgets,
 
+    // Options
+    monthOptions,
+    yearOptions,
+
     // Loading states
     subscriptionLoading,
     loading,
+    isSyncing,
+
+    // Computed values
+    chartSize,
 
     // Handlers
     handleNavigateToTransactions,
     handleNavigateToCreateBudget,
     handleNavigateToBudgetHistory,
+    handleNavigateToCategories,
+    handleIntegrarDatos,
+    handleMonthSelect,
+    handleYearSelect,
+    stopSync,
+    handleSyncComplete,
 
     // Translation
     t,
@@ -59,108 +76,36 @@ export function BudgetSectionOverview() {
     <Container variant="secondaryPage">
       <BudgetHeader
         title={t('budget.title', 'Presupuesto')}
-        onPlusPress={handleNavigateToCreateBudget}
+        onSyncPress={handleIntegrarDatos}
       />
 
       <KeyboardAwareContainer>
         <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-          <Container variant="content" className="py-4">
-            {/* Period Header */}
-            <Text className="text-lg font-semibold text-gray-800 mb-4">
-              {currentPeriod}
-            </Text>
-
-            {/* Summary Card */}
+          <Container variant="content" className="pt-4 pb-2">
+            <DateSelector
+              monthOptions={monthOptions}
+              yearOptions={yearOptions}
+              selectedMonth={selectedMonth}
+              selectedYear={selectedYear}
+              onMonthSelect={handleMonthSelect}
+              onYearSelect={handleYearSelect}
+              isLoading={loading}
+              chartSize={chartSize}
+            />
             {hasBudgets && (
-              <Card variant="elevated" size="md" className="mb-4">
-                <View className="flex-row justify-between mb-3">
-                  <View className="flex-1">
-                    <Text className="text-xs text-gray-500 mb-1">
-                      {t('budget.total_budgeted', 'Presupuestado')}
-                    </Text>
-                    <Text className="text-base font-semibold text-gray-800">
-                      {formatCurrency(summary.total_budgeted)}
-                    </Text>
-                  </View>
-                  <View className="flex-1">
-                    <Text className="text-xs text-gray-500 mb-1">
-                      {t('budget.total_spent', 'Gastado')}
-                    </Text>
-                    <Text className="text-base font-semibold text-gray-800">
-                      {formatCurrency(summary.total_spent)}
-                    </Text>
-                  </View>
-                  <View className="flex-1">
-                    <Text className="text-xs text-gray-500 mb-1">
-                      {t('budget.remaining', 'Restante')}
-                    </Text>
-                    <Text
-                      className="text-base font-semibold"
-                      style={{ color: summary.total_remaining >= 0 ? Colors.success[500] : Colors.error[500] }}
-                    >
-                      {formatCurrency(summary.total_remaining)}
-                    </Text>
-                  </View>
-                </View>
-
-                {/* Status indicators */}
-                <View className="flex-row pt-3 border-t border-gray-100">
-                  {summary.over_budget_count > 0 && (
-                    <View className="flex-row items-center mr-4">
-                      <View
-                        style={{
-                          width: 8,
-                          height: 8,
-                          borderRadius: 4,
-                          backgroundColor: Colors.error[500],
-                          marginRight: 6
-                        }}
-                      />
-                      <Text className="text-xs text-gray-600">
-                        {summary.over_budget_count} {t('budget.exceeded', 'excedido')}
-                      </Text>
-                    </View>
-                  )}
-                  {summary.warning_count > 0 && (
-                    <View className="flex-row items-center mr-4">
-                      <View
-                        style={{
-                          width: 8,
-                          height: 8,
-                          borderRadius: 4,
-                          backgroundColor: Colors.warning[500],
-                          marginRight: 6
-                        }}
-                      />
-                      <Text className="text-xs text-gray-600">
-                        {summary.warning_count} {t('budget.warning', 'alerta')}
-                      </Text>
-                    </View>
-                  )}
-                  <View className="flex-row items-center">
-                    <View
-                      style={{
-                        width: 8,
-                        height: 8,
-                        borderRadius: 4,
-                        backgroundColor: Colors.success[500],
-                        marginRight: 6
-                      }}
-                    />
-                    <Text className="text-xs text-gray-600">
-                      {summary.healthy_count} OK
-                    </Text>
-                  </View>
-                </View>
-              </Card>
+              <BudgetChart
+                selectedMonth={selectedMonth}
+                totalIncome={0}
+                totalExpenses={summary.total_spent}
+                balance={summary.total_remaining}
+                remainingBudget={summary.total_budgeted}
+                isLoading={loading}
+                hasRealData={hasBudgets}
+              />
             )}
 
-            {/* Budget Instances List */}
             {hasBudgets ? (
-              <View className="mb-4">
-                <Text className="text-sm font-medium text-gray-600 mb-3">
-                  {t('budget.my_budgets', 'Mis Presupuestos')}
-                </Text>
+              <View className="mb-2">
                 {budgetInstances.map((instance) => (
                   <BudgetInstanceCard
                     key={instance.id}
@@ -170,8 +115,7 @@ export function BudgetSectionOverview() {
                 ))}
               </View>
             ) : (
-              /* Empty State */
-              <Card variant="elevated" size="lg" className="mb-4">
+              <Card variant="outlined" size="lg" className="mb-4">
                 <View className="items-center py-6">
                   <View
                     style={{
@@ -203,24 +147,19 @@ export function BudgetSectionOverview() {
               </Card>
             )}
 
-            {/* Transactions Navigation Button */}
-            <TouchableOpacity
-              onPress={handleNavigateToTransactions}
-              className="bg-secondary-500 rounded-xl py-4 px-6 flex-row items-center justify-center"
-              style={{
-                shadowColor: Colors.secondary[500],
-                shadowOffset: { width: 0, height: 4 },
-                shadowOpacity: 0.3,
-                shadowRadius: 8,
-                elevation: 4,
-              }}
-              activeOpacity={0.8}
-            >
-              <Receipt size={24} color="white" style={{ marginRight: 12 }} />
-              <Text className="text-white font-semibold text-base">
-                {t('budget.view_transactions', 'Ver Transacciones')}
-              </Text>
-            </TouchableOpacity>
+            <View className="mb-2">
+              <QuickAccessButton
+                label={t('budget.view_transactions', 'Ver Transacciones')}
+                icon={<Receipt size={20} color={Colors.primary[500]} />}
+                onPress={handleNavigateToTransactions}
+                style={{ marginBottom: 10 }}
+              />
+              <QuickAccessButton
+                label={t('budget.categories_manager', 'Categorías')}
+                icon={<Tag size={20} color={Colors.primary[500]} />}
+                onPress={handleNavigateToCategories}
+              />
+            </View>
           </Container>
 
           <View className="h-32" />
@@ -228,6 +167,14 @@ export function BudgetSectionOverview() {
       </KeyboardAwareContainer>
 
       {hasBudgets && <FloatingActionButton actions={floatingActions} />}
+
+      <SyncModal
+        visible={isSyncing}
+        onClose={() => {
+          stopSync();
+        }}
+        onSyncComplete={handleSyncComplete}
+      />
     </Container>
   );
 }

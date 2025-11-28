@@ -1,7 +1,7 @@
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
-import { ChevronRight, Tag } from 'lucide-react-native';
-import { SearchBar } from '@/components/ui';
+import { View } from 'react-native';
+import { Tag } from 'lucide-react-native';
+import { SearchBar, QuickAccessButton } from '@/components/ui';
 import { SkeletonBase } from '@/components/ui/SkeletonBase';
 import Colors from '@/constants/Colors';
 
@@ -58,29 +58,12 @@ export function SearchSection({
         onChangeText={onSearchChange}
       />
 
-      <TouchableOpacity
+      <QuickAccessButton
+        label={categoriesLabel}
+        icon={<Tag size={20} color={Colors.primary[500]} />}
         onPress={onCategoriesPress}
-        style={{
-          backgroundColor: 'white',
-          borderRadius: 12,
-          borderWidth: 1,
-          borderColor: Colors.gray[100],
-          padding: 16,
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginTop: 12,
-        }}
-        activeOpacity={0.7}
-      >
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Tag size={20} color={Colors.primary[500]} style={{ marginRight: 12 }} />
-          <Text className="text-base font-medium" style={{ color: Colors.primary[600] }}>
-            {categoriesLabel}
-          </Text>
-        </View>
-        <ChevronRight size={20} color={Colors.primary[500]} />
-      </TouchableOpacity>
+        style={{ marginTop: 12 }}
+      />
     </>
   );
 }

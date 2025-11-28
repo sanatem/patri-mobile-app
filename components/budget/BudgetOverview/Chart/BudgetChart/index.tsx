@@ -56,13 +56,36 @@ const BudgetChart: React.FC<BudgetChartProps> = ({
     }
   };
 
-  const getGraphColor = () => {
-    if (balance >= 0) {
-      return Colors.success[500];
-    } else {
-      return Colors.secondary[500];
-    }
+  // Calculate percentage of budget used
+  const getUsagePercentage = () => {
+    if (remainingBudget <= 0) return 100;
+    return (totalExpenses / remainingBudget) * 100;
   };
+
+  // Get color based on usage percentage with gradient effect
+  const getGraphColor = () => {
+    const percentage = getUsagePercentage();
+
+    // 0-20%: Green (success)
+    if (percentage <= 20) {
+      return Colors.success[500];
+    }
+    // 21-40%: Yellow-green
+    if (percentage <= 40) {
+      return Colors.lime[500];
+    }
+    // 41-60%: Yellow-orange
+    if (percentage <= 60) {
+      return Colors.yellow[500];
+    }
+    // 61-80%: Orange
+    if (percentage <= 80) {
+      return Colors.orange[500];
+    }
+    // 81%+: Red
+    return Colors.red[500];
+  };
+
 
   if (isLoading) {
     return (
@@ -201,7 +224,7 @@ const BudgetChart: React.FC<BudgetChartProps> = ({
             {getBalanceText()}
           </Text>
           <Text style={styles.centerSubtitle}>
-            {totalBudget > 0 
+            {totalBudget > 0
               ? t('budget_chart.remaining_of', { amount: formatCurrency(totalBudget) })
               : t('budget_chart.no_data_this_month')
             }
@@ -231,7 +254,7 @@ const styles = StyleSheet.create({
     height: '60%',
   },
   centerAmount: {
-    fontFamily: 'Poppins-Bold',
+    fontFamily: 'Poppins-Medium',
     fontSize: 26,
     textAlign: 'center',
     marginBottom: 4,

@@ -35,3 +35,4 @@ export type { FloatingAction } from './FloatingActionButton';
 export { ImageDropbox } from './ImageDropbox';
 export { SuccessMessage } from './SuccessMessage';
 export { AuthenticatedImage } from './AuthenticatedImage';
+export { QuickAccessButton } from './QuickAccessButton';

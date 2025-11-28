@@ -65,11 +65,11 @@ export function Card({
       style={[
         getVariantStyle(variant),
         {
-          shadowColor: variant === 'elevated' ? Colors.primary[900] : undefined,
-          shadowOffset: variant === 'elevated' ? { width: 0, height: 2 } : undefined,
-          shadowOpacity: variant === 'elevated' ? 0.08 : undefined,
-          shadowRadius: variant === 'elevated' ? 8 : undefined,
-          elevation: variant === 'elevated' ? 8 : undefined,
+          shadowColor: variant === 'elevated' ? Colors.primary[900] : 'transparent',
+          shadowOffset: variant === 'elevated' ? { width: 0, height: 2 } : { width: 0, height: 0 },
+          shadowOpacity: variant === 'elevated' ? 0.08 : 0,
+          shadowRadius: variant === 'elevated' ? 8 : 0,
+          elevation: variant === 'elevated' ? 8 : 0,
           ...sizes[size],
         },
         style,

@@ -38,31 +38,43 @@ const formatCurrency = (amount: number): string => {
 };
 
 const getBudgetStatus = (percentage: number, overBudget: boolean) => {
-  if (overBudget || percentage >= 100) {
+  // 81%+ or over budget: Red
+  if (overBudget || percentage > 80) {
     return {
-      color: Colors.error[500],
-      bgColor: Colors.error[100],
+      color: Colors.red[500],
+      bgColor: Colors.red[100],
       label: 'Excedido',
     };
   }
-  if (percentage >= 80) {
+  // 61-80%: Orange
+  if (percentage > 60) {
     return {
-      color: Colors.warning[500],
-      bgColor: Colors.warning[100],
-      label: 'Alerta',
+      color: Colors.orange[500],
+      bgColor: Colors.orange[100],
+      label: 'En alerta',
     };
   }
-  if (percentage >= 50) {
+  // 41-60%: Yellow
+  if (percentage > 40) {
     return {
-      color: Colors.warning[600],
-      bgColor: Colors.warning[50],
-      label: 'Precaución',
+      color: Colors.yellow[500],
+      bgColor: Colors.yellow[100],
+      label: 'En alerta',
     };
   }
+  // 21-40%: Lime/Yellow-green
+  if (percentage > 20) {
+    return {
+      color: Colors.lime[500],
+      bgColor: Colors.lime[100],
+      label: 'En control',
+    };
+  }
+  // 0-20%: Green
   return {
     color: Colors.success[500],
     bgColor: Colors.success[100],
-    label: 'OK',
+    label: 'En control',
   };
 };
 
@@ -72,7 +84,7 @@ export function BudgetInstanceCard({ instance, onPress }: BudgetInstanceCardProp
 
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
-      <Card variant="elevated" size="md" className="mb-3">
+      <Card variant="default" size="md" className="mb-4">
         <View className="flex-row items-center justify-between mb-3">
           <View className="flex-row items-center flex-1">
             <Text className="text-2xl mr-2">{instance.category.emoji_code}</Text>

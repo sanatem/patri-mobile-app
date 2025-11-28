@@ -3,8 +3,8 @@ import { Dimensions } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useSubscriptionStatus } from '@/hooks/common/useSubscriptionStatus';
 import { useTranslation } from 'react-i18next';
+import { useFloidSync } from '@/hooks/common/useFloidSync';
 
-// Mock data for budget instances - will be replaced with API call
 const mockBudgetInstances = [
   {
     id: 1,
@@ -12,9 +12,9 @@ const mockBudgetInstances = [
     start_date: '2024-11-01',
     end_date: '2024-11-30',
     amount: 500000,
-    spent_amount: 130000,
-    remaining_amount: 370000,
-    percentage: 26,
+    spent_amount: 75000,         // 15% - Verde
+    remaining_amount: 425000,
+    percentage: 15,
     over_budget: false,
     category: {
       id: 45,
@@ -30,10 +30,10 @@ const mockBudgetInstances = [
     start_date: '2024-11-01',
     end_date: '2024-11-30',
     amount: 400000,
-    spent_amount: 450000,
-    remaining_amount: -50000,
-    percentage: 112.5,
-    over_budget: true,
+    spent_amount: 120000,        // 30% - Verde-amarillo
+    remaining_amount: 280000,
+    percentage: 30,
+    over_budget: false,
     category: {
       id: 46,
       name: 'Transporte',
@@ -48,9 +48,9 @@ const mockBudgetInstances = [
     start_date: '2024-11-01',
     end_date: '2024-11-30',
     amount: 200000,
-    spent_amount: 80000,
-    remaining_amount: 120000,
-    percentage: 40,
+    spent_amount: 100000,        // 50% - Amarillo
+    remaining_amount: 100000,
+    percentage: 50,
     over_budget: false,
     category: {
       id: 47,
@@ -59,21 +59,58 @@ const mockBudgetInstances = [
       emoji_code: '🎮'
     },
     recurrence: 'monthly'
+  },
+  {
+    id: 4,
+    budget_template_id: 4,
+    start_date: '2024-11-01',
+    end_date: '2024-11-30',
+    amount: 300000,
+    spent_amount: 210000,        // 70% - Naranja
+    remaining_amount: 90000,
+    percentage: 70,
+    over_budget: false,
+    category: {
+      id: 48,
+      name: 'Servicios',
+      kind: 'outcome',
+      emoji_code: '💡'
+    },
+    recurrence: 'monthly'
+  },
+  {
+    id: 5,
+    budget_template_id: 5,
+    start_date: '2024-11-01',
+    end_date: '2024-11-30',
+    amount: 250000,
+    spent_amount: 300000,        // 120% - Rojo (Excedido)
+    remaining_amount: -50000,
+    percentage: 120,
+    over_budget: true,
+    category: {
+      id: 49,
+      name: 'Compras',
+      kind: 'outcome',
+      emoji_code: '🛍️'
+    },
+    recurrence: 'monthly'
   }
 ];
 
 const mockSummary = {
   total_budgeted: 1100000,
-  total_spent: 660000,
-  total_remaining: 440000,
+  total_spent: 1200000,       // ~109% del presupuesto (rango 81%+ = rojo)
+  total_remaining: -100000,
   categories_count: 3,
-  over_budget_count: 1,
-  warning_count: 0,
-  healthy_count: 2
+  over_budget_count: 2,
+  warning_count: 1,
+  healthy_count: 0
 };
 
 export function useBudgetSection() {
   const { shouldBlockTab, loading: subscriptionLoading } = useSubscriptionStatus();
+  const { isSyncing, stopSync } = useFloidSync();
   const router = useRouter();
   const { t } = useTranslation();
 
@@ -101,6 +138,29 @@ export function useBudgetSection() {
   const [loading, setLoading] = useState(false);
   const [currentPeriod] = useState(getCurrentMonthYear());
 
+  // Month and year selection state
+  const currentDate = new Date();
+  const [selectedMonth, setSelectedMonth] = useState(months[currentDate.getMonth()]);
+  const [selectedYear, setSelectedYear] = useState(currentDate.getFullYear().toString());
+
+  // Generate month options
+  const monthOptions = useMemo(() => {
+    return months.map((month) => ({
+      label: month,
+      value: month,
+    }));
+  }, [months]);
+
+  // Generate year options (current year and 2 years back)
+  const yearOptions = useMemo(() => {
+    const currentYear = new Date().getFullYear();
+    return [
+      { label: (currentYear - 2).toString(), value: (currentYear - 2).toString() },
+      { label: (currentYear - 1).toString(), value: (currentYear - 1).toString() },
+      { label: currentYear.toString(), value: currentYear.toString() },
+    ];
+  }, []);
+
   // Handlers
   const handleNavigateToTransactions = () => {
     router.push('/(tabs)/budget/transactions' as any);
@@ -108,6 +168,28 @@ export function useBudgetSection() {
 
   const handleNavigateToCreateBudget = () => {
     router.push('/(tabs)/budget/create-budget' as any);
+  };
+
+  const handleIntegrarDatos = () => {
+    router.push('/(tabs)/budget/transactions/floid-screen' as any);
+  };
+
+  const handleSyncComplete = () => {
+    // Refresh budget data after sync completes
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+    }, 500);
+  };
+
+  const handleMonthSelect = (month: string) => {
+    setSelectedMonth(month);
+    // TODO: Refetch budget data for new month
+  };
+
+  const handleYearSelect = (year: string) => {
+    setSelectedYear(year);
+    // TODO: Refetch budget data for new year
   };
 
   const handleNavigateToBudgetHistory = (instanceId: number, categoryName: string) => {
@@ -118,6 +200,10 @@ export function useBudgetSection() {
         categoryName
       }
     });
+  };
+
+  const handleNavigateToCategories = () => {
+    router.push('/(tabs)/budget/transactions/categories-manager' as any);
   };
 
   // Effects - will fetch data from API when available
@@ -151,15 +237,22 @@ export function useBudgetSection() {
   return {
     // State
     currentPeriod,
+    selectedMonth,
+    selectedYear,
 
     // Data
     budgetInstances,
     summary,
     hasBudgets,
 
+    // Options
+    monthOptions,
+    yearOptions,
+
     // Loading states
     subscriptionLoading,
     loading,
+    isSyncing,
 
     // Computed values
     chartSize,
@@ -169,6 +262,12 @@ export function useBudgetSection() {
     handleNavigateToTransactions,
     handleNavigateToCreateBudget,
     handleNavigateToBudgetHistory,
+    handleNavigateToCategories,
+    handleIntegrarDatos,
+    handleMonthSelect,
+    handleYearSelect,
+    stopSync,
+    handleSyncComplete,
 
     t,
   };
