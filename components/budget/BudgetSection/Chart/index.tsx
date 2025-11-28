@@ -1,5 +1,5 @@
 import React from 'react';
-import { BudgetChart } from '@/components/budget';
+import BudgetChart from './BudgetChart';
 import { ChartSkeleton } from '../Skeletons/ChartSkeleton';
 
 interface BudgetChartSectionProps {

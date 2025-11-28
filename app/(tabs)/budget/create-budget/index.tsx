@@ -7,6 +7,7 @@ import { Input, Select, RadioButton } from '@/components/ui';
 import { useAuth } from '@/providers/AuthProvider';
 import { getUserCategories } from '@/services/budget/categories-manager';
 import type { UserCategory } from '@/services/budget/categories-manager';
+import { createBudgetTemplate } from '@/services/budget/budget-templates';
 import { getTranslatedNames } from '@/utils/categoryTranslations';
 
 export default function CreateBudgetScreen() {
@@ -96,16 +97,11 @@ export default function CreateBudgetScreen() {
     try {
       setIsLoading(true);
 
-      // TODO: Replace with actual API call
-      // const budgetData = {
-      //   user_category_id: parseInt(selectedCategoryId),
-      //   amount: parsedAmount,
-      //   recurrence: recurrence
-      // };
-      // await createBudgetTemplate(budgetData, accessToken!);
-
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await createBudgetTemplate({
+        user_category_id: parseInt(selectedCategoryId),
+        amount: parsedAmount,
+        recurrence: recurrence
+      }, accessToken!);
 
       setIsSaved(true);
 

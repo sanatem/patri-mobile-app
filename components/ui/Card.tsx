@@ -43,7 +43,7 @@ export function Card({
       case 'outlined':
         return {
           backgroundColor: Colors.light.background,
-          borderColor: Colors.gray[200],
+          borderColor: Colors.gray[100],
           borderWidth: 1,
         };
       default:

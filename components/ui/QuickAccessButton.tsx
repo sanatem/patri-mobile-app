@@ -36,7 +36,7 @@ export function QuickAccessButton({
     >
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
         {icon}
-        <Text className="text-base font-medium" style={{ color: Colors.primary[600], marginLeft: 12 }}>
+        <Text className="text-base font-medium" style={{ color: Colors.primary[500], marginLeft: 12 }}>
           {label}
         </Text>
       </View>

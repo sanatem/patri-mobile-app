@@ -4,77 +4,24 @@ import { useRouter, useFocusEffect } from 'expo-router';
 import { useSubscriptionStatus } from '@/hooks/common/useSubscriptionStatus';
 import { useTranslation } from 'react-i18next';
 import { useFloidSync } from '@/hooks/common/useFloidSync';
+import { useAuth } from '@/providers/AuthProvider';
+import { getBudgetInstancesCurrent } from '@/services/budget/budget-instances';
+import type { BudgetInstance, BudgetSummary } from '@/services/budget/budget-templates/types';
 
-const mockBudgetInstances = [
-  {
-    id: 1,
-    budget_template_id: 1,
-    start_date: '2024-11-01',
-    end_date: '2024-11-30',
-    amount: 500000,
-    spent_amount: 130000,
-    remaining_amount: 370000,
-    percentage: 26,
-    over_budget: false,
-    category: {
-      id: 45,
-      name: 'Alimentación',
-      kind: 'outcome',
-      emoji_code: '🍔'
-    },
-    recurrence: 'monthly'
-  },
-  {
-    id: 2,
-    budget_template_id: 2,
-    start_date: '2024-11-01',
-    end_date: '2024-11-30',
-    amount: 400000,
-    spent_amount: 450000,
-    remaining_amount: -50000,
-    percentage: 112.5,
-    over_budget: true,
-    category: {
-      id: 46,
-      name: 'Transporte',
-      kind: 'outcome',
-      emoji_code: '🚗'
-    },
-    recurrence: 'monthly'
-  },
-  {
-    id: 3,
-    budget_template_id: 3,
-    start_date: '2024-11-01',
-    end_date: '2024-11-30',
-    amount: 200000,
-    spent_amount: 80000,
-    remaining_amount: 120000,
-    percentage: 40,
-    over_budget: false,
-    category: {
-      id: 47,
-      name: 'Entretenimiento',
-      kind: 'outcome',
-      emoji_code: '🎮'
-    },
-    recurrence: 'monthly'
-  }
-];
-
-const mockSummary = {
-  total_budgeted: 1100000,
-  total_spent: 660000,
-  total_remaining: 440000,
-  categories_count: 3,
-  over_budget_count: 1,
+const emptySummary: BudgetSummary = {
+  total_budgeted: 0,
+  total_spent: 0,
+  total_remaining: 0,
+  categories_count: 0,
+  over_budget_count: 0,
   warning_count: 0,
-  healthy_count: 2
+  healthy_count: 0
 };
 
 export function useBudgetSection() {
   const { shouldBlockTab, loading: subscriptionLoading } = useSubscriptionStatus();
   const { isSyncing, stopSync } = useFloidSync();
+  const { accessToken } = useAuth();
   const router = useRouter();
   const { t } = useTranslation();
 
@@ -97,9 +44,9 @@ export function useBudgetSection() {
   };
 
   // State
-  const [budgetInstances, setBudgetInstances] = useState(mockBudgetInstances);
-  const [summary, setSummary] = useState(mockSummary);
-  const [loading, setLoading] = useState(false);
+  const [budgetInstances, setBudgetInstances] = useState<BudgetInstance[]>([]);
+  const [summary, setSummary] = useState<BudgetSummary>(emptySummary);
+  const [loading, setLoading] = useState(true);
   const [currentPeriod] = useState(getCurrentMonthYear());
 
   // Month and year selection state
@@ -125,6 +72,33 @@ export function useBudgetSection() {
     ];
   }, []);
 
+  // Fetch budget data from API
+  const fetchBudgetData = useCallback(async () => {
+    if (!accessToken) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const response = await getBudgetInstancesCurrent(accessToken);
+
+      if (response.success && response.data) {
+        setBudgetInstances(response.data.budget_instances);
+        setSummary(response.data.summary);
+      } else {
+        setBudgetInstances([]);
+        setSummary(emptySummary);
+      }
+    } catch (error) {
+      console.error('Error fetching budget data:', error);
+      setBudgetInstances([]);
+      setSummary(emptySummary);
+    } finally {
+      setLoading(false);
+    }
+  }, [accessToken]);
+
   // Handlers
   const handleNavigateToTransactions = () => {
     router.push('/(tabs)/budget/transactions' as any);
@@ -139,21 +113,15 @@ export function useBudgetSection() {
   };
 
   const handleSyncComplete = () => {
-    // Refresh budget data after sync completes
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-    }, 500);
+    fetchBudgetData();
   };
 
   const handleMonthSelect = (month: string) => {
     setSelectedMonth(month);
-    // TODO: Refetch budget data for new month
   };
 
   const handleYearSelect = (year: string) => {
     setSelectedYear(year);
-    // TODO: Refetch budget data for new year
   };
 
   const handleNavigateToBudgetHistory = (instanceId: number, categoryName: string) => {
@@ -170,29 +138,11 @@ export function useBudgetSection() {
     router.push('/(tabs)/budget/transactions/categories-manager' as any);
   };
 
-  // Effects - will fetch data from API when available
+  // Effects - fetch data from API on focus
   useFocusEffect(
     useCallback(() => {
-      const refreshData = async () => {
-        try {
-          setLoading(true);
-          // TODO: Replace with actual API call
-          // const response = await getBudgetInstancesCurrent(accessToken);
-          // setBudgetInstances(response.budget_instances);
-          // setSummary(response.summary);
-
-          // Simulate loading
-          setTimeout(() => {
-            setLoading(false);
-          }, 500);
-        } catch (error) {
-          console.error('Error refreshing budget data:', error);
-          setLoading(false);
-        }
-      };
-
-      refreshData();
-    }, [])
+      fetchBudgetData();
+    }, [fetchBudgetData])
   );
 
   // Computed values
@@ -226,11 +176,15 @@ export function useBudgetSection() {
     handleNavigateToTransactions,
     handleNavigateToCreateBudget,
     handleNavigateToBudgetHistory,
+    handleNavigateToCategories,
     handleIntegrarDatos,
     handleMonthSelect,
     handleYearSelect,
     stopSync,
     handleSyncComplete,
+
+    // Refetch function
+    refetch: fetchBudgetData,
 
     t,
   };

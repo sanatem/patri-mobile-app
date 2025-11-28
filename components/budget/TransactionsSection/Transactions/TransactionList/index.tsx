@@ -125,7 +125,7 @@ export default function TransactionsList({
       setSelectedSubcategoryId('');
     } else {
       for (const cat of apiCategories) {
-        const subcategory = cat.children.find(sub => sub.id.toString() === categoryId);
+        const subcategory = cat.children?.find(sub => sub.id.toString() === categoryId);
         if (subcategory) {
           setSelectedParentCategoryId(cat.id.toString());
           setSelectedSubcategoryId(categoryId);

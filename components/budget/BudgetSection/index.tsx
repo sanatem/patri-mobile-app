@@ -1,12 +1,12 @@
 import React from 'react';
-import { View, ScrollView, Text, TouchableOpacity } from 'react-native';
-import { Container, KeyboardAwareContainer, LoadingSpinner, Card, FloatingActionButton, SyncModal, QuickAccessButton, type FloatingAction } from '@/components/ui';
-import { BudgetHeader } from '../BudgetOverview/Header';
+import { View, ScrollView, Text } from 'react-native';
+import { Container, KeyboardAwareContainer, LoadingSpinner, FloatingActionButton, QuickAccessButton, Card, Button, type FloatingAction } from '@/components/ui';
+import { BudgetHeader } from './Header';
 import { BudgetInstanceCard } from './BudgetInstanceCard';
-import { DateSelector } from '../BudgetOverview/Filters/DateSelector';
-import BudgetChart from '../BudgetOverview/Chart/BudgetChart';
+import { DateSelector } from './DateSelector';
+import BudgetChart from './Chart/BudgetChart';
 import { useBudgetSection } from '@/hooks/budget/useBudgetSection';
-import { Plus, Receipt, PiggyBank, Tag } from 'lucide-react-native';
+import { Plus, Receipt, ListTodo, Tag } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 
 const formatCurrency = (amount: number): string => {
@@ -36,7 +36,6 @@ export function BudgetSectionOverview() {
     // Loading states
     subscriptionLoading,
     loading,
-    isSyncing,
 
     // Computed values
     chartSize,
@@ -46,11 +45,8 @@ export function BudgetSectionOverview() {
     handleNavigateToCreateBudget,
     handleNavigateToBudgetHistory,
     handleNavigateToCategories,
-    handleIntegrarDatos,
     handleMonthSelect,
     handleYearSelect,
-    stopSync,
-    handleSyncComplete,
 
     // Translation
     t,
@@ -76,7 +72,6 @@ export function BudgetSectionOverview() {
     <Container variant="secondaryPage">
       <BudgetHeader
         title={t('budget.title', 'Presupuesto')}
-        onSyncPress={handleIntegrarDatos}
       />
 
       <KeyboardAwareContainer>
@@ -115,34 +110,24 @@ export function BudgetSectionOverview() {
                 ))}
               </View>
             ) : (
-              <Card variant="outlined" size="lg" className="mb-4">
-                <View className="items-center py-6">
-                  <View
-                    style={{
-                      backgroundColor: Colors.gray[100],
-                      padding: 16,
-                      borderRadius: 50,
-                      marginBottom: 16
-                    }}
-                  >
-                    <PiggyBank size={40} color={Colors.gray[400]} />
+              <Card variant="default" size="md" className="mb-4">
+                <View className="flex-1 justify-center items-center py-4">
+                  <View className="w-16 h-16 rounded-full bg-gray-100 justify-center items-center mb-4">
+                    <ListTodo size={32} color={Colors.gray[400]} />
                   </View>
-                  <Text className="text-base font-semibold text-gray-800 mb-2 text-center">
+                  <Text className="text-center font-medium mb-2" style={{ color: Colors.gray[400] }}>
                     {t('budget.no_budgets_title', 'Sin presupuestos')}
                   </Text>
-                  <Text className="text-sm text-gray-500 text-center mb-4 px-4">
+                  <Text className="text-center text-sm font-regular px-4 mb-4" style={{ color: Colors.gray[400] }}>
                     {t('budget.no_budgets_message', 'Crea tu primer presupuesto para controlar tus gastos por categoría')}
                   </Text>
-                  <TouchableOpacity
+                  <Button
+                    className="mt-4"
+                    variant="primary"
                     onPress={handleNavigateToCreateBudget}
-                    className="bg-primary-500 rounded-lg py-3 px-6 flex-row items-center"
-                    activeOpacity={0.8}
-                  >
-                    <Plus size={18} color="white" style={{ marginRight: 8 }} />
-                    <Text className="text-white font-medium">
-                      {t('budget.create_first_budget', 'Crear Presupuesto')}
-                    </Text>
-                  </TouchableOpacity>
+                    title={t('budget.create_budget', 'Crear Presupuesto')}
+                    icon={<Plus size={20} color="white" />}
+                  />
                 </View>
               </Card>
             )}
@@ -167,14 +152,6 @@ export function BudgetSectionOverview() {
       </KeyboardAwareContainer>
 
       {hasBudgets && <FloatingActionButton actions={floatingActions} />}
-
-      <SyncModal
-        visible={isSyncing}
-        onClose={() => {
-          stopSync();
-        }}
-        onSyncComplete={handleSyncComplete}
-      />
     </Container>
   );
 }

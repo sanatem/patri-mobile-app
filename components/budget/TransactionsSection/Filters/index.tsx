@@ -36,7 +36,7 @@ export function Filters({
 }: FiltersProps) {
   return (
     <View>
-      <View className="mb-2">
+      <View className="mb-1">
         <AccountSelector
           accountOptions={accountOptions}
           selectedAccountId={selectedAccountId}

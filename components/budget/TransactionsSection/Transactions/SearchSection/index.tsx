@@ -62,7 +62,7 @@ export function SearchSection({
         label={categoriesLabel}
         icon={<Tag size={20} color={Colors.primary[500]} />}
         onPress={onCategoriesPress}
-        style={{ marginTop: 12 }}
+        style={{ marginTop: 8 }}
       />
     </>
   );

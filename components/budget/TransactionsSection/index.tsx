@@ -1,9 +1,9 @@
 import React from 'react';
 import { View, ScrollView, TouchableOpacity } from 'react-native';
 import { Container, KeyboardAwareContainer, SyncModal, LoadingSpinner, Header, FloatingActionButton, type FloatingAction } from '@/components/ui';
-import { Filters } from '../BudgetOverview/Filters';
-import { TransactionsSection } from '../BudgetOverview/Transactions';
-import { DeleteTransactionModal } from '../BudgetOverview/Modals/DeleteTransactionModal';
+import { Filters } from './Filters';
+import { TransactionsSection } from './Transactions';
+import { DeleteTransactionModal } from './Modals/DeleteTransactionModal';
 import { useTransactionsOverview } from '@/hooks/budget/useTransactionsOverview';
 import { ChevronLeft, RefreshCw, Plus } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
@@ -112,7 +112,7 @@ export function TransactionsOverview() {
 
       <KeyboardAwareContainer>
         <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-          <Container variant="content" className="pt-4 pb-2">
+          <Container variant="content" className="pt-4 pb-0">
             <Filters
               accountOptions={accountOptions}
               selectedAccountId={selectedAccountId}
