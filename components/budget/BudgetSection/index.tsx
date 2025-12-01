@@ -43,7 +43,7 @@ export function BudgetSectionOverview() {
     // Handlers
     handleNavigateToTransactions,
     handleNavigateToCreateBudget,
-    handleNavigateToBudgetHistory,
+    handleNavigateToBudgetDetail,
     handleNavigateToCategories,
     handleMonthSelect,
     handleYearSelect,
@@ -93,7 +93,7 @@ export function BudgetSectionOverview() {
                 totalIncome={0}
                 totalExpenses={summary.total_spent}
                 balance={summary.total_remaining}
-                remainingBudget={summary.total_budgeted}
+                remainingBudget={summary.total_budget}
                 isLoading={loading}
                 hasRealData={hasBudgets}
               />
@@ -105,7 +105,7 @@ export function BudgetSectionOverview() {
                   <BudgetInstanceCard
                     key={instance.id}
                     instance={instance}
-                    onPress={() => handleNavigateToBudgetHistory(instance.id, instance.category.name)}
+                    onPress={() => handleNavigateToBudgetDetail(instance.id)}
                   />
                 ))}
               </View>

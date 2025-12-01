@@ -63,13 +63,18 @@ export function useFloidTransactions(props: UseFloidTransactionsProps): UseFloid
 
         const allTransactions = results.flatMap(result => result?.transactions || []);
 
+        // Check if ANY account has more pages
+        const hasAnyNextPage = results.some(result => result?.pagination?.has_next_page === true);
+        const totalCount = results.reduce((sum, result) => sum + (result?.pagination?.total_count || 0), 0);
+        const maxTotalPages = Math.max(...results.map(result => result?.pagination?.total_pages || 1));
+
         const combinedData: FloidTransactionsResponse = {
           transactions: allTransactions,
-          pagination: results[0]?.pagination || {
+          pagination: {
             current_page: page,
-            total_count: allTransactions.length,
-            total_pages: 1,
-            has_next_page: false,
+            total_count: totalCount,
+            total_pages: maxTotalPages,
+            has_next_page: hasAnyNextPage,
             has_previous_page: page > 1
           }
         };

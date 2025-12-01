@@ -7,13 +7,15 @@ import Colors from '@/constants/Colors';
 interface BudgetInstance {
   id: number;
   budget_template_id: number;
+  period: string;
   start_date: string;
   end_date: string;
   amount: number;
-  spent_amount: number;
-  remaining_amount: number;
-  percentage: number;
+  spent: number;
+  remaining: number;
+  percentage: string;
   over_budget: boolean;
+  created_at: string;
   category: {
     id: number;
     name: string;
@@ -79,8 +81,11 @@ const getBudgetStatus = (percentage: number, overBudget: boolean) => {
 };
 
 export function BudgetInstanceCard({ instance, onPress }: BudgetInstanceCardProps) {
-  const status = getBudgetStatus(instance.percentage, instance.over_budget);
-  const progressWidth = Math.min(instance.percentage, 100);
+  const percentageNum = typeof instance.percentage === 'string'
+    ? parseFloat(instance.percentage)
+    : instance.percentage;
+  const status = getBudgetStatus(percentageNum, instance.over_budget);
+  const progressWidth = Math.min(percentageNum, 100);
 
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
@@ -98,10 +103,10 @@ export function BudgetInstanceCard({ instance, onPress }: BudgetInstanceCardProp
         <View className="mb-3">
           <View className="flex-row justify-between mb-1">
             <Text className="text-sm text-gray-600">
-              {formatCurrency(instance.spent_amount)} / {formatCurrency(instance.amount)}
+              {formatCurrency(instance.spent)} / {formatCurrency(instance.amount)}
             </Text>
             <Text className="text-sm font-medium" style={{ color: status.color }}>
-              {instance.percentage.toFixed(0)}%
+              {percentageNum.toFixed(0)}%
             </Text>
           </View>
 
@@ -128,11 +133,11 @@ export function BudgetInstanceCard({ instance, onPress }: BudgetInstanceCardProp
         <View className="flex-row justify-between items-center">
           {instance.over_budget ? (
             <Text className="text-sm" style={{ color: Colors.error[500] }}>
-              Excedido: {formatCurrency(Math.abs(instance.remaining_amount))}
+              Excedido: {formatCurrency(Math.abs(instance.remaining))}
             </Text>
           ) : (
             <Text className="text-sm text-gray-600">
-              Restante: {formatCurrency(instance.remaining_amount)}
+              Restante: {formatCurrency(instance.remaining)}
             </Text>
           )}
 

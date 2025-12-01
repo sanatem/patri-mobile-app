@@ -362,7 +362,7 @@ export default function TransactionsList({
     <>
       <ListItem
         data={transactionsData}
-        showLoadMore={hasMore}
+        showLoadMore={true}
         onLoadMore={onLoadMore}
         loadingMore={loadingMore}
         showContainer={showContainer}

@@ -9,7 +9,7 @@ import { getBudgetInstancesCurrent } from '@/services/budget/budget-instances';
 import type { BudgetInstance, BudgetSummary } from '@/services/budget/budget-templates/types';
 
 const emptySummary: BudgetSummary = {
-  total_budgeted: 0,
+  total_budget: 0,
   total_spent: 0,
   total_remaining: 0,
   categories_count: 0,
@@ -83,9 +83,9 @@ export function useBudgetSection() {
       setLoading(true);
       const response = await getBudgetInstancesCurrent(accessToken);
 
-      if (response.success && response.data) {
-        setBudgetInstances(response.data.budget_instances);
-        setSummary(response.data.summary);
+      if (response.success && response.budget_instances) {
+        setBudgetInstances(response.budget_instances);
+        setSummary(response.summary);
       } else {
         setBudgetInstances([]);
         setSummary(emptySummary);
@@ -124,12 +124,11 @@ export function useBudgetSection() {
     setSelectedYear(year);
   };
 
-  const handleNavigateToBudgetHistory = (instanceId: number, categoryName: string) => {
+  const handleNavigateToBudgetDetail = (instanceId: number) => {
     router.push({
-      pathname: '/(tabs)/budget/budget-history' as any,
+      pathname: '/(tabs)/budget/budget-detail' as any,
       params: {
         instanceId: instanceId.toString(),
-        categoryName
       }
     });
   };
@@ -175,7 +174,7 @@ export function useBudgetSection() {
     // Handlers
     handleNavigateToTransactions,
     handleNavigateToCreateBudget,
-    handleNavigateToBudgetHistory,
+    handleNavigateToBudgetDetail,
     handleNavigateToCategories,
     handleIntegrarDatos,
     handleMonthSelect,

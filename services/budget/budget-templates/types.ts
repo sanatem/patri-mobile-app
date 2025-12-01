@@ -49,19 +49,21 @@ export interface BudgetInstanceCategory {
 export interface BudgetInstance {
   id: number;
   budget_template_id: number;
+  period: string;
   start_date: string;
   end_date: string;
   amount: number;
-  spent_amount: number;
-  remaining_amount: number;
-  percentage: number;
+  spent: number;
+  remaining: number;
+  percentage: string;
   over_budget: boolean;
+  created_at: string;
   category: BudgetInstanceCategory;
   recurrence: BudgetRecurrence;
 }
 
 export interface BudgetSummary {
-  total_budgeted: number;
+  total_budget: number;
   total_spent: number;
   total_remaining: number;
   categories_count: number;
@@ -72,10 +74,8 @@ export interface BudgetSummary {
 
 export interface BudgetInstancesCurrentResponse {
   success: boolean;
-  data: {
-    budget_instances: BudgetInstance[];
-    summary: BudgetSummary;
-  };
+  budget_instances: BudgetInstance[];
+  summary: BudgetSummary;
 }
 
 export interface BudgetInstancesHistoryResponse {
