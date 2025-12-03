@@ -1,29 +1,10 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Card } from '@/components/ui';
-import { ChevronRight } from 'lucide-react-native';
+import { ChevronRight, AlertTriangle, CheckCircle } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
-
-interface BudgetInstance {
-  id: number;
-  budget_template_id: number;
-  period: string;
-  start_date: string;
-  end_date: string;
-  amount: number;
-  spent: number;
-  remaining: number;
-  percentage: string;
-  over_budget: boolean;
-  created_at: string;
-  category: {
-    id: number;
-    name: string;
-    kind: string;
-    emoji_code: string;
-  };
-  recurrence: string;
-}
+import { useTranslation } from 'react-i18next';
+import type { BudgetInstance } from '@/services/budget/budget-templates/types';
 
 interface BudgetInstanceCardProps {
   instance: BudgetInstance;
@@ -40,47 +21,20 @@ const formatCurrency = (amount: number): string => {
 };
 
 const getBudgetStatus = (percentage: number, overBudget: boolean) => {
-  // 81%+ or over budget: Red
-  if (overBudget || percentage > 80) {
-    return {
-      color: Colors.red[500],
-      bgColor: Colors.red[100],
-      label: 'Excedido',
-    };
+  if (overBudget || percentage >= 100) {
+    return { color: Colors.error[500], bgColor: Colors.error[100], label: 'Excedido', emoji: '🔴' };
   }
-  // 61-80%: Orange
-  if (percentage > 60) {
-    return {
-      color: Colors.orange[500],
-      bgColor: Colors.orange[100],
-      label: 'En alerta',
-    };
+  if (percentage >= 80) {
+    return { color: Colors.warning[500], bgColor: Colors.warning[100], label: 'Alerta', emoji: '🟠' };
   }
-  // 41-60%: Yellow
-  if (percentage > 40) {
-    return {
-      color: Colors.yellow[500],
-      bgColor: Colors.yellow[100],
-      label: 'En alerta',
-    };
+  if (percentage >= 60) {
+    return { color: Colors.yellow[500], bgColor: Colors.yellow[100], label: 'Precaucion', emoji: '🟡' };
   }
-  // 21-40%: Lime/Yellow-green
-  if (percentage > 20) {
-    return {
-      color: Colors.lime[500],
-      bgColor: Colors.lime[100],
-      label: 'En control',
-    };
-  }
-  // 0-20%: Green
-  return {
-    color: Colors.success[500],
-    bgColor: Colors.success[100],
-    label: 'En control',
-  };
+  return { color: Colors.success[500], bgColor: Colors.success[100], label: 'OK', emoji: '🟢' };
 };
 
 export function BudgetInstanceCard({ instance, onPress }: BudgetInstanceCardProps) {
+  const { t } = useTranslation();
   const percentageNum = typeof instance.percentage === 'string'
     ? parseFloat(instance.percentage)
     : instance.percentage;
@@ -89,70 +43,69 @@ export function BudgetInstanceCard({ instance, onPress }: BudgetInstanceCardProp
 
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
-      <Card variant="default" size="md" className="mb-4">
-        <View className="flex-row items-center justify-between mb-3">
+      <Card variant="default" size="md" className="mb-3">
+        {/* Header: Emoji + Nombre */}
+        <View className="flex-row items-center justify-between mb-2">
           <View className="flex-row items-center flex-1">
             <Text className="text-2xl mr-2">{instance.category.emoji_code}</Text>
             <Text className="text-base font-medium text-gray-800" numberOfLines={1}>
               {instance.category.name}
             </Text>
           </View>
-          <ChevronRight size={20} color={Colors.gray[400]} />
+          <View className="flex-row items-center">
+            <Text className="mr-1">{status.emoji}</Text>
+            {instance.over_budget && <AlertTriangle size={16} color={Colors.error[500]} className="mr-1" />}
+            <ChevronRight size={20} color={Colors.gray[400]} />
+          </View>
         </View>
 
-        <View className="mb-3">
-          <View className="flex-row justify-between mb-1">
-            <Text className="text-sm text-gray-600">
-              {formatCurrency(instance.spent)} / {formatCurrency(instance.amount)}
-            </Text>
-            <Text className="text-sm font-medium" style={{ color: status.color }}>
-              {percentageNum.toFixed(0)}%
-            </Text>
-          </View>
+        {/* Monto gastado / presupuesto */}
+        <View className="flex-row justify-between mb-1">
+          <Text className="text-sm text-gray-600">
+            {formatCurrency(instance.spent)} / {formatCurrency(instance.amount)}
+          </Text>
+          <Text className="text-sm font-semibold" style={{ color: status.color }}>
+            {percentageNum.toFixed(0)}%
+          </Text>
+        </View>
 
-          {/* Progress Bar */}
+        {/* Progress Bar */}
+        <View
+          style={{
+            height: 8,
+            backgroundColor: Colors.gray[100],
+            borderRadius: 4,
+            overflow: 'hidden',
+            marginBottom: 8,
+          }}
+        >
           <View
             style={{
-              height: 8,
-              backgroundColor: Colors.gray[100],
+              height: '100%',
+              width: `${progressWidth}%`,
+              backgroundColor: status.color,
               borderRadius: 4,
-              overflow: 'hidden'
             }}
-          >
-            <View
-              style={{
-                height: '100%',
-                width: `${progressWidth}%`,
-                backgroundColor: status.color,
-                borderRadius: 4,
-              }}
-            />
-          </View>
+          />
         </View>
 
-        <View className="flex-row justify-between items-center">
+        {/* Estado: Restante o Excedido */}
+        <View className="flex-row items-center">
           {instance.over_budget ? (
-            <Text className="text-sm" style={{ color: Colors.error[500] }}>
-              Excedido: {formatCurrency(Math.abs(instance.remaining))}
-            </Text>
+            <>
+              <AlertTriangle size={14} color={Colors.error[500]} />
+              <Text className="text-sm ml-1" style={{ color: Colors.error[500] }}>
+                {t('budget.exceeded_by', 'Excedido por')} {formatCurrency(instance.remaining)}
+              </Text>
+            </>
           ) : (
-            <Text className="text-sm text-gray-600">
-              Restante: {formatCurrency(instance.remaining)}
-            </Text>
+            <>
+              <CheckCircle size={14} color={Colors.success[500]} />
+              <Text className="text-sm ml-1 text-gray-600">
+                {t('budget.remaining_amount', 'Quedan')} {formatCurrency(instance.remaining)}
+              </Text>
+            </>
           )}
-
-          <View
-            style={{
-              backgroundColor: status.bgColor,
-              paddingHorizontal: 8,
-              paddingVertical: 2,
-              borderRadius: 4
-            }}
-          >
-            <Text className="text-xs font-medium" style={{ color: status.color }}>
-              {status.label}
-            </Text>
-          </View>
         </View>
       </Card>
     </TouchableOpacity>

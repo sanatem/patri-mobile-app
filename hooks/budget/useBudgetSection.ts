@@ -1,12 +1,13 @@
 import { useState, useMemo, useCallback } from 'react';
-import { Dimensions } from 'react-native';
+import { Dimensions, Alert, Platform } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useSubscriptionStatus } from '@/hooks/common/useSubscriptionStatus';
 import { useTranslation } from 'react-i18next';
 import { useFloidSync } from '@/hooks/common/useFloidSync';
 import { useAuth } from '@/providers/AuthProvider';
 import { getBudgetInstancesCurrent } from '@/services/budget/budget-instances';
-import type { BudgetInstance, BudgetSummary } from '@/services/budget/budget-templates/types';
+import { getBudgetTemplates, updateBudgetTemplate, deactivateBudgetTemplate } from '@/services/budget/budget-templates';
+import type { BudgetInstance, BudgetSummary, BudgetTemplate, CombinedBudget } from '@/services/budget/budget-templates/types';
 
 const emptySummary: BudgetSummary = {
   total_budget: 0,
@@ -45,9 +46,12 @@ export function useBudgetSection() {
 
   // State
   const [budgetInstances, setBudgetInstances] = useState<BudgetInstance[]>([]);
+  const [templates, setTemplates] = useState<BudgetTemplate[]>([]);
   const [summary, setSummary] = useState<BudgetSummary>(emptySummary);
   const [loading, setLoading] = useState(true);
   const [currentPeriod] = useState(getCurrentMonthYear());
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [isDeactivating, setIsDeactivating] = useState(false);
 
   // Month and year selection state
   const currentDate = new Date();
@@ -72,7 +76,7 @@ export function useBudgetSection() {
     ];
   }, []);
 
-  // Fetch budget data from API
+  // Fetch budget data from API (templates + instances)
   const fetchBudgetData = useCallback(async () => {
     if (!accessToken) {
       setLoading(false);
@@ -81,23 +85,114 @@ export function useBudgetSection() {
 
     try {
       setLoading(true);
-      const response = await getBudgetInstancesCurrent(accessToken);
 
-      if (response.success && response.budget_instances) {
-        setBudgetInstances(response.budget_instances);
-        setSummary(response.summary);
-      } else {
+      // Llamar templates primero (es el principal)
+      try {
+        const templatesResponse = await getBudgetTemplates(accessToken);
+        if (templatesResponse.success && templatesResponse.budget_templates) {
+          setTemplates(templatesResponse.budget_templates);
+        } else {
+          setTemplates([]);
+        }
+      } catch (templatesError) {
+        console.error('Error fetching templates:', templatesError);
+        setTemplates([]);
+      }
+
+      // Llamar instances (puede fallar si no hay del mes actual)
+      try {
+        const instancesResponse = await getBudgetInstancesCurrent(accessToken);
+        if (instancesResponse.success && instancesResponse.budget_instances) {
+          setBudgetInstances(instancesResponse.budget_instances);
+          setSummary(instancesResponse.summary || emptySummary);
+        } else {
+          setBudgetInstances([]);
+          setSummary(emptySummary);
+        }
+      } catch (instancesError) {
+        console.error('Error fetching instances:', instancesError);
         setBudgetInstances([]);
         setSummary(emptySummary);
       }
+
     } catch (error) {
       console.error('Error fetching budget data:', error);
+      setTemplates([]);
       setBudgetInstances([]);
       setSummary(emptySummary);
     } finally {
       setLoading(false);
     }
   }, [accessToken]);
+
+  // Combinar templates con instances
+  const combinedBudgets: CombinedBudget[] = useMemo(() => {
+    return templates.map(template => {
+      const instance = budgetInstances.find(i => i.budget_template_id === template.id);
+      return {
+        template,
+        instance: instance || null,
+        hasProgress: !!instance
+      };
+    });
+  }, [templates, budgetInstances]);
+
+  // Gestionar presupuesto - Actualizar monto
+  const handleUpdateBudgetAmount = useCallback(async (templateId: number, newAmount: number) => {
+    if (!accessToken) return;
+
+    try {
+      setIsUpdating(true);
+      await updateBudgetTemplate(templateId, { amount: newAmount }, accessToken);
+      await fetchBudgetData();
+      if (Platform.OS === 'web') {
+        window.alert(t('budget.amount_updated', 'Monto actualizado correctamente'));
+      } else {
+        Alert.alert(t('common.success', 'Éxito'), t('budget.amount_updated', 'Monto actualizado correctamente'));
+      }
+    } catch (error) {
+      console.error('Error updating budget amount:', error);
+      if (Platform.OS === 'web') {
+        window.alert(t('budget.error_updating', 'No se pudo actualizar el monto'));
+      } else {
+        Alert.alert(t('common.error', 'Error'), t('budget.error_updating', 'No se pudo actualizar el monto'));
+      }
+    } finally {
+      setIsUpdating(false);
+    }
+  }, [accessToken, fetchBudgetData, t]);
+
+  // Gestionar presupuesto - Desactivar
+  const handleDeactivateBudget = useCallback(async (templateId: number) => {
+    if (!accessToken) return;
+
+    try {
+      setIsDeactivating(true);
+      await deactivateBudgetTemplate(templateId, accessToken);
+      await fetchBudgetData();
+    } catch (error) {
+      console.error('Error deactivating budget:', error);
+      if (Platform.OS === 'web') {
+        window.alert(t('budget.error_deactivating', 'No se pudo desactivar el presupuesto'));
+      } else {
+        Alert.alert(t('common.error', 'Error'), t('budget.error_deactivating', 'No se pudo desactivar el presupuesto'));
+      }
+    } finally {
+      setIsDeactivating(false);
+    }
+  }, [accessToken, fetchBudgetData, t]);
+
+  // Navegar al historial de un presupuesto
+  const handleNavigateToBudgetHistory = useCallback((template: BudgetTemplate) => {
+    router.push({
+      pathname: '/(tabs)/budget/budget-history' as any,
+      params: {
+        templateId: template.id.toString(),
+        categoryId: template.user_category.id.toString(),
+        categoryName: template.user_category.name
+      }
+    });
+  }, [router]);
 
   // Handlers
   const handleNavigateToTransactions = () => {
@@ -137,6 +232,10 @@ export function useBudgetSection() {
     router.push('/(tabs)/budget/transactions/categories-manager' as any);
   };
 
+  const handleNavigateToBudgetSettings = () => {
+    router.push('/(tabs)/budget/budget-settings' as any);
+  };
+
   // Effects - fetch data from API on focus
   useFocusEffect(
     useCallback(() => {
@@ -145,7 +244,7 @@ export function useBudgetSection() {
   );
 
   // Computed values
-  const hasBudgets = budgetInstances.length > 0;
+  const hasBudgets = templates.length > 0;
 
   return {
     // State
@@ -155,6 +254,8 @@ export function useBudgetSection() {
 
     // Data
     budgetInstances,
+    templates,
+    combinedBudgets,
     summary,
     hasBudgets,
 
@@ -166,6 +267,8 @@ export function useBudgetSection() {
     subscriptionLoading,
     loading,
     isSyncing,
+    isUpdating,
+    isDeactivating,
 
     // Computed values
     chartSize,
@@ -176,6 +279,10 @@ export function useBudgetSection() {
     handleNavigateToCreateBudget,
     handleNavigateToBudgetDetail,
     handleNavigateToCategories,
+    handleNavigateToBudgetHistory,
+    handleNavigateToBudgetSettings,
+    handleUpdateBudgetAmount,
+    handleDeactivateBudget,
     handleIntegrarDatos,
     handleMonthSelect,
     handleYearSelect,

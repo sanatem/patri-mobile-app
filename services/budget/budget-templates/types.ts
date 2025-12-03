@@ -3,13 +3,19 @@ import type { UserCategory } from '../categories-manager/types';
 // Budget Template types
 export type BudgetRecurrence = 'monthly' | 'weekly' | 'yearly';
 
+export interface BudgetTemplateCategory {
+  id: number;
+  name: string;
+  kind: 'expense' | 'income';
+  emoji_code: string;
+}
+
 export interface BudgetTemplate {
   id: number;
-  user_category_id: number;
+  user_category: BudgetTemplateCategory;
   amount: number;
   recurrence: BudgetRecurrence;
-  is_active: boolean;
-  category: UserCategory;
+  active: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -18,6 +24,7 @@ export interface CreateBudgetTemplateParams {
   user_category_id: number;
   amount: number;
   recurrence: BudgetRecurrence;
+  start_date?: string; // Formato: yyyy-mm-dd
 }
 
 export interface UpdateBudgetTemplateParams {
@@ -26,7 +33,7 @@ export interface UpdateBudgetTemplateParams {
 
 export interface BudgetTemplatesResponse {
   success: boolean;
-  data: BudgetTemplate[];
+  budget_templates: BudgetTemplate[];
 }
 
 export interface BudgetTemplateResponse {
@@ -85,4 +92,11 @@ export interface BudgetInstancesHistoryResponse {
 
 export interface GetBudgetHistoryParams {
   user_category_id: number;
+}
+
+// Tipo combinado para mostrar templates con su progreso actual
+export interface CombinedBudget {
+  template: BudgetTemplate;
+  instance: BudgetInstance | null;
+  hasProgress: boolean;
 }

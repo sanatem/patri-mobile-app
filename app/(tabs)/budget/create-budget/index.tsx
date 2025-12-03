@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import FormLayout from '@/components/ui/FormLayout';
-import { Input, Select, RadioButton } from '@/components/ui';
+import { Input, Select, RadioButton, CalendarSelect } from '@/components/ui';
 import { useAuth } from '@/providers/AuthProvider';
 import { getUserCategories } from '@/services/budget/categories-manager';
 import type { UserCategory } from '@/services/budget/categories-manager';
@@ -17,6 +17,7 @@ export default function CreateBudgetScreen() {
 
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>('');
   const [amount, setAmount] = useState('');
+  const [startDate, setStartDate] = useState('');
   const [recurrence, setRecurrence] = useState<'monthly' | 'weekly' | 'yearly'>('monthly');
   const [isLoading, setIsLoading] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
@@ -97,10 +98,18 @@ export default function CreateBudgetScreen() {
     try {
       setIsLoading(true);
 
+      // Convertir fecha de dd/mm/yyyy a yyyy-mm-dd
+      let formattedStartDate: string | undefined;
+      if (startDate) {
+        const [day, month, year] = startDate.split('/');
+        formattedStartDate = `${year}-${month}-${day}`;
+      }
+
       await createBudgetTemplate({
         user_category_id: parseInt(selectedCategoryId),
         amount: parsedAmount,
-        recurrence: recurrence
+        recurrence: recurrence,
+        ...(formattedStartDate && { start_date: formattedStartDate })
       }, accessToken!);
 
       setIsSaved(true);
@@ -171,6 +180,13 @@ export default function CreateBudgetScreen() {
           }}
           placeholder="$0"
           keyboardType="numeric"
+        />
+
+        <CalendarSelect
+          label={t('budget.start_date', 'Desde')}
+          value={startDate}
+          onSelect={setStartDate}
+          placeholder={t('budget.select_start_date', 'Seleccionar fecha de inicio')}
         />
 
         <RadioButton

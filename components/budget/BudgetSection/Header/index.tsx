@@ -6,13 +6,15 @@ import Colors from '@/constants/Colors';
 
 interface BudgetHeaderProps {
   title: string;
+  subtitle?: string;
   onPlusPress?: () => void;
 }
 
-export function BudgetHeader({ title, onPlusPress }: BudgetHeaderProps) {
+export function BudgetHeader({ title, subtitle, onPlusPress }: BudgetHeaderProps) {
   return (
     <UIHeader
       title={title}
+      subtitle={subtitle}
       rightAction={
         onPlusPress ? (
           <View className="flex-row items-center">
