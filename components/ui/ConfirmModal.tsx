@@ -15,6 +15,8 @@ interface ConfirmModalProps {
   cancelButtonText?: string;
   confirmDisabled?: boolean;
   children?: React.ReactNode;
+  /** When true, styles the confirm button as destructive (red) */
+  isDestructive?: boolean;
 }
 
 export function ConfirmModal({
@@ -28,7 +30,8 @@ export function ConfirmModal({
   confirmButtonText = "Eliminar",
   cancelButtonText = "Cancelar",
   confirmDisabled = false,
-  children
+  children,
+  isDestructive = false,
 }: ConfirmModalProps) {
   const defaultMessage = itemName
     ? `¿Estás seguro de que deseas eliminar "${itemName}"? Esta acción no se puede deshacer.`
@@ -99,7 +102,7 @@ export function ConfirmModal({
             <View style={{ flex: 1 }}>
               <Button
                 title={isDeleting ? "Eliminando..." : confirmButtonText}
-                variant="primary"
+                variant={isDestructive ? "danger" : "primary"}
                 fullWidth
                 onPress={onConfirm}
                 disabled={isDeleting || confirmDisabled}
