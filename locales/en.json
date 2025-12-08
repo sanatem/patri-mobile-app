@@ -89,6 +89,111 @@
       "confirm": "Are you sure you want to disable {{type}}?"
     }
   },
+  "mfa": {
+    "title": "Two-Factor Authentication",
+    "titleShort": "2FA",
+    "subtitle": "Add an extra layer of security to your account",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "setup": {
+      "title": "Enable Two-Factor Authentication",
+      "subtitle": "Secure your account with an authenticator app",
+      "authenticatorApp": "Authenticator App",
+      "confirmMessage": "You'll be logged out to complete the 2FA setup. When you log back in, you'll be asked to scan a QR code with your authenticator app.",
+      "confirmButton": "Enable & Log Out",
+      "logoutMessage": "Please log in again to complete the 2FA setup. You'll be asked to scan a QR code with your authenticator app.",
+      "step1": {
+        "title": "Download an authenticator app",
+        "description": "If you don't have one, download Google Authenticator, Authy, or Microsoft Authenticator from your app store."
+      },
+      "step2": {
+        "title": "Scan the QR code",
+        "description": "Open your authenticator app and scan the QR code"
+      },
+      "step3": {
+        "title": "Enter verification code",
+        "description": "Enter the 6-digit code from your authenticator app"
+      },
+      "manualEntry": "Can't scan? Enter this code manually:",
+      "secretKey": "Secret key",
+      "copySecret": "Copy secret key",
+      "secretCopied": "Secret key copied to clipboard"
+    },
+    "verify": {
+      "title": "Enter Verification Code",
+      "subtitle": "Enter the 6-digit code from your authenticator app",
+      "placeholder": "000000",
+      "verify": "Verify",
+      "verifying": "Verifying...",
+      "useRecoveryCode": "Use a recovery code instead",
+      "codeExpired": "Code expired. Please enter a new code.",
+      "invalidCode": "Invalid code. Please try again.",
+      "tooManyAttempts": "Too many attempts. Please wait {{minutes}} minutes."
+    },
+    "recoveryCodes": {
+      "title": "Recovery Codes",
+      "subtitle": "Save these codes in a safe place. You can use them to access your account if you lose your authenticator device.",
+      "warning": "Each code can only be used once.",
+      "saveWarning": "Make sure to save these codes now. You won't be able to see them again.",
+      "codesRemaining": "{{count}} codes remaining",
+      "oneCodeRemaining": "1 code remaining",
+      "noCodesRemaining": "No codes remaining",
+      "lowCodesWarning": "You're running low on recovery codes. Consider regenerating new ones.",
+      "copyAll": "Copy all codes",
+      "download": "Download codes",
+      "regenerate": "Generate new codes",
+      "regenerateWarning": "This will invalidate all existing recovery codes. Are you sure?",
+      "regenerateConfirm": "Generate New Codes",
+      "copied": "Recovery codes copied to clipboard",
+      "copyError": "Failed to copy codes",
+      "downloaded": "Recovery codes saved",
+      "generated": "New recovery codes generated"
+    },
+    "disable": {
+      "title": "Disable Two-Factor Authentication",
+      "subtitle": "Enter your verification code to disable 2FA",
+      "warning": "Disabling 2FA will make your account less secure. You'll be logged out after disabling.",
+      "confirm": "Disable 2FA",
+      "success": "Two-factor authentication disabled",
+      "logoutMessage": "Please log in again to continue."
+    },
+    "methods": {
+      "title": "Verification Method",
+      "subtitle": "Choose how you want to verify your identity",
+      "totp": {
+        "title": "Authenticator App",
+        "description": "Use a code from your authenticator app"
+      },
+      "recovery": {
+        "title": "Recovery Code",
+        "description": "Use one of your backup recovery codes"
+      }
+    },
+    "status": {
+      "checking": "Checking 2FA status...",
+      "enabling": "Enabling two-factor authentication...",
+      "disabling": "Disabling two-factor authentication...",
+      "enabled": "Two-factor authentication is enabled",
+      "disabled": "Two-factor authentication is disabled",
+      "pendingEnrollment": "Complete setup on next login"
+    },
+    "errors": {
+      "setupFailed": "Failed to set up 2FA. Please try again.",
+      "verificationFailed": "Verification failed. Please check your code.",
+      "disableFailed": "Failed to disable 2FA. Please try again.",
+      "recoveryCodeInvalid": "Invalid recovery code.",
+      "recoveryCodeUsed": "This recovery code has already been used.",
+      "noRecoveryCodes": "No recovery codes available.",
+      "networkError": "Network error. Please check your connection.",
+      "sessionExpired": "Your session has expired. Please log in again."
+    },
+    "settings": {
+      "menuTitle": "Two-Factor Authentication",
+      "menuSubtitle": "Secure your account with an authenticator app",
+      "viewRecoveryCodes": "View recovery codes",
+      "changeDevice": "Change authenticator device"
+    }
+  },
   "common": {
     "language_code": "en",
     "cancel": "Cancel",

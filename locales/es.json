@@ -89,6 +89,111 @@
       "confirm": "¿Estás seguro de que deseas deshabilitar {{type}}?"
     }
   },
+  "mfa": {
+    "title": "Autenticación de Dos Factores",
+    "titleShort": "2FA",
+    "subtitle": "Añade una capa extra de seguridad a tu cuenta",
+    "enabled": "Activado",
+    "disabled": "Desactivado",
+    "setup": {
+      "title": "Activar Autenticación de Dos Factores",
+      "subtitle": "Protege tu cuenta con una aplicación de autenticación",
+      "authenticatorApp": "Aplicación de autenticación",
+      "confirmMessage": "Se cerrará tu sesión para completar la configuración de 2FA. Cuando vuelvas a iniciar sesión, se te pedirá escanear un código QR con tu aplicación de autenticación.",
+      "confirmButton": "Activar y cerrar sesión",
+      "logoutMessage": "Por favor inicia sesión de nuevo para completar la configuración de 2FA. Se te pedirá escanear un código QR con tu aplicación de autenticación.",
+      "step1": {
+        "title": "Descarga una app de autenticación",
+        "description": "Si no tienes una, descarga Google Authenticator, Authy o Microsoft Authenticator desde tu tienda de aplicaciones."
+      },
+      "step2": {
+        "title": "Escanea el código QR",
+        "description": "Abre tu aplicación de autenticación y escanea el código QR"
+      },
+      "step3": {
+        "title": "Ingresa el código de verificación",
+        "description": "Ingresa el código de 6 dígitos de tu aplicación de autenticación"
+      },
+      "manualEntry": "¿No puedes escanear? Ingresa este código manualmente:",
+      "secretKey": "Clave secreta",
+      "copySecret": "Copiar clave secreta",
+      "secretCopied": "Clave secreta copiada al portapapeles"
+    },
+    "verify": {
+      "title": "Ingresa el Código de Verificación",
+      "subtitle": "Ingresa el código de 6 dígitos de tu aplicación de autenticación",
+      "placeholder": "000000",
+      "verify": "Verificar",
+      "verifying": "Verificando...",
+      "useRecoveryCode": "Usar un código de recuperación",
+      "codeExpired": "Código expirado. Por favor ingresa un nuevo código.",
+      "invalidCode": "Código inválido. Por favor intenta de nuevo.",
+      "tooManyAttempts": "Demasiados intentos. Por favor espera {{minutes}} minutos."
+    },
+    "recoveryCodes": {
+      "title": "Códigos de Recuperación",
+      "subtitle": "Guarda estos códigos en un lugar seguro. Puedes usarlos para acceder a tu cuenta si pierdes tu dispositivo de autenticación.",
+      "warning": "Cada código solo puede usarse una vez.",
+      "saveWarning": "Asegúrate de guardar estos códigos ahora. No podrás verlos de nuevo.",
+      "codesRemaining": "{{count}} códigos restantes",
+      "oneCodeRemaining": "1 código restante",
+      "noCodesRemaining": "No quedan códigos",
+      "lowCodesWarning": "Te quedan pocos códigos de recuperación. Considera generar nuevos.",
+      "copyAll": "Copiar todos los códigos",
+      "download": "Descargar códigos",
+      "regenerate": "Generar nuevos códigos",
+      "regenerateWarning": "Esto invalidará todos los códigos de recuperación existentes. ¿Estás seguro?",
+      "regenerateConfirm": "Generar Nuevos Códigos",
+      "copied": "Códigos de recuperación copiados al portapapeles",
+      "copyError": "Error al copiar los códigos",
+      "downloaded": "Códigos de recuperación guardados",
+      "generated": "Nuevos códigos de recuperación generados"
+    },
+    "disable": {
+      "title": "Desactivar Autenticación de Dos Factores",
+      "subtitle": "Ingresa tu código de verificación para desactivar 2FA",
+      "warning": "Desactivar 2FA hará que tu cuenta sea menos segura. Se cerrará tu sesión después de desactivar.",
+      "confirm": "Desactivar 2FA",
+      "success": "Autenticación de dos factores desactivada",
+      "logoutMessage": "Por favor inicia sesión de nuevo para continuar."
+    },
+    "methods": {
+      "title": "Método de Verificación",
+      "subtitle": "Elige cómo quieres verificar tu identidad",
+      "totp": {
+        "title": "Aplicación de Autenticación",
+        "description": "Usa un código de tu aplicación de autenticación"
+      },
+      "recovery": {
+        "title": "Código de Recuperación",
+        "description": "Usa uno de tus códigos de recuperación de respaldo"
+      }
+    },
+    "status": {
+      "checking": "Verificando estado de 2FA...",
+      "enabling": "Activando autenticación de dos factores...",
+      "disabling": "Desactivando autenticación de dos factores...",
+      "enabled": "La autenticación de dos factores está activada",
+      "disabled": "La autenticación de dos factores está desactivada",
+      "pendingEnrollment": "Completa la configuración en el próximo inicio de sesión"
+    },
+    "errors": {
+      "setupFailed": "Error al configurar 2FA. Por favor intenta de nuevo.",
+      "verificationFailed": "Error de verificación. Por favor revisa tu código.",
+      "disableFailed": "Error al desactivar 2FA. Por favor intenta de nuevo.",
+      "recoveryCodeInvalid": "Código de recuperación inválido.",
+      "recoveryCodeUsed": "Este código de recuperación ya ha sido usado.",
+      "noRecoveryCodes": "No hay códigos de recuperación disponibles.",
+      "networkError": "Error de red. Por favor verifica tu conexión.",
+      "sessionExpired": "Tu sesión ha expirado. Por favor inicia sesión de nuevo."
+    },
+    "settings": {
+      "menuTitle": "Autenticación de Dos Factores",
+      "menuSubtitle": "Protege tu cuenta con una app de autenticación",
+      "viewRecoveryCodes": "Ver códigos de recuperación",
+      "changeDevice": "Cambiar dispositivo de autenticación"
+    }
+  },
   "common": {
     "language_code": "es",
     "cancel": "Cancelar",
