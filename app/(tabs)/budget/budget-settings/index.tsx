@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { View, ScrollView, Text, TouchableOpacity, Modal, TextInput, ActivityIndicator } from 'react-native';
+import { View, ScrollView, Text, TouchableOpacity } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import {
@@ -16,14 +16,12 @@ import {
   ChevronLeft,
   ChevronRight,
   Plus,
-  Edit3,
   History,
   Power,
-  X,
 } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import { useAuth } from '@/providers/AuthProvider';
-import { getBudgetTemplates, updateBudgetTemplate, deactivateBudgetTemplate } from '@/services/budget/budget-templates';
+import { getBudgetTemplates, deactivateBudgetTemplate } from '@/services/budget/budget-templates';
 import type { BudgetTemplate } from '@/services/budget/budget-templates/types';
 
 const formatCurrency = (amount: number): string => {
@@ -59,10 +57,7 @@ export default function BudgetSettingsScreen() {
 
   // Modal states
   const [selectedTemplate, setSelectedTemplate] = useState<BudgetTemplate | null>(null);
-  const [showEditModal, setShowEditModal] = useState(false);
   const [showDeactivateModal, setShowDeactivateModal] = useState(false);
-  const [newAmount, setNewAmount] = useState('');
-  const [isUpdating, setIsUpdating] = useState(false);
   const [isDeactivating, setIsDeactivating] = useState(false);
 
   // Fetch templates
@@ -111,40 +106,9 @@ export default function BudgetSettingsScreen() {
     });
   };
 
-  const handleEditPress = (template: BudgetTemplate) => {
-    setSelectedTemplate(template);
-    setNewAmount(template.amount.toString());
-    setShowEditModal(true);
-  };
-
   const handleDeactivatePress = (template: BudgetTemplate) => {
     setSelectedTemplate(template);
     setShowDeactivateModal(true);
-  };
-
-  const handleSaveAmount = async () => {
-    if (!selectedTemplate || !accessToken) return;
-
-    const amount = parseInt(newAmount.replace(/\D/g, ''), 10);
-    if (amount <= 0) return;
-
-    try {
-      setIsUpdating(true);
-      await updateBudgetTemplate(selectedTemplate.id, { amount }, accessToken);
-
-      // Update local state
-      setTemplates((prev) =>
-        prev.map((t) => (t.id === selectedTemplate.id ? { ...t, amount } : t))
-      );
-
-      setShowEditModal(false);
-      setSelectedTemplate(null);
-      setNewAmount('');
-    } catch (err) {
-      console.error('Error updating template:', err);
-    } finally {
-      setIsUpdating(false);
-    }
   };
 
   const handleConfirmDeactivate = async () => {
@@ -268,18 +232,6 @@ export default function BudgetSettingsScreen() {
                     <View style={{ width: 1, backgroundColor: Colors.gray[200] }} />
 
                     <TouchableOpacity
-                      onPress={() => handleEditPress(template)}
-                      className="flex-1 flex-row items-center justify-center py-2"
-                    >
-                      <Edit3 size={16} color={Colors.primary[500]} />
-                      <Text className="ml-1 text-sm font-medium" style={{ color: Colors.primary[500] }}>
-                        {t('budget.edit', 'Editar')}
-                      </Text>
-                    </TouchableOpacity>
-
-                    <View style={{ width: 1, backgroundColor: Colors.gray[200] }} />
-
-                    <TouchableOpacity
                       onPress={() => handleDeactivatePress(template)}
                       className="flex-1 flex-row items-center justify-center py-2"
                     >
@@ -299,87 +251,6 @@ export default function BudgetSettingsScreen() {
       </KeyboardAwareContainer>
 
       <FloatingActionButton actions={floatingActions} />
-
-      {/* Edit Amount Modal */}
-      <Modal
-        visible={showEditModal}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setShowEditModal(false)}
-      >
-        <TouchableOpacity
-          activeOpacity={1}
-          onPress={() => setShowEditModal(false)}
-          className="flex-1 justify-center items-center"
-          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
-        >
-          <TouchableOpacity
-            activeOpacity={1}
-            onPress={(e) => e.stopPropagation()}
-            className="bg-white rounded-2xl p-6 mx-6"
-            style={{ width: '85%' }}
-          >
-            <View className="flex-row justify-between items-center mb-4">
-              <Text className="text-lg font-semibold text-gray-800">
-                {t('budget.edit_amount', 'Editar monto')}
-              </Text>
-              <TouchableOpacity onPress={() => setShowEditModal(false)}>
-                <X size={24} color={Colors.gray[500]} />
-              </TouchableOpacity>
-            </View>
-
-            {selectedTemplate && (
-              <Text className="text-sm text-gray-500 mb-4">
-                {selectedTemplate.user_category.emoji_code} {selectedTemplate.user_category.name}
-              </Text>
-            )}
-
-            <Text className="text-sm font-medium text-gray-700 mb-2">
-              {t('budget.new_amount', 'Nuevo monto')}
-            </Text>
-
-            <TextInput
-              value={newAmount}
-              onChangeText={(text) => setNewAmount(text.replace(/\D/g, ''))}
-              placeholder="0"
-              keyboardType="numeric"
-              className="border border-gray-200 rounded-xl px-4 py-3 text-lg mb-4"
-              style={{
-                backgroundColor: Colors.gray[50],
-                color: Colors.gray[800],
-              }}
-            />
-
-            <View className="flex-row gap-3">
-              <TouchableOpacity
-                onPress={() => setShowEditModal(false)}
-                className="flex-1 py-3 rounded-xl items-center"
-                style={{ backgroundColor: Colors.gray[100] }}
-              >
-                <Text className="font-medium" style={{ color: Colors.gray[600] }}>
-                  {t('common.cancel', 'Cancelar')}
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                onPress={handleSaveAmount}
-                disabled={isUpdating || !newAmount || parseInt(newAmount) <= 0}
-                className="flex-1 py-3 rounded-xl items-center"
-                style={{
-                  backgroundColor: Colors.primary[500],
-                  opacity: isUpdating || !newAmount || parseInt(newAmount) <= 0 ? 0.5 : 1,
-                }}
-              >
-                {isUpdating ? (
-                  <ActivityIndicator size="small" color="white" />
-                ) : (
-                  <Text className="font-medium text-white">{t('common.save', 'Guardar')}</Text>
-                )}
-              </TouchableOpacity>
-            </View>
-          </TouchableOpacity>
-        </TouchableOpacity>
-      </Modal>
 
       {/* Deactivate Confirmation Modal */}
       <ConfirmModal

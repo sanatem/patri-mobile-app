@@ -5,7 +5,7 @@ import { useSubscriptionStatus } from '@/hooks/common/useSubscriptionStatus';
 import { useTranslation } from 'react-i18next';
 import { useFloidSync } from '@/hooks/common/useFloidSync';
 import { useAuth } from '@/providers/AuthProvider';
-import { getBudgetInstancesCurrent } from '@/services/budget/budget-instances';
+import { getBudgetInstances } from '@/services/budget/budget-instances';
 import { getBudgetTemplates, updateBudgetTemplate, deactivateBudgetTemplate } from '@/services/budget/budget-templates';
 import type { BudgetInstance, BudgetSummary, BudgetTemplate, CombinedBudget } from '@/services/budget/budget-templates/types';
 
@@ -29,54 +29,71 @@ export function useBudgetSection() {
   const { width: screenWidth } = Dimensions.get('window');
   const chartSize = Math.min(screenWidth - 80, 280);
 
-  // Month and year management
-  const months = useMemo(() => {
-    const translated = t('months', { returnObjects: true }) as string[] | undefined;
-    return Array.isArray(translated) && translated.length === 12
-      ? translated
-      : ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-  }, [t]);
+  // Selected date state - starts at current month
+  const [selectedDate, setSelectedDate] = useState(() => {
+    const now = new Date();
+    // Set to first day of current month to avoid timezone issues
+    return new Date(now.getFullYear(), now.getMonth(), 1);
+  });
 
-  const getCurrentMonthYear = (): string => {
-    const currentDate = new Date();
-    const currentMonthIndex = currentDate.getMonth();
-    const currentYear = currentDate.getFullYear();
-    return `${months[currentMonthIndex]} ${currentYear}`;
-  };
+  // Format selected date as "Enero 2025" using locale
+  const formatMonthYear = useCallback((date: Date): string => {
+    return date.toLocaleString('es-CL', { month: 'long', year: 'numeric' })
+      .replace(/^\w/, c => c.toUpperCase()); // Capitalize first letter
+  }, []);
+
+  // Get start and end dates for the selected month (YYYY-MM-DD format)
+  const getMonthDateRange = useCallback((date: Date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+
+    // First day of month
+    const startDate = new Date(year, month, 1);
+    // Last day of month
+    const endDate = new Date(year, month + 1, 0);
+
+    const formatDate = (d: Date) => {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    };
+
+    return {
+      start_date: formatDate(startDate),
+      end_date: formatDate(endDate)
+    };
+  }, []);
+
+  // Current period display string
+  const currentPeriod = useMemo(() => formatMonthYear(selectedDate), [selectedDate, formatMonthYear]);
 
   // State
   const [budgetInstances, setBudgetInstances] = useState<BudgetInstance[]>([]);
   const [templates, setTemplates] = useState<BudgetTemplate[]>([]);
   const [summary, setSummary] = useState<BudgetSummary>(emptySummary);
   const [loading, setLoading] = useState(true);
-  const [currentPeriod] = useState(getCurrentMonthYear());
   const [isUpdating, setIsUpdating] = useState(false);
   const [isDeactivating, setIsDeactivating] = useState(false);
 
-  // Month and year selection state
-  const currentDate = new Date();
-  const [selectedMonth, setSelectedMonth] = useState(months[currentDate.getMonth()]);
-  const [selectedYear, setSelectedYear] = useState(currentDate.getFullYear().toString());
-
-  // Generate month options
-  const monthOptions = useMemo(() => {
-    return months.map((month) => ({
-      label: month,
-      value: month,
-    }));
-  }, [months]);
-
-  // Generate year options (current year and 2 years back)
-  const yearOptions = useMemo(() => {
-    const currentYear = new Date().getFullYear();
-    return [
-      { label: (currentYear - 2).toString(), value: (currentYear - 2).toString() },
-      { label: (currentYear - 1).toString(), value: (currentYear - 1).toString() },
-      { label: currentYear.toString(), value: currentYear.toString() },
-    ];
+  // Navigate to previous month
+  const handlePreviousMonth = useCallback(() => {
+    setSelectedDate(prev => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
   }, []);
 
-  // Fetch budget data from API (templates + instances)
+  // Navigate to next month
+  const handleNextMonth = useCallback(() => {
+    setSelectedDate(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
+  }, []);
+
+  // Check if current month is selected (to optionally disable "next" button)
+  const isCurrentMonth = useMemo(() => {
+    const now = new Date();
+    return selectedDate.getFullYear() === now.getFullYear() &&
+           selectedDate.getMonth() === now.getMonth();
+  }, [selectedDate]);
+
+  // Fetch budget data from API (templates + instances for selected month)
   const fetchBudgetData = useCallback(async () => {
     if (!accessToken) {
       setLoading(false);
@@ -85,6 +102,9 @@ export function useBudgetSection() {
 
     try {
       setLoading(true);
+
+      // Get date range for selected month
+      const { start_date, end_date } = getMonthDateRange(selectedDate);
 
       // Llamar templates primero (es el principal)
       try {
@@ -99,9 +119,12 @@ export function useBudgetSection() {
         setTemplates([]);
       }
 
-      // Llamar instances (puede fallar si no hay del mes actual)
+      // Llamar instances con filtro de fechas del mes seleccionado
       try {
-        const instancesResponse = await getBudgetInstancesCurrent(accessToken);
+        const instancesResponse = await getBudgetInstances(
+          { start_date, end_date },
+          accessToken
+        );
         if (instancesResponse.success && instancesResponse.budget_instances) {
           setBudgetInstances(instancesResponse.budget_instances);
           setSummary(instancesResponse.summary || emptySummary);
@@ -123,7 +146,7 @@ export function useBudgetSection() {
     } finally {
       setLoading(false);
     }
-  }, [accessToken]);
+  }, [accessToken, selectedDate, getMonthDateRange]);
 
   // Combinar templates con instances
   const combinedBudgets: CombinedBudget[] = useMemo(() => {
@@ -211,14 +234,6 @@ export function useBudgetSection() {
     fetchBudgetData();
   };
 
-  const handleMonthSelect = (month: string) => {
-    setSelectedMonth(month);
-  };
-
-  const handleYearSelect = (year: string) => {
-    setSelectedYear(year);
-  };
-
   const handleNavigateToBudgetDetail = (instanceId: number) => {
     router.push({
       pathname: '/(tabs)/budget/budget-detail' as any,
@@ -243,14 +258,14 @@ export function useBudgetSection() {
     }, [fetchBudgetData])
   );
 
-  // Computed values
+  // Computed values - solo mostrar si hay templates activos
   const hasBudgets = templates.length > 0;
 
   return {
     // State
     currentPeriod,
-    selectedMonth,
-    selectedYear,
+    selectedDate,
+    isCurrentMonth,
 
     // Data
     budgetInstances,
@@ -258,10 +273,6 @@ export function useBudgetSection() {
     combinedBudgets,
     summary,
     hasBudgets,
-
-    // Options
-    monthOptions,
-    yearOptions,
 
     // Loading states
     subscriptionLoading,
@@ -284,8 +295,8 @@ export function useBudgetSection() {
     handleUpdateBudgetAmount,
     handleDeactivateBudget,
     handleIntegrarDatos,
-    handleMonthSelect,
-    handleYearSelect,
+    handlePreviousMonth,
+    handleNextMonth,
     stopSync,
     handleSyncComplete,
 

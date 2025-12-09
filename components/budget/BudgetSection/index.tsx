@@ -1,13 +1,16 @@
-import React from 'react';
-import { View, ScrollView, Text } from 'react-native';
-import { Container, KeyboardAwareContainer, LoadingSpinner, FloatingActionButton, QuickAccessButton, Card, Button, type FloatingAction } from '@/components/ui';
+import React, { useState } from 'react';
+import { View, ScrollView, Text, Modal, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
+import { Container, KeyboardAwareContainer, LoadingSpinner, FloatingActionButton, QuickAccessButton, Card, Button, CheckboxItem, type FloatingAction } from '@/components/ui';
 import { BudgetHeader } from './Header';
 import { BudgetInstanceCard } from './BudgetInstanceCard';
 import { BudgetSummaryCard } from './BudgetSummaryCard';
 import BudgetChart from './Chart/BudgetChart';
 import { useBudgetSection } from '@/hooks/budget/useBudgetSection';
-import { Plus, Receipt, ListTodo, Tag, Settings } from 'lucide-react-native';
+import { Plus, Receipt, ListTodo, Tag, Settings, X } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
+import { patchBudgetInstance } from '@/services/budget/budget-instances';
+import { useAuth } from '@/providers/AuthProvider';
+import type { BudgetInstance } from '@/services/budget/budget-templates/types';
 
 const formatCurrency = (amount: number): string => {
   return new Intl.NumberFormat('es-CL', {
@@ -19,9 +22,11 @@ const formatCurrency = (amount: number): string => {
 };
 
 export function BudgetSectionOverview() {
+  const { accessToken } = useAuth();
   const {
     // State
     currentPeriod,
+    isCurrentMonth,
 
     // Data
     budgetInstances,
@@ -38,10 +43,59 @@ export function BudgetSectionOverview() {
     handleNavigateToBudgetDetail,
     handleNavigateToCategories,
     handleNavigateToBudgetSettings,
+    handlePreviousMonth,
+    handleNextMonth,
+
+    // Refetch
+    refetch,
 
     // Translation
     t,
   } = useBudgetSection();
+
+  // Edit modal state
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedInstance, setSelectedInstance] = useState<BudgetInstance | null>(null);
+  const [newAmount, setNewAmount] = useState('');
+  const [updateTemplate, setUpdateTemplate] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  const handleEditInstance = (instance: BudgetInstance) => {
+    setSelectedInstance(instance);
+    setNewAmount(instance.amount.toString());
+    setUpdateTemplate(false);
+    setShowEditModal(true);
+  };
+
+  const handleCloseEditModal = () => {
+    setShowEditModal(false);
+    setSelectedInstance(null);
+    setNewAmount('');
+    setUpdateTemplate(false);
+  };
+
+  const handleSaveAmount = async () => {
+    if (!selectedInstance || !accessToken) return;
+
+    const amount = parseInt(newAmount.replace(/\D/g, ''), 10);
+    if (amount <= 0) return;
+
+    try {
+      setIsUpdating(true);
+      await patchBudgetInstance(
+        selectedInstance.id,
+        { amount, update_template: updateTemplate },
+        accessToken
+      );
+
+      handleCloseEditModal();
+      refetch();
+    } catch (error) {
+      console.error('Error updating instance:', error);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
   const floatingActions: FloatingAction[] = [
     {
@@ -64,6 +118,9 @@ export function BudgetSectionOverview() {
       <BudgetHeader
         title={t('budget.title', 'Presupuesto')}
         subtitle={currentPeriod}
+        onPreviousMonth={handlePreviousMonth}
+        onNextMonth={handleNextMonth}
+        isCurrentMonth={isCurrentMonth}
       />
 
       <KeyboardAwareContainer>
@@ -97,6 +154,7 @@ export function BudgetSectionOverview() {
                     key={instance.id}
                     instance={instance}
                     onPress={() => handleNavigateToBudgetDetail(instance.id)}
+                    onEdit={handleEditInstance}
                   />
                 ))}
               </>
@@ -150,6 +208,97 @@ export function BudgetSectionOverview() {
       </KeyboardAwareContainer>
 
       {hasBudgets && <FloatingActionButton actions={floatingActions} />}
+
+      {/* Edit Instance Amount Modal */}
+      <Modal
+        visible={showEditModal}
+        transparent
+        animationType="fade"
+        onRequestClose={handleCloseEditModal}
+      >
+        <TouchableOpacity
+          activeOpacity={1}
+          onPress={handleCloseEditModal}
+          className="flex-1 justify-center items-center"
+          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+        >
+          <TouchableOpacity
+            activeOpacity={1}
+            onPress={(e) => e.stopPropagation()}
+            className="bg-white rounded-2xl p-6 mx-6"
+            style={{ width: '85%' }}
+          >
+            <View className="flex-row justify-between items-center mb-4">
+              <Text className="text-lg font-semibold text-gray-800">
+                {t('budget.edit_amount', 'Editar monto')}
+              </Text>
+              <TouchableOpacity onPress={handleCloseEditModal}>
+                <X size={24} color={Colors.gray[500]} />
+              </TouchableOpacity>
+            </View>
+
+            {selectedInstance && (
+              <Text className="text-sm text-gray-500 mb-4">
+                {selectedInstance.category?.emoji_code} {selectedInstance.category?.name}
+              </Text>
+            )}
+
+            <Text className="text-sm font-medium text-gray-700 mb-2">
+              {t('budget.new_amount', 'Nuevo monto')}
+            </Text>
+
+            <TextInput
+              value={newAmount ? `$${parseInt(newAmount).toLocaleString('es-CL')}` : ''}
+              onChangeText={(text) => setNewAmount(text.replace(/\D/g, ''))}
+              placeholder="$0"
+              keyboardType="numeric"
+              className="border border-gray-200 rounded-xl px-4 py-3 text-lg mb-4"
+              style={{
+                backgroundColor: Colors.gray[50],
+                color: Colors.gray[800],
+              }}
+            />
+
+            <TouchableOpacity
+              onPress={() => setUpdateTemplate(!updateTemplate)}
+              className="flex-row items-center mb-6"
+            >
+              <CheckboxItem selected={updateTemplate} size={20} />
+              <Text className="ml-3 text-sm" style={{ color: Colors.gray[700], flex: 1 }}>
+                {t('budget.update_for_next_periods', 'Aplicar también para los siguientes períodos')}
+              </Text>
+            </TouchableOpacity>
+
+            <View className="flex-row gap-3">
+              <TouchableOpacity
+                onPress={handleCloseEditModal}
+                className="flex-1 py-3 rounded-xl items-center"
+                style={{ backgroundColor: Colors.gray[100] }}
+              >
+                <Text className="font-medium" style={{ color: Colors.gray[600] }}>
+                  {t('common.cancel', 'Cancelar')}
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={handleSaveAmount}
+                disabled={isUpdating || !newAmount || parseInt(newAmount) <= 0}
+                className="flex-1 py-3 rounded-xl items-center"
+                style={{
+                  backgroundColor: Colors.primary[500],
+                  opacity: isUpdating || !newAmount || parseInt(newAmount) <= 0 ? 0.5 : 1,
+                }}
+              >
+                {isUpdating ? (
+                  <ActivityIndicator size="small" color="white" />
+                ) : (
+                  <Text className="font-medium text-white">{t('common.save', 'Guardar')}</Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          </TouchableOpacity>
+        </TouchableOpacity>
+      </Modal>
     </Container>
   );
 }

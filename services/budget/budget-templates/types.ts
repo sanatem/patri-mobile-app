@@ -1,6 +1,5 @@
 import type { UserCategory } from '../categories-manager/types';
 
-// Budget Template types
 export type BudgetRecurrence = 'monthly' | 'weekly' | 'yearly';
 
 export interface BudgetTemplateCategory {
@@ -25,6 +24,7 @@ export interface CreateBudgetTemplateParams {
   amount: number;
   recurrence: BudgetRecurrence;
   start_date?: string; // Formato: yyyy-mm-dd
+  income_user_category_id?: number; // Categoría de ingreso asociada
 }
 
 export interface UpdateBudgetTemplateParams {
@@ -94,7 +94,6 @@ export interface GetBudgetHistoryParams {
   user_category_id: number;
 }
 
-// Tipo combinado para mostrar templates con su progreso actual
 export interface CombinedBudget {
   template: BudgetTemplate;
   instance: BudgetInstance | null;

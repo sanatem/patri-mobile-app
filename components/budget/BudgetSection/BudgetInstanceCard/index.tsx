@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Card } from '@/components/ui';
-import { ChevronRight, AlertTriangle, CheckCircle } from 'lucide-react-native';
+import { ChevronRight, AlertTriangle, CheckCircle, Edit3 } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import { useTranslation } from 'react-i18next';
 import type { BudgetInstance } from '@/services/budget/budget-templates/types';
@@ -9,6 +9,7 @@ import type { BudgetInstance } from '@/services/budget/budget-templates/types';
 interface BudgetInstanceCardProps {
   instance: BudgetInstance;
   onPress?: () => void;
+  onEdit?: (instance: BudgetInstance) => void;
 }
 
 const formatCurrency = (amount: number): string => {
@@ -33,7 +34,7 @@ const getBudgetStatus = (percentage: number, overBudget: boolean) => {
   return { color: Colors.success[500], bgColor: Colors.success[100], label: 'OK', emoji: '🟢' };
 };
 
-export function BudgetInstanceCard({ instance, onPress }: BudgetInstanceCardProps) {
+export function BudgetInstanceCard({ instance, onPress, onEdit }: BudgetInstanceCardProps) {
   const { t } = useTranslation();
   const percentageNum = typeof instance.percentage === 'string'
     ? parseFloat(instance.percentage)
@@ -41,20 +42,38 @@ export function BudgetInstanceCard({ instance, onPress }: BudgetInstanceCardProp
   const status = getBudgetStatus(percentageNum, instance.over_budget);
   const progressWidth = Math.min(percentageNum, 100);
 
+  // Fallback para cuando category no viene o viene incompleta
+  const categoryEmoji = instance.category?.emoji_code || '📊';
+  const categoryName = instance.category?.name || t('budget.uncategorized', 'Sin categoría');
+
+  const handleEditPress = (e: any) => {
+    e.stopPropagation();
+    onEdit?.(instance);
+  };
+
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
       <Card variant="default" size="md" className="mb-3">
         {/* Header: Emoji + Nombre */}
         <View className="flex-row items-center justify-between mb-2">
           <View className="flex-row items-center flex-1">
-            <Text className="text-2xl mr-2">{instance.category.emoji_code}</Text>
+            <Text className="text-2xl mr-2">{categoryEmoji}</Text>
             <Text className="text-base font-medium text-gray-800" numberOfLines={1}>
-              {instance.category.name}
+              {categoryName}
             </Text>
           </View>
           <View className="flex-row items-center">
             <Text className="mr-1">{status.emoji}</Text>
             {instance.over_budget && <AlertTriangle size={16} color={Colors.error[500]} className="mr-1" />}
+            {onEdit && (
+              <TouchableOpacity
+                onPress={handleEditPress}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                className="mr-2"
+              >
+                <Edit3 size={18} color={Colors.primary[500]} />
+              </TouchableOpacity>
+            )}
             <ChevronRight size={20} color={Colors.gray[400]} />
           </View>
         </View>
