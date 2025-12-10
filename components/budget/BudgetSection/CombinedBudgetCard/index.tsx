@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Modal, TextInput, ActivityIndicator } from 'react-native';
 import { Card, ConfirmModal } from '@/components/ui';
-import { ChevronRight, Settings, History, Edit3, Power, X } from 'lucide-react-native';
+import { ChevronRight, Settings, History, Edit3, Power, X, Circle } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import { useTranslation } from 'react-i18next';
 import type { CombinedBudget, BudgetTemplate } from '@/services/budget/budget-templates/types';
@@ -187,18 +187,8 @@ export function CombinedBudgetCard({
               </View>
             </View>
 
-            <View className="flex-row justify-between items-center">
-              {instance.over_budget ? (
-                <Text className="text-sm" style={{ color: Colors.error[500] }}>
-                  {t('budget.exceeded', 'Excedido')}: {formatCurrency(Math.abs(instance.remaining))}
-                </Text>
-              ) : (
-                <Text className="text-sm text-gray-600">
-                  {t('budget.remaining', 'Restante')}: {formatCurrency(instance.remaining)}
-                </Text>
-              )}
-
-              {status && (
+            {status && (
+              <View className="flex-row justify-end">
                 <View
                   style={{
                     backgroundColor: status.bgColor,
@@ -211,8 +201,8 @@ export function CombinedBudgetCard({
                     {status.label}
                   </Text>
                 </View>
-              )}
-            </View>
+              </View>
+            )}
           </>
         ) : (
           <View className="py-2">

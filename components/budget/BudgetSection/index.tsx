@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { View, ScrollView, Text, Modal, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
-import { Container, KeyboardAwareContainer, LoadingSpinner, FloatingActionButton, QuickAccessButton, Card, Button, CheckboxItem, type FloatingAction } from '@/components/ui';
+import { View, ScrollView, Text, Modal, TouchableOpacity } from 'react-native';
+import { Container, KeyboardAwareContainer, LoadingSpinner, FloatingActionButton, QuickAccessButton, Card, Button, CheckboxItem, Input, type FloatingAction } from '@/components/ui';
 import { BudgetHeader } from './Header';
 import { BudgetInstanceCard } from './BudgetInstanceCard';
 import { BudgetSummaryCard } from './BudgetSummaryCard';
 import BudgetChart from './Chart/BudgetChart';
 import { useBudgetSection } from '@/hooks/budget/useBudgetSection';
-import { Plus, Receipt, ListTodo, Tag, Settings, X } from 'lucide-react-native';
+import { Plus, Receipt, ListTodo, Tag, Settings } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import { patchBudgetInstance } from '@/services/budget/budget-instances';
 import { useAuth } from '@/providers/AuthProvider';
@@ -144,11 +144,6 @@ export function BudgetSectionOverview() {
                   />
                 )}
 
-                {/* Lista de presupuestos (instances) */}
-                <Text className="text-base font-semibold mb-3" style={{ color: Colors.gray[800] }}>
-                  {t('budget.my_budgets', 'Mis Presupuestos')}
-                </Text>
-
                 {budgetInstances.map((instance) => (
                   <BudgetInstanceCard
                     key={instance.id}
@@ -216,52 +211,50 @@ export function BudgetSectionOverview() {
         animationType="fade"
         onRequestClose={handleCloseEditModal}
       >
-        <TouchableOpacity
-          activeOpacity={1}
-          onPress={handleCloseEditModal}
-          className="flex-1 justify-center items-center"
-          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
-        >
-          <TouchableOpacity
-            activeOpacity={1}
-            onPress={(e) => e.stopPropagation()}
-            className="bg-white rounded-2xl p-6 mx-6"
-            style={{ width: '85%' }}
-          >
-            <View className="flex-row justify-between items-center mb-4">
-              <Text className="text-lg font-semibold text-gray-800">
+        <View style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: 'rgba(0,0,0,0.5)',
+        }}>
+          <View style={{
+            backgroundColor: 'white',
+            borderRadius: 16,
+            padding: 24,
+            marginHorizontal: 20,
+            width: '90%',
+            maxWidth: 400,
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.25,
+            shadowRadius: 8,
+            elevation: 8,
+          }}>
+            <View style={{ alignItems: 'center', marginBottom: 16 }}>
+              <Text className="text-md font-medium" style={{
+                textAlign: 'center',
+                color: Colors.primary[700],
+              }}>
                 {t('budget.edit_amount', 'Editar monto')}
               </Text>
-              <TouchableOpacity onPress={handleCloseEditModal}>
-                <X size={24} color={Colors.gray[500]} />
-              </TouchableOpacity>
+              {selectedInstance && (
+                <Text className="text-sm mt-2" style={{ color: Colors.gray[500] }}>
+                  {selectedInstance.category?.emoji_code} {selectedInstance.category?.name}
+                </Text>
+              )}
             </View>
 
-            {selectedInstance && (
-              <Text className="text-sm text-gray-500 mb-4">
-                {selectedInstance.category?.emoji_code} {selectedInstance.category?.name}
-              </Text>
-            )}
-
-            <Text className="text-sm font-medium text-gray-700 mb-2">
-              {t('budget.new_amount', 'Nuevo monto')}
-            </Text>
-
-            <TextInput
+            <Input
+              label={t('budget.new_amount', 'Nuevo monto')}
               value={newAmount ? `$${parseInt(newAmount).toLocaleString('es-CL')}` : ''}
               onChangeText={(text) => setNewAmount(text.replace(/\D/g, ''))}
               placeholder="$0"
               keyboardType="numeric"
-              className="border border-gray-200 rounded-xl px-4 py-3 text-lg mb-4"
-              style={{
-                backgroundColor: Colors.gray[50],
-                color: Colors.gray[800],
-              }}
             />
 
             <TouchableOpacity
               onPress={() => setUpdateTemplate(!updateTemplate)}
-              className="flex-row items-center mb-6"
+              style={{ flexDirection: 'row', alignItems: 'center' }}
             >
               <CheckboxItem selected={updateTemplate} size={20} />
               <Text className="ml-3 text-sm" style={{ color: Colors.gray[700], flex: 1 }}>
@@ -269,35 +262,29 @@ export function BudgetSectionOverview() {
               </Text>
             </TouchableOpacity>
 
-            <View className="flex-row gap-3">
-              <TouchableOpacity
-                onPress={handleCloseEditModal}
-                className="flex-1 py-3 rounded-xl items-center"
-                style={{ backgroundColor: Colors.gray[100] }}
-              >
-                <Text className="font-medium" style={{ color: Colors.gray[600] }}>
-                  {t('common.cancel', 'Cancelar')}
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                onPress={handleSaveAmount}
-                disabled={isUpdating || !newAmount || parseInt(newAmount) <= 0}
-                className="flex-1 py-3 rounded-xl items-center"
-                style={{
-                  backgroundColor: Colors.primary[500],
-                  opacity: isUpdating || !newAmount || parseInt(newAmount) <= 0 ? 0.5 : 1,
-                }}
-              >
-                {isUpdating ? (
-                  <ActivityIndicator size="small" color="white" />
-                ) : (
-                  <Text className="font-medium text-white">{t('common.save', 'Guardar')}</Text>
-                )}
-              </TouchableOpacity>
+            <View style={{ flexDirection: 'row', gap: 12, marginTop: 16 }}>
+              <View style={{ flex: 1 }}>
+                <Button
+                  title={t('common.cancel', 'Cancelar')}
+                  variant="outline"
+                  fullWidth
+                  onPress={handleCloseEditModal}
+                  disabled={isUpdating}
+                />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Button
+                  title={isUpdating ? t('common.saving', 'Guardando...') : t('common.save', 'Guardar')}
+                  variant="primary"
+                  fullWidth
+                  onPress={handleSaveAmount}
+                  disabled={isUpdating || !newAmount || parseInt(newAmount) <= 0}
+                  loading={isUpdating}
+                />
+              </View>
             </View>
-          </TouchableOpacity>
-        </TouchableOpacity>
+          </View>
+        </View>
       </Modal>
     </Container>
   );

@@ -12,29 +12,30 @@ interface BudgetSummaryCardProps {
 export function BudgetSummaryCard({ summary }: BudgetSummaryCardProps) {
   return (
     <Card variant="outlined" size="md" className="mb-4">
-      <View className="flex-row justify-around">
-        {/* OK / Healthy */}
-        <View className="items-center">
-          <Text className="text-xl font-bold mb-1" style={{ color: Colors.primary[500] }}>
+      <View className="flex-row items-center" style={{ justifyContent: 'space-evenly' }}>
+        <View className="items-center flex-1">
+          <Text className="text-2xl font-medium mb-2" style={{ color: Colors.primary[500] }}>
             {summary.healthy_count}
           </Text>
-          <CheckCircle size={20} color={Colors.success[500]} />
+          <CheckCircle size={24} color={Colors.success[500]} />
         </View>
 
-        {/* Alerta / Warning */}
-        <View className="items-center">
-          <Text className="text-xl font-bold mb-1" style={{ color: Colors.primary[500] }}>
+        <View style={{ width: 1, height: 50, backgroundColor: Colors.gray[200] }} />
+
+        <View className="items-center flex-1">
+          <Text className="text-2xl font-medium mb-2" style={{ color: Colors.primary[500] }}>
             {summary.warning_count}
           </Text>
-          <AlertTriangle size={20} color={Colors.warning[500]} />
+          <AlertTriangle size={24} color={Colors.warning[500]} />
         </View>
 
-        {/* Excedido / Over budget */}
-        <View className="items-center">
-          <Text className="text-xl font-bold mb-1" style={{ color: Colors.primary[500] }}>
+        <View style={{ width: 1, height: 50, backgroundColor: Colors.gray[200] }} />
+
+        <View className="items-center flex-1">
+          <Text className="text-2xl font-medium mb-2" style={{ color: Colors.primary[500] }}>
             {summary.over_budget_count}
           </Text>
-          <XCircle size={20} color={Colors.error[500]} />
+          <XCircle size={24} color={Colors.error[500]} />
         </View>
       </View>
     </Card>

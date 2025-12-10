@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Card } from '@/components/ui';
-import { ChevronRight, AlertTriangle, CheckCircle, Edit3 } from 'lucide-react-native';
+import { ChevronRight, Edit3, Circle } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import { useTranslation } from 'react-i18next';
 import type { BudgetInstance } from '@/services/budget/budget-templates/types';
@@ -23,15 +23,15 @@ const formatCurrency = (amount: number): string => {
 
 const getBudgetStatus = (percentage: number, overBudget: boolean) => {
   if (overBudget || percentage >= 100) {
-    return { color: Colors.error[500], bgColor: Colors.error[100], label: 'Excedido', emoji: '🔴' };
+    return { color: Colors.error[500], bgColor: Colors.error[100], label: 'Excedido' };
   }
   if (percentage >= 80) {
-    return { color: Colors.warning[500], bgColor: Colors.warning[100], label: 'Alerta', emoji: '🟠' };
+    return { color: Colors.warning[500], bgColor: Colors.warning[100], label: 'Alerta' };
   }
   if (percentage >= 60) {
-    return { color: Colors.yellow[500], bgColor: Colors.yellow[100], label: 'Precaucion', emoji: '🟡' };
+    return { color: Colors.yellow[500], bgColor: Colors.yellow[100], label: 'Precaucion' };
   }
-  return { color: Colors.success[500], bgColor: Colors.success[100], label: 'OK', emoji: '🟢' };
+  return { color: Colors.success[500], bgColor: Colors.success[100], label: 'OK' };
 };
 
 export function BudgetInstanceCard({ instance, onPress, onEdit }: BudgetInstanceCardProps) {
@@ -54,17 +54,16 @@ export function BudgetInstanceCard({ instance, onPress, onEdit }: BudgetInstance
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
       <Card variant="default" size="md" className="mb-3">
-        {/* Header: Emoji + Nombre */}
+        {/* Header: Emoji + Nombre + Círculo de estado */}
         <View className="flex-row items-center justify-between mb-2">
           <View className="flex-row items-center flex-1">
             <Text className="text-2xl mr-2">{categoryEmoji}</Text>
             <Text className="text-base font-medium text-gray-800" numberOfLines={1}>
               {categoryName}
             </Text>
+            <Circle size={10} color={status.color} fill={status.color} style={{ marginLeft: 8 }} />
           </View>
           <View className="flex-row items-center">
-            <Text className="mr-1">{status.emoji}</Text>
-            {instance.over_budget && <AlertTriangle size={16} color={Colors.error[500]} className="mr-1" />}
             {onEdit && (
               <TouchableOpacity
                 onPress={handleEditPress}
@@ -80,10 +79,10 @@ export function BudgetInstanceCard({ instance, onPress, onEdit }: BudgetInstance
 
         {/* Monto gastado / presupuesto */}
         <View className="flex-row justify-between mb-1">
-          <Text className="text-sm text-gray-600">
+          <Text className="text-sm font-regular text-gray-600">
             {formatCurrency(instance.spent)} / {formatCurrency(instance.amount)}
           </Text>
-          <Text className="text-sm font-semibold" style={{ color: status.color }}>
+          <Text className="text-sm font-regular" style={{ color: status.color }}>
             {percentageNum.toFixed(0)}%
           </Text>
         </View>
@@ -108,24 +107,6 @@ export function BudgetInstanceCard({ instance, onPress, onEdit }: BudgetInstance
           />
         </View>
 
-        {/* Estado: Restante o Excedido */}
-        <View className="flex-row items-center">
-          {instance.over_budget ? (
-            <>
-              <AlertTriangle size={14} color={Colors.error[500]} />
-              <Text className="text-sm ml-1" style={{ color: Colors.error[500] }}>
-                {t('budget.exceeded_by', 'Excedido por')} {formatCurrency(instance.remaining)}
-              </Text>
-            </>
-          ) : (
-            <>
-              <CheckCircle size={14} color={Colors.success[500]} />
-              <Text className="text-sm ml-1 text-gray-600">
-                {t('budget.remaining_amount', 'Quedan')} {formatCurrency(instance.remaining)}
-              </Text>
-            </>
-          )}
-        </View>
       </Card>
     </TouchableOpacity>
   );
