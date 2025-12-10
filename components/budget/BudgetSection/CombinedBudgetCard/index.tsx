@@ -5,6 +5,7 @@ import { ChevronRight, Settings, History, Edit3, Power, X, Circle } from 'lucide
 import Colors from '@/constants/Colors';
 import { useTranslation } from 'react-i18next';
 import type { CombinedBudget, BudgetTemplate } from '@/services/budget/budget-templates/types';
+import { getTranslatedNames } from '@/services/budget/utils/category-utils';
 
 interface CombinedBudgetCardProps {
   budget: CombinedBudget;
@@ -59,7 +60,7 @@ export function CombinedBudgetCard({
   isUpdating = false,
   isDeactivating = false
 }: CombinedBudgetCardProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [showMenu, setShowMenu] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeactivateModal, setShowDeactivateModal] = useState(false);
@@ -68,7 +69,12 @@ export function CombinedBudgetCard({
 
   // Datos de la categoría desde el template
   const categoryEmoji = template.user_category?.emoji_code || '📊';
-  const categoryName = template.user_category?.name || 'Sin categoría';
+  const isIncome = template.user_category?.kind === 'income';
+  const translatedNames = template.user_category?.name 
+    ? getTranslatedNames(template.user_category.name, isIncome)
+    : null;
+  const currentLang = i18n.language as 'en' | 'es' | 'es-CL';
+  const categoryName = translatedNames?.[currentLang] || translatedNames?.es || template.user_category?.name || 'Sin categoría';
 
   // Si hay instance CON transacciones, calcular el progreso
   const hasTransactions = hasProgress && instance && instance.spent > 0;
@@ -119,7 +125,7 @@ export function CombinedBudgetCard({
 
   return (
     <>
-      <Card variant="default" size="md" className="mb-4">
+      <Card variant="default" size="md" className="mb-2">
         {/* Header con categoría y botón gestionar */}
         <View className="flex-row items-center justify-between mb-3">
           <TouchableOpacity

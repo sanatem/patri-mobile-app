@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { View, ScrollView, Text, TouchableOpacity } from 'react-native';
 import { Container, KeyboardAwareContainer, LoadingSpinner, Card, Header, ConfirmModal, SearchBar } from '@/components/ui';
-import { ChevronLeft, Edit3, Trash2 } from 'lucide-react-native';
+import { ChevronLeft } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import { useBudgetDetail } from '@/hooks/budget/useBudgetDetail';
 import { TransactionListItem } from './TransactionListItem';
 import type { BudgetInstanceTransaction } from '@/services/budget/budget-instances';
+import { getTranslatedNames } from '@/services/budget/utils/category-utils';
+import { useTranslation } from 'react-i18next';
 
 interface BudgetDetailProps {
   instanceId: string;
@@ -51,7 +53,16 @@ export function BudgetDetail({ instanceId }: BudgetDetailProps) {
     t,
   } = useBudgetDetail({ instanceId });
 
+  const { i18n } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
+  
+  // Traducir el nombre de la categoría
+  const currentLang = i18n.language as 'en' | 'es' | 'es-CL';
+  const isIncome = budgetInstance?.category?.kind === 'income';
+  const translatedNames = budgetInstance?.category?.name 
+    ? getTranslatedNames(budgetInstance.category.name, isIncome)
+    : null;
+  const categoryName = translatedNames?.[currentLang] || translatedNames?.es || budgetInstance?.category?.name || 'Presupuesto';
 
   if (loading) {
     return (
@@ -101,7 +112,7 @@ export function BudgetDetail({ instanceId }: BudgetDetailProps) {
   return (
     <Container variant="secondaryPage">
       <Header
-        title={budgetInstance.category.name}
+        title={categoryName}
         leftAction={
           <TouchableOpacity
             onPress={handleGoBack}
@@ -109,16 +120,6 @@ export function BudgetDetail({ instanceId }: BudgetDetailProps) {
           >
             <ChevronLeft size={24} color={Colors.primary[500]} />
           </TouchableOpacity>
-        }
-        rightAction={
-          <View className="flex-row">
-            <TouchableOpacity onPress={handleEdit} className="mr-2">
-              <Edit3 size={22} color={Colors.primary[500]} />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => setShowDeleteModal(true)}>
-              <Trash2 size={22} color={Colors.error[500]} />
-            </TouchableOpacity>
-          </View>
         }
       />
 
@@ -143,8 +144,8 @@ export function BudgetDetail({ instanceId }: BudgetDetailProps) {
                   <Text style={{ fontSize: 24 }}>{budgetInstance.category.emoji_code}</Text>
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Text className="text-lg font-semibold" style={{ color: Colors.gray[800] }}>
-                    {budgetInstance.category.name}
+                  <Text className="text-lg font-medium" style={{ color: Colors.primary[500] }}>
+                    {categoryName}
                   </Text>
                   <Text className="text-sm font-regular" style={{ color: Colors.gray[500] }}>
                     {budgetInstance.period}
@@ -164,18 +165,13 @@ export function BudgetDetail({ instanceId }: BudgetDetailProps) {
                 </View>
               </View>
 
-              {/* Progress section */}
               <View className="mb-3">
-                <View className="flex-row justify-between mb-2">
-                  <Text className="text-sm font-regular" style={{ color: Colors.gray[600] }}>
-                    {t('budget.spent', 'Gastado')}
-                  </Text>
+                <View className="flex-row justify-end mb-2">
                   <Text className="text-sm font-medium" style={{ color: status.color }}>
                     {percentageNum.toFixed(0)}%
                   </Text>
                 </View>
 
-                {/* Progress Bar */}
                 <View
                   style={{
                     height: 10,

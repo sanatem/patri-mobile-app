@@ -5,6 +5,7 @@ import { ChevronRight, Edit3, Circle } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import { useTranslation } from 'react-i18next';
 import type { BudgetInstance } from '@/services/budget/budget-templates/types';
+import { getTranslatedNames } from '@/services/budget/utils/category-utils';
 
 interface BudgetInstanceCardProps {
   instance: BudgetInstance;
@@ -35,7 +36,7 @@ const getBudgetStatus = (percentage: number, overBudget: boolean) => {
 };
 
 export function BudgetInstanceCard({ instance, onPress, onEdit }: BudgetInstanceCardProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const percentageNum = typeof instance.percentage === 'string'
     ? parseFloat(instance.percentage)
     : instance.percentage;
@@ -44,7 +45,12 @@ export function BudgetInstanceCard({ instance, onPress, onEdit }: BudgetInstance
 
   // Fallback para cuando category no viene o viene incompleta
   const categoryEmoji = instance.category?.emoji_code || '📊';
-  const categoryName = instance.category?.name || t('budget.uncategorized', 'Sin categoría');
+  const isIncome = instance.category?.kind === 'income';
+  const translatedNames = instance.category?.name 
+    ? getTranslatedNames(instance.category.name, isIncome)
+    : null;
+  const currentLang = i18n.language as 'en' | 'es' | 'es-CL';
+  const categoryName = translatedNames?.[currentLang] || translatedNames?.es || instance.category?.name || t('budget.uncategorized', 'Sin categoría');
 
   const handleEditPress = (e: any) => {
     e.stopPropagation();
@@ -53,7 +59,7 @@ export function BudgetInstanceCard({ instance, onPress, onEdit }: BudgetInstance
 
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
-      <Card variant="default" size="md" className="mb-3">
+      <Card variant="default" size="md" className="mb-2">
         {/* Header: Emoji + Nombre + Círculo de estado */}
         <View className="flex-row items-center justify-between mb-2">
           <View className="flex-row items-center flex-1">

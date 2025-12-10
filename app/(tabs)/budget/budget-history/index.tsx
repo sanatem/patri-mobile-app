@@ -3,12 +3,13 @@ import { View, ScrollView, Text, TouchableOpacity } from 'react-native';
 import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Container, KeyboardAwareContainer, LoadingSpinner, Card, Header, ConfirmModal } from '@/components/ui';
-import { ChevronLeft, ChevronRight, Edit3, Trash2, CheckCircle, AlertTriangle } from 'lucide-react-native';
+import { ChevronLeft, ChevronRight, CheckCircle, AlertTriangle } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import { useAuth } from '@/providers/AuthProvider';
 import { getBudgetInstances } from '@/services/budget/budget-instances';
 import { deactivateBudgetTemplate } from '@/services/budget/budget-templates';
 import type { BudgetInstance } from '@/services/budget/budget-templates/types';
+import { getTranslatedNames } from '@/services/budget/utils/category-utils';
 
 const formatCurrency = (amount: number): string => {
   return new Intl.NumberFormat('es-CL', {
@@ -27,13 +28,18 @@ const getStatusColor = (percentage: number, overBudget: boolean) => {
 
 export default function BudgetHistoryScreen() {
   const router = useRouter();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { accessToken } = useAuth();
   const { templateId, categoryId, categoryName } = useLocalSearchParams<{
     templateId: string;
     categoryId: string;
     categoryName: string;
   }>();
+  
+  // Traducir el nombre de la categoría
+  const currentLang = i18n.language as 'en' | 'es' | 'es-CL';
+  const translatedNames = categoryName ? getTranslatedNames(categoryName, false) : null;
+  const translatedCategoryName = translatedNames?.[currentLang] || translatedNames?.es || categoryName || 'Presupuesto';
 
   const [historyInstances, setHistoryInstances] = useState<BudgetInstance[]>([]);
   const [loading, setLoading] = useState(true);
@@ -113,19 +119,13 @@ export default function BudgetHistoryScreen() {
   return (
     <Container variant="secondaryPage">
       <Header
-        title={t('budget.history', 'Historial')}
-        subtitle={categoryName || ''}
+        title={translatedCategoryName}
         leftAction={
           <TouchableOpacity
             onPress={() => router.back()}
             className="w-10 h-10 rounded-full justify-center items-center"
           >
             <ChevronLeft size={24} color={Colors.primary[500]} />
-          </TouchableOpacity>
-        }
-        rightAction={
-          <TouchableOpacity onPress={() => setShowDeleteModal(true)}>
-            <Trash2 size={22} color={Colors.error[500]} />
           </TouchableOpacity>
         }
       />
@@ -161,9 +161,9 @@ export default function BudgetHistoryScreen() {
                     onPress={() => handleNavigateToDetail(instance.id)}
                     activeOpacity={0.7}
                   >
-                    <Card variant="elevated" size="md" className="mb-3">
+                    <Card variant="outlined" size="md" className="mb-2">
                       <View className="flex-row justify-between items-center mb-2">
-                        <Text className="text-sm font-semibold text-gray-800">
+                        <Text className="text-sm font-medium" style={{ color: Colors.primary[500] }}>
                           {instance.period}
                         </Text>
                         <View className="flex-row items-center">
@@ -172,16 +172,16 @@ export default function BudgetHistoryScreen() {
                           ) : (
                             <CheckCircle size={16} color={Colors.success[500]} />
                           )}
-                          <ChevronRight size={18} color={Colors.gray[400]} className="ml-1" />
+                          <ChevronRight size={18} color={Colors.gray[400]} style={{ marginLeft: 4 }} />
                         </View>
                       </View>
 
                       <View className="mb-2">
                         <View className="flex-row justify-between mb-1">
-                          <Text className="text-xs text-gray-500">
+                          <Text className="text-xs font-regular" style={{ color: Colors.gray[500] }}>
                             {t('budget.spent', 'Gastado')}: {formatCurrency(instance.spent)} / {formatCurrency(instance.amount)}
                           </Text>
-                          <Text className="text-xs font-medium" style={{ color: statusColor }}>
+                          <Text className="text-xs font-regular" style={{ color: statusColor }}>
                             {percentageNum.toFixed(0)}%
                           </Text>
                         </View>
@@ -207,8 +207,8 @@ export default function BudgetHistoryScreen() {
                       </View>
 
                       <Text
-                        className="text-xs"
-                        style={{ color: instance.over_budget ? Colors.error[500] : Colors.gray[600] }}
+                        className="text-xs font-regular"
+                        style={{ color: instance.over_budget ? Colors.error[500] : Colors.gray[500] }}
                       >
                         {instance.over_budget
                           ? `${t('budget.exceeded_by', 'Excedido por')} ${formatCurrency(instance.remaining)}`

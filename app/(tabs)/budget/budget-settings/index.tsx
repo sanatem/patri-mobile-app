@@ -23,6 +23,7 @@ import Colors from '@/constants/Colors';
 import { useAuth } from '@/providers/AuthProvider';
 import { getBudgetTemplates, deactivateBudgetTemplate } from '@/services/budget/budget-templates';
 import type { BudgetTemplate } from '@/services/budget/budget-templates/types';
+import { getTranslatedNames } from '@/services/budget/utils/category-utils';
 
 const formatCurrency = (amount: number): string => {
   return new Intl.NumberFormat('es-CL', {
@@ -48,8 +49,9 @@ const getRecurrenceLabel = (recurrence: string, t: any): string => {
 
 export default function BudgetSettingsScreen() {
   const router = useRouter();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { accessToken } = useAuth();
+  const currentLang = i18n.language as 'en' | 'es' | 'es-CL';
 
   const [templates, setTemplates] = useState<BudgetTemplate[]>([]);
   const [loading, setLoading] = useState(true);
@@ -165,18 +167,14 @@ export default function BudgetSettingsScreen() {
           <Container variant="content" className="py-4">
             {error && (
               <Card variant="default" size="md" className="mb-4">
-                <Text className="text-center text-red-500">{error}</Text>
+                <Text className="text-center font-regular text-red-500">{error}</Text>
               </Card>
             )}
-
-            <Text className="text-sm text-gray-500 mb-4">
-              {t('budget.settings_description', 'Administra tus presupuestos activos. Puedes editar el monto, ver historial o desactivar.')}
-            </Text>
 
             {templates.length === 0 && !error ? (
               <Card variant="default" size="md" className="mb-4">
                 <View className="py-8 items-center">
-                  <Text className="text-gray-500 text-center mb-4">
+                  <Text className="text-gray-500 font-regular text-center mb-4">
                     {t('budget.no_templates', 'No tienes presupuestos configurados')}
                   </Text>
                   <TouchableOpacity
@@ -191,58 +189,45 @@ export default function BudgetSettingsScreen() {
                 </View>
               </Card>
             ) : (
-              templates.map((template) => (
-                <Card key={template.id} variant="elevated" size="md" className="mb-3">
-                  {/* Header */}
-                  <View className="flex-row items-center mb-3">
+              templates.map((template) => {
+                const isIncome = template.user_category?.kind === 'income';
+                const translatedNames = template.user_category?.name 
+                  ? getTranslatedNames(template.user_category.name, isIncome)
+                  : null;
+                const categoryName = translatedNames?.[currentLang] || translatedNames?.es || template.user_category?.name || 'Sin categoría';
+                
+                return (
+                <Card key={template.id} variant="outlined" size="md" className="mb-2">
+                  {/* Header con iconos de acción */}
+                  <View className="flex-row items-center">
                     <Text className="text-2xl mr-2">{template.user_category.emoji_code}</Text>
                     <View className="flex-1">
-                      <Text className="text-base font-semibold text-gray-800">
-                        {template.user_category.name}
+                      <Text className="text-base font-medium" style={{ color: Colors.primary[500] }}>
+                        {categoryName}
                       </Text>
-                      <Text className="text-sm text-gray-500">
+                      <Text className="text-sm font-regular" style={{ color: Colors.gray[500] }}>
                         {formatCurrency(template.amount)} / {getRecurrenceLabel(template.recurrence, t)}
                       </Text>
                     </View>
-                    <View
-                      className="px-2 py-1 rounded"
-                      style={{ backgroundColor: Colors.success[100] }}
-                    >
-                      <Text className="text-xs font-medium" style={{ color: Colors.success[600] }}>
-                        {t('budget.active', 'Activo')}
-                      </Text>
+                    {/* Action Icons */}
+                    <View className="flex-row items-center" style={{ gap: 12 }}>
+                      <TouchableOpacity
+                        onPress={() => handleNavigateToHistory(template)}
+                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                      >
+                        <History size={20} color={Colors.primary[500]} />
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        onPress={() => handleDeactivatePress(template)}
+                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                      >
+                        <Power size={20} color={Colors.error[500]} />
+                      </TouchableOpacity>
                     </View>
                   </View>
-
-                  {/* Action Buttons */}
-                  <View
-                    className="flex-row pt-3"
-                    style={{ borderTopWidth: 1, borderTopColor: Colors.gray[100] }}
-                  >
-                    <TouchableOpacity
-                      onPress={() => handleNavigateToHistory(template)}
-                      className="flex-1 flex-row items-center justify-center py-2"
-                    >
-                      <History size={16} color={Colors.primary[500]} />
-                      <Text className="ml-1 text-sm font-medium" style={{ color: Colors.primary[500] }}>
-                        {t('budget.history', 'Historial')}
-                      </Text>
-                    </TouchableOpacity>
-
-                    <View style={{ width: 1, backgroundColor: Colors.gray[200] }} />
-
-                    <TouchableOpacity
-                      onPress={() => handleDeactivatePress(template)}
-                      className="flex-1 flex-row items-center justify-center py-2"
-                    >
-                      <Power size={16} color={Colors.error[500]} />
-                      <Text className="ml-1 text-sm font-medium" style={{ color: Colors.error[500] }}>
-                        {t('budget.deactivate', 'Desactivar')}
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
                 </Card>
-              ))
+              );
+              })
             )}
           </Container>
 

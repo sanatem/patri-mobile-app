@@ -128,10 +128,8 @@ export function BudgetSectionOverview() {
           <Container variant="content" className="pt-4 pb-2">
             {hasBudgets ? (
               <>
-                {/* Resumen General */}
                 <BudgetSummaryCard summary={summary} />
 
-                {/* Chart de progreso */}
                 {summary.total_budget > 0 && (
                   <BudgetChart
                     selectedMonth={currentPeriod}
@@ -176,7 +174,6 @@ export function BudgetSectionOverview() {
               </Card>
             )}
 
-            {/* Quick Access Buttons */}
             <View className="mb-2 mt-4">
               <QuickAccessButton
                 label={t('budget.view_transactions', 'Ver Transacciones')}
@@ -204,7 +201,6 @@ export function BudgetSectionOverview() {
 
       {hasBudgets && <FloatingActionButton actions={floatingActions} />}
 
-      {/* Edit Instance Amount Modal */}
       <Modal
         visible={showEditModal}
         transparent
@@ -237,11 +233,6 @@ export function BudgetSectionOverview() {
               }}>
                 {t('budget.edit_amount', 'Editar monto')}
               </Text>
-              {selectedInstance && (
-                <Text className="text-sm mt-2" style={{ color: Colors.gray[500] }}>
-                  {selectedInstance.category?.emoji_code} {selectedInstance.category?.name}
-                </Text>
-              )}
             </View>
 
             <Input
@@ -257,7 +248,7 @@ export function BudgetSectionOverview() {
               style={{ flexDirection: 'row', alignItems: 'center' }}
             >
               <CheckboxItem selected={updateTemplate} size={20} />
-              <Text className="ml-3 text-sm" style={{ color: Colors.gray[700], flex: 1 }}>
+              <Text className="ml-3 text-sm font-regular" style={{ color: Colors.gray[700], flex: 1 }}>
                 {t('budget.update_for_next_periods', 'Aplicar también para los siguientes períodos')}
               </Text>
             </TouchableOpacity>
