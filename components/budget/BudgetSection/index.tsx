@@ -128,19 +128,28 @@ export function BudgetSectionOverview() {
           <Container variant="content" className="pt-4 pb-2">
             {hasBudgets ? (
               <>
-                <BudgetSummaryCard summary={summary} />
+                {(() => {
+                  // Calcular totales desde las instancias si el summary está vacío
+                  const totalBudget = summary.total_budget > 0 
+                    ? summary.total_budget 
+                    : budgetInstances.reduce((acc, inst) => acc + inst.amount, 0);
+                  const totalSpent = summary.total_spent > 0 
+                    ? summary.total_spent 
+                    : budgetInstances.reduce((acc, inst) => acc + inst.spent, 0);
+                  const totalRemaining = totalBudget - totalSpent;
 
-                {summary.total_budget > 0 && (
-                  <BudgetChart
-                    selectedMonth={currentPeriod}
-                    totalIncome={0}
-                    totalExpenses={summary.total_spent}
-                    balance={summary.total_remaining}
-                    remainingBudget={summary.total_budget}
-                    isLoading={loading}
-                    hasRealData={true}
-                  />
-                )}
+                  return (
+                    <BudgetChart
+                      selectedMonth={currentPeriod}
+                      totalIncome={totalBudget}
+                      totalExpenses={totalSpent}
+                      balance={totalRemaining}
+                      remainingBudget={totalBudget}
+                      isLoading={loading}
+                      hasRealData={budgetInstances.length > 0}
+                    />
+                  );
+                })()}
 
                 {budgetInstances.map((instance) => (
                   <BudgetInstanceCard

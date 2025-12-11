@@ -36,18 +36,27 @@ const getRecurrenceLabel = (recurrence: string): string => {
 };
 
 const getBudgetStatus = (percentage: number, overBudget: boolean) => {
-  if (overBudget || percentage > 80) {
+  // 100%+: Red (exceeded)
+  if (overBudget || percentage > 100) {
     return { color: Colors.red[500], bgColor: Colors.red[100], label: 'Excedido' };
   }
+  // 81-100%: Orange
+  if (percentage > 80) {
+    return { color: Colors.orange[600], bgColor: Colors.orange[100], label: 'Alerta' };
+  }
+  // 61-80%: Yellow-orange
   if (percentage > 60) {
-    return { color: Colors.orange[500], bgColor: Colors.orange[100], label: 'En alerta' };
+    return { color: Colors.orange[500], bgColor: Colors.orange[100], label: 'Alerta' };
   }
+  // 41-60%: Yellow
   if (percentage > 40) {
-    return { color: Colors.yellow[500], bgColor: Colors.yellow[100], label: 'En alerta' };
+    return { color: Colors.yellow[500], bgColor: Colors.yellow[100], label: 'Precaución' };
   }
+  // 21-40%: Yellow-green (lime)
   if (percentage > 20) {
     return { color: Colors.lime[500], bgColor: Colors.lime[100], label: 'En control' };
   }
+  // 0-20%: Green (success)
   return { color: Colors.success[500], bgColor: Colors.success[100], label: 'En control' };
 };
 
@@ -193,22 +202,6 @@ export function CombinedBudgetCard({
               </View>
             </View>
 
-            {status && (
-              <View className="flex-row justify-end">
-                <View
-                  style={{
-                    backgroundColor: status.bgColor,
-                    paddingHorizontal: 8,
-                    paddingVertical: 2,
-                    borderRadius: 4
-                  }}
-                >
-                  <Text className="text-xs font-medium" style={{ color: status.color }}>
-                    {status.label}
-                  </Text>
-                </View>
-              </View>
-            )}
           </>
         ) : (
           <View className="py-2">

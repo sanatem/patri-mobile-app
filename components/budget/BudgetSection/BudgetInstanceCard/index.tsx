@@ -23,14 +23,20 @@ const formatCurrency = (amount: number): string => {
 };
 
 const getBudgetStatus = (percentage: number, overBudget: boolean) => {
-  if (overBudget || percentage >= 100) {
-    return { color: Colors.error[500], bgColor: Colors.error[100], label: 'Excedido' };
+  if (overBudget || percentage > 100) {
+    return { color: Colors.red[500], bgColor: Colors.red[100], label: 'Excedido' };
   }
-  if (percentage >= 80) {
-    return { color: Colors.warning[500], bgColor: Colors.warning[100], label: 'Alerta' };
+  if (percentage > 80) {
+    return { color: Colors.orange[600], bgColor: Colors.orange[100], label: 'Alerta' };
   }
-  if (percentage >= 60) {
-    return { color: Colors.yellow[500], bgColor: Colors.yellow[100], label: 'Precaucion' };
+  if (percentage > 60) {
+    return { color: Colors.orange[500], bgColor: Colors.orange[100], label: 'Alerta' };
+  }
+  if (percentage > 40) {
+    return { color: Colors.yellow[500], bgColor: Colors.yellow[100], label: 'Precaución' };
+  }
+  if (percentage > 20) {
+    return { color: Colors.lime[500], bgColor: Colors.lime[100], label: 'OK' };
   }
   return { color: Colors.success[500], bgColor: Colors.success[100], label: 'OK' };
 };
@@ -43,7 +49,6 @@ export function BudgetInstanceCard({ instance, onPress, onEdit }: BudgetInstance
   const status = getBudgetStatus(percentageNum, instance.over_budget);
   const progressWidth = Math.min(percentageNum, 100);
 
-  // Fallback para cuando category no viene o viene incompleta
   const categoryEmoji = instance.category?.emoji_code || '📊';
   const isIncome = instance.category?.kind === 'income';
   const translatedNames = instance.category?.name 
@@ -60,7 +65,6 @@ export function BudgetInstanceCard({ instance, onPress, onEdit }: BudgetInstance
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
       <Card variant="default" size="md" className="mb-2">
-        {/* Header: Emoji + Nombre + Círculo de estado */}
         <View className="flex-row items-center justify-between mb-2">
           <View className="flex-row items-center flex-1">
             <Text className="text-2xl mr-2">{categoryEmoji}</Text>
@@ -83,7 +87,6 @@ export function BudgetInstanceCard({ instance, onPress, onEdit }: BudgetInstance
           </View>
         </View>
 
-        {/* Monto gastado / presupuesto */}
         <View className="flex-row justify-between mb-1">
           <Text className="text-sm font-regular text-gray-600">
             {formatCurrency(instance.spent)} / {formatCurrency(instance.amount)}
@@ -93,7 +96,6 @@ export function BudgetInstanceCard({ instance, onPress, onEdit }: BudgetInstance
           </Text>
         </View>
 
-        {/* Progress Bar */}
         <View
           style={{
             height: 8,

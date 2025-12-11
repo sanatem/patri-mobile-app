@@ -70,19 +70,23 @@ const BudgetChart: React.FC<BudgetChartProps> = ({
     if (percentage <= 20) {
       return Colors.success[500];
     }
-    // 21-40%: Yellow-green
+    // 21-40%: Yellow-green (lime)
     if (percentage <= 40) {
       return Colors.lime[500];
     }
-    // 41-60%: Yellow-orange
+    // 41-60%: Yellow
     if (percentage <= 60) {
       return Colors.yellow[500];
     }
-    // 61-80%: Orange
+    // 61-80%: Yellow-orange
     if (percentage <= 80) {
       return Colors.orange[500];
     }
-    // 81%+: Red
+    // 81-100%: Orange
+    if (percentage <= 100) {
+      return Colors.orange[600];
+    }
+    // 100%+: Red (exceeded)
     return Colors.red[500];
   };
 
@@ -120,7 +124,8 @@ const BudgetChart: React.FC<BudgetChartProps> = ({
     );
   }
 
-  if (!hasRealData || (totalIncome === 0 && totalExpenses === 0)) {
+  // Solo mostrar estado vacío si no hay datos reales Y no hay presupuesto
+  if (!hasRealData || (remainingBudget === 0 && totalExpenses === 0)) {
     return (
       <Animated.View style={[styles.container, { minHeight: chartSize, opacity: fadeAnim }]}>
         <View style={styles.emptyContainer}>

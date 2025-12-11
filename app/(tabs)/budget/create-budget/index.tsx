@@ -189,9 +189,8 @@ export default function CreateBudgetScreen() {
       .filter(category => category && category.id !== undefined && category.id !== null)
       .map(category => {
         const translatedNames = getTranslatedNames(category.display_name, false);
-        const hasBudget = categoriesWithBudgets.has(category.id);
         return {
-          label: `${category.emoji_code || ''} ${translatedNames[currentLang as 'en' | 'es' | 'es-CL'] || category.display_name || ''}${hasBudget ? ' ✓' : ''}`.trim(),
+          label: `${category.emoji_code || ''} ${translatedNames[currentLang as 'en' | 'es' | 'es-CL'] || category.display_name || ''}`.trim(),
           value: category.id.toString()
         };
       });
@@ -202,12 +201,7 @@ export default function CreateBudgetScreen() {
     if (expenseSubcategories.length === 0) return [];
     const currentLang = t('common.language_code', 'es');
 
-    const defaultOption = {
-      label: t('budget.no_subcategory', 'Sin subcategoría'),
-      value: 'none'
-    };
-
-    const subcategories = expenseSubcategories
+    const availableSubcategories = expenseSubcategories
       .filter(cat => !categoriesWithBudgets.has(cat.id)) // Filter out subcategories with existing budgets
       .map(category => {
         const translatedNames = getTranslatedNames(category.display_name, false);
@@ -217,8 +211,22 @@ export default function CreateBudgetScreen() {
         };
       });
 
-    return [defaultOption, ...subcategories];
-  }, [t, expenseSubcategories, categoriesWithBudgets]);
+    if (availableSubcategories.length === 0) {
+      return [];
+    }
+
+    // Solo agregar opción "Sin subcategoría" si la categoría padre NO tiene presupuesto
+    if (!selectedCategoryHasBudget) {
+      const defaultOption = {
+        label: t('budget.no_subcategory', 'Sin subcategoría'),
+        value: 'none'
+      };
+      return [defaultOption, ...availableSubcategories];
+    }
+
+    // Si la categoría padre tiene presupuesto, no incluir "Sin subcategoría"
+    return availableSubcategories;
+  }, [t, expenseSubcategories, categoriesWithBudgets, selectedCategoryHasBudget]);
 
   // Income subcategory options - usar incomeSources para obtener saldos
   const incomeSubcategoryOptions = useMemo(() => {
@@ -235,9 +243,9 @@ export default function CreateBudgetScreen() {
       .map(category => {
         // Buscar en incomeSources para obtener el saldo disponible
         const sourceData = incomeSources.find(s => s.id === category.id);
-        const translatedNames = getTranslatedNames(category.display_name, false);
+        const translatedNames = getTranslatedNames(category.display_name, true); // true = income category
         const displayName = translatedNames[currentLang as 'en' | 'es' | 'es-CL'] || category.display_name || '';
-        const availableBalance = sourceData ? ` ($${sourceData.available.toLocaleString('es-CL')} disponible)` : '';
+        const availableBalance = sourceData ? ` ($${sourceData.available.toLocaleString('es-CL')})` : '';
 
         return {
           label: `${category.emoji_code || ''} ${displayName}${availableBalance}`.trim(),
@@ -263,17 +271,22 @@ export default function CreateBudgetScreen() {
 
   const incomeSourceOptions = useMemo(() => {
     if (incomeSources.length === 0) return [];
+    const currentLang = t('common.language_code', 'es');
 
     // Filtrar solo las categorías padre (las que están en incomeCategories)
     const parentCategoryIds = new Set(incomeCategories.map(c => c.id));
 
     return incomeSources
       .filter(source => parentCategoryIds.has(source.id))
-      .map(source => ({
-        label: `${emojiFromCode(source.emoji_code)} ${source.display_name || source.name} ($${source.available.toLocaleString('es-CL')} disponible)`,
-        value: source.id.toString()
-      }));
-  }, [incomeSources, incomeCategories]);
+      .map(source => {
+        const translatedNames = getTranslatedNames(source.display_name || source.name, true); // true = income category
+        const displayName = translatedNames[currentLang as 'en' | 'es' | 'es-CL'] || source.display_name || source.name;
+        return {
+          label: `${emojiFromCode(source.emoji_code)} ${displayName} ($${source.available.toLocaleString('es-CL')})`,
+          value: source.id.toString()
+        };
+      });
+  }, [incomeSources, incomeCategories, t]);
 
   // Get selected income source details - priorizar subcategoría si está seleccionada
   const selectedIncomeSource = useMemo(() => {
@@ -285,6 +298,13 @@ export default function CreateBudgetScreen() {
     if (!selectedIncomeCategoryId) return null;
     return incomeSources.find(source => source.id.toString() === selectedIncomeCategoryId) || null;
   }, [selectedIncomeCategoryId, selectedIncomeSubcategoryId, incomeSources]);
+
+  // Verificar si el monto excede el disponible
+  const amountExceedsAvailable = useMemo(() => {
+    if (!selectedIncomeSource || !amount) return false;
+    const cleanAmount = parseFloat(amount.replace(/[^\d]/g, ''));
+    return cleanAmount > selectedIncomeSource.available;
+  }, [selectedIncomeSource, amount]);
 
   const handleRecurrenceChange = (value: string) => {
     setRecurrence(value as 'monthly' | 'weekly' | 'yearly');
@@ -378,7 +398,16 @@ export default function CreateBudgetScreen() {
       return false;
     }
     const cleanAmount = parseFloat(amount.replace(/[^\d]/g, ''));
-    return cleanAmount > 0;
+    if (cleanAmount <= 0) {
+      return false;
+    }
+
+    // Si hay fuente de ingreso seleccionada, el monto no puede exceder el disponible
+    if (amountExceedsAvailable) {
+      return false;
+    }
+
+    return true;
   };
 
   return (
@@ -393,7 +422,7 @@ export default function CreateBudgetScreen() {
       cancelButtonTitle={t('common.cancel', 'Cancelar')}
       isLoading={isLoading}
       isSaved={isSaved}
-      isNextDisabled={!isFormValid}
+      isNextDisabled={!isFormValid()}
       error={error}
       showLogo={false}
       loadingText={t('budget.creating_budget', 'Creando presupuesto...')}
@@ -412,20 +441,22 @@ export default function CreateBudgetScreen() {
 
         {selectedCategoryId && (subcategoriesLoading || subcategoryOptions.length > 0) && (
           <Select
-            label={t('budget.expense_subcategory', 'Subcategoría de Gasto (opcional)')}
+            label={selectedCategoryHasBudget 
+              ? t('budget.expense_subcategory', 'Subcategoría de Gasto')
+              : `${t('budget.expense_subcategory', 'Subcategoría de Gasto')} *`
+            }
             options={subcategoryOptions}
             value={selectedSubcategoryId}
             onSelect={setSelectedSubcategoryId}
             placeholder={t('budget.select_subcategory', 'Seleccionar subcategoría')}
             disabled={subcategoriesLoading}
             emptyMessage={t('budget.no_subcategories', 'No hay subcategorías disponibles')}
+            error={
+              selectedCategoryHasBudget && (!selectedSubcategoryId || selectedSubcategoryId === 'none')
+                ? t('budget.category_has_budget_warning', 'La categoría de gasto ya tiene un presupuesto asignado. Debes seleccionar una subcategoría.')
+                : undefined
+            }
           />
-        )}
-
-        {selectedCategoryHasBudget && !selectedSubcategoryId && subcategoryOptions.length > 0 && (
-          <Text style={{ color: Colors.warning[600], fontSize: 12 }}>
-            {t('budget.category_has_budget_warning', 'Esta categoría ya tiene presupuesto. Selecciona una subcategoría para crear un presupuesto adicional.')}
-          </Text>
         )}
 
         <Select
@@ -440,52 +471,13 @@ export default function CreateBudgetScreen() {
 
         {selectedIncomeCategoryId && incomeSubcategoryOptions.length > 0 && (
           <Select
-            label={t('budget.income_subcategory', 'Subcategoría de Ingreso (opcional)')}
+            label={`${t('budget.income_subcategory', 'Subcategoría de Ingreso')} *`}
             options={incomeSubcategoryOptions}
             value={selectedIncomeSubcategoryId}
             onSelect={setSelectedIncomeSubcategoryId}
             placeholder={t('budget.select_income_subcategory', 'Seleccionar subcategoría')}
             emptyMessage={t('budget.no_subcategories', 'No hay subcategorías disponibles')}
           />
-        )}
-
-        {selectedIncomeSource && (
-          <Card variant="default" size="sm">
-            <View className="flex-row items-center justify-between mb-2">
-              <View className="flex-row items-center">
-                <Text className="text-xl mr-2">{emojiFromCode(selectedIncomeSource.emoji_code)}</Text>
-                <Text className="text-sm font-medium" style={{ color: Colors.gray[700] }}>
-                  {selectedIncomeSource.display_name || selectedIncomeSource.name}
-                </Text>
-              </View>
-            </View>
-            <View className="flex-row justify-between">
-              <View>
-                <Text className="text-xs" style={{ color: Colors.gray[500] }}>
-                  {t('budget.total_income', 'Total ingreso')}
-                </Text>
-                <Text className="text-sm font-medium" style={{ color: Colors.gray[700] }}>
-                  ${selectedIncomeSource.total_income.toLocaleString('es-CL')}
-                </Text>
-              </View>
-              <View>
-                <Text className="text-xs" style={{ color: Colors.gray[500] }}>
-                  {t('budget.allocated', 'Asignado')}
-                </Text>
-                <Text className="text-sm font-medium" style={{ color: Colors.warning[600] }}>
-                  ${selectedIncomeSource.allocated.toLocaleString('es-CL')}
-                </Text>
-              </View>
-              <View>
-                <Text className="text-xs" style={{ color: Colors.gray[500] }}>
-                  {t('budget.available_balance', 'Disponible')}
-                </Text>
-                <Text className="text-sm font-semibold" style={{ color: Colors.success[600] }}>
-                  ${selectedIncomeSource.available.toLocaleString('es-CL')}
-                </Text>
-              </View>
-            </View>
-          </Card>
         )}
 
         <Input
@@ -502,6 +494,11 @@ export default function CreateBudgetScreen() {
           }}
           placeholder="$0"
           keyboardType="numeric"
+          error={
+            amountExceedsAvailable && selectedIncomeSource
+              ? `${t('budget.max_amount', 'Monto máximo')}: $${selectedIncomeSource.available.toLocaleString('es-CL')}`
+              : undefined
+          }
         />
 
         <RadioButton
