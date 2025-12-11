@@ -22,6 +22,15 @@ const formatCurrency = (amount: number): string => {
   }).format(Math.abs(amount));
 };
 
+const getRecurrenceLabel = (recurrence: string): string => {
+  switch (recurrence) {
+    case 'monthly': return 'Mensual';
+    case 'weekly': return 'Semanal';
+    case 'yearly': return 'Anual';
+    default: return recurrence;
+  }
+};
+
 const getBudgetStatus = (percentage: number, overBudget: boolean) => {
   if (overBudget || percentage > 100) {
     return { color: Colors.red[500], bgColor: Colors.red[100], label: 'Excedido' };
@@ -68,10 +77,17 @@ export function BudgetInstanceCard({ instance, onPress, onEdit }: BudgetInstance
         <View className="flex-row items-center justify-between mb-2">
           <View className="flex-row items-center flex-1">
             <Text className="text-2xl mr-2">{categoryEmoji}</Text>
-            <Text className="text-base font-medium text-gray-800" numberOfLines={1}>
-              {categoryName}
-            </Text>
-            <Circle size={10} color={status.color} fill={status.color} style={{ marginLeft: 8 }} />
+            <View className="flex-1">
+              <View className="flex-row items-center">
+                <Text className="text-base font-medium" style={{ color: Colors.primary[500] }} numberOfLines={1}>
+                  {categoryName}
+                </Text>
+                <Circle size={10} color={status.color} fill={status.color} style={{ marginLeft: 8 }} />
+              </View>
+              <Text className="text-xs font-regular" style={{ color: Colors.gray[500] }}>
+                {getRecurrenceLabel(instance.recurrence)}
+              </Text>
+            </View>
           </View>
           <View className="flex-row items-center">
             {onEdit && (
@@ -83,17 +99,8 @@ export function BudgetInstanceCard({ instance, onPress, onEdit }: BudgetInstance
                 <Edit3 size={18} color={Colors.primary[500]} />
               </TouchableOpacity>
             )}
-            <ChevronRight size={20} color={Colors.gray[400]} />
+            <ChevronRight size={20} color={Colors.primary[500]} />
           </View>
-        </View>
-
-        <View className="flex-row justify-between mb-1">
-          <Text className="text-sm font-regular text-gray-600">
-            {formatCurrency(instance.spent)} / {formatCurrency(instance.amount)}
-          </Text>
-          <Text className="text-sm font-regular" style={{ color: status.color }}>
-            {percentageNum.toFixed(0)}%
-          </Text>
         </View>
 
         <View
@@ -102,7 +109,7 @@ export function BudgetInstanceCard({ instance, onPress, onEdit }: BudgetInstance
             backgroundColor: Colors.gray[100],
             borderRadius: 4,
             overflow: 'hidden',
-            marginBottom: 8,
+            marginBottom: 4,
           }}
         >
           <View
@@ -113,6 +120,15 @@ export function BudgetInstanceCard({ instance, onPress, onEdit }: BudgetInstance
               borderRadius: 4,
             }}
           />
+        </View>
+
+        <View className="flex-row justify-between">
+          <Text className="text-sm font-regular" style={{ color: Colors.gray[500] }}>
+            {formatCurrency(instance.spent)} / {formatCurrency(instance.amount)}
+          </Text>
+          <Text className="text-sm font-regular" style={{ color: status.color }}>
+            {percentageNum.toFixed(0)}%
+          </Text>
         </View>
 
       </Card>
