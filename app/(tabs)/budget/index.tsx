@@ -1,5 +1,5 @@
-import { BudgetOverview } from '@/components/budget/BudgetOverview';
+import { BudgetSectionOverview } from '@/components/budget/BudgetSection';
 
 export default function BudgetScreen() {
-  return <BudgetOverview />;
+  return <BudgetSectionOverview />;
 }
