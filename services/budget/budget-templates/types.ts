@@ -67,6 +67,7 @@ export interface BudgetInstance {
   created_at: string;
   category: BudgetInstanceCategory;
   recurrence: BudgetRecurrence;
+  template_active: boolean;
 }
 
 export interface BudgetSummary {

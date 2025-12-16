@@ -1,22 +1,29 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { View } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import FormLayout from '@/components/ui/FormLayout';
 import { Input, Select, RadioButton } from '@/components/ui';
 import CalendarSelect from '@/components/ui/CalendarSelect';
 import { useFloidAccounts } from '@/hooks/budget/useFloidAccounts';
+import { useBankAccounts } from '@/hooks/budget/useBankAccounts';
+import { useTransactionMode } from '@/providers/TransactionModeProvider';
 import { createFloidTransaction } from '@/services/budget/transactions/create-floid-transaction';
+import { createManualTransaction } from '@/services/budget/transactions/manual-transactions';
 import { useAuth } from '@/providers/AuthProvider';
 import { getUserCategories } from '@/services/budget/categories-manager';
 import type { UserCategory } from '@/services/budget/categories-manager';
 import { getTranslatedNames } from '@/utils/categoryTranslations';
+import Colors from '@/constants/Colors';
+import { Plus } from 'lucide-react-native';
 
 export default function AddTransactionScreen() {
   const router = useRouter();
   const { t } = useTranslation();
   const { accessToken } = useAuth();
-  const { accounts, loading: accountsLoading } = useFloidAccounts();
+  const { mode, loading: modeLoading } = useTransactionMode();
+  const { accounts: floidAccounts, loading: floidAccountsLoading } = useFloidAccounts();
+  const { accounts: bankAccounts, loading: bankAccountsLoading, hasAccounts: hasBankAccounts } = useBankAccounts();
 
   const [transactionType, setTransactionType] = useState<'income' | 'expense'>('income');
   const [description, setDescription] = useState('');
@@ -51,12 +58,10 @@ export default function AddTransactionScreen() {
         ]);
 
         if (incomeResponse?.success && incomeResponse.data) {
-          // Filtrar solo categorías padre
           const parentCategories = incomeResponse.data.filter(cat => cat.parent_id === null);
           setApiIncomeCategories(parentCategories);
         }
         if (expenseResponse?.success && expenseResponse.data) {
-          // Filtrar solo categorías padre
           const parentCategories = expenseResponse.data.filter(cat => cat.parent_id === null);
           setApiExpenseCategories(parentCategories);
         }
@@ -70,14 +75,25 @@ export default function AddTransactionScreen() {
     fetchCategories();
   }, [accessToken]);
 
+  // Account options based on mode
   const accountOptions = useMemo(() => {
-    if (!accounts || accounts.floid_accounts.length === 0) return [];
+    if (mode === 'floid') {
+      if (!floidAccounts || floidAccounts.floid_accounts.length === 0) return [];
+      return floidAccounts.floid_accounts.map(account => ({
+        label: `${account.bank} - ${account.account}`,
+        value: account.id.toString()
+      }));
+    } else if (mode === 'bank_account') {
+      if (!bankAccounts || bankAccounts.length === 0) return [];
+      return bankAccounts.map(account => ({
+        label: account.label,
+        value: account.id.toString()
+      }));
+    }
+    return [];
+  }, [mode, floidAccounts, bankAccounts]);
 
-    return accounts.floid_accounts.map(account => ({
-      label: `${account.bank} - ${account.account}`,
-      value: account.id.toString()
-    }));
-  }, [accounts]);
+  const accountsLoading = mode === 'floid' ? floidAccountsLoading : bankAccountsLoading;
 
   const transactionTypeOptions = [
     { label: t('budget.income'), value: 'income' },
@@ -91,7 +107,7 @@ export default function AddTransactionScreen() {
     const currentLang = t('common.language_code', 'es');
 
     return [
-      { label: t('budget.no_category', 'Sin categoría'), value: '' },
+      { label: t('budget.no_category', 'Sin categoria'), value: '' },
       ...apiCategories
         .filter(category => category && category.id !== undefined && category.id !== null)
         .map(category => {
@@ -115,7 +131,7 @@ export default function AddTransactionScreen() {
     const currentLang = t('common.language_code', 'es');
 
     return [
-      { label: t('budget.no_subcategory', 'Sin subcategoría'), value: '' },
+      { label: t('budget.no_subcategory', 'Sin subcategoria'), value: '' },
       ...selectedCategory.children
         .filter(subcat => subcat && subcat.id !== undefined && subcat.id !== null)
         .map(subcat => {
@@ -143,6 +159,10 @@ export default function AddTransactionScreen() {
     setSelectedSubcategoryId('');
   };
 
+  const handleAddBankAccount = () => {
+    router.push('/settings/bank-accounts/add-bank-account' as any);
+  };
+
   const handleSubmit = async () => {
     setError(null);
 
@@ -167,30 +187,45 @@ export default function AddTransactionScreen() {
       const dateParts = date.split('/');
       const formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
 
-      // Limpiar el amount: remover $, puntos de miles y convertir coma a punto decimal
       const cleanAmount = amount.replace(/[$\s]/g, '').replace(/\./g, '').replace(',', '.');
       const parsedAmount = parseFloat(cleanAmount);
 
-      const transactionData: any = {
-        floid_account_id: parseInt(selectedAccountId),
-        amount_in: transactionType === 'income' ? parsedAmount : 0,
-        amount_out: transactionType === 'expense' ? parsedAmount : 0,
-        description: description.trim(),
-        date: formattedDate,
-      };
+      const categoryId = selectedSubcategoryId
+        ? parseInt(selectedSubcategoryId)
+        : selectedParentCategoryId
+          ? parseInt(selectedParentCategoryId)
+          : null;
 
-      if (selectedSubcategoryId) {
-        transactionData.user_category_id = parseInt(selectedSubcategoryId);
-        transactionData.auto_category = false;
-      } else if (selectedParentCategoryId) {
-        transactionData.user_category_id = parseInt(selectedParentCategoryId);
-        transactionData.auto_category = false;
-      } else {
-        transactionData.user_category_id = null;
-        transactionData.auto_category = false;
+      if (mode === 'floid') {
+        const transactionData: any = {
+          floid_account_id: parseInt(selectedAccountId),
+          amount_in: transactionType === 'income' ? parsedAmount : 0,
+          amount_out: transactionType === 'expense' ? parsedAmount : 0,
+          description: description.trim(),
+          date: formattedDate,
+        };
+
+        if (categoryId) {
+          transactionData.user_category_id = categoryId;
+          transactionData.auto_category = false;
+        } else {
+          transactionData.user_category_id = null;
+          transactionData.auto_category = false;
+        }
+
+        await createFloidTransaction(transactionData, accessToken!);
+      } else if (mode === 'bank_account') {
+        const transactionData = {
+          bank_account_id: parseInt(selectedAccountId),
+          amount_in: transactionType === 'income' ? parsedAmount : 0,
+          amount_out: transactionType === 'expense' ? parsedAmount : 0,
+          description: description.trim(),
+          date: formattedDate,
+          user_category_id: categoryId,
+        };
+
+        await createManualTransaction(transactionData, accessToken!);
       }
-
-      await createFloidTransaction(transactionData, accessToken!);
 
       setIsSaved(true);
 
@@ -217,13 +252,16 @@ export default function AddTransactionScreen() {
     return cleanAmount > 0;
   };
 
+  // Show empty state for bank_account mode when no accounts exist
+  const showNoAccountsMessage = mode === 'bank_account' && !hasBankAccounts && !bankAccountsLoading;
+
   return (
     <FormLayout
       title={transactionType === 'income'
         ? t('budget.add_transaction_income')
         : t('budget.add_transaction_expense')
       }
-      subtitle="Esta transacción se registra solo en la app para tu control personal. No se realizarán movimientos reales en tu cuenta bancaria."
+      subtitle="Esta transaccion se registra solo en la app para tu control personal. No se realizaran movimientos reales en tu cuenta bancaria."
       currentStep={1}
       totalSteps={1}
       onNext={handleSubmit}
@@ -232,7 +270,7 @@ export default function AddTransactionScreen() {
       cancelButtonTitle={t('budget.cancel')}
       isLoading={isLoading}
       isSaved={isSaved}
-      isNextDisabled={!isFormValid}
+      isNextDisabled={!isFormValid() || showNoAccountsMessage}
       error={error}
       showLogo={false}
       loadingText={t('budget.creating_transaction')}
@@ -247,14 +285,51 @@ export default function AddTransactionScreen() {
           horizontal={true}
         />
 
-        <Select
-          label={t('budget.transaction_bank')}
-          options={accountOptions}
-          value={selectedAccountId}
-          onSelect={setSelectedAccountId}
-          placeholder={t('budget.select_bank_account')}
-          disabled={accountsLoading || accountOptions.length === 0}
-        />
+        {showNoAccountsMessage ? (
+          <View style={{
+            backgroundColor: Colors.gray[50],
+            padding: 16,
+            borderRadius: 12,
+            borderWidth: 1,
+            borderColor: Colors.gray[200],
+            borderStyle: 'dashed'
+          }}>
+            <Text style={{
+              color: Colors.gray[600],
+              fontSize: 14,
+              textAlign: 'center',
+              marginBottom: 12
+            }}>
+              {t('budget.no_bank_accounts_message', 'No tienes cuentas bancarias registradas. Agrega una cuenta para poder registrar transacciones.')}
+            </Text>
+            <TouchableOpacity
+              onPress={handleAddBankAccount}
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: Colors.primary[500],
+                paddingVertical: 12,
+                paddingHorizontal: 16,
+                borderRadius: 8,
+              }}
+            >
+              <Plus size={18} color="white" style={{ marginRight: 8 }} />
+              <Text style={{ color: 'white', fontWeight: '600' }}>
+                {t('budget.add_bank_account', 'Agregar cuenta bancaria')}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <Select
+            label={t('budget.transaction_bank')}
+            options={accountOptions}
+            value={selectedAccountId}
+            onSelect={setSelectedAccountId}
+            placeholder={t('budget.select_bank_account')}
+            disabled={accountsLoading || accountOptions.length === 0}
+          />
+        )}
 
         <Input
           label={t('budget.transaction_description')}
@@ -280,21 +355,21 @@ export default function AddTransactionScreen() {
         />
 
         <Select
-          label={t('budget.category', 'Categoría')}
+          label={t('budget.category', 'Categoria')}
           options={categoryOptions}
           value={selectedParentCategoryId}
           onSelect={handleCategoryChange}
-          placeholder={t('budget.no_category', 'Sin categoría')}
-          emptyMessage={t('budget.add_categories_first', 'Debes añadir categorías para poder asignar transacciones.')}
+          placeholder={t('budget.no_category', 'Sin categoria')}
+          emptyMessage={t('budget.add_categories_first', 'Debes añadir categorias para poder asignar transacciones.')}
         />
 
         {selectedParentCategoryId && subcategoryOptions.length > 0 && (
           <Select
-            label={t('budget.subcategory', 'Subcategoría')}
+            label={t('budget.subcategory', 'Subcategoria')}
             options={subcategoryOptions}
             value={selectedSubcategoryId}
             onSelect={handleSubcategoryChange}
-            placeholder={t('budget.no_subcategory', 'Sin subcategoría')}
+            placeholder={t('budget.no_subcategory', 'Sin subcategoria')}
           />
         )}
 

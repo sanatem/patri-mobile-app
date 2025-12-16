@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { View, TouchableOpacity, Platform } from 'react-native';
 import { ChevronLeft } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
@@ -7,6 +7,7 @@ import { Container } from '@/components/ui/Container';
 import Colors from '@/constants/Colors';
 import { useTranslation } from 'react-i18next';
 import { useFloidSync } from '@/providers/FloidSyncProvider';
+import { useTransactionMode } from '@/providers/TransactionModeProvider';
 
 const FLOID_URL = 'https://admin.floid.app/patrimore/widget/705aefc6776c78c49dec22b8006074ff';
 
@@ -14,6 +15,14 @@ export default function FloidScreen() {
   const router = useRouter();
   const { t } = useTranslation();
   const { startSync } = useFloidSync();
+  const { markFloidSyncStarted } = useTransactionMode();
+
+  // Handle sync completion - mark that Floid sync has started
+  const handleSyncComplete = useCallback(() => {
+    markFloidSyncStarted();
+    startSync();
+    router.replace('/(tabs)/budget/transactions');
+  }, [markFloidSyncStarted, startSync, router]);
 
   const renderContent = () => {
     if (Platform.OS === 'web') {
@@ -43,14 +52,12 @@ export default function FloidScreen() {
           mediaPlaybackRequiresUserAction={false}
           onNavigationStateChange={(navState: { url: string }) => {
              if (navState.url && navState.url.includes('patrimore.com')) {
-               startSync();
-               router.replace('/(tabs)/budget/transactions');
+               handleSyncComplete();
              }
            }}
            onShouldStartLoadWithRequest={(request: { url: string }) => {
              if (request.url.includes('patrimore.com')) {
-               startSync();
-               router.replace('/(tabs)/budget/transactions');
+               handleSyncComplete();
                return false;
              }
              return true;

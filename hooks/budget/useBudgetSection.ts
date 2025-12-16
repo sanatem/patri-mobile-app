@@ -126,7 +126,16 @@ export function useBudgetSection() {
           accessToken
         );
         if (instancesResponse.success && instancesResponse.budget_instances) {
-          setBudgetInstances(instancesResponse.budget_instances);
+          // Sort instances: active first, inactive at the end
+          const sortedInstances = [...instancesResponse.budget_instances].sort((a, b) => {
+            // Active instances come first (template_active: true or undefined)
+            const aActive = a.template_active !== false;
+            const bActive = b.template_active !== false;
+            if (aActive && !bActive) return -1;
+            if (!aActive && bActive) return 1;
+            return 0;
+          });
+          setBudgetInstances(sortedInstances);
           setSummary(instancesResponse.summary || emptySummary);
         } else {
           setBudgetInstances([]);

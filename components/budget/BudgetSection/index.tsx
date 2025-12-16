@@ -200,6 +200,7 @@ export function BudgetSectionOverview() {
                 label={t('budget.budget_settings', 'Configurar Presupuestos')}
                 icon={<Settings size={20} color={Colors.primary[500]} />}
                 onPress={handleNavigateToBudgetSettings}
+                disabled={!hasBudgets}
               />
             </View>
           </Container>
