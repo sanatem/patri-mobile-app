@@ -1,8 +1,11 @@
-import { useState, useMemo, useRef, useEffect } from 'react';
+import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { LayoutAnimation, Platform, UIManager } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { useFocusEffect } from 'expo-router';
 import { useFloidTransactions } from '@/hooks/budget/useFloidTransactions';
 import { useFloidAccounts } from '@/hooks/budget/useFloidAccounts';
+import { useManualTransactions } from '@/hooks/budget/useManualTransactions';
+import { useTransactionMode } from '@/providers/TransactionModeProvider';
 import { UserCategoriesState } from '../useUserCategories';
 import { useCategoriesData } from './useCategoriesData';
 import { useCategoryAnimations } from './useCategoryAnimations';
@@ -43,46 +46,144 @@ export function useCategoriesManager({ userCategories }: UseCategoriesManagerPro
   const subcategoryCardRefs = useRef<Map<string, any>>(new Map()).current;
   const cardPositions = useRef<Map<string, number>>(new Map()).current;
 
-  // Get accounts
+  // Get transaction mode
+  const { mode, refetchAccounts: refetchModeAccounts } = useTransactionMode();
+
+  // Get Floid accounts
   const { accounts } = useFloidAccounts();
   const selectedAccountIds = useMemo(
     () => accounts?.floid_accounts.map(acc => acc.id.toString()) || [],
     [accounts?.floid_accounts]
   );
 
-  // Get transactions
+  // Get Floid transactions (only when mode is 'floid')
   const {
-    transactions: incomeTransactionsData,
-    loading: incomeLoading,
-    refetch: refetchIncomeTransactions,
+    transactions: floidIncomeTransactionsData,
+    loading: floidIncomeLoading,
+    refetch: refetchFloidIncomeTransactions,
   } = useFloidTransactions({
     floidIds: selectedAccountIds,
     per_page: 1000,
-    enabled: selectedAccountIds.length > 0,
+    enabled: mode === 'floid' && selectedAccountIds.length > 0,
     transaction_type: 'income'
   });
 
   const {
-    transactions: expenseTransactionsData,
-    loading: expenseLoading,
-    refetch: refetchExpenseTransactions,
+    transactions: floidExpenseTransactionsData,
+    loading: floidExpenseLoading,
+    refetch: refetchFloidExpenseTransactions,
   } = useFloidTransactions({
     floidIds: selectedAccountIds,
     per_page: 1000,
-    enabled: selectedAccountIds.length > 0,
+    enabled: mode === 'floid' && selectedAccountIds.length > 0,
     transaction_type: 'outcome'
   });
+
+  // Get manual transactions (only when mode is 'bank_account')
+  const {
+    transactions: manualIncomeTransactions,
+    loading: manualIncomeLoading,
+    refetch: refetchManualIncomeTransactions,
+  } = useManualTransactions({
+    transactionType: 'income',
+    perPage: 1000,
+    autoFetch: mode === 'bank_account'
+  });
+
+  const {
+    transactions: manualExpenseTransactions,
+    loading: manualExpenseLoading,
+    refetch: refetchManualExpenseTransactions,
+  } = useManualTransactions({
+    transactionType: 'expense',
+    perPage: 1000,
+    autoFetch: mode === 'bank_account'
+  });
+
+  // Transform manual transactions to match Floid format
+  const transformManualTransactions = useCallback((manualTxs: any[], type: 'income' | 'expense') => {
+    return manualTxs.map(tx => ({
+      id: tx.id,
+      transaction_id: `manual_${tx.id}`,
+      date: tx.date,
+      amount: type === 'income' ? tx.amount_in : tx.amount_out,
+      description: tx.description,
+      bank: tx.bank_account?.bank_name || 'Cuenta manual',
+      account_number: tx.bank_account?.account_number || '',
+      category: tx.user_category ? {
+        id: tx.user_category.id,
+        name: tx.user_category.name,
+        kind: tx.user_category.kind,
+        emoji_code: tx.user_category.emoji_code
+      } : null,
+      transaction_type: type === 'income' ? 'income' : 'outcome',
+      categorized: !!tx.user_category,
+      auto_category: false,
+      is_manual: true,
+      rawData: tx
+    }));
+  }, []);
+
+  // Unified transactions based on mode
+  const incomeTransactionsData = useMemo(() => {
+    if (mode === 'floid') {
+      return floidIncomeTransactionsData;
+    } else if (mode === 'bank_account') {
+      return {
+        transactions: transformManualTransactions(manualIncomeTransactions, 'income')
+      };
+    }
+    return { transactions: [] };
+  }, [mode, floidIncomeTransactionsData, manualIncomeTransactions, transformManualTransactions]);
+
+  const expenseTransactionsData = useMemo(() => {
+    if (mode === 'floid') {
+      return floidExpenseTransactionsData;
+    } else if (mode === 'bank_account') {
+      return {
+        transactions: transformManualTransactions(manualExpenseTransactions, 'expense')
+      };
+    }
+    return { transactions: [] };
+  }, [mode, floidExpenseTransactionsData, manualExpenseTransactions, transformManualTransactions]);
+
+  const incomeLoading = mode === 'floid' ? floidIncomeLoading : manualIncomeLoading;
+  const expenseLoading = mode === 'floid' ? floidExpenseLoading : manualExpenseLoading;
 
   const allTransactionsData = activeTab === 'income' ? incomeTransactionsData : expenseTransactionsData;
   const allTransactions = allTransactionsData?.transactions || [];
 
-  // Refetch both transaction types
-  const refetchTransactions = async () => {
-    await Promise.all([
-      refetchIncomeTransactions(),
-      refetchExpenseTransactions()
-    ]);
-  };
+  // Refetch both transaction types based on mode
+  const refetchTransactions = useCallback(async () => {
+    if (mode === 'floid') {
+      await Promise.all([
+        refetchFloidIncomeTransactions(),
+        refetchFloidExpenseTransactions()
+      ]);
+    } else if (mode === 'bank_account') {
+      await Promise.all([
+        refetchManualIncomeTransactions(),
+        refetchManualExpenseTransactions()
+      ]);
+    }
+  }, [mode, refetchFloidIncomeTransactions, refetchFloidExpenseTransactions, refetchManualIncomeTransactions, refetchManualExpenseTransactions]);
+
+  // Refresh mode and transactions when screen gains focus
+  useFocusEffect(
+    useCallback(() => {
+      const refreshData = async () => {
+        try {
+          // Refresh mode accounts first to ensure correct mode
+          await refetchModeAccounts();
+          // Then refresh transactions
+          await refetchTransactions();
+        } catch (error) {
+          console.error('Error refreshing categories manager data:', error);
+        }
+      };
+      refreshData();
+    }, [mode])
+  );
 
   const currentLang = t('common.language_code', 'es');
 

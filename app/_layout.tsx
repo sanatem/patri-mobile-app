@@ -9,6 +9,7 @@ import { AuthProvider } from '@/providers/AuthProvider';
 import { BiometricAuthProvider } from '@/providers/BiometricAuthProvider';
 import { CopilotProvider } from '@/providers/CopilotProvider';
 import { FloidSyncProvider } from '@/providers/FloidSyncProvider';
+import { TransactionModeProvider } from '@/providers/TransactionModeProvider';
 import { useFrameworkReady } from '@/hooks/common/useFrameworkReady';
 import { i18nInitPromise } from '../lib/i18n';
 import { OneSignal } from 'react-native-onesignal';
@@ -66,21 +67,23 @@ export default function RootLayout() {
       <AuthProvider>
         <BiometricAuthProvider>
           <FloidSyncProvider>
-            <CopilotProvider instructions="Eres un asistente financiero especializado en Patrimore. Ayuda a los usuarios con sus consultas sobre finanzas personales, inversiones, presupuestos y patrimonio. Proporciona consejos prácticos y personalizados basados en los datos disponibles del usuario.">
-              <StatusBar style="dark" />
-              <Stack
-                screenOptions={{
-                  headerShown: false,
-                  contentStyle: { backgroundColor: 'white' },
-                }}
-              >
-                <Stack.Screen name="splash-screens" options={{ headerShown: false }} />
-                <Stack.Screen name="onboarding" options={{ headerShown: false }} />
-                <Stack.Screen name="index" options={{ headerShown: false }} />
-                <Stack.Screen name="auth" options={{ headerShown: false }} />
-                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-              </Stack>
-            </CopilotProvider>
+            <TransactionModeProvider>
+              <CopilotProvider instructions="Eres un asistente financiero especializado en Patrimore. Ayuda a los usuarios con sus consultas sobre finanzas personales, inversiones, presupuestos y patrimonio. Proporciona consejos prácticos y personalizados basados en los datos disponibles del usuario.">
+                <StatusBar style="dark" />
+                <Stack
+                  screenOptions={{
+                    headerShown: false,
+                    contentStyle: { backgroundColor: 'white' },
+                  }}
+                >
+                  <Stack.Screen name="splash-screens" options={{ headerShown: false }} />
+                  <Stack.Screen name="onboarding" options={{ headerShown: false }} />
+                  <Stack.Screen name="index" options={{ headerShown: false }} />
+                  <Stack.Screen name="auth" options={{ headerShown: false }} />
+                  <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                </Stack>
+              </CopilotProvider>
+            </TransactionModeProvider>
           </FloidSyncProvider>
         </BiometricAuthProvider>
       </AuthProvider>

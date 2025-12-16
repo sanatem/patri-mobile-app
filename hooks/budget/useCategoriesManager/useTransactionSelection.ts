@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { LayoutAnimation, Alert } from 'react-native';
 import { useAuth } from '@/providers/AuthProvider';
+import { useTransactionMode, TransactionMode } from '@/providers/TransactionModeProvider';
 import { assignTransactionCategory } from '@/services/budget/transactions/assign-transaction-category';
 import { deleteFloidTransaction } from '@/services/budget/transactions/delete-floid-transaction';
+import { deleteManualTransaction, updateManualTransaction } from '@/services/budget/transactions/manual-transactions';
 import type { GroupedData } from './types';
 
 interface UseTransactionSelectionProps {
@@ -19,6 +21,7 @@ export function useTransactionSelection({
   refetchTransactions,
 }: UseTransactionSelectionProps) {
   const { accessToken } = useAuth();
+  const { mode } = useTransactionMode();
 
   const [transactionSelectionMode, setTransactionSelectionMode] = useState(false);
   const [selectedTransactions, setSelectedTransactions] = useState<Set<number>>(new Set());
@@ -82,11 +85,18 @@ export function useTransactionSelection({
 
       const transactionIds = Array.from(selectedTransactions);
 
-      const deletePromises = transactionIds.map(id =>
-        deleteFloidTransaction({ transactionId: id.toString() }, accessToken)
-      );
-
-      await Promise.all(deletePromises);
+      // Delete based on mode
+      if (mode === 'floid') {
+        const deletePromises = transactionIds.map(id =>
+          deleteFloidTransaction({ transactionId: id.toString() }, accessToken)
+        );
+        await Promise.all(deletePromises);
+      } else if (mode === 'bank_account') {
+        const deletePromises = transactionIds.map(id =>
+          deleteManualTransaction(id, accessToken)
+        );
+        await Promise.all(deletePromises);
+      }
 
       await refetchTransactions();
 
@@ -150,14 +160,27 @@ export function useTransactionSelection({
 
       const transactionIds = Array.from(selectedTransactions);
 
-      await assignTransactionCategory(
-        {
-          transaction_ids: transactionIds,
-          user_category_id: categoryId,
-          auto_category: false
-        },
-        accessToken
-      );
+      // Assign category based on mode
+      if (mode === 'floid') {
+        await assignTransactionCategory(
+          {
+            transaction_ids: transactionIds,
+            user_category_id: categoryId,
+            auto_category: false
+          },
+          accessToken
+        );
+      } else if (mode === 'bank_account') {
+        // For manual transactions, update each one individually
+        const updatePromises = transactionIds.map(id =>
+          updateManualTransaction(
+            id,
+            { user_category_id: categoryId },
+            accessToken
+          )
+        );
+        await Promise.all(updatePromises);
+      }
 
       await refetchTransactions();
 

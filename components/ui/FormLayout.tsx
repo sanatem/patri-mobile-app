@@ -8,16 +8,17 @@ import {
   KeyboardAvoidingView,
   Platform
 } from 'react-native';
-import { 
-  Button, 
-  Container, 
-  Card, 
-  KeyboardAwareContainer 
+import {
+  Button,
+  Container,
+  Card,
+  KeyboardAwareContainer
 } from '@/components/ui';
 import Colors from '@/constants/Colors';
 import { PatrimoreIcon } from '@/components/icons';
 import { useKeyboardHandler } from '@/hooks/common/useKeyboardHandler';
 import { useTranslation } from 'react-i18next';
+import { AlertCircle } from 'lucide-react-native';
 
 const { height } = Dimensions.get('window');
 
@@ -144,19 +145,11 @@ export default function FormLayout({
                   </View>
 
                   {error && (
-                    <View style={{
-                      backgroundColor: Colors.error[50],
-                      borderWidth: 1,
-                      borderColor: Colors.error[200],
-                      borderRadius: 8,
-                      padding: 12,
-                      marginBottom: 16,
-                      marginTop: 16
-                    }}>
-                      <Text className="text-sm font-medium" style={{ color: Colors.error[700] }}>
-                        Error
-                      </Text>
-                      <Text className="text-sm font-regular" style={{ color: Colors.error[600], marginTop: 4 }}>
+                    <View className="justify-center items-center py-4 mt-4">
+                      <View className="w-16 h-16 rounded-full justify-center items-center mb-4" style={{ backgroundColor: Colors.error[50] }}>
+                        <AlertCircle size={32} color={Colors.error[400]} />
+                      </View>
+                      <Text className="text-center text-sm font-regular px-4" style={{ color: Colors.gray[400] }}>
                         {error}
                       </Text>
                     </View>

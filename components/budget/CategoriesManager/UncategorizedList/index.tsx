@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { View, Text, TouchableOpacity, Animated, Easing } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import Colors from '@/constants/Colors';
-import { ChevronDown, AlertTriangle } from 'lucide-react-native';
+import { ChevronDown, AlertTriangle, CheckCircle } from 'lucide-react-native';
 import { FloidTransaction } from '@/services/budget/transactions/get-floid-transactions';
 import { TransactionItem } from './TransactionItem';
 import { SearchBar, CheckboxItem } from '@/components/ui';
@@ -162,16 +162,20 @@ export function UncategorizedList({
     }
   };
 
-  if (uncategorizedTransactions.length === 0) {
-    return null;
-  }
+  const isEmpty = uncategorizedTransactions.length === 0;
+
+  // Determinar colores según si está vacío o no
+  const borderColor = isEmpty ? Colors.success[500] : Colors.warning[500];
+  const iconColor = isEmpty ? Colors.success[500] : Colors.warning[500];
+  const textColor = isEmpty ? Colors.success[600] : Colors.warning[600];
+  const IconComponent = isEmpty ? CheckCircle : AlertTriangle;
 
   return (
     <Animated.View style={{
       backgroundColor: 'white',
       borderRadius: 12,
       borderWidth: 1,
-      borderColor: Colors.warning[500],
+      borderColor: borderColor,
       overflow: 'hidden',
       flex: isActive ? 1 : undefined,
       width: isActive ? undefined : 56,
@@ -190,29 +194,31 @@ export function UncategorizedList({
         onPress={onToggle}
         activeOpacity={0.7}
       >
-        <AlertTriangle size={24} color={Colors.warning[500]} style={{ marginRight: isActive ? 12 : 0 }} />
+        <IconComponent size={24} color={iconColor} style={{ marginRight: isActive ? 12 : 0 }} />
         {isActive && (
           <>
             <View style={{ flex: 1 }}>
-              <Text className="text-base font-medium" style={{ color: Colors.warning[600] }}>
+              <Text className="text-base font-medium" style={{ color: textColor }}>
                 {t('budget.uncategorized', 'Sin Categorizar')} ({uncategorizedTransactions.length})
               </Text>
             </View>
-            <Animated.View style={rotateStyle}>
-              <ChevronDown size={20} color={Colors.warning[500]} />
-            </Animated.View>
+            {!isEmpty && (
+              <Animated.View style={rotateStyle}>
+                <ChevronDown size={20} color={iconColor} />
+              </Animated.View>
+            )}
           </>
         )}
       </TouchableOpacity>
 
-      {isActive && (shouldRenderContent || isExpanded) && (
+      {isActive && !isEmpty && (shouldRenderContent || isExpanded) && (
         <Animated.View
           style={[
             dynamicExpansionStyle,
             { overflow: 'hidden' }
           ]}
         >
-          <View 
+          <View
             style={{ paddingHorizontal: 16, paddingBottom: 16 }}
             onLayout={handleContentLayout}
           >
