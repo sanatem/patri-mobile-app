@@ -11,6 +11,7 @@ interface ConfirmModalProps {
   itemName?: string;
   message?: string;
   isDeleting?: boolean;
+  loadingText?: string;
   confirmButtonText?: string;
   cancelButtonText?: string;
   confirmDisabled?: boolean;
@@ -25,6 +26,7 @@ export function ConfirmModal({
   itemName,
   message,
   isDeleting = false,
+  loadingText = "Eliminando...",
   confirmButtonText = "Eliminar",
   cancelButtonText = "Cancelar",
   confirmDisabled = false,
@@ -98,7 +100,7 @@ export function ConfirmModal({
 
             <View style={{ flex: 1 }}>
               <Button
-                title={isDeleting ? "Eliminando..." : confirmButtonText}
+                title={isDeleting ? loadingText : confirmButtonText}
                 variant="primary"
                 fullWidth
                 onPress={onConfirm}
