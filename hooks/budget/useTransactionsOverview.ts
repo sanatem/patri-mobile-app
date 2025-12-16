@@ -6,6 +6,7 @@ import { useBankAccounts } from './useBankAccounts';
 import { useFloidTransactions } from './useFloidTransactions';
 import { useManualTransactions } from './useManualTransactions';
 import { useTransactionMode } from '@/providers/TransactionModeProvider';
+import { useBudgetDate } from '@/providers/BudgetDateProvider';
 import { deleteFloidTransaction } from '@/services/budget/transactions/delete-floid-transaction';
 import { deleteManualTransaction } from '@/services/budget/transactions/manual-transactions';
 import { useAuth } from '@/providers/AuthProvider';
@@ -15,13 +16,26 @@ import { useTranslation } from 'react-i18next';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
-export function useTransactionsOverview() {
+interface UseTransactionsOverviewOptions {
+  initialAccountId?: string;
+}
+
+export function useTransactionsOverview(options: UseTransactionsOverviewOptions = {}) {
+  const { initialAccountId } = options;
   const { shouldBlockTab, loading: subscriptionLoading } = useSubscriptionStatus();
   const { isSyncing, stopSync } = useFloidSync();
   const { accessToken } = useAuth();
   const router = useRouter();
   const { t } = useTranslation();
   const { mode, loading: modeLoading, hasFloidAccounts, hasBankAccounts, refetchAccounts: refetchModeAccounts } = useTransactionMode();
+
+  // Use shared budget date context
+  const {
+    selectedMonth: contextSelectedMonth,
+    selectedYear: contextSelectedYear,
+    getMonthDateRange,
+    setSelectedDate,
+  } = useBudgetDate();
 
   const { width: screenWidth } = Dimensions.get('window');
   const chartSize = Math.min(screenWidth - 80, 280);
@@ -40,24 +54,14 @@ export function useTransactionsOverview() {
     value: month
   })), [months]);
 
-  const getCurrentMonth = (): string => {
-    const currentDate = new Date();
-    const currentMonthIndex = currentDate.getMonth();
-    return months[currentMonthIndex] || 'Enero';
-  };
-
-  const getCurrentYear = (): number => {
-    return new Date().getFullYear();
-  };
-
   const yearOptions = useMemo(() => [
     { label: '2024', value: '2024' },
     { label: '2025', value: '2025' }
   ], []);
 
-  // State
-  const [selectedMonth, setSelectedMonth] = useState<string>(getCurrentMonth());
-  const [selectedYear, setSelectedYear] = useState<string>(getCurrentYear().toString());
+  // Use context values for month/year (synced with budget section)
+  const selectedMonth = contextSelectedMonth;
+  const selectedYear = contextSelectedYear;
   const [activeTab, setActiveTab] = useState<'income' | 'expenses'>('income');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -105,7 +109,14 @@ export function useTransactionsOverview() {
   const accountsLoading = mode === 'floid' ? floidAccountsLoading : bankAccountsLoading;
   const accounts = mode === 'floid' ? floidAccounts : null;
 
-  const [selectedAccountId, setSelectedAccountId] = useState<string>('all');
+  const [selectedAccountId, setSelectedAccountId] = useState<string>(initialAccountId || 'all');
+
+  // Update selectedAccountId when initialAccountId changes (e.g., when navigating back from add-transaction)
+  useEffect(() => {
+    if (initialAccountId) {
+      setSelectedAccountId(initialAccountId);
+    }
+  }, [initialAccountId]);
 
   const selectedAccountIds = useMemo(() => {
     if (mode === 'floid') {
@@ -127,23 +138,8 @@ export function useTransactionsOverview() {
     return undefined;
   }, [selectedAccountId, mode]);
 
-  const getDateRangeForMonth = (monthName: string, year: number) => {
-    const monthIndex = months.indexOf(monthName);
-    if (monthIndex === -1) return null;
-
-    const startDate = new Date(year, monthIndex, 1);
-    const endDate = new Date(year, monthIndex + 1, 0);
-
-    return {
-      start_date: startDate.toISOString().split('T')[0],
-      end_date: endDate.toISOString().split('T')[0]
-    };
-  };
-
-  const dateRange = useMemo(() =>
-    getDateRangeForMonth(selectedMonth, parseInt(selectedYear)),
-    [selectedMonth, selectedYear, months]
-  );
+  // Use shared date range from context
+  const dateRange = useMemo(() => getMonthDateRange(), [getMonthDateRange]);
 
   // Floid Transactions (only when mode is 'floid')
   const {
@@ -417,7 +413,22 @@ export function useTransactionsOverview() {
 
   const closeModal = () => setShowAddModal(false);
 
-  const handleMonthSelect = (month: string) => setSelectedMonth(month);
+  // Handle month selection - updates shared context
+  const handleMonthSelect = useCallback((month: string) => {
+    const monthIndex = months.indexOf(month);
+    if (monthIndex !== -1) {
+      const year = parseInt(selectedYear);
+      setSelectedDate(new Date(year, monthIndex, 1));
+    }
+  }, [months, selectedYear, setSelectedDate]);
+
+  // Handle year selection - updates shared context
+  const handleYearSelect = useCallback((year: string) => {
+    const monthIndex = months.indexOf(selectedMonth);
+    if (monthIndex !== -1) {
+      setSelectedDate(new Date(parseInt(year), monthIndex, 1));
+    }
+  }, [months, selectedMonth, setSelectedDate]);
 
   const handleIntegrarDatos = () => router.push('/(tabs)/budget/transactions/floid-screen' as any);
 
@@ -658,10 +669,9 @@ export function useTransactionsOverview() {
     setSelectedCategory,
     setShowAddModal,
     setSelectedAccountId,
-    setSelectedMonth,
-    setSelectedYear,
     closeModal,
     handleMonthSelect,
+    handleYearSelect,
     handleIntegrarDatos,
     handleAddTransaction,
     handleAddIncome,

@@ -75,7 +75,7 @@ export function BudgetInstanceCard({ instance, onPress, onEdit }: BudgetInstance
   };
 
   return (
-    <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
+    <TouchableOpacity onPress={isDisabled ? undefined : onPress} activeOpacity={isDisabled ? 1 : 0.7} disabled={isDisabled}>
       <Card variant="default" size="md" className="mb-2">
         <View className="flex-row items-center justify-between mb-2">
           <View className="flex-row items-center flex-1">
@@ -94,18 +94,20 @@ export function BudgetInstanceCard({ instance, onPress, onEdit }: BudgetInstance
               </Text>
             </View>
           </View>
-          <View className="flex-row items-center">
-            {onEdit && (
-              <TouchableOpacity
-                onPress={handleEditPress}
-                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                className="mr-2"
-              >
-                <Edit3 size={18} color={isDisabled ? Colors.gray[400] : Colors.primary[500]} />
-              </TouchableOpacity>
-            )}
-            <ChevronRight size={20} color={isDisabled ? Colors.gray[400] : Colors.primary[500]} />
-          </View>
+          {!isDisabled && (
+            <View className="flex-row items-center">
+              {onEdit && (
+                <TouchableOpacity
+                  onPress={handleEditPress}
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  className="mr-2"
+                >
+                  <Edit3 size={18} color={Colors.primary[500]} />
+                </TouchableOpacity>
+              )}
+              <ChevronRight size={20} color={Colors.primary[500]} />
+            </View>
+          )}
         </View>
 
         <View

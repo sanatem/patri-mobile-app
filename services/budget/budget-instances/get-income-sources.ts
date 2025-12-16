@@ -33,6 +33,7 @@ export interface GetIncomeSourcesResponse {
 export interface GetIncomeSourcesParams {
   start_date?: string;
   end_date?: string;
+  source?: 'floid' | 'manual' | 'all';
 }
 
 /**
@@ -58,6 +59,9 @@ export async function getIncomeSources(
     }
     if (params.end_date) {
       urlParams.append('end_date', params.end_date);
+    }
+    if (params.source) {
+      urlParams.append('source', params.source);
     }
 
     const queryString = urlParams.toString();

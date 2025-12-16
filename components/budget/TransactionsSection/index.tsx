@@ -9,7 +9,11 @@ import { ChevronLeft, RefreshCw, Plus } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
 
-export function TransactionsOverview() {
+interface TransactionsOverviewProps {
+  initialAccountId?: string;
+}
+
+export function TransactionsOverview({ initialAccountId }: TransactionsOverviewProps) {
   const router = useRouter();
   const [showFloidConfirmModal, setShowFloidConfirmModal] = useState(false);
 
@@ -60,6 +64,7 @@ export function TransactionsOverview() {
     setSearchQuery,
     setSelectedAccountId,
     handleMonthSelect,
+    handleYearSelect,
     handleIntegrarDatos,
     handleAddTransaction,
     handleCategoriesManager,
@@ -75,7 +80,7 @@ export function TransactionsOverview() {
 
     // Translation
     t,
-  } = useTransactionsOverview();
+  } = useTransactionsOverview({ initialAccountId });
 
   // Handle sync button press - show confirmation if user has bank accounts
   const handleSyncPress = () => {
@@ -141,7 +146,7 @@ export function TransactionsOverview() {
               selectedMonth={selectedMonth}
               selectedYear={selectedYear}
               onMonthSelect={handleMonthSelect}
-              onYearSelect={(year) => {}}
+              onYearSelect={handleYearSelect}
               isLoading={accountsLoading}
               chartSize={chartSize}
               accountPlaceholder={t('budget.select_account', 'Seleccionar cuenta')}

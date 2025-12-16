@@ -1,9 +1,9 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import FormLayout from '@/components/ui/FormLayout';
-import { Input, Select, RadioButton } from '@/components/ui';
+import { Input, Select, RadioButton, Button } from '@/components/ui';
 import CalendarSelect from '@/components/ui/CalendarSelect';
 import { useFloidAccounts } from '@/hooks/budget/useFloidAccounts';
 import { useBankAccounts } from '@/hooks/budget/useBankAccounts';
@@ -23,7 +23,14 @@ export default function AddTransactionScreen() {
   const { accessToken } = useAuth();
   const { mode, loading: modeLoading } = useTransactionMode();
   const { accounts: floidAccounts, loading: floidAccountsLoading } = useFloidAccounts();
-  const { accounts: bankAccounts, loading: bankAccountsLoading, hasAccounts: hasBankAccounts } = useBankAccounts();
+  const { accounts: bankAccounts, loading: bankAccountsLoading, hasAccounts: hasBankAccounts, refetch: refetchBankAccounts } = useBankAccounts();
+
+  // Refetch bank accounts when screen comes into focus (e.g., after adding a new account)
+  useFocusEffect(
+    useCallback(() => {
+      refetchBankAccounts();
+    }, [refetchBankAccounts])
+  );
 
   const [transactionType, setTransactionType] = useState<'income' | 'expense'>('income');
   const [description, setDescription] = useState('');
@@ -230,7 +237,11 @@ export default function AddTransactionScreen() {
       setIsSaved(true);
 
       setTimeout(() => {
-        router.back();
+        // Navigate back with the selected account ID to filter transactions
+        router.replace({
+          pathname: '/(tabs)/budget/transactions' as any,
+          params: { accountId: selectedAccountId }
+        });
       }, 1000);
 
     } catch (err) {
@@ -252,8 +263,7 @@ export default function AddTransactionScreen() {
     return cleanAmount > 0;
   };
 
-  // Show empty state for bank_account mode when no accounts exist
-  const showNoAccountsMessage = mode === 'bank_account' && !hasBankAccounts && !bankAccountsLoading;
+  const showNoAccountsMessage = (mode === 'bank_account' || mode === 'none') && !hasBankAccounts && !bankAccountsLoading;
 
   return (
     <FormLayout
@@ -287,46 +297,34 @@ export default function AddTransactionScreen() {
 
         {showNoAccountsMessage ? (
           <View style={{
-            backgroundColor: Colors.gray[50],
+            backgroundColor: 'white',
             padding: 16,
             borderRadius: 12,
             borderWidth: 1,
-            borderColor: Colors.gray[200],
+            borderColor: Colors.gray[100],
             borderStyle: 'dashed'
           }}>
-            <Text style={{
-              color: Colors.gray[600],
-              fontSize: 14,
-              textAlign: 'center',
+            <Text className="text-sm font-regular text-center mb-2" style={{
+              color: Colors.primary[500],
               marginBottom: 12
             }}>
               {t('budget.no_bank_accounts_message', 'No tienes cuentas bancarias registradas. Agrega una cuenta para poder registrar transacciones.')}
             </Text>
-            <TouchableOpacity
+            <Button
+              title={t('budget.add_bank_account', 'Agregar cuenta bancaria')}
               onPress={handleAddBankAccount}
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: Colors.primary[500],
-                paddingVertical: 12,
-                paddingHorizontal: 16,
-                borderRadius: 8,
-              }}
-            >
-              <Plus size={18} color="white" style={{ marginRight: 8 }} />
-              <Text style={{ color: 'white', fontWeight: '600' }}>
-                {t('budget.add_bank_account', 'Agregar cuenta bancaria')}
-              </Text>
-            </TouchableOpacity>
+              variant="primary"
+              fullWidth
+              icon={<Plus size={18} />}
+            />
           </View>
         ) : (
           <Select
-            label={t('budget.transaction_bank')}
+            label={t('budget.account', 'Cuenta')}
             options={accountOptions}
             value={selectedAccountId}
             onSelect={setSelectedAccountId}
-            placeholder={t('budget.select_bank_account')}
+            placeholder={t('budget.select_account', 'Seleccionar cuenta')}
             disabled={accountsLoading || accountOptions.length === 0}
           />
         )}

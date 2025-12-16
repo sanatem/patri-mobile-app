@@ -129,13 +129,12 @@ export function BudgetSectionOverview() {
             {hasBudgets ? (
               <>
                 {(() => {
-                  // Calcular totales desde las instancias si el summary está vacío
-                  const totalBudget = summary.total_budget > 0 
-                    ? summary.total_budget 
-                    : budgetInstances.reduce((acc, inst) => acc + inst.amount, 0);
-                  const totalSpent = summary.total_spent > 0 
-                    ? summary.total_spent 
-                    : budgetInstances.reduce((acc, inst) => acc + inst.spent, 0);
+                  // Filtrar solo instancias activas para el cálculo del gráfico
+                  const activeInstances = budgetInstances.filter(inst => inst.template_active !== false);
+                  
+                  // Calcular totales solo desde las instancias activas
+                  const totalBudget = activeInstances.reduce((acc, inst) => acc + inst.amount, 0);
+                  const totalSpent = activeInstances.reduce((acc, inst) => acc + inst.spent, 0);
                   const totalRemaining = totalBudget - totalSpent;
 
                   return (
@@ -146,7 +145,7 @@ export function BudgetSectionOverview() {
                       balance={totalRemaining}
                       remainingBudget={totalBudget}
                       isLoading={loading}
-                      hasRealData={budgetInstances.length > 0}
+                      hasRealData={activeInstances.length > 0}
                     />
                   );
                 })()}
