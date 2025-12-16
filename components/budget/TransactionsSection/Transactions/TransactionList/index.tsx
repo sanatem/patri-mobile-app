@@ -10,7 +10,9 @@ import { useTranslation } from 'react-i18next';
 import { CategorizationStatus } from '../CategorizationStatus';
 import { INCOME_CATEGORIES, EXPENSE_CATEGORIES } from '@/constants/BudgetCategories';
 import { patchFloidTransaction } from '@/services/budget/transactions/patch-floid-transaction';
+import { updateManualTransaction } from '@/services/budget/transactions/manual-transactions';
 import { useAuth } from '@/providers/AuthProvider';
+import { useTransactionMode } from '@/providers/TransactionModeProvider';
 import { getUserCategories } from '@/services/budget/categories-manager';
 import type { UserCategory } from '@/services/budget/categories-manager';
 import { getTranslatedNames } from '@/utils/categoryTranslations';
@@ -65,6 +67,7 @@ export default function TransactionsList({
 
   const { t } = useTranslation();
   const { accessToken } = useAuth();
+  const { mode } = useTransactionMode();
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState<FloidTransaction | null>(null);
   const [selectedParentCategoryId, setSelectedParentCategoryId] = useState('');
@@ -141,23 +144,34 @@ export default function TransactionsList({
     try {
       setIsSaving(true);
 
-      const transactionData: any = {};
+      const categoryId = selectedSubcategoryId
+        ? parseInt(selectedSubcategoryId)
+        : selectedParentCategoryId
+          ? parseInt(selectedParentCategoryId)
+          : null;
 
-      if (selectedSubcategoryId) {
-        transactionData.user_category_id = parseInt(selectedSubcategoryId);
-        transactionData.auto_category = false;
-      } else if (selectedParentCategoryId) {
-        transactionData.user_category_id = parseInt(selectedParentCategoryId);
-        transactionData.auto_category = false;
+      // Check if transaction is manual (has is_manual flag) or use mode
+      const isManualTransaction = (selectedTransaction as any).is_manual === true || mode === 'bank_account';
+
+      if (isManualTransaction) {
+        // Update manual transaction
+        await updateManualTransaction(
+          selectedTransaction.id,
+          { user_category_id: categoryId },
+          accessToken
+        );
       } else {
-        transactionData.user_category_id = null;
-        transactionData.auto_category = false;
-      }
+        // Update Floid transaction
+        const transactionData: any = {
+          user_category_id: categoryId,
+          auto_category: false
+        };
 
-      await patchFloidTransaction({
-        transactionId: selectedTransaction.id.toString(),
-        transaction: transactionData
-      }, accessToken);
+        await patchFloidTransaction({
+          transactionId: selectedTransaction.id.toString(),
+          transaction: transactionData
+        }, accessToken);
+      }
 
       setShowCategoryModal(false);
       if (onCollapse) {

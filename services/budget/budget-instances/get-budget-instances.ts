@@ -9,6 +9,7 @@ export interface GetBudgetInstancesParams {
   limit?: number;
   page?: number;
   per_page?: number;
+  template_active?: boolean;
 }
 
 export interface GetBudgetInstancesResponse {
@@ -58,6 +59,9 @@ export async function getBudgetInstances(
     }
     if (params.per_page !== undefined) {
       urlParams.append('per_page', params.per_page.toString());
+    }
+    if (params.template_active !== undefined) {
+      urlParams.append('template_active', params.template_active.toString());
     }
 
     const queryString = urlParams.toString();

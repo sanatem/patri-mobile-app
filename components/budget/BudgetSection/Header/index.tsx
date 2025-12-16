@@ -27,25 +27,25 @@ export function BudgetHeader({
     <View className="flex-row items-center justify-center">
       <TouchableOpacity
         onPress={onPreviousMonth}
-        className="p-1"
+        className="p-2"
         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
       >
-        <ChevronLeft className="mt-5" size={24} color={Colors.primary[500]} />
+        <ChevronLeft size={24} color={Colors.primary[500]} />
       </TouchableOpacity>
       <Text
-        className="text-lg font-medium mx-2 mt-5"
-        style={{ color: Colors.primary[500], minWidth: 130, textAlign: 'center' }}
+        className="text-lg font-medium mx-2"
+        style={{ color: Colors.primary[500], minWidth: 150, textAlign: 'center' }}
       >
         {subtitle}
       </Text>
       <TouchableOpacity
         onPress={onNextMonth}
-        className="p-1"
+        className="p-2"
         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         disabled={isCurrentMonth}
         style={{ opacity: isCurrentMonth ? 0.3 : 1 }}
       >
-        <ChevronRight className="mt-5" size={24} color={Colors.primary[500]} />
+        <ChevronRight size={24} color={Colors.primary[500]} />
       </TouchableOpacity>
     </View>
   ) : null;

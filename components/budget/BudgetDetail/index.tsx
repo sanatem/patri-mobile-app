@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { View, ScrollView, Text, TouchableOpacity } from 'react-native';
-import { Container, KeyboardAwareContainer, LoadingSpinner, Card, Header, ConfirmModal, SearchBar } from '@/components/ui';
+import { View, ScrollView, Text, TouchableOpacity, Animated } from 'react-native';
+import { Container, KeyboardAwareContainer, LoadingSpinner, Card, Header, ConfirmModal, SearchBar, SuccessMessage, Button } from '@/components/ui';
 import { ChevronLeft } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import { useBudgetDetail } from '@/hooks/budget/useBudgetDetail';
+import { useBudgetDetailUncategorized } from '@/hooks/budget/useBudgetDetailUncategorized';
 import { TransactionListItem } from './TransactionListItem';
+import { UncategorizedList } from '../CategoriesManager/UncategorizedList';
 import type { BudgetInstanceTransaction } from '@/services/budget/budget-instances';
 import { getTranslatedNames } from '@/services/budget/utils/category-utils';
 import { useTranslation } from 'react-i18next';
@@ -55,11 +57,15 @@ export function BudgetDetail({ instanceId }: BudgetDetailProps) {
 
   const { i18n } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
-  
-  // Traducir el nombre de la categoría
+
+  const uncategorized = useBudgetDetailUncategorized({
+    budgetCategoryId: budgetInstance?.category?.id || null,
+    budgetCategoryKind: budgetInstance?.category?.kind || null,
+  });
+
   const currentLang = i18n.language as 'en' | 'es' | 'es-CL';
   const isIncome = budgetInstance?.category?.kind === 'income';
-  const translatedNames = budgetInstance?.category?.name 
+  const translatedNames = budgetInstance?.category?.name
     ? getTranslatedNames(budgetInstance.category.name, isIncome)
     : null;
   const categoryName = translatedNames?.[currentLang] || translatedNames?.es || budgetInstance?.category?.name || 'Presupuesto';
@@ -101,7 +107,6 @@ export function BudgetDetail({ instanceId }: BudgetDetailProps) {
   const status = getBudgetStatus(percentageNum, budgetInstance.over_budget);
   const progressWidth = Math.min(percentageNum, 100);
 
-  // Filter transactions by search query
   const filteredTransactions = searchQuery.trim()
     ? transactions.filter((t: BudgetInstanceTransaction) =>
         t.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -126,9 +131,7 @@ export function BudgetDetail({ instanceId }: BudgetDetailProps) {
       <KeyboardAwareContainer>
         <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
           <Container variant="content" className="py-4">
-            {/* Budget Summary Card */}
             <Card variant="default" size="md" className="mb-4">
-              {/* Header with emoji and period */}
               <View className="flex-row items-center mb-4">
                 <View
                   style={{
@@ -191,13 +194,12 @@ export function BudgetDetail({ instanceId }: BudgetDetailProps) {
                 </View>
               </View>
 
-              {/* Stats row */}
               <View className="flex-row justify-between pt-3" style={{ borderTopWidth: 1, borderTopColor: Colors.gray[100] }}>
                 <View style={{ alignItems: 'center', flex: 1 }}>
                   <Text className="text-xs font-regular" style={{ color: Colors.gray[500] }}>
                     {t('budget.budget', 'Presupuesto')}
                   </Text>
-                  <Text className="text-sm font-semibold" style={{ color: Colors.gray[800] }}>
+                  <Text className="text-sm font-medium" style={{ color: Colors.primary[500] }}>
                     {formatCurrency(budgetInstance.amount)}
                   </Text>
                 </View>
@@ -205,7 +207,7 @@ export function BudgetDetail({ instanceId }: BudgetDetailProps) {
                   <Text className="text-xs font-regular" style={{ color: Colors.gray[500] }}>
                     {t('budget.spent', 'Gastado')}
                   </Text>
-                  <Text className="text-sm font-semibold" style={{ color: status.color }}>
+                  <Text className="text-sm font-medium" style={{ color: status.color }}>
                     {formatCurrency(budgetInstance.spent)}
                   </Text>
                 </View>
@@ -216,7 +218,7 @@ export function BudgetDetail({ instanceId }: BudgetDetailProps) {
                       : t('budget.remaining', 'Restante')}
                   </Text>
                   <Text
-                    className="text-sm font-semibold"
+                    className="text-sm font-medium"
                     style={{ color: budgetInstance.over_budget ? Colors.error[500] : Colors.success[500] }}
                   >
                     {formatCurrency(budgetInstance.remaining)}
@@ -225,15 +227,37 @@ export function BudgetDetail({ instanceId }: BudgetDetailProps) {
               </View>
             </Card>
 
+            {uncategorized.uncategorizedTransactions.length > 0 && (
+              <View className="mb-4">
+                <UncategorizedList
+                  uncategorizedTransactions={uncategorized.uncategorizedTransactions}
+                  isExpanded={uncategorized.isExpanded}
+                  isActive={true}
+                  shouldShowContent={uncategorized.isExpanded}
+                  rotateStyle={uncategorized.getRotateStyle('uncategorized')}
+                  expansionStyle={uncategorized.getExpansionStyle('uncategorized')}
+                  categoryRotations={uncategorized.categoryRotations}
+                  categoryExpansions={uncategorized.categoryExpansions}
+                  selectedTransactions={uncategorized.selectedTransactions}
+                  transactionAnimations={uncategorized.transactionAnimations}
+                  transactionType={budgetInstance?.category?.kind === 'income' ? 'income' : 'outcome'}
+                  onToggle={uncategorized.toggleUncategorizedList}
+                  onTransactionPress={uncategorized.handleTransactionPress}
+                  onSelectAll={uncategorized.handleSelectAllTransactions}
+                  onDeselectAll={uncategorized.handleDeselectAllTransactions}
+                />
+              </View>
+            )}
+
             {/* Transactions Section */}
             <View className="mb-4">
-              <Text className="text-base font-semibold mb-3" style={{ color: Colors.gray[800] }}>
+              <Text className="text-base font-medium mb-2" style={{ color: Colors.primary[500] }}>
                 {t('budget.transactions', 'Transacciones')} ({transactionsCount})
               </Text>
 
               {/* Search Bar */}
               {transactions.length > 0 && (
-                <View className="mb-3">
+                <View className="mb-1">
                   <SearchBar
                     placeholder={t('budget.search_transactions', 'Buscar transacciones...')}
                     value={searchQuery}
@@ -243,31 +267,53 @@ export function BudgetDetail({ instanceId }: BudgetDetailProps) {
                 </View>
               )}
 
-              {/* Transactions List */}
-              {filteredTransactions.length > 0 ? (
-                <>
-                  {filteredTransactions.map((transaction: BudgetInstanceTransaction) => (
-                    <TransactionListItem
-                      key={transaction.id}
-                      transaction={transaction}
-                    />
-                  ))}
-                </>
-              ) : (
-                <View style={{ padding: 40, alignItems: 'center' }}>
-                  <Text className="text-sm font-regular" style={{ color: Colors.gray[500], textAlign: 'center' }}>
-                    {searchQuery
-                      ? t('budget.no_transactions_found', 'No se encontraron transacciones')
-                      : t('budget.no_transactions', 'No hay transacciones en este período')}
-                  </Text>
-                </View>
-              )}
+              <View className="mt-2">
+                {filteredTransactions.length > 0 ? (
+                  <>
+                    {filteredTransactions.map((transaction: BudgetInstanceTransaction) => (
+                      <TransactionListItem
+                        key={transaction.id}
+                        transaction={transaction}
+                      />
+                    ))}
+                  </>
+                ) : (
+                  <View style={{ padding: 40, alignItems: 'center' }}>
+                    <Text className="text-sm font-regular" style={{ color: Colors.gray[500], textAlign: 'center' }}>
+                      {searchQuery
+                        ? t('budget.no_transactions_found', 'No se encontraron transacciones')
+                        : t('budget.no_transactions', 'No hay transacciones en este período')}
+                    </Text>
+                  </View>
+                )}
+              </View>
             </View>
           </Container>
 
           <View className="h-24" />
         </ScrollView>
       </KeyboardAwareContainer>
+
+      {/* Categorize Button */}
+      {uncategorized.transactionSelectionMode && (
+        <View
+          style={{
+            backgroundColor: '#fff',
+            paddingHorizontal: 24,
+            paddingVertical: 16,
+            paddingBottom: 32,
+            borderTopWidth: 1,
+            borderTopColor: Colors.gray[100],
+          }}
+        >
+          <Button
+            title={t('budget.categorize', 'Categorizar')}
+            onPress={uncategorized.handleCategorize}
+            variant="primary"
+            fullWidth
+          />
+        </View>
+      )}
 
       <ConfirmModal
         visible={showDeleteModal}
@@ -278,6 +324,24 @@ export function BudgetDetail({ instanceId }: BudgetDetailProps) {
         confirmButtonText={t('common.deactivate', 'Desactivar')}
         cancelButtonText={t('common.cancel', 'Cancelar')}
         isDeleting={isDeleting}
+      />
+
+      {/* Categorization Confirmation Modal */}
+      <ConfirmModal
+        visible={uncategorized.showMoveModal}
+        onClose={uncategorized.handleCloseMoveModal}
+        onConfirm={uncategorized.confirmCategorization}
+        title={`${t('budget.categorize', 'Categorizar')} ${uncategorized.selectedTransactions.size} ${uncategorized.selectedTransactions.size === 1 ? 'transacción' : 'transacciones'}`}
+        message={`¿Deseas categorizar las transacciones seleccionadas en "${categoryName}"?`}
+        confirmButtonText={t('budget.categorize', 'Categorizar')}
+        loadingText="Categorizando..."
+        cancelButtonText={t('common.cancel', 'Cancelar')}
+        isDeleting={uncategorized.assigningCategories}
+      />
+
+      <SuccessMessage
+        visible={uncategorized.showSuccessMessage}
+        message={uncategorized.successMessage}
       />
     </Container>
   );

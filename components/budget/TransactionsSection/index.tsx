@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, ScrollView, TouchableOpacity } from 'react-native';
-import { Container, KeyboardAwareContainer, SyncModal, LoadingSpinner, Header, FloatingActionButton, type FloatingAction } from '@/components/ui';
+import { Container, KeyboardAwareContainer, SyncModal, LoadingSpinner, Header, FloatingActionButton, ConfirmModal, type FloatingAction } from '@/components/ui';
 import { Filters } from './Filters';
 import { TransactionsSection } from './Transactions';
 import { DeleteTransactionModal } from './Modals/DeleteTransactionModal';
@@ -9,8 +9,13 @@ import { ChevronLeft, RefreshCw, Plus } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
 
-export function TransactionsOverview() {
+interface TransactionsOverviewProps {
+  initialAccountId?: string;
+}
+
+export function TransactionsOverview({ initialAccountId }: TransactionsOverviewProps) {
   const router = useRouter();
+  const [showFloidConfirmModal, setShowFloidConfirmModal] = useState(false);
 
   const {
     // State
@@ -21,6 +26,10 @@ export function TransactionsOverview() {
     showDeleteModal,
     isDeleting,
     selectedAccountId,
+
+    // Transaction mode
+    mode,
+    hasBankAccounts,
 
     // Data
     accountOptions,
@@ -55,6 +64,7 @@ export function TransactionsOverview() {
     setSearchQuery,
     setSelectedAccountId,
     handleMonthSelect,
+    handleYearSelect,
     handleIntegrarDatos,
     handleAddTransaction,
     handleCategoriesManager,
@@ -70,7 +80,21 @@ export function TransactionsOverview() {
 
     // Translation
     t,
-  } = useTransactionsOverview();
+  } = useTransactionsOverview({ initialAccountId });
+
+  // Handle sync button press - show confirmation if user has bank accounts
+  const handleSyncPress = () => {
+    if (mode === 'bank_account' || hasBankAccounts) {
+      setShowFloidConfirmModal(true);
+    } else {
+      handleIntegrarDatos();
+    }
+  };
+
+  const handleConfirmFloidSync = () => {
+    setShowFloidConfirmModal(false);
+    handleIntegrarDatos();
+  };
 
   const floatingActions: FloatingAction[] = [
     {
@@ -102,7 +126,7 @@ export function TransactionsOverview() {
         }
         rightAction={
           <TouchableOpacity
-            onPress={handleIntegrarDatos}
+            onPress={handleSyncPress}
             className="mr-3"
           >
             <RefreshCw size={24} color={Colors.primary[500]} />
@@ -122,7 +146,7 @@ export function TransactionsOverview() {
               selectedMonth={selectedMonth}
               selectedYear={selectedYear}
               onMonthSelect={handleMonthSelect}
-              onYearSelect={(year) => {}}
+              onYearSelect={handleYearSelect}
               isLoading={accountsLoading}
               chartSize={chartSize}
               accountPlaceholder={t('budget.select_account', 'Seleccionar cuenta')}
@@ -182,6 +206,16 @@ export function TransactionsOverview() {
         title={t('budget.delete_transaction')}
         message={t('budget.delete_transaction_message')}
         confirmButtonText={t('common.delete', 'Eliminar')}
+        cancelButtonText={t('common.cancel')}
+      />
+
+      <ConfirmModal
+        visible={showFloidConfirmModal}
+        onClose={() => setShowFloidConfirmModal(false)}
+        onConfirm={handleConfirmFloidSync}
+        title={t('budget.floid_sync_title', 'Sincronizar con Floid')}
+        message={t('budget.floid_sync_warning', 'Al sincronizar tus cuentas bancarias con Floid, se utilizarán únicamente las transacciones de tus cuentas sincronizadas. Las transacciones manuales registradas con tus cuentas bancarias de la app ya no se mostrarán en esta sección.')}
+        confirmButtonText={t('budget.floid_sync_confirm', 'Sincronizar')}
         cancelButtonText={t('common.cancel')}
       />
     </Container>

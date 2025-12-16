@@ -6,11 +6,28 @@ import { Container, Header, Input, Select, Button, KeyboardAwareContainer, Loadi
 import CalendarSelect from '@/components/ui/CalendarSelect';
 import { patchFloidTransaction } from '@/services/budget/transactions/patch-floid-transaction';
 import { getFloidTransaction, type FloidTransaction } from '@/services/budget/transactions/get-floid-transactions';
+import { getManualTransaction, updateManualTransaction, ManualTransaction } from '@/services/budget/transactions/manual-transactions';
 import { useAuth } from '@/providers/AuthProvider';
 import { getUserCategories } from '@/services/budget/categories-manager';
 import type { UserCategory } from '@/services/budget/categories-manager';
 import Colors from '@/constants/Colors';
 import { getTranslatedNames } from '@/utils/categoryTranslations';
+
+// Unified transaction type for the form
+interface UnifiedTransaction {
+  id: number;
+  description: string;
+  date: string;
+  amount: number;
+  transaction_type: 'income' | 'outcome';
+  bank: string;
+  account_number: string;
+  category?: {
+    id: number;
+    name: string;
+  } | null;
+  isManual: boolean;
+}
 
 export default function EditTransactionScreen() {
   const router = useRouter();
@@ -19,9 +36,10 @@ export default function EditTransactionScreen() {
   const params = useLocalSearchParams();
 
   const transactionId = params.id as string;
+  const isManualParam = params.isManual === 'true';
 
-  // Estados para la transacción
-  const [transaction, setTransaction] = useState<FloidTransaction | null>(null);
+  // Estados para la transaccion
+  const [transaction, setTransaction] = useState<UnifiedTransaction | null>(null);
   const [transactionLoading, setTransactionLoading] = useState(true);
 
   // Estados del formulario
@@ -33,14 +51,14 @@ export default function EditTransactionScreen() {
   const [isSaved, setIsSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Estados para categorías del API
+  // Estados para categorias del API
   const [apiCategories, setApiCategories] = useState<UserCategory[]>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
 
-  // Cargar transacción desde la API
+  // Cargar transaccion desde la API
   useEffect(() => {
     const fetchTransaction = async () => {
-      console.log('[EditTransaction] useEffect triggered', { accessToken: !!accessToken, transactionId });
+      console.log('[EditTransaction] useEffect triggered', { accessToken: !!accessToken, transactionId, isManualParam });
 
       if (!accessToken || !transactionId) {
         console.log('[EditTransaction] Missing accessToken or transactionId');
@@ -49,47 +67,77 @@ export default function EditTransactionScreen() {
 
       try {
         setTransactionLoading(true);
-        console.log('[EditTransaction] Fetching transaction with id:', transactionId);
+        console.log('[EditTransaction] Fetching transaction with id:', transactionId, 'isManual:', isManualParam);
 
-        const data = await getFloidTransaction(
-          { id: transactionId },
-          accessToken
-        );
+        let unifiedTransaction: UnifiedTransaction;
 
-        console.log('[EditTransaction] Transaction data received:', data);
+        if (isManualParam) {
+          // Fetch manual transaction
+          const response = await getManualTransaction(parseInt(transactionId), accessToken);
+          const manualTx = response.data;
 
-        if (data) {
-          console.log('[EditTransaction] Setting transaction data:', {
-            description: data.description,
-            date: data.date,
-            amount: data.amount,
-            category: data.category
-          });
+          const isIncome = manualTx.amount_in > 0;
+          unifiedTransaction = {
+            id: manualTx.id,
+            description: manualTx.description,
+            date: manualTx.date,
+            amount: isIncome ? manualTx.amount_in : manualTx.amount_out,
+            transaction_type: isIncome ? 'income' : 'outcome',
+            bank: manualTx.bank_account?.bank_name || 'Cuenta manual',
+            account_number: manualTx.bank_account?.account_number || '',
+            category: manualTx.user_category ? {
+              id: manualTx.user_category.id,
+              name: manualTx.user_category.name
+            } : null,
+            isManual: true
+          };
+        } else {
+          // Fetch Floid transaction
+          const floidTx = await getFloidTransaction({ id: transactionId }, accessToken);
 
-          setTransaction(data);
-          setDescription(data.description || '');
-
-          // Formatear fecha
-          if (data.date) {
-            const dateStr = data.date.split('T')[0];
-            const parts = dateStr.split('-');
-            setDate(`${parts[2]}/${parts[1]}/${parts[0]}`);
+          if (!floidTx) {
+            throw new Error('Transaccion no encontrada');
           }
 
-          console.log('[EditTransaction] State updated successfully');
-        } else {
-          console.log('[EditTransaction] No data received');
+          unifiedTransaction = {
+            id: floidTx.id,
+            description: floidTx.description || '',
+            date: floidTx.date,
+            amount: parseFloat(floidTx.amount?.toString() || '0'),
+            transaction_type: floidTx.transaction_type,
+            bank: floidTx.bank || '',
+            account_number: floidTx.account_number || '',
+            category: floidTx.category ? {
+              id: floidTx.category.id,
+              name: floidTx.category.name
+            } : null,
+            isManual: false
+          };
         }
+
+        console.log('[EditTransaction] Transaction data received:', unifiedTransaction);
+
+        setTransaction(unifiedTransaction);
+        setDescription(unifiedTransaction.description || '');
+
+        // Formatear fecha
+        if (unifiedTransaction.date) {
+          const dateStr = unifiedTransaction.date.split('T')[0];
+          const parts = dateStr.split('-');
+          setDate(`${parts[2]}/${parts[1]}/${parts[0]}`);
+        }
+
+        console.log('[EditTransaction] State updated successfully');
       } catch (error) {
         console.error('[EditTransaction] Error fetching transaction:', error);
-        setError('Error al cargar la transacción');
+        setError('Error al cargar la transaccion');
       } finally {
         setTransactionLoading(false);
       }
     };
 
     fetchTransaction();
-  }, [accessToken, transactionId]);
+  }, [accessToken, transactionId, isManualParam]);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -104,20 +152,20 @@ export default function EditTransactionScreen() {
         const response = await getUserCategories({ kind, per_page: 100 }, accessToken);
 
         if (response?.success && response.data) {
-          // Filtrar solo categorías padre
+          // Filtrar solo categorias padre
           const parentCategories = response.data.filter(cat => cat.parent_id === null);
           setApiCategories(parentCategories);
 
-          // Pre-seleccionar categoría y subcategoría si existe
+          // Pre-seleccionar categoria y subcategoria si existe
           if (transaction.category?.id) {
             const categoryIdStr = transaction.category.id.toString();
 
-            // Buscar si es una categoría padre
+            // Buscar si es una categoria padre
             const parentCategory = parentCategories.find(cat => cat.id.toString() === categoryIdStr);
             if (parentCategory) {
               setSelectedParentCategoryId(categoryIdStr);
             } else {
-              // Buscar si es una subcategoría
+              // Buscar si es una subcategoria
               for (const cat of parentCategories) {
                 const subcategory = cat.children?.find(sub => sub.id.toString() === categoryIdStr);
                 if (subcategory) {
@@ -141,18 +189,18 @@ export default function EditTransactionScreen() {
 
   const amount = useMemo(() => {
     if (!transaction || !transaction.amount) return '';
-    const numAmount = parseFloat(transaction.amount.toString());
+    const numAmount = transaction.amount;
     return Math.round(numAmount).toLocaleString('es-CL');
   }, [transaction]);
 
-  // Opciones de categorías padre
+  // Opciones de categorias padre
   const categoryOptions = useMemo(() => {
     if (apiCategories.length === 0) return [];
     const isIncome = transaction?.transaction_type === 'income';
     const currentLang = t('common.language_code', 'es');
 
     return [
-      { label: t('budget.no_category', 'Sin categoría'), value: '' },
+      { label: t('budget.no_category', 'Sin categoria'), value: '' },
       ...apiCategories
         .filter(category => category && category.id !== undefined && category.id !== null)
         .map(category => {
@@ -165,7 +213,7 @@ export default function EditTransactionScreen() {
     ];
   }, [apiCategories, t, transaction?.transaction_type]);
 
-  // Opciones de subcategorías basadas en la categoría seleccionada
+  // Opciones de subcategorias basadas en la categoria seleccionada
   const subcategoryOptions = useMemo(() => {
     if (!selectedParentCategoryId || apiCategories.length === 0) return [];
 
@@ -175,7 +223,7 @@ export default function EditTransactionScreen() {
     const currentLang = t('common.language_code', 'es');
 
     return [
-      { label: t('budget.no_subcategory', 'Sin subcategoría'), value: '' },
+      { label: t('budget.no_subcategory', 'Sin subcategoria'), value: '' },
       ...selectedCategory.children
         .filter(subcat => subcat && subcat.id !== undefined && subcat.id !== null)
         .map(subcat => {
@@ -190,7 +238,7 @@ export default function EditTransactionScreen() {
 
   const handleCategoryChange = (value: string) => {
     setSelectedParentCategoryId(value);
-    setSelectedSubcategoryId(''); // Resetear subcategoría al cambiar categoría
+    setSelectedSubcategoryId(''); // Resetear subcategoria al cambiar categoria
   };
 
   const handleSubcategoryChange = (value: string) => {
@@ -205,34 +253,52 @@ export default function EditTransactionScreen() {
       return;
     }
 
+    if (!transaction) return;
+
     try {
       setIsLoading(true);
 
       const dateParts = date.split('/');
       const formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
 
-      const transactionData: any = {
-        description: description.trim(),
-        date: formattedDate,
-      };
+      // Determinar category_id
+      const categoryId = selectedSubcategoryId
+        ? parseInt(selectedSubcategoryId)
+        : selectedParentCategoryId
+          ? parseInt(selectedParentCategoryId)
+          : null;
 
-      // Enviar subcategoría si existe, sino enviar categoría padre, o null si no hay selección
-      if (selectedSubcategoryId) {
-        transactionData.user_category_id = parseInt(selectedSubcategoryId);
-        transactionData.auto_category = false; // Siempre manual cuando se edita
-      } else if (selectedParentCategoryId) {
-        transactionData.user_category_id = parseInt(selectedParentCategoryId);
-        transactionData.auto_category = false; // Siempre manual cuando se edita
+      if (transaction.isManual) {
+        // Update manual transaction
+        await updateManualTransaction(
+          transaction.id,
+          {
+            description: description.trim(),
+            date: formattedDate,
+            user_category_id: categoryId,
+          },
+          accessToken!
+        );
       } else {
-        // Si no hay categoría seleccionada, enviar null para descategorizar
-        transactionData.user_category_id = null;
-        transactionData.auto_category = false;
-      }
+        // Update Floid transaction
+        const transactionData: any = {
+          description: description.trim(),
+          date: formattedDate,
+        };
 
-      await patchFloidTransaction({
-        transactionId,
-        transaction: transactionData
-      }, accessToken!);
+        if (categoryId) {
+          transactionData.user_category_id = categoryId;
+          transactionData.auto_category = false;
+        } else {
+          transactionData.user_category_id = null;
+          transactionData.auto_category = false;
+        }
+
+        await patchFloidTransaction({
+          transactionId,
+          transaction: transactionData
+        }, accessToken!);
+      }
 
       setIsSaved(true);
 
@@ -255,13 +321,13 @@ export default function EditTransactionScreen() {
     return description && description.trim().length > 0;
   };
 
-  // Mostrar loading mientras carga la transacción
+  // Mostrar loading mientras carga la transaccion
   console.log('[EditTransaction] Render - transactionLoading:', transactionLoading, 'transaction:', !!transaction);
 
   if (transactionLoading || !transaction) {
     return (
       <Container variant="secondaryPage">
-        <Header title={t('budget.transaction_edit', 'Editar transacción')} showBackButton />
+        <Header title={t('budget.transaction_edit', 'Editar transaccion')} showBackButton />
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
           <LoadingSpinner />
         </View>
@@ -305,7 +371,7 @@ export default function EditTransactionScreen() {
                 <View style={{ gap: 20 }}>
                   <Input
                     label={t('budget.transaction_bank')}
-                    value={`${transaction.bank} - ${transaction.account_number}`}
+                    value={`${transaction.bank}${transaction.account_number ? ` - ${transaction.account_number}` : ''}`}
                     onChangeText={() => {}}
                     disabled={true}
                   />
@@ -318,21 +384,21 @@ export default function EditTransactionScreen() {
                   />
 
                   <Select
-                    label={t('budget.category', 'Categoría')}
+                    label={t('budget.category', 'Categoria')}
                     options={categoryOptions}
                     value={selectedParentCategoryId}
                     onSelect={handleCategoryChange}
-                    placeholder={t('budget.no_category', 'Sin categoría')}
-                    emptyMessage={t('budget.add_categories_first', 'Debes añadir categorías para poder asignar transacciones.')}
+                    placeholder={t('budget.no_category', 'Sin categoria')}
+                    emptyMessage={t('budget.add_categories_first', 'Debes añadir categorias para poder asignar transacciones.')}
                   />
 
                   {selectedParentCategoryId && subcategoryOptions.length > 0 && (
                     <Select
-                      label={t('budget.subcategory', 'Subcategoría')}
+                      label={t('budget.subcategory', 'Subcategoria')}
                       options={subcategoryOptions}
                       value={selectedSubcategoryId}
                       onSelect={handleSubcategoryChange}
-                      placeholder={t('budget.no_subcategory', 'Sin subcategoría')}
+                      placeholder={t('budget.no_subcategory', 'Sin subcategoria')}
                     />
                   )}
 

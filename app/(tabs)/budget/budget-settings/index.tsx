@@ -18,6 +18,7 @@ import {
   Plus,
   History,
   Power,
+  Settings,
 } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import { useAuth } from '@/providers/AuthProvider';
@@ -172,22 +173,14 @@ export default function BudgetSettingsScreen() {
             )}
 
             {templates.length === 0 && !error ? (
-              <Card variant="default" size="md" className="mb-4">
-                <View className="py-8 items-center">
-                  <Text className="text-gray-500 font-regular text-center mb-4">
-                    {t('budget.no_templates', 'No tienes presupuestos configurados')}
-                  </Text>
-                  <TouchableOpacity
-                    onPress={handleNavigateToCreate}
-                    className="px-4 py-2 rounded-lg"
-                    style={{ backgroundColor: Colors.primary[500] }}
-                  >
-                    <Text className="text-white font-medium">
-                      {t('budget.create_first', 'Crear primer presupuesto')}
-                    </Text>
-                  </TouchableOpacity>
+              <View className="flex-1 justify-center items-center py-8">
+                <View className="w-16 h-16 rounded-full bg-gray-100 justify-center items-center mb-4">
+                  <Settings size={32} color={Colors.gray[400]} />
                 </View>
-              </Card>
+                <Text className="text-center font-medium" style={{ color: Colors.gray[400] }}>
+                  {t('budget.no_templates', 'No tienes presupuestos configurados')}
+                </Text>
+              </View>
             ) : (
               templates.map((template) => {
                 const isIncome = template.user_category?.kind === 'income';

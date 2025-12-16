@@ -1,17 +1,15 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { View, Text } from 'react-native';
+import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import FormLayout from '@/components/ui/FormLayout';
-import { Input, Select, RadioButton, Card } from '@/components/ui';
+import { Input, Select, RadioButton, CalendarSelect } from '@/components/ui';
 import { useAuth } from '@/providers/AuthProvider';
 import { getUserCategories } from '@/services/budget/categories-manager';
 import type { UserCategory } from '@/services/budget/categories-manager';
 import { createBudgetTemplate, getBudgetTemplates } from '@/services/budget/budget-templates';
 import type { BudgetTemplate } from '@/services/budget/budget-templates/types';
-import { getIncomeSources, type IncomeSource } from '@/services/budget/budget-instances';
 import { getTranslatedNames } from '@/utils/categoryTranslations';
-import Colors from '@/constants/Colors';
 
 export default function CreateBudgetScreen() {
   const router = useRouter();
@@ -20,40 +18,24 @@ export default function CreateBudgetScreen() {
 
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>('');
   const [selectedSubcategoryId, setSelectedSubcategoryId] = useState<string>('');
-  const [selectedIncomeCategoryId, setSelectedIncomeCategoryId] = useState<string>('');
-  const [selectedIncomeSubcategoryId, setSelectedIncomeSubcategoryId] = useState<string>('');
   const [amount, setAmount] = useState('');
   const [recurrence, setRecurrence] = useState<'monthly' | 'weekly' | 'yearly'>('monthly');
+  const [startDate, setStartDate] = useState<string>(() => {
+    const now = new Date();
+    const day = '01';
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const year = now.getFullYear();
+    return `${day}/${month}/${year}`;
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [apiExpenseCategories, setApiExpenseCategories] = useState<UserCategory[]>([]);
   const [expenseSubcategories, setExpenseSubcategories] = useState<UserCategory[]>([]);
-  const [incomeCategories, setIncomeCategories] = useState<UserCategory[]>([]);
-  const [incomeSubcategories, setIncomeSubcategories] = useState<UserCategory[]>([]);
-  const [incomeSources, setIncomeSources] = useState<IncomeSource[]>([]);
   const [existingTemplates, setExistingTemplates] = useState<BudgetTemplate[]>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(false);
   const [subcategoriesLoading, setSubcategoriesLoading] = useState(false);
-
-  // Get current month date range for income sources
-  const getMonthDateRange = () => {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth();
-    const startDate = new Date(year, month, 1);
-    const endDate = new Date(year, month + 1, 0);
-
-    const formatDate = (d: Date) => {
-      const y = d.getFullYear();
-      const m = String(d.getMonth() + 1).padStart(2, '0');
-      const day = String(d.getDate()).padStart(2, '0');
-      return `${y}-${m}-${day}`;
-    };
-
-    return { start_date: formatDate(startDate), end_date: formatDate(endDate) };
-  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -62,28 +44,14 @@ export default function CreateBudgetScreen() {
       try {
         setCategoriesLoading(true);
 
-        const { start_date, end_date } = getMonthDateRange();
-
-        // Fetch expense categories, income categories, income sources, and existing templates in parallel
-        const [expenseResponse, incomeResponse, incomeSourcesResponse, templatesResponse] = await Promise.all([
+        const [expenseResponse, templatesResponse] = await Promise.all([
           getUserCategories({ kind: 'expense', per_page: 100 }, accessToken),
-          getUserCategories({ kind: 'income', per_page: 100 }, accessToken),
-          getIncomeSources({ start_date, end_date }, accessToken).catch(() => null),
           getBudgetTemplates(accessToken).catch(() => null)
         ]);
 
         if (expenseResponse?.success && expenseResponse.data) {
           const parentCategories = expenseResponse.data.filter(cat => cat.parent_id === null);
           setApiExpenseCategories(parentCategories);
-        }
-
-        if (incomeResponse?.success && incomeResponse.data) {
-          const parentCategories = incomeResponse.data.filter(cat => cat.parent_id === null);
-          setIncomeCategories(parentCategories);
-        }
-
-        if (incomeSourcesResponse?.success && incomeSourcesResponse.data?.income_sources) {
-          setIncomeSources(incomeSourcesResponse.data.income_sources);
         }
 
         if (templatesResponse?.success && templatesResponse.budget_templates) {
@@ -130,39 +98,8 @@ export default function CreateBudgetScreen() {
     };
 
     fetchExpenseSubcategories();
-    setSelectedSubcategoryId(''); // Reset subcategory when parent changes
+    setSelectedSubcategoryId('');
   }, [accessToken, selectedCategoryId]);
-
-  // Fetch income subcategories when parent income category changes
-  useEffect(() => {
-    const fetchIncomeSubcategories = async () => {
-      if (!accessToken || !selectedIncomeCategoryId) {
-        setIncomeSubcategories([]);
-        setSelectedIncomeSubcategoryId('');
-        return;
-      }
-
-      try {
-        const response = await getUserCategories({
-          kind: 'income',
-          parent_id: parseInt(selectedIncomeCategoryId),
-          per_page: 100
-        }, accessToken);
-
-        if (response?.success && response.data) {
-          setIncomeSubcategories(response.data);
-        } else {
-          setIncomeSubcategories([]);
-        }
-      } catch (error) {
-        console.error('Error fetching income subcategories:', error);
-        setIncomeSubcategories([]);
-      }
-    };
-
-    fetchIncomeSubcategories();
-    setSelectedIncomeSubcategoryId(''); // Reset subcategory when parent changes
-  }, [accessToken, selectedIncomeCategoryId]);
 
   const recurrenceOptions = [
     { label: t('budget.monthly', 'Mensual'), value: 'monthly' },
@@ -194,7 +131,7 @@ export default function CreateBudgetScreen() {
           value: category.id.toString()
         };
       });
-  }, [t, apiExpenseCategories, categoriesWithBudgets]);
+  }, [t, apiExpenseCategories]);
 
   // Subcategory options for expense categories
   const subcategoryOptions = useMemo(() => {
@@ -202,7 +139,7 @@ export default function CreateBudgetScreen() {
     const currentLang = t('common.language_code', 'es');
 
     const availableSubcategories = expenseSubcategories
-      .filter(cat => !categoriesWithBudgets.has(cat.id)) // Filter out subcategories with existing budgets
+      .filter(cat => !categoriesWithBudgets.has(cat.id))
       .map(category => {
         const translatedNames = getTranslatedNames(category.display_name, false);
         return {
@@ -224,87 +161,8 @@ export default function CreateBudgetScreen() {
       return [defaultOption, ...availableSubcategories];
     }
 
-    // Si la categoría padre tiene presupuesto, no incluir "Sin subcategoría"
     return availableSubcategories;
   }, [t, expenseSubcategories, categoriesWithBudgets, selectedCategoryHasBudget]);
-
-  // Income subcategory options - usar incomeSources para obtener saldos
-  const incomeSubcategoryOptions = useMemo(() => {
-    if (incomeSubcategories.length === 0) return [];
-    const currentLang = t('common.language_code', 'es');
-
-    const defaultOption = {
-      label: t('budget.no_subcategory', 'Sin subcategoría'),
-      value: 'none'
-    };
-
-    const subcategories = incomeSubcategories
-      .filter(cat => !categoriesWithBudgets.has(cat.id))
-      .map(category => {
-        // Buscar en incomeSources para obtener el saldo disponible
-        const sourceData = incomeSources.find(s => s.id === category.id);
-        const translatedNames = getTranslatedNames(category.display_name, true); // true = income category
-        const displayName = translatedNames[currentLang as 'en' | 'es' | 'es-CL'] || category.display_name || '';
-        const availableBalance = sourceData ? ` ($${sourceData.available.toLocaleString('es-CL')})` : '';
-
-        return {
-          label: `${category.emoji_code || ''} ${displayName}${availableBalance}`.trim(),
-          value: category.id.toString()
-        };
-      });
-
-    return [defaultOption, ...subcategories];
-  }, [t, incomeSubcategories, categoriesWithBudgets, incomeSources]);
-
-  // Convert emoji code to actual emoji
-  const emojiFromCode = (code: string): string => {
-    if (!code) return '💰';
-    try {
-      // If it's already an emoji, return it
-      if (code.length <= 2) return code;
-      // Convert hex code to emoji
-      return String.fromCodePoint(parseInt(code, 16));
-    } catch {
-      return '💰';
-    }
-  };
-
-  const incomeSourceOptions = useMemo(() => {
-    if (incomeSources.length === 0) return [];
-    const currentLang = t('common.language_code', 'es');
-
-    // Filtrar solo las categorías padre (las que están en incomeCategories)
-    const parentCategoryIds = new Set(incomeCategories.map(c => c.id));
-
-    return incomeSources
-      .filter(source => parentCategoryIds.has(source.id))
-      .map(source => {
-        const translatedNames = getTranslatedNames(source.display_name || source.name, true); // true = income category
-        const displayName = translatedNames[currentLang as 'en' | 'es' | 'es-CL'] || source.display_name || source.name;
-        return {
-          label: `${emojiFromCode(source.emoji_code)} ${displayName} ($${source.available.toLocaleString('es-CL')})`,
-          value: source.id.toString()
-        };
-      });
-  }, [incomeSources, incomeCategories, t]);
-
-  // Get selected income source details - priorizar subcategoría si está seleccionada
-  const selectedIncomeSource = useMemo(() => {
-    // Si hay subcategoría seleccionada y no es 'none', buscar esa
-    if (selectedIncomeSubcategoryId && selectedIncomeSubcategoryId !== 'none') {
-      return incomeSources.find(source => source.id.toString() === selectedIncomeSubcategoryId) || null;
-    }
-    // Si no, buscar la categoría padre
-    if (!selectedIncomeCategoryId) return null;
-    return incomeSources.find(source => source.id.toString() === selectedIncomeCategoryId) || null;
-  }, [selectedIncomeCategoryId, selectedIncomeSubcategoryId, incomeSources]);
-
-  // Verificar si el monto excede el disponible
-  const amountExceedsAvailable = useMemo(() => {
-    if (!selectedIncomeSource || !amount) return false;
-    const cleanAmount = parseFloat(amount.replace(/[^\d]/g, ''));
-    return cleanAmount > selectedIncomeSource.available;
-  }, [selectedIncomeSource, amount]);
 
   const handleRecurrenceChange = (value: string) => {
     setRecurrence(value as 'monthly' | 'weekly' | 'yearly');
@@ -318,7 +176,6 @@ export default function CreateBudgetScreen() {
       return;
     }
 
-    // Si la categoría padre ya tiene presupuesto y no se seleccionó subcategoría válida, mostrar error
     const hasValidSubcategory = selectedSubcategoryId && selectedSubcategoryId !== 'none';
     if (selectedCategoryHasBudget && !hasValidSubcategory) {
       setError(t('budget.category_has_budget', 'Esta categoría ya tiene un presupuesto asignado. Selecciona una subcategoría.'));
@@ -341,27 +198,18 @@ export default function CreateBudgetScreen() {
     try {
       setIsLoading(true);
 
-      // Siempre usar el día 1 del mes actual como start_date
-      const now = new Date();
-      const startDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
+      const [day, month, year] = startDate.split('/');
+      const formattedStartDate = `${year}-${month}-${day}`;
 
-      // Usar subcategoría si está seleccionada y no es 'none', de lo contrario usar categoría padre
       const categoryIdToUse = (selectedSubcategoryId && selectedSubcategoryId !== 'none')
         ? selectedSubcategoryId
         : selectedCategoryId;
-
-      // Para income, usar subcategoría si está seleccionada y no es 'none'
-      const hasValidIncomeSubcategory = selectedIncomeSubcategoryId && selectedIncomeSubcategoryId !== 'none';
-      const incomeIdToUse = hasValidIncomeSubcategory
-        ? selectedIncomeSubcategoryId
-        : selectedIncomeCategoryId;
 
       await createBudgetTemplate({
         user_category_id: parseInt(categoryIdToUse),
         amount: parsedAmount,
         recurrence: recurrence,
-        start_date: startDate,
-        ...(incomeIdToUse && { income_user_category_id: parseInt(incomeIdToUse) })
+        start_date: formattedStartDate,
       }, accessToken!);
 
       setIsSaved(true);
@@ -382,28 +230,20 @@ export default function CreateBudgetScreen() {
   };
 
   const isFormValid = () => {
-    // Categoría requerida
     if (!selectedCategoryId) {
       return false;
     }
 
-    // Si la categoría ya tiene presupuesto, la subcategoría es requerida (y no puede ser 'none')
     const hasValidSubcategory = selectedSubcategoryId && selectedSubcategoryId !== 'none';
     if (selectedCategoryHasBudget && !hasValidSubcategory) {
       return false;
     }
 
-    // Monto requerido y mayor a 0
     if (!amount) {
       return false;
     }
     const cleanAmount = parseFloat(amount.replace(/[^\d]/g, ''));
     if (cleanAmount <= 0) {
-      return false;
-    }
-
-    // Si hay fuente de ingreso seleccionada, el monto no puede exceder el disponible
-    if (amountExceedsAvailable) {
       return false;
     }
 
@@ -441,7 +281,7 @@ export default function CreateBudgetScreen() {
 
         {selectedCategoryId && (subcategoriesLoading || subcategoryOptions.length > 0) && (
           <Select
-            label={selectedCategoryHasBudget 
+            label={selectedCategoryHasBudget
               ? t('budget.expense_subcategory', 'Subcategoría de Gasto')
               : `${t('budget.expense_subcategory', 'Subcategoría de Gasto')} *`
             }
@@ -459,27 +299,6 @@ export default function CreateBudgetScreen() {
           />
         )}
 
-        <Select
-          label={t('budget.income_category', 'Fuente de Ingreso')}
-          options={incomeSourceOptions}
-          value={selectedIncomeCategoryId}
-          onSelect={setSelectedIncomeCategoryId}
-          placeholder={t('budget.select_income_category', 'Seleccionar fuente de ingreso')}
-          disabled={categoriesLoading || incomeSourceOptions.length === 0}
-          emptyMessage={t('budget.add_income_categories_first', 'Debes añadir categorías de ingreso.')}
-        />
-
-        {selectedIncomeCategoryId && incomeSubcategoryOptions.length > 0 && (
-          <Select
-            label={`${t('budget.income_subcategory', 'Subcategoría de Ingreso')} *`}
-            options={incomeSubcategoryOptions}
-            value={selectedIncomeSubcategoryId}
-            onSelect={setSelectedIncomeSubcategoryId}
-            placeholder={t('budget.select_income_subcategory', 'Seleccionar subcategoría')}
-            emptyMessage={t('budget.no_subcategories', 'No hay subcategorías disponibles')}
-          />
-        )}
-
         <Input
           label={t('budget.budget_amount', 'Monto del presupuesto')}
           value={amount}
@@ -494,11 +313,6 @@ export default function CreateBudgetScreen() {
           }}
           placeholder="$0"
           keyboardType="numeric"
-          error={
-            amountExceedsAvailable && selectedIncomeSource
-              ? `${t('budget.max_amount', 'Monto máximo')}: $${selectedIncomeSource.available.toLocaleString('es-CL')}`
-              : undefined
-          }
         />
 
         <RadioButton
@@ -507,6 +321,13 @@ export default function CreateBudgetScreen() {
           selectedValue={recurrence}
           onSelect={handleRecurrenceChange}
           horizontal={true}
+        />
+
+        <CalendarSelect
+          label={t('budget.start_date', 'Desde')}
+          value={startDate}
+          onSelect={setStartDate}
+          placeholder={t('budget.select_start_date', 'Seleccionar fecha de inicio')}
         />
       </View>
     </FormLayout>

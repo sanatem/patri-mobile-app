@@ -121,6 +121,7 @@
         "deactivate_message": "¿Estás seguro de que deseas desactivar este presupuesto?",
         "deactivated": "Presupuesto desactivado",
         "error_deactivating": "No se pudo desactivar el presupuesto",
+        "inactive": "Inactivo",
         "manage_budget": "Gestionar presupuesto",
         "view_history": "Ver historial",
         "view_history_desc": "Ver progreso de meses anteriores",

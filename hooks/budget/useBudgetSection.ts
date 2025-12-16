@@ -5,6 +5,7 @@ import { useSubscriptionStatus } from '@/hooks/common/useSubscriptionStatus';
 import { useTranslation } from 'react-i18next';
 import { useFloidSync } from '@/hooks/common/useFloidSync';
 import { useAuth } from '@/providers/AuthProvider';
+import { useBudgetDate } from '@/providers/BudgetDateProvider';
 import { getBudgetInstances } from '@/services/budget/budget-instances';
 import { getBudgetTemplates, updateBudgetTemplate, deactivateBudgetTemplate } from '@/services/budget/budget-templates';
 import type { BudgetInstance, BudgetSummary, BudgetTemplate, CombinedBudget } from '@/services/budget/budget-templates/types';
@@ -26,47 +27,18 @@ export function useBudgetSection() {
   const router = useRouter();
   const { t } = useTranslation();
 
+  // Use shared budget date context
+  const {
+    selectedDate,
+    currentPeriod,
+    isCurrentMonth,
+    handlePreviousMonth,
+    handleNextMonth,
+    getMonthDateRange,
+  } = useBudgetDate();
+
   const { width: screenWidth } = Dimensions.get('window');
   const chartSize = Math.min(screenWidth - 80, 280);
-
-  // Selected date state - starts at current month
-  const [selectedDate, setSelectedDate] = useState(() => {
-    const now = new Date();
-    // Set to first day of current month to avoid timezone issues
-    return new Date(now.getFullYear(), now.getMonth(), 1);
-  });
-
-  // Format selected date as "Enero 2025" using locale
-  const formatMonthYear = useCallback((date: Date): string => {
-    return date.toLocaleString('es-CL', { month: 'long', year: 'numeric' })
-      .replace(/^\w/, c => c.toUpperCase()); // Capitalize first letter
-  }, []);
-
-  // Get start and end dates for the selected month (YYYY-MM-DD format)
-  const getMonthDateRange = useCallback((date: Date) => {
-    const year = date.getFullYear();
-    const month = date.getMonth();
-
-    // First day of month
-    const startDate = new Date(year, month, 1);
-    // Last day of month
-    const endDate = new Date(year, month + 1, 0);
-
-    const formatDate = (d: Date) => {
-      const y = d.getFullYear();
-      const m = String(d.getMonth() + 1).padStart(2, '0');
-      const day = String(d.getDate()).padStart(2, '0');
-      return `${y}-${m}-${day}`;
-    };
-
-    return {
-      start_date: formatDate(startDate),
-      end_date: formatDate(endDate)
-    };
-  }, []);
-
-  // Current period display string
-  const currentPeriod = useMemo(() => formatMonthYear(selectedDate), [selectedDate, formatMonthYear]);
 
   // State
   const [budgetInstances, setBudgetInstances] = useState<BudgetInstance[]>([]);
@@ -75,23 +47,6 @@ export function useBudgetSection() {
   const [loading, setLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isDeactivating, setIsDeactivating] = useState(false);
-
-  // Navigate to previous month
-  const handlePreviousMonth = useCallback(() => {
-    setSelectedDate(prev => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
-  }, []);
-
-  // Navigate to next month
-  const handleNextMonth = useCallback(() => {
-    setSelectedDate(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
-  }, []);
-
-  // Check if current month is selected (to optionally disable "next" button)
-  const isCurrentMonth = useMemo(() => {
-    const now = new Date();
-    return selectedDate.getFullYear() === now.getFullYear() &&
-           selectedDate.getMonth() === now.getMonth();
-  }, [selectedDate]);
 
   // Fetch budget data from API (templates + instances for selected month)
   const fetchBudgetData = useCallback(async () => {
@@ -104,7 +59,7 @@ export function useBudgetSection() {
       setLoading(true);
 
       // Get date range for selected month
-      const { start_date, end_date } = getMonthDateRange(selectedDate);
+      const { start_date, end_date } = getMonthDateRange();
 
       // Llamar templates primero (es el principal)
       try {
@@ -126,7 +81,16 @@ export function useBudgetSection() {
           accessToken
         );
         if (instancesResponse.success && instancesResponse.budget_instances) {
-          setBudgetInstances(instancesResponse.budget_instances);
+          // Sort instances: active first, inactive at the end
+          const sortedInstances = [...instancesResponse.budget_instances].sort((a, b) => {
+            // Active instances come first (template_active: true or undefined)
+            const aActive = a.template_active !== false;
+            const bActive = b.template_active !== false;
+            if (aActive && !bActive) return -1;
+            if (!aActive && bActive) return 1;
+            return 0;
+          });
+          setBudgetInstances(sortedInstances);
           setSummary(instancesResponse.summary || emptySummary);
         } else {
           setBudgetInstances([]);
@@ -258,8 +222,8 @@ export function useBudgetSection() {
     }, [fetchBudgetData])
   );
 
-  // Computed values - solo mostrar si hay templates activos
-  const hasBudgets = templates.length > 0;
+  // Computed values - mostrar si hay templates activos O instancias (incluyendo inactivas)
+  const hasBudgets = templates.length > 0 || budgetInstances.length > 0;
 
   return {
     // State
