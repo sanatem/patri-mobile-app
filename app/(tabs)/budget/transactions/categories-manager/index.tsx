@@ -20,8 +20,11 @@ interface SelectedCategory {
 
 export default function CategoriesManagerScreen() {
   const { accessToken } = useAuth();
-  const { onboardingCompleted, loading, completeOnboarding, userCategories, refetch, resetOnboarding } = useUserCategories();
+  const { onboardingCompleted, loading, completeOnboarding, userCategories, refetch, resetOnboarding, categories, isLoadingAPI } = useUserCategories();
   const [creatingCategories, setCreatingCategories] = useState(false);
+
+  const backendParentCategories = categories.filter(cat => cat.parent_id === null);
+  const hasBackendCategories = backendParentCategories.length > 0;
 
   const handleOnboardingComplete = async (selectedCategories: { income: SelectedCategory[]; expenses: SelectedCategory[] }) => {
     if (!accessToken) {
@@ -32,7 +35,6 @@ export default function CategoriesManagerScreen() {
     try {
       setCreatingCategories(true);
 
-      // Crear todas las categorías de ingresos seleccionadas en el backend
       const incomePromises = selectedCategories.income.map(category => {
         return createUserCategory(
           {
@@ -45,7 +47,6 @@ export default function CategoriesManagerScreen() {
         );
       });
 
-      // Crear todas las categorías de gastos seleccionadas en el backend
       const expensePromises = selectedCategories.expenses.map(category => {
         return createUserCategory(
           {
@@ -60,13 +61,11 @@ export default function CategoriesManagerScreen() {
 
       await Promise.all([...incomePromises, ...expensePromises]);
 
-      // Marcar onboarding como completado en AsyncStorage (solo IDs)
       await completeOnboarding({
         income: selectedCategories.income.map(cat => cat.id),
         expenses: selectedCategories.expenses.map(cat => cat.id)
       });
 
-      // Refrescar las categorías del backend
       await refetch();
 
     } catch (error) {
@@ -106,7 +105,7 @@ export default function CategoriesManagerScreen() {
     );
   };
 
-  if (loading || creatingCategories) {
+  if (loading || isLoadingAPI || creatingCategories) {
     return (
       <View style={{ flex: 1, position: 'relative' }}>
         <LoadingSpinner overlay />
@@ -114,7 +113,10 @@ export default function CategoriesManagerScreen() {
     );
   }
 
-  if (!onboardingCompleted) {
+
+  const shouldShowOnboarding = !onboardingCompleted || !hasBackendCategories;
+
+  if (shouldShowOnboarding) {
     return <CategoriesOnboarding onComplete={handleOnboardingComplete} />;
   }
 

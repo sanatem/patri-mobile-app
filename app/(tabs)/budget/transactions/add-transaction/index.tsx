@@ -315,7 +315,7 @@ export default function AddTransactionScreen() {
               onPress={handleAddBankAccount}
               variant="primary"
               fullWidth
-              icon={<Plus size={18} />}
+              icon={<Plus size={18} color="#fff" />}
             />
           </View>
         ) : (
