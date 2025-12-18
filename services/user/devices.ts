@@ -1,4 +1,5 @@
 import config from '@/config/constants';
+import { getDeviceFingerprint } from '@/utils/device-info';
 import type { DevicesResponse, SignOutDeviceResponse } from '@/types/device';
 
 /**
@@ -7,21 +8,26 @@ import type { DevicesResponse, SignOutDeviceResponse } from '@/types/device';
  *
  * Headers:
  * - Authorization: Bearer {token}
- * - X-Device-Fingerprint: {fingerprint} (optional - to identify current device)
+ * - X-Device-Fingerprint: {fingerprint} - to identify current device
  *
  * Notes:
  * - Shows devices from last 3 months only
  * - Sorted: active devices first, then by most recent
  * - active: true = has active session
  * - active: false = signed out
+ * - is_current_device: true when X-Device-Fingerprint matches
  */
-export const getUserDevices = async (token: string, deviceFingerprint?: string): Promise<DevicesResponse> => {
+export const getUserDevices = async (token: string): Promise<DevicesResponse> => {
   try {
     if (!token) {
       throw new Error('No hay token de autenticación disponible');
     }
 
     const url = `${config.apiBaseUrl}/api/v2/notification_devices`;
+
+    // Get device fingerprint to identify current device
+    const deviceFingerprint = await getDeviceFingerprint();
+    console.log('📱 Device fingerprint:', deviceFingerprint);
 
     const headers: Record<string, string> = {
       'Authorization': `Bearer ${token}`,
