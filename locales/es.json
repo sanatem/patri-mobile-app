@@ -956,6 +956,51 @@
     "language": {
       "title": "Idioma de la aplicación",
       "subtitle": "Selecciona tu idioma"
+    },
+    "security": {
+      "title": "Configuración de seguridad",
+      "newDeviceAlerts": {
+        "title": "Alertas de inicio de sesión en nuevo dispositivo",
+        "description": "Recibe notificaciones por correo electrónico cuando alguien inicie sesión desde un nuevo dispositivo"
+      },
+      "updateError": "No se pudo actualizar la configuración de seguridad. Por favor, intenta de nuevo.",
+      "enabledSuccess": "Alertas de seguridad activadas",
+      "disabledSuccess": "Alertas de seguridad desactivadas"
+    },
+    "devices": {
+      "title": "Mis Dispositivos",
+      "subtitle": "Gestiona los dispositivos con acceso a tu cuenta",
+      "loading": "Cargando dispositivos...",
+      "error": "Error",
+      "loadError": "No se pudieron cargar los dispositivos. Por favor, intenta de nuevo.",
+      "signOutError": "No se pudo cerrar la sesión del dispositivo. Por favor, intenta de nuevo.",
+      "activeDevices": "{{count}} sesión activa",
+      "activeDevices_other": "{{count}} sesiones activas",
+      "untrustedDevices": "{{count}} inactivo",
+      "untrustedDevices_other": "{{count}} inactivos",
+      "currentlyInUse": "Actualmente en uso",
+      "signOut": "Cerrar sesión",
+      "lastActive": "Última actividad",
+      "now": "Ahora",
+      "minutesAgo": "Hace {{count}}m",
+      "minutesAgo_other": "Hace {{count}}m",
+      "hoursAgo": "Hace {{count}}h",
+      "hoursAgo_other": "Hace {{count}}h",
+      "daysAgo": "Hace {{count}}d",
+      "daysAgo_other": "Hace {{count}}d",
+      "errors": {
+        "deviceNotFound": "Dispositivo no encontrado. Es posible que ya haya sido eliminado.",
+        "cannotSignOutCurrent": "No puedes cerrar la sesión del dispositivo que estás usando actualmente."
+      },
+      "signOutConfirm": {
+        "title": "Cerrar sesión del dispositivo",
+        "message": "¿Estás seguro que deseas cerrar la sesión en '{{device}}'? Ese dispositivo perderá acceso a tu cuenta.",
+        "action": "Cerrar sesión"
+      },
+      "signedOut": {
+        "title": "Sesión cerrada",
+        "message": "La sesión ha sido cerrada exitosamente."
+      }
     }
   },
   "languages": {
