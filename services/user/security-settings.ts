@@ -5,37 +5,12 @@ import type {
   UpdateSecuritySettingsResponse,
 } from '@/types/security';
 
-// Feature flag: set to false when backend is ready
-const USE_MOCK_DATA = false;
-
-// Mock data for user response
-const MOCK_USER_RESPONSE: UserResponse = {
-  user: {
-    notification_preferences: {
-      security_alerts: false,
-      marketing_emails: false,
-      product_updates: true,
-    },
-  },
-};
-
-/**
- * Mock delay to simulate API call
- */
-const mockDelay = (ms: number = 800) => new Promise(resolve => setTimeout(resolve, ms));
-
 /**
  * Get user's notification preferences (including security alerts toggle state)
  * Backend endpoint: GET /api/v2/user
  * Returns user.notification_preferences.security_alerts for the toggle
  */
 export const getSecurityAlertStatus = async (token: string): Promise<boolean> => {
-  if (USE_MOCK_DATA) {
-    console.log('🔐 Using mock security alert status');
-    await mockDelay(500);
-    return MOCK_USER_RESPONSE.user.notification_preferences.security_alerts;
-  }
-
   try {
     if (!token) {
       throw new Error('No hay token de autenticación disponible');
@@ -70,33 +45,13 @@ export const getSecurityAlertStatus = async (token: string): Promise<boolean> =>
 /**
  * Update security notification settings
  * Backend endpoint: PATCH /api/v2/user
- * 
+ *
  * @throws {Error} 422 - Invalid value provided
  */
 export const updateSecuritySettings = async (
   token: string,
   enabled: boolean
 ): Promise<UpdateSecuritySettingsResponse> => {
-  if (USE_MOCK_DATA) {
-    console.log('🔐 Mock updating security notifications:', enabled);
-    await mockDelay(300);
-    
-    // Update mock data
-    MOCK_USER_RESPONSE.user.notification_preferences.security_alerts = enabled;
-    
-    return {
-      success: true,
-      message: 'Preferencias actualizadas exitosamente',
-      user: {
-        notification_preferences: {
-          security_alerts: enabled,
-          marketing_emails: false,
-          product_updates: true,
-        },
-      },
-    };
-  }
-
   try {
     if (!token) {
       throw new Error('No hay token de autenticación disponible');
