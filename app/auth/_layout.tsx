@@ -10,6 +10,7 @@ export default function AuthLayout() {
       }}
     >
       <Stack.Screen name="webview" />
+      <Stack.Screen name="mfa-enrollment" />
     </Stack>
   );
 }

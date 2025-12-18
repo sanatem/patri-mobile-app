@@ -102,6 +102,7 @@
       "confirmMessage": "Se cerrará tu sesión para completar la configuración de 2FA. Cuando vuelvas a iniciar sesión, se te pedirá escanear un código QR con tu aplicación de autenticación.",
       "confirmButton": "Activar y cerrar sesión",
       "logoutMessage": "Por favor inicia sesión de nuevo para completar la configuración de 2FA. Se te pedirá escanear un código QR con tu aplicación de autenticación.",
+      "webviewMessage": "Ahora configuraremos tu autenticación de dos factores. Podrás cambiar a tu app de autenticación y volver sin perder tu progreso.",
       "step1": {
         "title": "Descarga una app de autenticación",
         "description": "Si no tienes una, descarga Google Authenticator, Authy o Microsoft Authenticator desde tu tienda de aplicaciones."
@@ -192,11 +193,29 @@
       "menuSubtitle": "Protege tu cuenta con una app de autenticación",
       "viewRecoveryCodes": "Ver códigos de recuperación",
       "changeDevice": "Cambiar dispositivo de autenticación"
+    },
+    "pending": {
+      "description": "Habilitaste la autenticación de dos factores pero no completaste la configuración. Inicia sesión para completar la configuración o cancela para desactivar.",
+      "resumeSetup": "Continuar configuración",
+      "cancelSetup": "Cancelar configuración",
+      "refreshHint": "Si ya completaste la configuración de MFA, toca el botón de actualizar arriba para actualizar el estado."
+    },
+    "enrollment": {
+      "title": "Configurar 2FA",
+      "openingBrowser": "Abriendo inicio de sesión seguro...",
+      "browserHint": "Completa la configuración en el navegador que se abre. Serás redirigido automáticamente.",
+      "cancelling": "Cancelando configuración de MFA...",
+      "cancelTitle": "¿Cancelar configuración de MFA?",
+      "cancelMessage": "Esto desactivará la autenticación de dos factores. Puedes habilitarla de nuevo más tarde desde configuración.",
+      "cancelConfirm": "Sí, Cancelar"
     }
   },
   "common": {
     "language_code": "es",
     "cancel": "Cancelar",
+    "yes": "Sí",
+    "no": "No",
+    "close": "Cerrar",
     "error": "Error",
     "continue": "Continuar",
     "permissionsRequired": "Permisos requeridos",
@@ -1927,7 +1946,21 @@
     "cancelledMessage": "No se pudo completar el proceso de autenticación.",
     "errorTitle": "Error de autenticación",
     "errorMessage": "Ocurrió un error durante el proceso de autenticación. Por favor intenta de nuevo.",
-    "usePassword": "Usar contraseña"
+    "usePassword": "Usar contraseña",
+    "webview": {
+      "title": "Iniciar Sesión",
+      "loading": "Cargando...",
+      "cancelTitle": "¿Cancelar autenticación?",
+      "cancelMessage": "Si cancelas ahora, tendrás que volver a empezar la configuración de 2FA.",
+      "errors": {
+        "title": "Error de autenticación",
+        "message": "Ocurrió un error durante la autenticación. Por favor intenta de nuevo.",
+        "noToken": "No se recibió el token de acceso",
+        "parseError": "Error al procesar la respuesta de autenticación",
+        "loadFailed": "Error al cargar la página de inicio de sesión",
+        "httpError": "Error de conexión"
+      }
+    }
   },
   "login": {
     "subtitle": "Accede a tu cuenta para gestionar tus finanzas de manera inteligente",

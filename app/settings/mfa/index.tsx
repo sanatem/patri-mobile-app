@@ -25,6 +25,7 @@ import {
   RefreshCw,
   AlertTriangle,
   Info,
+  RotateCcw,
 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
@@ -33,11 +34,16 @@ import { useAuth } from '@/providers/AuthProvider';
 import { useMFA } from '@/hooks/mfa';
 import { RecoveryCodesModal } from '@/components/mfa';
 import { ConfirmModal } from '@/components/ui';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+// Key for storing access credential temporarily during MFA enrollment
+// NOTE: Key must NOT contain 'token', 'auth', 'user', or 'backend' as forceLogout clears those
+export const MFA_ENROLLMENT_CREDENTIAL_KEY = 'mfa_setup_credential';
 
 export default function MFASettingsScreen() {
   const { t } = useTranslation();
   const router = useRouter();
-  const { logout } = useAuth();
+  const { logout, forceLogout, accessToken } = useAuth();
   const {
     status,
     isLoading,
@@ -49,33 +55,46 @@ export default function MFASettingsScreen() {
     regenerateRecoveryCodes,
     clearError,
     clearNewRecoveryCodes,
+    fetchStatus,
   } = useMFA();
 
   const [showEnableConfirm, setShowEnableConfirm] = useState(false);
   const [showDisableConfirm, setShowDisableConfirm] = useState(false);
   const [showRegenerateConfirm, setShowRegenerateConfirm] = useState(false);
   const [showRecoveryCodes, setShowRecoveryCodes] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const isEnabled = status?.mfa_enabled && status?.enrolled;
   const isPendingEnrollment = status?.mfa_enabled && !status?.enrolled;
 
-  // Handle enable MFA
+  // Manual refresh handler
+  const handleRefreshStatus = async () => {
+    setIsRefreshing(true);
+    try {
+      await fetchStatus();
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  // Handle enable MFA - opens browser for MFA enrollment
   const handleEnableMFA = async () => {
     setShowEnableConfirm(false);
     const success = await enableMFA();
     if (success) {
-      Alert.alert(
-        t('mfa.setup.title'),
-        t('mfa.setup.logoutMessage'),
-        [
-          {
-            text: t('common.understood'),
-            onPress: async () => {
-              await logout();
-            },
-          },
-        ]
-      );
+      // Store the current token so we can disable MFA if user cancels enrollment
+      if (accessToken) {
+        console.log('[MFA Settings] Saving credential for potential cancel...');
+        await AsyncStorage.setItem(MFA_ENROLLMENT_CREDENTIAL_KEY, accessToken);
+        console.log('[MFA Settings] Credential saved successfully');
+      } else {
+        console.warn('[MFA Settings] No access token available to save');
+      }
+      // Go to MFA enrollment
+      console.log('[MFA Settings] Calling forceLogout...');
+      await forceLogout();
+      console.log('[MFA Settings] Navigating to enrollment...');
+      router.replace('/auth/mfa-enrollment');
     }
   };
 
@@ -134,6 +153,17 @@ export default function MFASettingsScreen() {
           <View style={styles.headerTextContainer}>
             <Text style={styles.headerTitle}>{t('mfa.title')}</Text>
           </View>
+          <TouchableOpacity
+            style={styles.refreshButton}
+            onPress={handleRefreshStatus}
+            disabled={isLoading || isRefreshing}
+          >
+            {isRefreshing ? (
+              <ActivityIndicator size="small" color={Colors.primary[500]} />
+            ) : (
+              <RotateCcw size={20} color={Colors.primary[500]} />
+            )}
+          </TouchableOpacity>
         </View>
         <Text style={styles.headerSubtitle}>{t('mfa.subtitle')}</Text>
       </View>
@@ -168,6 +198,50 @@ export default function MFASettingsScreen() {
               <Text style={styles.pendingText}>{t('mfa.status.pendingEnrollment')}</Text>
             </View>
           )}
+        </View>
+      )}
+
+      {/* Pending Enrollment Actions */}
+      {!isLoading && isPendingEnrollment && (
+        <View style={styles.section}>
+          <View style={styles.infoBox}>
+            <Info size={16} color={Colors.warning[600]} />
+            <Text style={styles.infoTextWarning}>
+              {t('mfa.pending.description')}
+            </Text>
+          </View>
+
+          {/* Hint for users who already completed MFA */}
+          <View style={[styles.infoBox, { marginTop: 8, backgroundColor: Colors.primary[50] }]}>
+            <Info size={16} color={Colors.primary[500]} />
+            <Text style={styles.infoText}>
+              {t('mfa.pending.refreshHint', { defaultValue: 'If you already completed MFA setup, tap the refresh button above to update the status.' })}
+            </Text>
+          </View>
+
+          <TouchableOpacity
+            style={styles.resumeButton}
+            onPress={async () => {
+              await forceLogout();
+              router.replace('/auth/mfa-enrollment');
+            }}
+            disabled={isProcessing}
+          >
+            <Smartphone size={20} color="white" />
+            <Text style={styles.resumeButtonText}>
+              {t('mfa.pending.resumeSetup')}
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.cancelSetupButton}
+            onPress={() => setShowDisableConfirm(true)}
+            disabled={isProcessing}
+          >
+            <Text style={styles.cancelSetupButtonText}>
+              {t('mfa.pending.cancelSetup')}
+            </Text>
+          </TouchableOpacity>
         </View>
       )}
 
@@ -348,6 +422,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#1f2937',
   },
+  refreshButton: {
+    padding: 8,
+    marginLeft: 8,
+  },
   headerSubtitle: {
     fontSize: 16,
     color: '#6b7280',
@@ -469,6 +547,39 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: Colors.primary[700],
     lineHeight: 18,
+  },
+  infoTextWarning: {
+    flex: 1,
+    fontSize: 13,
+    color: Colors.warning[700],
+    lineHeight: 18,
+  },
+  resumeButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.primary[500],
+    padding: 14,
+    borderRadius: 12,
+    marginTop: 12,
+    gap: 8,
+  },
+  resumeButtonText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: 'white',
+  },
+  cancelSetupButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 14,
+    borderRadius: 12,
+    marginTop: 8,
+  },
+  cancelSetupButtonText: {
+    fontSize: 15,
+    fontWeight: '500',
+    color: Colors.gray[600],
   },
   recoveryCard: {
     backgroundColor: Colors.gray[50],

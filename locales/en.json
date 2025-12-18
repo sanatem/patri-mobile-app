@@ -102,6 +102,7 @@
       "confirmMessage": "You'll be logged out to complete the 2FA setup. When you log back in, you'll be asked to scan a QR code with your authenticator app.",
       "confirmButton": "Enable & Log Out",
       "logoutMessage": "Please log in again to complete the 2FA setup. You'll be asked to scan a QR code with your authenticator app.",
+      "webviewMessage": "We'll now set up your two-factor authentication. You can switch to your authenticator app and come back without losing your progress.",
       "step1": {
         "title": "Download an authenticator app",
         "description": "If you don't have one, download Google Authenticator, Authy, or Microsoft Authenticator from your app store."
@@ -192,11 +193,29 @@
       "menuSubtitle": "Secure your account with an authenticator app",
       "viewRecoveryCodes": "View recovery codes",
       "changeDevice": "Change authenticator device"
+    },
+    "pending": {
+      "description": "You enabled two-factor authentication but didn't complete the setup. Log in to finish setup or cancel to disable it.",
+      "resumeSetup": "Resume Setup",
+      "cancelSetup": "Cancel Setup",
+      "refreshHint": "If you already completed MFA setup, tap the refresh button above to update the status."
+    },
+    "enrollment": {
+      "title": "Set Up 2FA",
+      "openingBrowser": "Opening secure login...",
+      "browserHint": "Complete the setup in the browser that opens. You'll be redirected back automatically.",
+      "cancelling": "Cancelling MFA setup...",
+      "cancelTitle": "Cancel MFA Setup?",
+      "cancelMessage": "This will disable two-factor authentication. You can enable it again later from settings.",
+      "cancelConfirm": "Yes, Cancel"
     }
   },
   "common": {
     "language_code": "en",
     "cancel": "Cancel",
+    "yes": "Yes",
+    "no": "No",
+    "close": "Close",
     "error": "Error",
     "continue": "Continue",
     "permissionsRequired": "Permissions required",
@@ -1718,7 +1737,21 @@
     "cancelledMessage": "Authentication process could not be completed.",
     "errorTitle": "Authentication Error",
     "errorMessage": "An error occurred during authentication. Please try again.",
-    "usePassword": "Use password"
+    "usePassword": "Use password",
+    "webview": {
+      "title": "Sign In",
+      "loading": "Loading...",
+      "cancelTitle": "Cancel authentication?",
+      "cancelMessage": "If you cancel now, you'll need to restart the 2FA setup.",
+      "errors": {
+        "title": "Authentication Error",
+        "message": "An error occurred during authentication. Please try again.",
+        "noToken": "Access token not received",
+        "parseError": "Error processing authentication response",
+        "loadFailed": "Failed to load login page",
+        "httpError": "Connection error"
+      }
+    }
   },
   "login": {
     "subtitle": "Sign in to manage your finances intelligently",

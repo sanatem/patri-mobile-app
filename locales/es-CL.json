@@ -1735,6 +1735,21 @@
             "menuSubtitle": "Protege tu cuenta con una app de autenticación",
             "viewRecoveryCodes": "Ver códigos de recuperación",
             "changeDevice": "Cambiar dispositivo de autenticación"
+        },
+        "pending": {
+            "description": "Habilitaste la autenticación de dos factores pero no completaste la configuración. Inicia sesión para completar la configuración o cancela para desactivar.",
+            "resumeSetup": "Continuar configuración",
+            "cancelSetup": "Cancelar configuración",
+            "refreshHint": "Si ya completaste la configuración de MFA, toca el botón de actualizar arriba para actualizar el estado."
+        },
+        "enrollment": {
+            "title": "Configurar 2FA",
+            "openingBrowser": "Abriendo inicio de sesión seguro...",
+            "browserHint": "Completa la configuración en el navegador que se abre. Serás redirigido automáticamente.",
+            "cancelling": "Cancelando configuración de MFA...",
+            "cancelTitle": "¿Cancelar configuración de MFA?",
+            "cancelMessage": "Esto desactivará la autenticación de dos factores. Puedes habilitarla de nuevo más tarde desde configuración.",
+            "cancelConfirm": "Sí, Cancelar"
         }
     },
     "auth": {

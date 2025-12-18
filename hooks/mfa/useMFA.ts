@@ -38,11 +38,12 @@ export function useMFA(): UseMFAReturn {
 
     try {
       const mfaStatus = await getMFAStatus(accessToken);
+      console.log('[MFA] Status from backend:', JSON.stringify(mfaStatus));
       setStatus(mfaStatus);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to fetch MFA status';
       setError(message);
-      console.error('Error fetching MFA status:', err);
+      console.error('[MFA] Error fetching status:', err);
     } finally {
       setIsLoading(false);
     }
