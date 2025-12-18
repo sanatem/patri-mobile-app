@@ -1,5 +1,12 @@
-export { default as BudgetChart } from './BudgetOverview/Chart/BudgetChart';
-export { default as TransactionsList } from './BudgetOverview/Transactions/TransactionList';
-export { CategorizationStatus } from './BudgetOverview/Transactions/CategorizationStatus';
-export { BudgetOverview } from './BudgetOverview';
-export { CategoriesManager } from './CategoriesManager'; 
+// BudgetSection exports
+export { BudgetSectionOverview } from './BudgetSection';
+export { BudgetInstanceCard } from './BudgetSection/BudgetInstanceCard';
+export { default as BudgetChart } from './BudgetSection/Chart/BudgetChart';
+
+// TransactionsSection exports
+export { TransactionsOverview } from './TransactionsSection';
+export { default as TransactionsList } from './TransactionsSection/Transactions/TransactionList';
+export { CategorizationStatus } from './TransactionsSection/Transactions/CategorizationStatus';
+
+// CategoriesManager exports
+export { CategoriesManager } from './CategoriesManager';

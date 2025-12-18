@@ -142,7 +142,7 @@ export function Select({
   const placeholderColor = isDisabled ? Colors.gray[400] : Colors.primary[400];
 
   return (
-    <View className={cn('mb-5 w-full', className)}>
+    <View className={cn('mb-2 w-full', className)}>
       {label && (
         <Text className="text-base font-medium mb-2" style={{ color: labelColor }}>{label}</Text>
       )}

@@ -61,7 +61,10 @@ export const getCountryCode = (name: string, language: string = 'es'): string =>
  * @param language - Language code ('es', 'en', 'es-CL')
  * @returns Array of nationalities sorted alphabetically by name
  */
-export const getNationalities = (language: string = 'es'): Nationality[] => {
+export const getNationalities = (language?: string | null): Nationality[] => {
+  // Ensure language has a valid default
+  const safeLanguage = language || 'es';
+
   // Map of ISO codes to nationality names in Spanish
   const nationalitiesES: Record<string, string> = {
     AF: 'Afgana',
@@ -456,7 +459,7 @@ export const getNationalities = (language: string = 'es'): Nationality[] => {
     ZW: 'Zimbabwean',
   };
 
-  const lang = language.startsWith('es') ? 'es' : 'en';
+  const lang = safeLanguage.startsWith('es') ? 'es' : 'en';
   const nationalityMap = lang === 'es' ? nationalitiesES : nationalitiesEN;
 
   return Object.entries(nationalityMap)
@@ -473,7 +476,8 @@ export const getNationalities = (language: string = 'es'): Nationality[] => {
  * @param language - Language code ('es', 'en', 'es-CL')
  * @returns Nationality name or empty string if not found
  */
-export const getNationalityName = (code: string, language: string = 'es'): string => {
+export const getNationalityName = (code: string, language?: string | null): string => {
+  if (!code) return '';
   const nationalities = getNationalities(language);
   return nationalities.find((n) => n.code === code)?.name || '';
 };
@@ -484,7 +488,8 @@ export const getNationalityName = (code: string, language: string = 'es'): strin
  * @param language - Language code ('es', 'en', 'es-CL')
  * @returns ISO 3166-1 alpha-2 code or empty string if not found
  */
-export const getNationalityCode = (name: string, language: string = 'es'): string => {
+export const getNationalityCode = (name: string, language?: string | null): string => {
+  if (!name) return '';
   const nationalities = getNationalities(language);
   return nationalities.find((n) => n.name.toLowerCase() === name.toLowerCase())?.code || '';
 };

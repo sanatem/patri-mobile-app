@@ -8,6 +8,7 @@ import { CategoriesList } from '../CategoriesList';
 import { NewCategoryCard } from '../NewCategoryCard';
 import { CustomCategoryCard } from '../CustomCategoryCard';
 import { EmptyCategoriesState } from '../EmptyCategoriesState';
+import { useTransactionMode } from '@/providers/TransactionModeProvider';
 
 interface BudgetTabProps {
   groupedData: {
@@ -192,8 +193,14 @@ export function BudgetTab({
   subcategoryRotations,
   subcategoryExpansions,
 }: BudgetTabProps) {
+  const { mode } = useTransactionMode();
+
   // Verificar si hay categorías creadas
   const hasCategories = groupedData.categorized.length > 0;
+
+  // Para transacciones manuales, siempre mostrar los botones si hay categorías
+  // Para Floid, mostrar solo si hay categorías
+  const shouldShowTransactionLists = hasCategories;
 
   return (
     <ScrollView
@@ -202,8 +209,8 @@ export function BudgetTab({
       contentContainerStyle={{ paddingBottom: 20, flexGrow: 1 }}
       showsVerticalScrollIndicator={false}
     >
-      {/* Mostrar lista de transacciones sin categorizar y categorizadas solo si hay categorías */}
-      {hasCategories && (
+      {/* Mostrar lista de transacciones sin categorizar y categorizadas */}
+      {shouldShowTransactionLists && (
         <View style={{
           flexDirection: 'row',
           marginHorizontal: 20,
