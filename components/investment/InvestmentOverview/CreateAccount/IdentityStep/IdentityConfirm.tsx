@@ -30,7 +30,7 @@ export default function IdentityConfirm() {
   });
   const [isRutLocked, setIsRutLocked] = useState(false);
 
-  const nationalities = getNationalities(i18n.language);
+  const nationalities = getNationalities(i18n.language || 'es');
 
   useEffect(() => {
     loadVerificationData();
@@ -118,7 +118,7 @@ export default function IdentityConfirm() {
     setIsSubmitting(true);
 
     try {
-      const nationalityCode = getNationalityCode(formData.nationality, i18n.language);
+      const nationalityCode = getNationalityCode(formData.nationality, i18n.language || 'es');
 
       const onboardingData: OnboardingRequest = {
         personal_information: {

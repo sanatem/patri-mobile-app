@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { View, Text, TouchableOpacity, Animated, Easing } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import Colors from '@/constants/Colors';
-import { ChevronDown, Folder } from 'lucide-react-native';
+import { ChevronDown, Folder, FolderOpen } from 'lucide-react-native';
 import { FloidTransaction } from '@/services/budget/transactions/get-floid-transactions';
 import { TransactionItem } from '../UncategorizedList/TransactionItem';
 import { SearchBar, CheckboxItem } from '@/components/ui';
@@ -157,16 +157,20 @@ export function CategorizedList({
     });
   }, [isExpanded, isActive, categoryRotations, categoryExpansions]);
 
-  if (categorizedTransactions.length === 0) {
-    return null;
-  }
+  const isEmpty = categorizedTransactions.length === 0;
+
+  // Different styling for empty vs non-empty state
+  const borderColor = isEmpty ? Colors.gray[300] : Colors.success[500];
+  const iconColor = isEmpty ? Colors.gray[400] : Colors.success[500];
+  const textColor = isEmpty ? Colors.gray[500] : Colors.success[600];
+  const IconComponent = isEmpty ? FolderOpen : Folder;
 
   return (
     <Animated.View style={{
       backgroundColor: 'white',
       borderRadius: 12,
       borderWidth: 1,
-      borderColor: Colors.success[500],
+      borderColor: borderColor,
       overflow: 'hidden',
       flex: isActive ? 1 : undefined,
       width: isActive ? undefined : 56,
@@ -185,22 +189,24 @@ export function CategorizedList({
         onPress={onToggle}
         activeOpacity={0.7}
       >
-        <Folder size={24} color={Colors.success[500]} style={{ marginRight: isActive ? 12 : 0 }} />
+        <IconComponent size={24} color={iconColor} style={{ marginRight: isActive ? 12 : 0 }} />
         {isActive && (
           <>
             <View style={{ flex: 1 }}>
-              <Text className="text-base font-medium" style={{ color: Colors.success[600] }}>
+              <Text className="text-base font-medium" style={{ color: textColor }}>
                 {t('budget.categorized', 'Categorizadas')} ({categorizedTransactions.length})
               </Text>
             </View>
-            <Animated.View style={rotateStyle}>
-              <ChevronDown size={20} color={Colors.success[500]} />
-            </Animated.View>
+            {!isEmpty && (
+              <Animated.View style={rotateStyle}>
+                <ChevronDown size={20} color={iconColor} />
+              </Animated.View>
+            )}
           </>
         )}
       </TouchableOpacity>
 
-      {isActive && (shouldRenderContent || isExpanded) && (
+      {isActive && !isEmpty && (shouldRenderContent || isExpanded) && (
         <Animated.View style={[dynamicExpansionStyle, { overflow: 'hidden' }]}>
           <View style={{ paddingHorizontal: 16, paddingBottom: 16 }}>
             <View style={{ marginBottom: 12 }}>
