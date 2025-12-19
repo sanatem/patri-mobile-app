@@ -27,7 +27,6 @@ export const getUserDevices = async (token: string): Promise<DevicesResponse> =>
 
     // Get device fingerprint to identify current device
     const deviceFingerprint = await getDeviceFingerprint();
-    console.log('📱 Device fingerprint:', deviceFingerprint);
 
     const headers: Record<string, string> = {
       'Authorization': `Bearer ${token}`,
@@ -37,8 +36,6 @@ export const getUserDevices = async (token: string): Promise<DevicesResponse> =>
     if (deviceFingerprint) {
       headers['X-Device-Fingerprint'] = deviceFingerprint;
     }
-
-    console.log('📱 Fetching user devices...');
 
     const response = await fetch(url, {
       method: 'GET',
@@ -55,8 +52,6 @@ export const getUserDevices = async (token: string): Promise<DevicesResponse> =>
     }
 
     const data: DevicesResponse = await response.json();
-
-    console.log('✅ Devices fetched successfully');
     return data;
   } catch (error) {
     console.error('❌ Error fetching user devices:', error);
@@ -78,8 +73,6 @@ export const signOutDevice = async (token: string, deviceId: number): Promise<Si
     }
 
     const url = `${config.apiBaseUrl}/api/v2/notification_devices/${deviceId}/sign_out`;
-
-    console.log('🚪 Signing out device:', deviceId);
 
     const response = await fetch(url, {
       method: 'POST',
@@ -105,8 +98,6 @@ export const signOutDevice = async (token: string, deviceId: number): Promise<Si
     }
 
     const data: SignOutDeviceResponse = await response.json();
-
-    console.log('✅ Device signed out successfully');
     return data;
   } catch (error) {
     console.error('❌ Error signing out device:', error);

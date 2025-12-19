@@ -25,11 +25,11 @@ export const DeviceManager: React.FC<DeviceManagerProps> = () => {
   const [notifyNewDevice, setNotifyNewDevice] = useState(false);
   const [loadingSettings, setLoadingSettings] = useState(true);
   const [updatingSettings, setUpdatingSettings] = useState(false);
-  
+
   // Refs to store stable references
   const getTokenRef = useRef(getToken);
   const tRef = useRef(t);
-  
+
   // Keep refs updated
   useEffect(() => {
     getTokenRef.current = getToken;
@@ -38,7 +38,7 @@ export const DeviceManager: React.FC<DeviceManagerProps> = () => {
 
   useEffect(() => {
     let isMounted = true;
-    
+
     const loadDevices = async () => {
       try {
         setLoading(true);
@@ -47,10 +47,10 @@ export const DeviceManager: React.FC<DeviceManagerProps> = () => {
           throw new Error('No authentication token available');
         }
         const response = await getUserDevices(token);
-        
+
         if (isMounted) {
-          setDevices(response.devices);
-          setCurrentDeviceId(response.current_device_id);
+          setDevices(response.devices ?? []);
+          setCurrentDeviceId(response.current_device_id ?? null);
         }
       } catch (error) {
         console.error('Error loading devices:', error);
@@ -75,7 +75,7 @@ export const DeviceManager: React.FC<DeviceManagerProps> = () => {
           throw new Error('No authentication token available');
         }
         const securityAlertsEnabled = await getSecurityAlertStatus(token);
-        
+
         if (isMounted) {
           setNotifyNewDevice(securityAlertsEnabled);
         }
@@ -90,7 +90,7 @@ export const DeviceManager: React.FC<DeviceManagerProps> = () => {
 
     loadDevices();
     loadSecuritySettings();
-    
+
     return () => {
       isMounted = false;
     };
@@ -120,7 +120,7 @@ export const DeviceManager: React.FC<DeviceManagerProps> = () => {
 
   const handleToggleNotification = async (value: boolean) => {
     setNotifyNewDevice(value);
-    
+
     try {
       setUpdatingSettings(true);
       const token = await getToken();
@@ -128,8 +128,8 @@ export const DeviceManager: React.FC<DeviceManagerProps> = () => {
         throw new Error('No authentication token available');
       }
       await updateSecuritySettings(token, value);
-      
-      const successMessage = value 
+
+      const successMessage = value
         ? t('preferences.security.enabledSuccess')
         : t('preferences.security.disabledSuccess');
       showSuccessToast(successMessage, Platform, ToastAndroid, Alert);
@@ -146,7 +146,7 @@ export const DeviceManager: React.FC<DeviceManagerProps> = () => {
 
   const handleSignOutDevice = async (device: Device) => {
     const deviceName = getDeviceName(device);
-    
+
     Alert.alert(
       t('preferences.devices.signOutConfirm.title'),
       t('preferences.devices.signOutConfirm.message', { device: deviceName }),
@@ -170,7 +170,7 @@ export const DeviceManager: React.FC<DeviceManagerProps> = () => {
               );
             } catch (error) {
               const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-              
+
               if (errorMessage === 'DEVICE_NOT_FOUND') {
                 Alert.alert(t('preferences.devices.error'), t('preferences.devices.errors.deviceNotFound'));
               } else if (errorMessage === 'CANNOT_SIGNOUT_CURRENT_DEVICE') {
@@ -219,19 +219,19 @@ export const DeviceManager: React.FC<DeviceManagerProps> = () => {
         onToggle={handleToggleNotification}
         loading={loadingSettings}
         updating={updatingSettings}
-        activeDevicesCount={devices.filter(d => d.active).length}
-        untrustedDevicesCount={devices.filter(d => !d.active).length}
+        activeDevicesCount={(devices ?? []).filter(d => d.active).length}
+        untrustedDevicesCount={(devices ?? []).filter(d => !d.active).length}
       />
 
       {/* Device List */}
       <View style={styles.deviceList}>
-        {devices.map((device, index) => (
+        {(devices ?? []).map((device, index) => (
           <DeviceListItem
             key={device.id}
             device={device}
             isSigningOut={signingOut === device.id}
             onSignOut={handleSignOutDevice}
-            isLastItem={index === devices.length - 1}
+            isLastItem={index === (devices ?? []).length - 1}
           />
         ))}
       </View>
