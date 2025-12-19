@@ -1,5 +1,2 @@
-export {
-  useAuth0WebView,
-  type UseAuth0WebViewReturn,
-  type UseAuth0WebViewOptions,
-} from './useAuth0WebView';
+export { useAuth0WebView } from './useAuth0WebView';
+export type { UseAuth0WebViewReturn } from './useAuth0WebView';

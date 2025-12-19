@@ -2,7 +2,8 @@
  * MFA Settings Screen
  *
  * Allows users to enable/disable MFA and manage recovery codes.
- * Auth0 handles the actual enrollment via Universal Login.
+ * - iOS: Simple logout approach (Auth0 handles enrollment on next login)
+ * - Android: Uses in-app WebView to keep session alive when switching to authenticator app
  */
 
 import React, { useState } from 'react';
@@ -15,6 +16,7 @@ import {
   Alert,
   ActivityIndicator,
   Switch,
+  Platform,
 } from 'react-native';
 import {
   ArrowLeft,
@@ -28,22 +30,20 @@ import {
   RotateCcw,
 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Colors from '@/constants/Colors';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/providers/AuthProvider';
 import { useMFA } from '@/hooks/mfa';
 import { RecoveryCodesModal } from '@/components/mfa';
 import { ConfirmModal } from '@/components/ui';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Key for storing access credential temporarily during MFA enrollment
-// NOTE: Key must NOT contain 'token', 'auth', 'user', or 'backend' as forceLogout clears those
-export const MFA_ENROLLMENT_CREDENTIAL_KEY = 'mfa_setup_credential';
+const MFA_ENROLLMENT_CREDENTIAL_KEY = 'mfa_setup_credential';
 
 export default function MFASettingsScreen() {
   const { t } = useTranslation();
   const router = useRouter();
-  const { logout, forceLogout, accessToken } = useAuth();
+  const { forceLogout, accessToken } = useAuth();
   const {
     status,
     isLoading,
@@ -64,10 +64,12 @@ export default function MFASettingsScreen() {
   const [showRecoveryCodes, setShowRecoveryCodes] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const isEnabled = status?.mfa_enabled && status?.enrolled;
-  const isPendingEnrollment = status?.mfa_enabled && !status?.enrolled;
+  // Check if user has enrolled by looking at factors array (more reliable than enrolled flag)
+  const hasEnrolledFactors = status?.factors && status.factors.length > 0;
+  const isEnrolled = status?.enrolled || hasEnrolledFactors;
+  const isEnabled = status?.mfa_enabled && isEnrolled;
+  const isPendingEnrollment = status?.mfa_enabled && !isEnrolled;
 
-  // Manual refresh handler
   const handleRefreshStatus = async () => {
     setIsRefreshing(true);
     try {
@@ -77,32 +79,44 @@ export default function MFASettingsScreen() {
     }
   };
 
-  // Handle enable MFA - opens browser for MFA enrollment
+  // Enable MFA - different flow for iOS vs Android
   const handleEnableMFA = async () => {
     setShowEnableConfirm(false);
     const success = await enableMFA();
+
     if (success) {
-      // Store the current token so we can disable MFA if user cancels enrollment
-      if (accessToken) {
-        console.log('[MFA Settings] Saving credential for potential cancel...');
-        await AsyncStorage.setItem(MFA_ENROLLMENT_CREDENTIAL_KEY, accessToken);
-        console.log('[MFA Settings] Credential saved successfully');
+      if (Platform.OS === 'android') {
+        // Android: Save token, force logout, navigate to in-app WebView
+        if (accessToken) {
+          await AsyncStorage.setItem(MFA_ENROLLMENT_CREDENTIAL_KEY, accessToken);
+        }
+        await forceLogout();
+        router.replace('/auth/mfa-enrollment');
       } else {
-        console.warn('[MFA Settings] No access token available to save');
+        // iOS: Show message and force logout (no browser session)
+        // User will complete MFA enrollment on next login via Auth0
+        Alert.alert(
+          t('mfa.setup.title'),
+          t('mfa.setup.logoutMessage'),
+          [
+            {
+              text: t('common.understood'),
+              onPress: async () => {
+                await forceLogout();
+                router.replace('/');
+              },
+            },
+          ]
+        );
       }
-      // Go to MFA enrollment
-      console.log('[MFA Settings] Calling forceLogout...');
-      await forceLogout();
-      console.log('[MFA Settings] Navigating to enrollment...');
-      router.replace('/auth/mfa-enrollment');
     }
   };
 
-  // Handle disable MFA
   const handleDisableMFA = async () => {
     setShowDisableConfirm(false);
     const success = await disableMFA();
     if (success) {
+      // Both platforms: Simple logout - AuthProvider handles redirect to login
       Alert.alert(
         t('mfa.disable.success'),
         t('mfa.disable.logoutMessage'),
@@ -110,7 +124,8 @@ export default function MFASettingsScreen() {
           {
             text: t('common.understood'),
             onPress: async () => {
-              await logout();
+              await forceLogout();
+              // Don't navigate - AuthProvider will redirect to login automatically
             },
           },
         ]
@@ -118,7 +133,6 @@ export default function MFASettingsScreen() {
     }
   };
 
-  // Handle regenerate recovery codes
   const handleRegenerateRecoveryCodes = async () => {
     setShowRegenerateConfirm(false);
     const codes = await regenerateRecoveryCodes();
@@ -127,13 +141,24 @@ export default function MFASettingsScreen() {
     }
   };
 
-  // Handle closing recovery codes modal
   const handleCloseRecoveryCodes = () => {
     setShowRecoveryCodes(false);
     clearNewRecoveryCodes();
   };
 
-  // Show error alert
+  // Handle pending enrollment - resume setup
+  const handleResumeSetup = async () => {
+    if (Platform.OS === 'android') {
+      if (accessToken) {
+        await AsyncStorage.setItem(MFA_ENROLLMENT_CREDENTIAL_KEY, accessToken);
+      }
+      await forceLogout();
+      router.replace('/auth/mfa-enrollment');
+    } else {
+      await logout();
+    }
+  };
+
   React.useEffect(() => {
     if (error) {
       Alert.alert(t('common.error'), error, [
@@ -201,17 +226,16 @@ export default function MFASettingsScreen() {
         </View>
       )}
 
-      {/* Pending Enrollment Actions */}
+      {/* Pending Enrollment Info */}
       {!isLoading && isPendingEnrollment && (
         <View style={styles.section}>
           <View style={styles.infoBox}>
             <Info size={16} color={Colors.warning[600]} />
             <Text style={styles.infoTextWarning}>
-              {t('mfa.pending.description')}
+              {t('mfa.pending.description', { defaultValue: 'MFA is enabled but not yet set up. Complete the setup to secure your account.' })}
             </Text>
           </View>
 
-          {/* Hint for users who already completed MFA */}
           <View style={[styles.infoBox, { marginTop: 8, backgroundColor: Colors.primary[50] }]}>
             <Info size={16} color={Colors.primary[500]} />
             <Text style={styles.infoText}>
@@ -221,15 +245,12 @@ export default function MFASettingsScreen() {
 
           <TouchableOpacity
             style={styles.resumeButton}
-            onPress={async () => {
-              await forceLogout();
-              router.replace('/auth/mfa-enrollment');
-            }}
+            onPress={handleResumeSetup}
             disabled={isProcessing}
           >
             <Smartphone size={20} color="white" />
             <Text style={styles.resumeButtonText}>
-              {t('mfa.pending.resumeSetup')}
+              {t('mfa.pending.resumeSetup', { defaultValue: 'Complete Setup' })}
             </Text>
           </TouchableOpacity>
 
@@ -239,7 +260,7 @@ export default function MFASettingsScreen() {
             disabled={isProcessing}
           >
             <Text style={styles.cancelSetupButtonText}>
-              {t('mfa.pending.cancelSetup')}
+              {t('mfa.pending.cancelSetup', { defaultValue: 'Cancel Setup' })}
             </Text>
           </TouchableOpacity>
         </View>
@@ -278,7 +299,6 @@ export default function MFASettingsScreen() {
             />
           </View>
 
-          {/* Info about authenticator apps */}
           <View style={styles.infoBox}>
             <Info size={16} color={Colors.primary[500]} />
             <Text style={styles.infoText}>
@@ -296,7 +316,6 @@ export default function MFASettingsScreen() {
             <Text style={styles.sectionTitle}>{t('mfa.recoveryCodes.title')}</Text>
           </View>
 
-          {/* Recovery codes count */}
           <View style={styles.recoveryCard}>
             <View style={styles.recoveryInfo}>
               <Text style={styles.recoveryCount}>
@@ -309,7 +328,6 @@ export default function MFASettingsScreen() {
               </Text>
             </View>
 
-            {/* Warning if low codes */}
             {(status?.recovery_codes_remaining || 0) <= 2 && (
               <View style={styles.lowCodesWarning}>
                 <AlertTriangle size={16} color={Colors.warning[600]} />
@@ -320,7 +338,6 @@ export default function MFASettingsScreen() {
             )}
           </View>
 
-          {/* Regenerate button */}
           <TouchableOpacity
             style={styles.actionButton}
             onPress={() => setShowRegenerateConfirm(true)}
@@ -637,4 +654,3 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
-
