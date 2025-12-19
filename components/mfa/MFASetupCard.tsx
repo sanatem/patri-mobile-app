@@ -16,6 +16,7 @@ import {
 } from 'react-native';
 import { Smartphone, ChevronRight, ShieldCheck, ShieldAlert } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
 import Colors from '@/constants/Colors';
 import { useTranslation } from 'react-i18next';
 import { useMFA } from '@/hooks/mfa';
@@ -23,7 +24,14 @@ import { useMFA } from '@/hooks/mfa';
 export const MFASetupCard: React.FC = () => {
   const { t } = useTranslation();
   const router = useRouter();
-  const { status, isLoading } = useMFA();
+  const { status, isLoading, fetchStatus } = useMFA();
+
+  // Refresh status when card becomes visible (e.g., when returning from MFA settings)
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchStatus();
+    }, [fetchStatus])
+  );
 
   const handlePress = () => {
     router.push('/settings/mfa');

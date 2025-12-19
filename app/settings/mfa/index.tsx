@@ -116,16 +116,17 @@ export default function MFASettingsScreen() {
     setShowDisableConfirm(false);
     const success = await disableMFA();
     if (success) {
-      // Both platforms: Simple logout - AuthProvider handles redirect to login
+      // Just show success - user's session is still valid, no need to logout
+      // They'll only need to authenticate without MFA on NEXT login
       Alert.alert(
         t('mfa.disable.success'),
-        t('mfa.disable.logoutMessage'),
+        'Two-factor authentication has been disabled for your account.',
         [
           {
             text: t('common.understood'),
-            onPress: async () => {
-              await forceLogout();
-              // Don't navigate - AuthProvider will redirect to login automatically
+            onPress: () => {
+              // Refresh status to update UI
+              fetchStatus();
             },
           },
         ]

@@ -727,11 +727,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setLoading(true);
 
     try {
+      // 0. Dismiss any open browser sessions (prevents "Another web browser is already open" error)
+      if (Platform.OS === 'android') {
+        try {
+          await WebBrowser.dismissBrowser();
+        } catch {
+          // Ignore - browser might not be open
+        }
+      }
+
       // 1. Clear React state immediately
       setUser(null);
       setAccessToken(null);
       setError(null);
       setAuthPromiseResolve(null);
+      setIsAuthenticating(false);
 
       // 2. Clear primary storage
       await AsyncStorage.removeItem('auth_token');
