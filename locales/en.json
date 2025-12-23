@@ -1071,6 +1071,51 @@
     "language": {
       "title": "App Language",
       "subtitle": "Select your language"
+    },
+    "security": {
+      "title": "Security Settings",
+      "newDeviceAlerts": {
+        "title": "New Device Login Alerts",
+        "description": "Get notified by email when someone logs in from a new device"
+      },
+      "updateError": "Could not update security settings. Please try again.",
+      "enabledSuccess": "Security alerts enabled",
+      "disabledSuccess": "Security alerts disabled"
+    },
+    "devices": {
+      "title": "My Devices",
+      "subtitle": "Manage devices with access to your account",
+      "loading": "Loading devices...",
+      "error": "Error",
+      "loadError": "Could not load devices. Please try again.",
+      "signOutError": "Could not sign out device. Please try again.",
+      "activeDevices": "{{count}} active session",
+      "activeDevices_other": "{{count}} active sessions",
+      "untrustedDevices": "{{count}} inactive",
+      "untrustedDevices_other": "{{count}} inactive",
+      "currentlyInUse": "Currently in use",
+      "signOut": "Sign out",
+      "lastActive": "Last active",
+      "now": "Now",
+      "minutesAgo": "{{count}}m ago",
+      "minutesAgo_other": "{{count}}m ago",
+      "hoursAgo": "{{count}}h ago",
+      "hoursAgo_other": "{{count}}h ago",
+      "daysAgo": "{{count}}d ago",
+      "daysAgo_other": "{{count}}d ago",
+      "errors": {
+        "deviceNotFound": "Device not found. It may have already been removed.",
+        "cannotSignOutCurrent": "You cannot sign out the device you are currently using."
+      },
+      "signOutConfirm": {
+        "title": "Sign Out Device",
+        "message": "Are you sure you want to sign out '{{device}}'? That device will lose access to your account.",
+        "action": "Sign Out"
+      },
+      "signedOut": {
+        "title": "Device Signed Out",
+        "message": "The session has been closed successfully."
+      }
     }
   },
   "languages": {

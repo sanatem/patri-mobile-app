@@ -3,6 +3,9 @@ export * from './api';
 
 export * from './chart';
 
+export * from './device';
+export * from './security';
+
 export interface Asset {
   id: string;
   name: string;
