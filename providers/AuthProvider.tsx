@@ -147,7 +147,8 @@ const validateWithBackend = async (token: string): Promise<BackendUserResponse> 
           device_model: deviceInfo.device_model,
           os_version: deviceInfo.os_version,
           app_version: deviceInfo.app_version,
-          ...(deviceInfo.push_token && { push_token: deviceInfo.push_token })
+          ...(deviceInfo.push_token && { push_token: deviceInfo.push_token }),
+          ...(deviceInfo.device_fingerprint && { device_fingerprint: deviceInfo.device_fingerprint }),
         }
       });
     }
