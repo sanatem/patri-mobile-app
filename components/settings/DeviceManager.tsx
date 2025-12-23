@@ -103,7 +103,7 @@ export const DeviceManager: React.FC<DeviceManagerProps> = () => {
         throw new Error('No authentication token available');
       }
       const response = await getUserDevices(token);
-      setDevices(response.devices);
+      setDevices(response.devices ?? []);
     } catch (error) {
       console.error('Error refreshing devices:', error);
       Alert.alert(
