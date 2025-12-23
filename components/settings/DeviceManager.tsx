@@ -19,7 +19,6 @@ export const DeviceManager: React.FC<DeviceManagerProps> = () => {
   const { t } = useTranslation();
   const { getToken } = useAuthToken();
   const [devices, setDevices] = useState<Device[]>([]);
-  const [currentDeviceId, setCurrentDeviceId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [signingOut, setSigningOut] = useState<number | null>(null);
   const [notifyNewDevice, setNotifyNewDevice] = useState(false);
@@ -50,7 +49,6 @@ export const DeviceManager: React.FC<DeviceManagerProps> = () => {
 
         if (isMounted) {
           setDevices(response.devices ?? []);
-          setCurrentDeviceId(response.current_device_id ?? null);
         }
       } catch (error) {
         console.error('Error loading devices:', error);
@@ -106,7 +104,6 @@ export const DeviceManager: React.FC<DeviceManagerProps> = () => {
       }
       const response = await getUserDevices(token);
       setDevices(response.devices);
-      setCurrentDeviceId(response.current_device_id);
     } catch (error) {
       console.error('Error refreshing devices:', error);
       Alert.alert(
