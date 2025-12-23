@@ -28,7 +28,7 @@ export function ChartSection({
         showSkeletons={showSkeletons}
         skeletonFadeAnim={skeletonFadeAnim}
       />
-      {/* <AreaChart /> */}
+      <AreaChart />
     </>
   );
 }
