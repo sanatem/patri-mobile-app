@@ -28,8 +28,8 @@ export interface MFAStatus {
   enrolled: boolean;
   /** List of enrolled factor types */
   factors: MFAFactorType[];
-  /** Number of unused recovery codes remaining */
-  recovery_codes_remaining: number;
+  /** Number of unused recovery codes remaining (null if not enrolled) */
+  recovery_codes_remaining: number | null;
 }
 
 /**
@@ -69,6 +69,8 @@ export interface MFAState {
   error: string | null;
   /** Newly generated recovery codes (shown after regeneration) */
   newRecoveryCodes: string[] | null;
+  /** Whether the user needs to generate recovery codes (first-time after TOTP enrollment) */
+  needsRecoveryCodesSetup: boolean;
 }
 
 /**
@@ -87,10 +89,13 @@ export interface MFAActions {
   clearError: () => void;
   /** Clear new recovery codes after user has seen them */
   clearNewRecoveryCodes: () => void;
+  /** Dismiss the first-time recovery codes prompt */
+  dismissRecoveryCodesPrompt: () => Promise<void>;
+  /** Reset the recovery codes prompt (call when MFA is re-enabled) */
+  resetRecoveryCodesPrompt: () => Promise<void>;
 }
 
 /**
  * Complete return type for useMFA hook
  */
 export type UseMFAReturn = MFAState & MFAActions;
-

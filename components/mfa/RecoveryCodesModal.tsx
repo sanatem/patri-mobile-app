@@ -1,8 +1,8 @@
 /**
  * RecoveryCodesModal Component
  *
- * Modal that displays recovery codes to the user.
- * Allows copying all codes or individual codes.
+ * Modal that displays recovery code to the user.
+ * Shows a single recovery code that can be copied.
  */
 
 import React, { useState } from 'react';
@@ -12,11 +12,10 @@ import {
   StyleSheet,
   Modal,
   TouchableOpacity,
-  ScrollView,
   Alert,
   Clipboard,
 } from 'react-native';
-import { X, Copy, Download, AlertTriangle, Check } from 'lucide-react-native';
+import { Copy, AlertTriangle, Check, ShieldCheck } from 'lucide-react-native';
 import Colors from '@/constants/Colors';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui';
@@ -35,29 +34,36 @@ export const RecoveryCodesModal: React.FC<RecoveryCodesModalProps> = ({
   isNewCodes = false,
 }) => {
   const { t } = useTranslation();
-  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
-  const [allCopied, setAllCopied] = useState(false);
+  const [copied, setCopied] = useState(false);
 
-  const handleCopyCode = (code: string, index: number) => {
+  // Get the single code (we only have 1 now)
+  const code = codes[0] || '';
+
+  const handleCopyCode = () => {
     try {
       Clipboard.setString(code);
-      setCopiedIndex(index);
-      setTimeout(() => setCopiedIndex(null), 2000);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     } catch (error) {
       Alert.alert(t('common.error'), t('mfa.recoveryCodes.copyError'));
     }
   };
 
-  const handleCopyAll = () => {
-    try {
-      const allCodes = codes.join('\n');
-      Clipboard.setString(allCodes);
-      setAllCopied(true);
-      setTimeout(() => setAllCopied(false), 2000);
-      Alert.alert(t('mfa.recoveryCodes.copied'));
-    } catch (error) {
-      Alert.alert(t('common.error'), t('mfa.recoveryCodes.copyError'));
-    }
+  const handleSavedCode = () => {
+    Alert.alert(
+      t('mfa.recoveryCodes.confirmSaved.title', { defaultValue: 'Did you save your code?' }),
+      t('mfa.recoveryCodes.confirmSaved.message', { defaultValue: 'Make sure you\'ve saved this code somewhere safe. You won\'t be able to see it again.' }),
+      [
+        {
+          text: t('common.cancel'),
+          style: 'cancel',
+        },
+        {
+          text: t('mfa.recoveryCodes.confirmSaved.confirm', { defaultValue: 'Yes, I saved it' }),
+          onPress: onClose,
+        },
+      ]
+    );
   };
 
   return (
@@ -65,66 +71,69 @@ export const RecoveryCodesModal: React.FC<RecoveryCodesModalProps> = ({
       visible={visible}
       transparent
       animationType="fade"
-      onRequestClose={onClose}
+      onRequestClose={handleSavedCode}
     >
       <View style={styles.overlay}>
         <View style={styles.container}>
           {/* Header */}
           <View style={styles.header}>
-            <Text style={styles.title}>{t('mfa.recoveryCodes.title')}</Text>
-            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-              <X size={24} color={Colors.gray[500]} />
-            </TouchableOpacity>
+            <View style={styles.iconContainer}>
+              <ShieldCheck size={32} color={Colors.success[500]} />
+            </View>
+            <Text style={styles.title}>
+              {t('mfa.recoveryCodes.title')}
+            </Text>
           </View>
 
           {/* Warning */}
           {isNewCodes && (
             <View style={styles.warningContainer}>
-              <AlertTriangle size={20} color={Colors.warning[600]} />
+              <AlertTriangle size={18} color={Colors.warning[600]} />
               <Text style={styles.warningText}>
-                {t('mfa.recoveryCodes.saveWarning')}
+                {t('mfa.recoveryCodes.saveWarningSingle', { defaultValue: 'Save this code now! You won\'t be able to see it again.' })}
               </Text>
             </View>
           )}
 
           {/* Description */}
           <Text style={styles.description}>
-            {t('mfa.recoveryCodes.subtitle')}
+            {t('mfa.recoveryCodes.subtitleSingle', { defaultValue: 'Use this code to access your account if you lose your phone or can\'t use your authenticator app.' })}
           </Text>
 
-          {/* Codes List */}
-          <ScrollView style={styles.codesContainer} showsVerticalScrollIndicator={false}>
-            <View style={styles.codesGrid}>
-              {codes.map((code, index) => (
-                <TouchableOpacity
-                  key={index}
-                  style={styles.codeItem}
-                  onPress={() => handleCopyCode(code, index)}
-                  activeOpacity={0.7}
-                >
-                  <Text style={styles.codeText}>{code}</Text>
-                  {copiedIndex === index ? (
-                    <Check size={16} color={Colors.success[500]} />
-                  ) : (
-                    <Copy size={16} color={Colors.gray[400]} />
-                  )}
-                </TouchableOpacity>
-              ))}
+          {/* Single Code Display */}
+          <TouchableOpacity
+            style={styles.codeContainer}
+            onPress={handleCopyCode}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.codeText}>{code}</Text>
+            <View style={styles.copyButton}>
+              {copied ? (
+                <Check size={20} color={Colors.success[500]} />
+              ) : (
+                <Copy size={20} color={Colors.primary[500]} />
+              )}
+              <Text style={[styles.copyText, copied && styles.copyTextSuccess]}>
+                {copied
+                  ? t('mfa.recoveryCodes.codeCopied', { defaultValue: 'Copied!' })
+                  : t('mfa.recoveryCodes.tapToCopy', { defaultValue: 'Tap to copy' })
+                }
+              </Text>
             </View>
-          </ScrollView>
+          </TouchableOpacity>
 
           {/* Warning about single use */}
           <Text style={styles.warningNote}>
-            {t('mfa.recoveryCodes.warning')}
+            {t('mfa.recoveryCodes.warningSingle', { defaultValue: 'This code can only be used once.' })}
           </Text>
 
-          {/* Actions */}
+          {/* Action Button */}
           <View style={styles.actions}>
             <Button
-              title={allCopied ? t('mfa.recoveryCodes.copied') : t('mfa.recoveryCodes.copyAll')}
-              onPress={handleCopyAll}
+              title={t('mfa.recoveryCodes.iSavedMyCode', { defaultValue: 'I saved my code' })}
+              onPress={handleSavedCode}
               variant="primary"
-              icon={allCopied ? <Check size={18} color="white" /> : <Copy size={18} color="white" />}
+              icon={<Check size={18} color="white" />}
             />
           </View>
         </View>
@@ -146,22 +155,27 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     width: '100%',
     maxWidth: 400,
-    maxHeight: '80%',
     padding: 24,
+    alignItems: 'center',
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 16,
+  },
+  iconContainer: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: Colors.success[50],
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
   },
   title: {
     fontSize: 20,
     fontWeight: '700',
     color: Colors.gray[900],
-  },
-  closeButton: {
-    padding: 4,
+    textAlign: 'center',
   },
   warningContainer: {
     flexDirection: 'row',
@@ -170,11 +184,12 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 8,
     marginBottom: 16,
-    gap: 12,
+    gap: 10,
+    width: '100%',
   },
   warningText: {
     flex: 1,
-    fontSize: 14,
+    fontSize: 13,
     color: Colors.warning[700],
     fontWeight: '500',
   },
@@ -182,42 +197,50 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: Colors.gray[600],
     lineHeight: 20,
-    marginBottom: 16,
+    marginBottom: 20,
+    textAlign: 'center',
   },
-  codesContainer: {
-    maxHeight: 250,
-    marginBottom: 16,
-  },
-  codesGrid: {
-    gap: 8,
-  },
-  codeItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+  codeContainer: {
     backgroundColor: Colors.gray[50],
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 8,
-    borderWidth: 1,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderRadius: 12,
+    borderWidth: 2,
     borderColor: Colors.gray[200],
+    borderStyle: 'dashed',
+    alignItems: 'center',
+    marginBottom: 12,
+    width: '100%',
   },
   codeText: {
-    fontSize: 16,
+    fontSize: 20,
     fontFamily: 'monospace',
-    fontWeight: '600',
-    color: Colors.gray[800],
-    letterSpacing: 1,
+    fontWeight: '700',
+    color: Colors.gray[900],
+    letterSpacing: 2,
+    marginBottom: 8,
+  },
+  copyButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  copyText: {
+    fontSize: 13,
+    color: Colors.primary[500],
+    fontWeight: '500',
+  },
+  copyTextSuccess: {
+    color: Colors.success[500],
   },
   warningNote: {
     fontSize: 12,
     color: Colors.gray[500],
     textAlign: 'center',
-    marginBottom: 16,
+    marginBottom: 20,
     fontStyle: 'italic',
   },
   actions: {
-    gap: 12,
+    width: '100%',
   },
 });
-

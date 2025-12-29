@@ -79,11 +79,15 @@ export async function disableMFA(accessToken: string): Promise<MFADisableRespons
 }
 
 /**
- * Regenerate recovery codes for the authenticated user
- * This invalidates all previous recovery codes
+ * Regenerate recovery code for the authenticated user
+ *
+ * Backend returns: { recovery_code: "CODE", success: true }
+ * We normalize to: { recovery_codes: ["CODE"] }
  */
 export async function regenerateRecoveryCodes(accessToken: string): Promise<MFARecoveryCodesResponse> {
-  const response = await fetch(`${getBaseUrl()}/api/v2/auth/mfa/recovery-codes/regenerate`, {
+  const url = `${getBaseUrl()}/api/v2/auth/mfa/recovery-codes/regenerate`;
+
+  const response = await fetch(url, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${accessToken}`,
@@ -96,6 +100,17 @@ export async function regenerateRecoveryCodes(accessToken: string): Promise<MFAR
     throw new Error(`Failed to regenerate recovery codes: ${response.status} - ${errorText}`);
   }
 
-  return response.json();
-}
+  const data = await response.json();
 
+  // Normalize the response - backend returns single code
+  // { recovery_code: "CODE", success: true } -> { recovery_codes: ["CODE"] }
+  let codes: string[] = [];
+
+  if (Array.isArray(data.recovery_codes)) {
+    codes = data.recovery_codes;
+  } else if (typeof data.recovery_code === 'string') {
+    codes = [data.recovery_code];
+  }
+
+  return { recovery_codes: codes };
+}

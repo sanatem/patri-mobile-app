@@ -116,16 +116,13 @@ export default function MFASettingsScreen() {
     setShowDisableConfirm(false);
     const success = await disableMFA();
     if (success) {
-      // Just show success - user's session is still valid, no need to logout
-      // They'll only need to authenticate without MFA on NEXT login
       Alert.alert(
         t('mfa.disable.success'),
-        'Two-factor authentication has been disabled for your account.',
+        t('mfa.disable.logoutMessage', { defaultValue: 'Two-factor authentication has been disabled for your account.' }),
         [
           {
             text: t('common.understood'),
             onPress: () => {
-              // Refresh status to update UI
               fetchStatus();
             },
           },
@@ -156,7 +153,7 @@ export default function MFASettingsScreen() {
       await forceLogout();
       router.replace('/auth/mfa-enrollment');
     } else {
-      await logout();
+      await forceLogout();
     }
   };
 
@@ -314,29 +311,36 @@ export default function MFASettingsScreen() {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Key size={20} color={Colors.gray[600]} />
-            <Text style={styles.sectionTitle}>{t('mfa.recoveryCodes.title')}</Text>
+            <Text style={styles.sectionTitle}>
+              {t('mfa.recoveryCodes.titleSingle', { defaultValue: 'Backup Code' })}
+            </Text>
           </View>
 
+          {/* Status indicator */}
           <View style={styles.recoveryCard}>
-            <View style={styles.recoveryInfo}>
-              <Text style={styles.recoveryCount}>
-                {status?.recovery_codes_remaining || 0}
-              </Text>
-              <Text style={styles.recoveryLabel}>
-                {(status?.recovery_codes_remaining || 0) === 1
-                  ? t('mfa.recoveryCodes.oneCodeRemaining')
-                  : t('mfa.recoveryCodes.codesRemaining', { count: status?.recovery_codes_remaining || 0 })}
-              </Text>
-            </View>
-
-            {(status?.recovery_codes_remaining || 0) <= 2 && (
-              <View style={styles.lowCodesWarning}>
-                <AlertTriangle size={16} color={Colors.warning[600]} />
-                <Text style={styles.lowCodesText}>
-                  {t('mfa.recoveryCodes.lowCodesWarning')}
+            {(status?.recovery_codes_remaining ?? 0) > 0 ? (
+              <View style={styles.recoveryStatusRow}>
+                <View style={styles.statusDot} />
+                <Text style={styles.recoveryStatusText}>
+                  {t('mfa.recoveryCodes.hasBackupCode', { defaultValue: 'You have a backup code saved' })}
+                </Text>
+              </View>
+            ) : (
+              <View style={styles.recoveryStatusRow}>
+                <View style={[styles.statusDot, styles.statusDotWarning]} />
+                <Text style={styles.recoveryStatusTextWarning}>
+                  {t('mfa.recoveryCodes.noBackupCode', { defaultValue: 'No backup code available' })}
                 </Text>
               </View>
             )}
+          </View>
+
+          {/* Info text */}
+          <View style={styles.infoBox}>
+            <Info size={16} color={Colors.gray[500]} />
+            <Text style={styles.infoTextMuted}>
+              {t('mfa.recoveryCodes.infoSingle', { defaultValue: 'Your backup code can be used once to access your account if you lose your phone. Generating a new code will replace the previous one.' })}
+            </Text>
           </View>
 
           <TouchableOpacity
@@ -350,7 +354,10 @@ export default function MFASettingsScreen() {
               <RefreshCw size={20} color={Colors.primary[500]} />
             )}
             <Text style={styles.actionButtonText}>
-              {t('mfa.recoveryCodes.regenerate')}
+              {(status?.recovery_codes_remaining ?? 0) > 0
+                ? t('mfa.recoveryCodes.regenerateSingle', { defaultValue: 'Generate New Code' })
+                : t('mfa.recoveryCodes.generateSingle', { defaultValue: 'Generate Backup Code' })
+              }
             </Text>
           </TouchableOpacity>
         </View>
@@ -605,33 +612,35 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginBottom: 12,
   },
-  recoveryInfo: {
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  recoveryCount: {
-    fontSize: 36,
-    fontWeight: '700',
-    color: Colors.gray[900],
-  },
-  recoveryLabel: {
-    fontSize: 14,
-    color: Colors.gray[600],
-    marginTop: 4,
-  },
-  lowCodesWarning: {
+  recoveryStatusRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.warning[50],
-    padding: 10,
-    borderRadius: 8,
-    marginTop: 8,
-    gap: 8,
+    gap: 10,
   },
-  lowCodesText: {
+  statusDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: Colors.success[500],
+  },
+  statusDotWarning: {
+    backgroundColor: Colors.warning[500],
+  },
+  recoveryStatusText: {
+    fontSize: 14,
+    color: Colors.gray[700],
+    fontWeight: '500',
+  },
+  recoveryStatusTextWarning: {
+    fontSize: 14,
+    color: Colors.warning[700],
+    fontWeight: '500',
+  },
+  infoTextMuted: {
     flex: 1,
     fontSize: 13,
-    color: Colors.warning[700],
+    color: Colors.gray[600],
+    lineHeight: 18,
   },
   actionButton: {
     flexDirection: 'row',
