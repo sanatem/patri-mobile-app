@@ -89,9 +89,156 @@
       "confirm": "Are you sure you want to disable {{type}}?"
     }
   },
+  "mfa": {
+    "title": "Two-Factor Authentication",
+    "titleShort": "2FA",
+    "subtitle": "Add an extra layer of security to your account",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "setup": {
+      "title": "Enable Two-Factor Authentication",
+      "subtitle": "Secure your account with an authenticator app",
+      "authenticatorApp": "Authenticator App",
+      "confirmMessage": "You'll be logged out to complete the 2FA setup. When you log back in, you'll be asked to scan a QR code with your authenticator app.",
+      "confirmButton": "Enable & Log Out",
+      "logoutMessage": "Please log in again to complete the 2FA setup. You'll be asked to scan a QR code with your authenticator app.",
+      "webviewMessage": "We'll now set up your two-factor authentication. You can switch to your authenticator app and come back without losing your progress.",
+      "step1": {
+        "title": "Download an authenticator app",
+        "description": "If you don't have one, download Google Authenticator, Authy, or Microsoft Authenticator from your app store."
+      },
+      "step2": {
+        "title": "Scan the QR code",
+        "description": "Open your authenticator app and scan the QR code"
+      },
+      "step3": {
+        "title": "Enter verification code",
+        "description": "Enter the 6-digit code from your authenticator app"
+      },
+      "manualEntry": "Can't scan? Enter this code manually:",
+      "secretKey": "Secret key",
+      "copySecret": "Copy secret key",
+      "secretCopied": "Secret key copied to clipboard"
+    },
+    "verify": {
+      "title": "Enter Verification Code",
+      "subtitle": "Enter the 6-digit code from your authenticator app",
+      "placeholder": "000000",
+      "verify": "Verify",
+      "verifying": "Verifying...",
+      "useRecoveryCode": "Use a recovery code instead",
+      "codeExpired": "Code expired. Please enter a new code.",
+      "invalidCode": "Invalid code. Please try again.",
+      "tooManyAttempts": "Too many attempts. Please wait {{minutes}} minutes."
+    },
+    "recoveryCodes": {
+      "title": "Recovery Code",
+      "titleSingle": "Backup Code",
+      "subtitle": "Save this code in a safe place. You can use it to access your account if you lose your authenticator device.",
+      "subtitleSingle": "Use this code to access your account if you lose your phone or can't use your authenticator app.",
+      "warning": "This code can only be used once.",
+      "warningSingle": "This code can only be used once.",
+      "saveWarning": "Make sure to save this code now. You won't be able to see it again.",
+      "saveWarningSingle": "Save this code now! You won't be able to see it again.",
+      "codesRemaining": "{{count}} codes remaining",
+      "oneCodeRemaining": "1 code remaining",
+      "noCodesRemaining": "No codes remaining",
+      "hasBackupCode": "You have a backup code saved",
+      "noBackupCode": "No backup code available",
+      "infoSingle": "Your backup code can be used once to access your account if you lose your phone. Generating a new code will replace the previous one.",
+      "copyAll": "Copy code",
+      "tapToCopy": "Tap to copy",
+      "codeCopied": "Copied!",
+      "download": "Download code",
+      "regenerate": "Generate new code",
+      "regenerateSingle": "Generate New Code",
+      "generateSingle": "Generate Backup Code",
+      "regenerateWarning": "This will invalidate your existing recovery code. Are you sure?",
+      "regenerateConfirm": "Generate New Code",
+      "iSavedMyCode": "I saved my code",
+      "copied": "Code copied",
+      "copyError": "Failed to copy code",
+      "downloaded": "Recovery code saved",
+      "generated": "New recovery code generated",
+      "confirmSaved": {
+        "title": "Did you save your code?",
+        "message": "Make sure you've saved this code somewhere safe. You won't be able to see it again.",
+        "confirm": "Yes, I saved it"
+      },
+      "firstTimeSetup": {
+        "title": "Save Your Backup Code",
+        "subtitle": "Your two-factor authentication is now active! Generate a backup code to access your account if you lose your phone.",
+        "generateButton": "Generate Backup Code",
+        "skipButton": "I'll do it later",
+        "skipWarning": "Without a backup code, you could lose access to your account if you lose your device."
+      }
+    },
+    "disable": {
+      "title": "Disable Two-Factor Authentication",
+      "subtitle": "Enter your verification code to disable 2FA",
+      "warning": "Disabling 2FA will make your account less secure. You'll be logged out after disabling.",
+      "confirm": "Disable 2FA",
+      "success": "Two-factor authentication disabled",
+      "logoutMessage": "Please log in again to continue."
+    },
+    "methods": {
+      "title": "Verification Method",
+      "subtitle": "Choose how you want to verify your identity",
+      "totp": {
+        "title": "Authenticator App",
+        "description": "Use a code from your authenticator app"
+      },
+      "recovery": {
+        "title": "Recovery Code",
+        "description": "Use one of your backup recovery codes"
+      }
+    },
+    "status": {
+      "checking": "Checking 2FA status...",
+      "enabling": "Enabling two-factor authentication...",
+      "disabling": "Disabling two-factor authentication...",
+      "enabled": "Two-factor authentication is enabled",
+      "disabled": "Two-factor authentication is disabled",
+      "pendingEnrollment": "Complete setup on next login"
+    },
+    "errors": {
+      "setupFailed": "Failed to set up 2FA. Please try again.",
+      "verificationFailed": "Verification failed. Please check your code.",
+      "disableFailed": "Failed to disable 2FA. Please try again.",
+      "recoveryCodeInvalid": "Invalid recovery code.",
+      "recoveryCodeUsed": "This recovery code has already been used.",
+      "noRecoveryCodes": "No recovery codes available.",
+      "networkError": "Network error. Please check your connection.",
+      "sessionExpired": "Your session has expired. Please log in again."
+    },
+    "settings": {
+      "menuTitle": "Two-Factor Authentication",
+      "menuSubtitle": "Secure your account with an authenticator app",
+      "viewRecoveryCodes": "View recovery codes",
+      "changeDevice": "Change authenticator device"
+    },
+    "pending": {
+      "description": "You enabled two-factor authentication but didn't complete the setup. Log in to finish setup or cancel to disable it.",
+      "resumeSetup": "Resume Setup",
+      "cancelSetup": "Cancel Setup",
+      "refreshHint": "If you already completed MFA setup, tap the refresh button above to update the status."
+    },
+    "enrollment": {
+      "title": "Set Up 2FA",
+      "openingBrowser": "Opening secure login...",
+      "browserHint": "Complete the setup in the browser that opens. You'll be redirected back automatically.",
+      "cancelling": "Cancelling MFA setup...",
+      "cancelTitle": "Cancel MFA Setup?",
+      "cancelMessage": "This will disable two-factor authentication. You can enable it again later from settings.",
+      "cancelConfirm": "Yes, Cancel"
+    }
+  },
   "common": {
     "language_code": "en",
     "cancel": "Cancel",
+    "yes": "Yes",
+    "no": "No",
+    "close": "Close",
     "error": "Error",
     "continue": "Continue",
     "permissionsRequired": "Permissions required",
@@ -1658,7 +1805,21 @@
     "cancelledMessage": "Authentication process could not be completed.",
     "errorTitle": "Authentication Error",
     "errorMessage": "An error occurred during authentication. Please try again.",
-    "usePassword": "Use password"
+    "usePassword": "Use password",
+    "webview": {
+      "title": "Sign In",
+      "loading": "Loading...",
+      "cancelTitle": "Cancel authentication?",
+      "cancelMessage": "If you cancel now, you'll need to restart the 2FA setup.",
+      "errors": {
+        "title": "Authentication Error",
+        "message": "An error occurred during authentication. Please try again.",
+        "noToken": "Access token not received",
+        "parseError": "Error processing authentication response",
+        "loadFailed": "Failed to load login page",
+        "httpError": "Connection error"
+      }
+    }
   },
   "login": {
     "subtitle": "Sign in to manage your finances intelligently",

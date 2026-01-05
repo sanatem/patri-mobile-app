@@ -23,7 +23,9 @@ import {
   X,
   Settings,
   CreditCard,
+  Smartphone,
 } from 'lucide-react-native';
+import { MFASetupCard } from '@/components/mfa';
 import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
 import { useAuth } from '@/providers/AuthProvider';
@@ -132,6 +134,12 @@ export default function MoreScreen() {
       title: t('settings.menu.biometricAuth'),
       subtitle: t('settings.menu.biometricAuthSubtitle'),
       customRender: () => <BiometricSetup />,
+    },
+    {
+      id: 'mfa',
+      title: t('mfa.settings.menuTitle'),
+      subtitle: t('mfa.settings.menuSubtitle'),
+      customRender: () => <MFASetupCard />,
     },
     {
       id: 'bank-accounts',

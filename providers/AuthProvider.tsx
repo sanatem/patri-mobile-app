@@ -78,6 +78,8 @@ interface AuthContextType {
   loginWithGoogle: () => Promise<boolean>;
   loginWithApple: () => Promise<boolean>;
   loginWithBiometric: () => Promise<boolean>;
+  /** Refresh session from a new access token (used after MFA enrollment) */
+  refreshSessionWithToken: (accessToken: string) => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -402,6 +404,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = async () => {
     setLoading(true);
     try {
+      // 1. Clear all local state FIRST
       await AsyncStorage.removeItem('auth_token');
       await AsyncStorage.removeItem('backend_user_data');
       await SecureStorageService.clearAll(); // Clear biometric tokens
@@ -410,18 +413,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setAccessToken(null);
       setError(null);
 
-      const logoutUrl = `${auth0Domain}/v2/logout?client_id=${auth0ClientId}&returnTo=${encodeURIComponent(redirectUri)}`;
-      await WebBrowser.openAuthSessionAsync(logoutUrl, redirectUri);
-
+      // 2. Try RevenueCat logout (non-blocking)
       try {
         await Purchases.logOut();
       } catch (error) {
         console.warn('RevenueCat logout failed:', error);
       }
 
-      // Navigate to home after logout
+      // 3. Navigate to home IMMEDIATELY - don't wait for browser
       router.replace('/');
+
+      // 4. Auth0 logout in browser (best effort, non-blocking)
+      // This invalidates the session on Auth0's side
+      const logoutUrl = `${auth0Domain}/v2/logout?client_id=${auth0ClientId}&returnTo=${encodeURIComponent(redirectUri)}`;
+      WebBrowser.openAuthSessionAsync(logoutUrl, redirectUri).catch((error) => {
+        console.warn('Auth0 browser logout failed:', error);
+      });
     } catch (error) {
+      // Even if something fails, ensure we navigate away
+      router.replace('/');
       throw error;
     } finally {
       setLoading(false);
@@ -718,15 +728,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setLoading(true);
 
     try {
+      // 0. Dismiss any open browser sessions (prevents "Another web browser is already open" error)
+      if (Platform.OS === 'android') {
+        try {
+          await WebBrowser.dismissBrowser();
+        } catch {
+          // Ignore - browser might not be open
+        }
+      }
+
+      // 1. Clear React state immediately
       setUser(null);
       setAccessToken(null);
       setError(null);
       setAuthPromiseResolve(null);
+      setIsAuthenticating(false);
 
+      // 2. Clear primary storage
       await AsyncStorage.removeItem('auth_token');
       await AsyncStorage.removeItem('backend_user_data');
       await SecureStorageService.clearAll(); // Clear biometric tokens
 
+      // 3. Double-check and clean up any remaining auth data
       const tokenCheck = await AsyncStorage.getItem('auth_token');
       const userDataCheck = await AsyncStorage.getItem('backend_user_data');
 
@@ -741,18 +764,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         await AsyncStorage.multiRemove(authKeys);
       }
 
+      // 4. RevenueCat logout (non-blocking)
       try {
         await Purchases.logOut();
       } catch (error) {
         console.warn('RevenueCat logout failed:', error);
       }
 
-      // Navigate to home after logout
+      // 5. Navigate to home IMMEDIATELY
       router.replace('/');
     } catch (error) {
+      // Even on error, ensure state is cleared and we navigate
       setUser(null);
       setAccessToken(null);
       setError(null);
+      router.replace('/');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /**
+   * Refresh session with a new access token
+   * Used after MFA enrollment WebView completes
+   */
+  const refreshSessionWithToken = async (token: string): Promise<boolean> => {
+    setLoading(true);
+    try {
+      return await handleAuthResponse(token);
     } finally {
       setLoading(false);
     }
@@ -773,6 +812,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         loginWithGoogle,
         loginWithApple,
         loginWithBiometric,
+        refreshSessionWithToken,
       }}
     >
       {children}

@@ -7,7 +7,7 @@ import { CheckCircle } from 'lucide-react-native';
 type ButtonProps = {
   title: string;
   onPress: () => void;
-  variant?: 'primary' | 'outline' | 'ghost' | 'disabled' | 'success';
+  variant?: 'primary' | 'outline' | 'ghost' | 'disabled' | 'success' | 'danger';
   loading?: boolean;
   saved?: boolean;
   disabled?: boolean;
@@ -49,6 +49,13 @@ const buttonStyles = StyleSheet.create({
     backgroundColor: Colors.success[500],
     borderRadius: 16,
   },
+  danger: {
+    backgroundColor: Colors.error[500],
+    borderRadius: 16,
+  },
+  dangerText: {
+    color: 'white',
+  },
 });
 
 export function Button({
@@ -62,7 +69,7 @@ export function Button({
   icon = null,
 }: ButtonProps) {
   const baseStyles = 'flex-row items-center justify-center h-12 px-4 font-semibold';
-  
+
   const getVariantStyles = () => {
     if (disabled) {
       if (variant === 'primary') {
@@ -76,7 +83,7 @@ export function Button({
       }
       return 'border border-gray-200 text-gray-300 bg-gray-100';
     }
-    
+
     if (saved) {
       return 'text-white';
     }
@@ -86,14 +93,15 @@ export function Button({
       outline: 'border border-primary-500 text-primary-500 bg-white',
       ghost: 'bg-transparent text-primary-500',
       disabled: 'border border-gray-300 text-gray-400 bg-white',
-      success: 'text-white'
+      success: 'text-white',
+      danger: 'text-white'
     };
     return variants[variant];
   };
 
   const getTextColor = () => {
     if (disabled) {
-      if (variant === 'primary') {
+      if (variant === 'primary' || variant === 'danger') {
         return 'text-gray-500';
       }
       if (variant === 'outline') {
@@ -103,12 +111,16 @@ export function Button({
         return '';
       }
     }
-    return variant === 'primary' ? 'text-white' : 'text-primary-500';
+    return (variant === 'primary' || variant === 'danger') ? 'text-white' : 'text-primary-500';
   };
 
   const getDisabledStyle = () => {
     if (saved) {
       return buttonStyles.saved;
+    }
+
+    if (variant === 'danger' && !disabled) {
+      return buttonStyles.danger;
     }
 
     if (!disabled) return {};
@@ -117,7 +129,7 @@ export function Button({
       return {};
     }
 
-    if (variant === 'primary') {
+    if (variant === 'primary' || variant === 'danger') {
       return buttonStyles.disabledPrimary;
     }
     if (variant === 'outline') {
@@ -129,11 +141,11 @@ export function Button({
 
   const getDisabledTextStyle = () => {
     if (!disabled) return {};
-    
+
     if (variant === 'ghost') {
       return { color: Colors.gray[300] };
     }
-    
+
     if (variant === 'primary') {
       return buttonStyles.disabledPrimaryText;
     }

@@ -89,9 +89,156 @@
       "confirm": "¿Estás seguro de que deseas deshabilitar {{type}}?"
     }
   },
+  "mfa": {
+    "title": "Autenticación de Dos Factores",
+    "titleShort": "2FA",
+    "subtitle": "Añade una capa extra de seguridad a tu cuenta",
+    "enabled": "Activado",
+    "disabled": "Desactivado",
+    "setup": {
+      "title": "Activar Autenticación de Dos Factores",
+      "subtitle": "Protege tu cuenta con una aplicación de autenticación",
+      "authenticatorApp": "Aplicación de autenticación",
+      "confirmMessage": "Se cerrará tu sesión para completar la configuración de 2FA. Cuando vuelvas a iniciar sesión, se te pedirá escanear un código QR con tu aplicación de autenticación.",
+      "confirmButton": "Activar y cerrar sesión",
+      "logoutMessage": "Por favor inicia sesión de nuevo para completar la configuración de 2FA. Se te pedirá escanear un código QR con tu aplicación de autenticación.",
+      "webviewMessage": "Ahora configuraremos tu autenticación de dos factores. Podrás cambiar a tu app de autenticación y volver sin perder tu progreso.",
+      "step1": {
+        "title": "Descarga una app de autenticación",
+        "description": "Si no tienes una, descarga Google Authenticator, Authy o Microsoft Authenticator desde tu tienda de aplicaciones."
+      },
+      "step2": {
+        "title": "Escanea el código QR",
+        "description": "Abre tu aplicación de autenticación y escanea el código QR"
+      },
+      "step3": {
+        "title": "Ingresa el código de verificación",
+        "description": "Ingresa el código de 6 dígitos de tu aplicación de autenticación"
+      },
+      "manualEntry": "¿No puedes escanear? Ingresa este código manualmente:",
+      "secretKey": "Clave secreta",
+      "copySecret": "Copiar clave secreta",
+      "secretCopied": "Clave secreta copiada al portapapeles"
+    },
+    "verify": {
+      "title": "Ingresa el Código de Verificación",
+      "subtitle": "Ingresa el código de 6 dígitos de tu aplicación de autenticación",
+      "placeholder": "000000",
+      "verify": "Verificar",
+      "verifying": "Verificando...",
+      "useRecoveryCode": "Usar un código de recuperación",
+      "codeExpired": "Código expirado. Por favor ingresa un nuevo código.",
+      "invalidCode": "Código inválido. Por favor intenta de nuevo.",
+      "tooManyAttempts": "Demasiados intentos. Por favor espera {{minutes}} minutos."
+    },
+    "recoveryCodes": {
+      "title": "Código de Recuperación",
+      "titleSingle": "Código de Respaldo",
+      "subtitle": "Guarda este código en un lugar seguro. Puedes usarlo para acceder a tu cuenta si pierdes tu dispositivo de autenticación.",
+      "subtitleSingle": "Usa este código para acceder a tu cuenta si pierdes tu teléfono o no puedes usar tu aplicación de autenticación.",
+      "warning": "Este código solo puede usarse una vez.",
+      "warningSingle": "Este código solo puede usarse una vez.",
+      "saveWarning": "Asegúrate de guardar este código ahora. No podrás verlo de nuevo.",
+      "saveWarningSingle": "¡Guarda este código ahora! No podrás verlo de nuevo.",
+      "codesRemaining": "{{count}} códigos restantes",
+      "oneCodeRemaining": "1 código restante",
+      "noCodesRemaining": "No quedan códigos",
+      "hasBackupCode": "Tienes un código de respaldo guardado",
+      "noBackupCode": "No tienes código de respaldo",
+      "infoSingle": "Tu código de respaldo puede usarse una vez para acceder a tu cuenta si pierdes tu teléfono. Generar un nuevo código reemplazará el anterior.",
+      "copyAll": "Copiar código",
+      "tapToCopy": "Toca para copiar",
+      "codeCopied": "¡Copiado!",
+      "download": "Descargar código",
+      "regenerate": "Generar nuevo código",
+      "regenerateSingle": "Generar Nuevo Código",
+      "generateSingle": "Generar Código de Respaldo",
+      "regenerateWarning": "Esto invalidará tu código de recuperación existente. ¿Estás seguro?",
+      "regenerateConfirm": "Generar Nuevo Código",
+      "iSavedMyCode": "Ya guardé mi código",
+      "copied": "Código copiado",
+      "copyError": "Error al copiar el código",
+      "downloaded": "Código de recuperación guardado",
+      "generated": "Nuevo código de recuperación generado",
+      "confirmSaved": {
+        "title": "¿Guardaste tu código?",
+        "message": "Asegúrate de haber guardado este código en un lugar seguro. No podrás verlo de nuevo.",
+        "confirm": "Sí, lo guardé"
+      },
+      "firstTimeSetup": {
+        "title": "Guarda tu Código de Respaldo",
+        "subtitle": "¡Tu autenticación de dos factores está activa! Genera un código de respaldo para acceder a tu cuenta si pierdes tu teléfono.",
+        "generateButton": "Generar Código de Respaldo",
+        "skipButton": "Lo haré después",
+        "skipWarning": "Sin código de respaldo, podrías perder acceso a tu cuenta si pierdes tu dispositivo."
+      }
+    },
+    "disable": {
+      "title": "Desactivar Autenticación de Dos Factores",
+      "subtitle": "Ingresa tu código de verificación para desactivar 2FA",
+      "warning": "Desactivar 2FA hará que tu cuenta sea menos segura. Se cerrará tu sesión después de desactivar.",
+      "confirm": "Desactivar 2FA",
+      "success": "Autenticación de dos factores desactivada",
+      "logoutMessage": "Por favor inicia sesión de nuevo para continuar."
+    },
+    "methods": {
+      "title": "Método de Verificación",
+      "subtitle": "Elige cómo quieres verificar tu identidad",
+      "totp": {
+        "title": "Aplicación de Autenticación",
+        "description": "Usa un código de tu aplicación de autenticación"
+      },
+      "recovery": {
+        "title": "Código de Recuperación",
+        "description": "Usa uno de tus códigos de recuperación de respaldo"
+      }
+    },
+    "status": {
+      "checking": "Verificando estado de 2FA...",
+      "enabling": "Activando autenticación de dos factores...",
+      "disabling": "Desactivando autenticación de dos factores...",
+      "enabled": "La autenticación de dos factores está activada",
+      "disabled": "La autenticación de dos factores está desactivada",
+      "pendingEnrollment": "Completa la configuración en el próximo inicio de sesión"
+    },
+    "errors": {
+      "setupFailed": "Error al configurar 2FA. Por favor intenta de nuevo.",
+      "verificationFailed": "Error de verificación. Por favor revisa tu código.",
+      "disableFailed": "Error al desactivar 2FA. Por favor intenta de nuevo.",
+      "recoveryCodeInvalid": "Código de recuperación inválido.",
+      "recoveryCodeUsed": "Este código de recuperación ya ha sido usado.",
+      "noRecoveryCodes": "No hay códigos de recuperación disponibles.",
+      "networkError": "Error de red. Por favor verifica tu conexión.",
+      "sessionExpired": "Tu sesión ha expirado. Por favor inicia sesión de nuevo."
+    },
+    "settings": {
+      "menuTitle": "Autenticación de Dos Factores",
+      "menuSubtitle": "Protege tu cuenta con una app de autenticación",
+      "viewRecoveryCodes": "Ver códigos de recuperación",
+      "changeDevice": "Cambiar dispositivo de autenticación"
+    },
+    "pending": {
+      "description": "Habilitaste la autenticación de dos factores pero no completaste la configuración. Inicia sesión para completar la configuración o cancela para desactivar.",
+      "resumeSetup": "Continuar configuración",
+      "cancelSetup": "Cancelar configuración",
+      "refreshHint": "Si ya completaste la configuración de MFA, toca el botón de actualizar arriba para actualizar el estado."
+    },
+    "enrollment": {
+      "title": "Configurar 2FA",
+      "openingBrowser": "Abriendo inicio de sesión seguro...",
+      "browserHint": "Completa la configuración en el navegador que se abre. Serás redirigido automáticamente.",
+      "cancelling": "Cancelando configuración de MFA...",
+      "cancelTitle": "¿Cancelar configuración de MFA?",
+      "cancelMessage": "Esto desactivará la autenticación de dos factores. Puedes habilitarla de nuevo más tarde desde configuración.",
+      "cancelConfirm": "Sí, Cancelar"
+    }
+  },
   "common": {
     "language_code": "es",
     "cancel": "Cancelar",
+    "yes": "Sí",
+    "no": "No",
+    "close": "Cerrar",
     "error": "Error",
     "continue": "Continuar",
     "permissionsRequired": "Permisos requeridos",
@@ -1947,7 +2094,21 @@
     "cancelledMessage": "No se pudo completar el proceso de autenticación.",
     "errorTitle": "Error de autenticación",
     "errorMessage": "Ocurrió un error durante el proceso de autenticación. Por favor intenta de nuevo.",
-    "usePassword": "Usar contraseña"
+    "usePassword": "Usar contraseña",
+    "webview": {
+      "title": "Iniciar Sesión",
+      "loading": "Cargando...",
+      "cancelTitle": "¿Cancelar autenticación?",
+      "cancelMessage": "Si cancelas ahora, tendrás que volver a empezar la configuración de 2FA.",
+      "errors": {
+        "title": "Error de autenticación",
+        "message": "Ocurrió un error durante la autenticación. Por favor intenta de nuevo.",
+        "noToken": "No se recibió el token de acceso",
+        "parseError": "Error al procesar la respuesta de autenticación",
+        "loadFailed": "Error al cargar la página de inicio de sesión",
+        "httpError": "Error de conexión"
+      }
+    }
   },
   "login": {
     "subtitle": "Accede a tu cuenta para gestionar tus finanzas de manera inteligente",
