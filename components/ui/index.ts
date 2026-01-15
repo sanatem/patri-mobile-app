@@ -36,3 +36,4 @@ export { ImageDropbox } from './ImageDropbox';
 export { SuccessMessage } from './SuccessMessage';
 export { AuthenticatedImage } from './AuthenticatedImage';
 export { QuickAccessButton } from './QuickAccessButton';
+export { UpdateModal } from './UpdateModal';

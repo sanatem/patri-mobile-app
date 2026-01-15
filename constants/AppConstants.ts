@@ -71,3 +71,18 @@ export const COPILOT_SUGGESTION_ICONS: Record<CopilotSuggestionKey, 'wallet-outl
   investments: 'pie-chart-outline',
   netWorth: 'person-outline',
 };
+
+// App Store URLs for update functionality
+export const STORE_URLS = {
+  // iOS App Store
+  IOS: 'https://apps.apple.com/app/id6744194447',
+  IOS_DIRECT: 'itms-apps://itunes.apple.com/app/id6744194447', // Opens App Store app directly
+  
+  // Android Play Store
+  ANDROID: 'https://play.google.com/store/apps/details?id=com.patrimore.patrimore',
+  ANDROID_DIRECT: 'market://details?id=com.patrimore.patrimore', // Opens Play Store app directly
+  
+  // Package identifiers
+  IOS_APP_ID: '6744194447',
+  ANDROID_PACKAGE: 'com.patrimore.patrimore',
+} as const;

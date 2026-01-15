@@ -4,4 +4,5 @@ export { useKeyboardHandler } from './useKeyboardHandler';
 export { useAuthToken, type UseAuthTokenReturn } from './useAuthToken';
 export { useSubscriptionStatus, type SubscriptionStatus } from './useSubscriptionStatus';
 export { useOnboarding } from './useOnboarding';
-export { useFloidSync } from './useFloidSync'; 
+export { useFloidSync } from './useFloidSync';
+export { useAppVersionCheck, type UseAppVersionCheckReturn } from './useAppVersionCheck'; 

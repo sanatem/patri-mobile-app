@@ -1971,6 +1971,14 @@
       "uf": "UF"
     }
   },
+  "appUpdate": {
+    "title": "New version available",
+    "optionalUpdateMessage": "A new version of Patrimore is available. Update now to enjoy the latest features and improvements.",
+    "currentVersion": "Current version",
+    "latestVersion": "Latest version",
+    "updateButton": "Update",
+    "laterButton": "Later"
+  },
   "hypothecaryFields": {
     "associationLabel": "Is the debt associated with a property?",
     "associationOptions": {

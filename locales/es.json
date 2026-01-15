@@ -2260,6 +2260,14 @@
       "uf": "UF"
     }
   },
+  "appUpdate": {
+    "title": "Nueva versión disponible",
+    "optionalUpdateMessage": "Una nueva versión de Patrimore está disponible. Actualiza ahora para disfrutar de las últimas funciones y mejoras.",
+    "currentVersion": "Versión actual",
+    "latestVersion": "Última versión",
+    "updateButton": "Actualizar",
+    "laterButton": "Más tarde"
+  },
   "hypothecaryFields": {
     "associationLabel": "¿La deuda está asociada a alguna propiedad?",
     "associationOptions": {
