@@ -44,14 +44,15 @@ export function useAppVersionCheck(options: UseAppVersionCheckOptions = {}): Use
     if (!enabled) {
       return;
     }
-    
+
     // Only check once per app launch
     if (hasChecked.current) {
       return;
     }
-    hasChecked.current = true;
 
     const checkVersion = async () => {
+      // Mark as checked at the start of the async operation to prevent race conditions
+      hasChecked.current = true;
       try {
         // Only check on native platforms
         if (Platform.OS !== 'ios' && Platform.OS !== 'android') {
