@@ -11,6 +11,7 @@
     "lint": "expo lint",
     "dev:css": "tailwindcss -i ./tailwind.css -o ./app.css --watch",
     "android": "expo run:android",
+    "android:device": "expo run:android --device",
     "ios": "expo run:ios",
     "ios:device": "expo run:ios --device",
     "test": "jest",
