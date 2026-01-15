@@ -32,7 +32,7 @@ export function useAppVersionCheck(options: UseAppVersionCheckOptions = {}): Use
   const [currentVersion, setCurrentVersion] = useState('');
   const [latestVersion, setLatestVersion] = useState('');
   const [storeUrl, setStoreUrl] = useState('');
-  const [isChecking, setIsChecking] = useState(true);
+  const [isChecking, setIsChecking] = useState(false);
   const hasChecked = useRef(false);
 
   const dismissUpdate = () => {
@@ -42,6 +42,7 @@ export function useAppVersionCheck(options: UseAppVersionCheckOptions = {}): Use
   useEffect(() => {
     // Don't check if not enabled (e.g., user not logged in yet)
     if (!enabled) {
+      setIsChecking(false);
       return;
     }
 
@@ -53,6 +54,7 @@ export function useAppVersionCheck(options: UseAppVersionCheckOptions = {}): Use
     const checkVersion = async () => {
       // Mark as checked at the start of the async operation to prevent race conditions
       hasChecked.current = true;
+      setIsChecking(true);
       try {
         // Only check on native platforms
         if (Platform.OS !== 'ios' && Platform.OS !== 'android') {
